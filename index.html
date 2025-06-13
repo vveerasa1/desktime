@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>DeskTime</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #111827;
+    }
+
+    #activity-log {
+      margin-top: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .entry {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 0;
+    }
+
+    .entry:last-child {
+      border-bottom: none;
+    }
+
+    .timestamp {
+      font-size: 0.9em;
+      color: #6b7280;
+    }
+
+    .type {
+      font-weight: bold;
+    }
+
+    .app {
+      color: #1f2937;
+    }
+  </style>
+</head>
+<body>
+  <h1>DeskTime</h1>
+  <!-- <div id="activity-log">Loading...</div> -->
+
+  <script>
+    // async function fetchLogs() {
+    //   try {
+    //     const res = await fetch('http://localhost:5000/api/activity');
+    //     const logs = await res.json();
+    //     const logContainer = document.getElementById('activity-log');
+
+    //     if (!logs.length) {
+    //       logContainer.innerHTML = '<p>No activity logged yet.</p>';
+    //       return;
+    //     }
+
+    //     logContainer.innerHTML = '';
+    //     logs.reverse().forEach(entry => {
+    //       const div = document.createElement('div');
+    //       div.className = 'entry';
+    //       div.innerHTML = `
+    //         <div class="type">${entry.type.toUpperCase()}</div>
+    //         ${entry.app ? `<div class="app">${entry.app} — ${entry.title}</div>` : ''}
+    //         ${entry.start ? `<div class="timestamp">Start: ${new Date(entry.start).toLocaleString()}</div>` : ''}
+    //         ${entry.end ? `<div class="timestamp">End: ${new Date(entry.end).toLocaleString()}</div>` : ''}
+    //         ${entry.timestamp ? `<div class="timestamp">${new Date(entry.timestamp).toLocaleString()}</div>` : ''}
+    //       `;
+    //       logContainer.appendChild(div);
+    //     });
+    //   } catch (err) {
+    //     console.error(err);
+    //     document.getElementById('activity-log').innerHTML = '<p>Error fetching activity logs.</p>';
+    //   }
+    // }
+
+    fetchLogs();
+    setInterval(fetchLogs, 30000); // auto-refresh every 30s
+  </script>
+</body>
+</html>

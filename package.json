@@ -1,0 +1,21 @@
+{
+  "name": "desktime",
+  "version": "1.0.0",
+  "description": "Tracking app",
+  "main": "main.js",
+ "scripts": {
+  "start": "electron ."
+},
+  "author": "Vijay Ram",
+  "license": "ISC",
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "active-win": "^8.2.1",
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "electron": "^36.4.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.15.1",
+    "screenshot-desktop": "^1.15.1"
+  }
+}
