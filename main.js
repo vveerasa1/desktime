@@ -1,5 +1,5 @@
 // desktime-clone/main.js
-const { app, BrowserWindow, Tray, Menu, powerMonitor } = require('electron');
+const { app, BrowserWindow, Tray, Menu, powerMonitor ,shell } = require('electron');
 const path = require('path');
 const { mouse, keyboard, Button, Key } = require('@nut-tree-fork/nut-js');
 const activeWin = require('active-win');
@@ -10,26 +10,39 @@ const fs = require('fs');
 let mainWindow;
 let tray = null;
 let lastActivity = Date.now();
-const IDLE_THRESHOLD = 1 * 60 * 1000; // 3 minutes
+const IDLE_THRESHOLD = 1 * 60 * 1000; 
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 700,
-    show: true,
+    width: 1200,
+    height: 800,
+    show: false,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
-    }
+      nodeIntegration: false,
+      contextIsolation: false,
+    },
   });
 
-  mainWindow.loadFile('index.html');
-
+  mainWindow.loadURL('http://localhost:5173');
+  mainWindow.on('close', (e) => {
+    e.preventDefault();
+    mainWindow.hide();
+  });
+  
+  // ✅ This will hide the window instead of minimizing to taskbar
+  mainWindow.on('minimize', (e) => {
+    e.preventDefault();
+    mainWindow.hide();
+  });
   const iconPath = path.join(__dirname, 'desktime-logo.jpg');
+  // const iconPath = path.join(__dirname, 'assets', 'desktime-logo.png');
+
   if (!fs.existsSync(iconPath)) {
     console.warn('⚠️ Tray icon not found:', iconPath);
   }
 
+  tray = new Tray(iconPath);
+  
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Show App', click: () => mainWindow.show() },
@@ -38,7 +51,11 @@ function createWindow() {
   tray.setToolTip('DeskTime Clone');
   tray.setContextMenu(contextMenu);
 
+  tray.on('click', () => {
+    shell.openExternal('http://localhost:5173'); // Opens React app in default browser
+  });
   startTracking();
+
 }
 
 function startTracking() {
@@ -94,10 +111,10 @@ function startTracking() {
 }
 
 function sendActivityToServer(data) {
-    console.log('[Server] Sending activity', data);
-//   axios.post('http://localhost:5000/api/activity', data)
-//     .then(() => console.log('[Server] Activity logged'))
-//     .catch(err => console.error('[Server] Error sending activity', err));
+  console.log('[Server] Sending activity', data);
+  //   axios.post('http://localhost:5000/api/activity', data)
+  //     .then(() => console.log('[Server] Activity logged'))
+  //     .catch(err => console.error('[Server] Error sending activity', err));
 }
 
 app.whenReady().then(createWindow);
