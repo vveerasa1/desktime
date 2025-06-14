@@ -1,0 +1,6 @@
+/* src/components/layout/header.module.css */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+  }
+  
