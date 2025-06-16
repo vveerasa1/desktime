@@ -1,7 +1,7 @@
 // src/components/layout/Sidebar.jsx
 import React from 'react';
-import { Drawer, List, ListItem, ListItemText, Toolbar } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Drawer, List, ListItem, ListItemText, Toolbar, Box, Typography  } from '@mui/material';
+import { useNavigate, useLocation} from 'react-router-dom';
 import styles from './index.module.css';
 
 const drawerWidth = 240;

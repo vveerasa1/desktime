@@ -1,0 +1,103 @@
+.dropdown {
+    padding: 0px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #FFF;
+    transition: border-color 0.3s;
+    /* width: 100% !important; */
+    height: 40px;
+  }
+.MuiSelect-root {
+    font-size: 14px; 
+    height: 43px; 
+}
+
+.MuiInputBase-root {
+    border-radius: 4px;
+    height: 43px;
+}
+
+.MuiPaper-root {
+    /* width: 100% !important; */
+        /* width: 150px;  */
+}
+
+.MuiMenuItem-root {
+    font-size: 14px;
+}
+
+.MuiMenuItem-root:hover {
+    background-color: #f0f0f0;
+}
+
+.inputIcon {
+    height: 16px !important;
+    color: #3d3d3d;
+}
+
+.inputAdornment {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 12.1px;
+    text-align: left;
+    font-weight: 400;
+    text-decoration: none;
+    color: #3d3d3d;
+    margin-right: 10px !important;
+}
+
+.option {
+    padding: 10px 0px 10px 30px!important;;
+    border-bottom: 2px solid #e1e1e1 !important;;
+    color: #585858 !important;
+    font-size: 14px;
+}
+.menuPaper {
+    max-height: 250px !important;
+    margin-top: 7px !important; 
+}
+.selectInput{
+    width: 200px !important;
+    height: 30px !important;
+    align-self: center !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    text-align: left !important;
+}
+
+.iconStyles {
+    color: #000  !important;
+}
+
+.plusIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin-left: 8px;
+    border: 1px solid #179ea5 ;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    color: #179ea5 ;
+
+}
+
+.plusIconWrapper:hover {
+    background-color: #179ea5 ;
+    transform: scale(1.1);
+    color: #fafbfc;
+
+}
+
+.plusIcon {
+    width: 20px;
+    height: 20px;
+}
+
+.requiredSymbol{
+    color: red;
+}
