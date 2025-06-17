@@ -1,5 +1,13 @@
-/* src/components/layout/sidebar.module.css */
+/* index.module.css */
 .sidebar {
-    padding-top: 1rem;
+    padding: 0;
+  }
+  
+  .activeItem {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .MuiListItem-root {
+    padding-left: 16px;
   }
   
