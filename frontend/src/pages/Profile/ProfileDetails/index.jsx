@@ -17,12 +17,12 @@ const ProfileDeatils = ({
 }) => {
   return (
     <Grid
+    size={{xs:12,md:4}}
       item
       xs={12}
       sm={12}
       md={12}
       lg={6}
-      sx={{ width: { xs: "100%", lg: "30%" } }}
     >
       {/* Profile Details */}
       <Paper
@@ -68,13 +68,13 @@ const ProfileDeatils = ({
           </Box>
            <Box>
             <CustomTextField
-              label="User Id"
-              name="userId"
-              value={formData.userId}
+              label="Employee Id"
+              name="employeeId"
+              value={formData.employeeId}
               handleChange={(event) => {
-                handleChange(event, "userId");
+                handleChange(event, "employeeId");
               }}
-              placeholder="Enter your UserID"
+              placeholder="Enter your EmployeeId"
               isRequired
             />
           </Box>

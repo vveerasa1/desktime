@@ -55,23 +55,31 @@ const Colleagues = () => {
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
-
       {/* Colleagues Grid */}
-      <Grid container spacing={5}>
+      <Grid container spacing={3} sx={{
+        display:"flex !important",
+        justifyContent:""
+      }}>
         {filteredData.map((colleague, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid
+          size={{xs:12,md:4}}
+            item
+            xs={12}
+            sm={6}
+            md={3} // Changed from md={3} to md={4} for 3 columns per row
+            key={index}
+          >
             <Paper
-              elevation={21}
+              elevation={5}
               sx={{
                 borderRadius: 2,
-                width: "100%",
-                height: "100%",
                 display: "flex",
+                flexWrap:"wrap",
                 flexDirection: "column",
-                justifyContent: "space-between",
+                justifyContent: "center",
               }}
             >
-              <Box p={2} display={"flex"} gap={2} alignItems="center">
+              <Box p={2} display="flex" gap={2} alignItems="center">
                 <img
                   src={colleague.image}
                   alt={colleague.name}

@@ -17,20 +17,25 @@ import {
 import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
 import TrackingDetails from "./TrackingDetails";
-import axios from "axios";
 import ChangePasswordModal from "./ChangePasswordModal";
+import {useCreateProfileMutation} from "../../redux/services/userService";
+
 const Profile = () => {
   const [workingDays, setWorkingDays] = useState([]);
   const [trackingDays, setTrackingDays] = useState([]);
-  const [flexibleHours, setFlexibleHours] = useState(false);
+  const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
+  // const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+const [createProfile,{isLoading}] = useCreateProfileMutation();
+  // const { data:ProfileList } = useGetPostsQuery();
+// console.log(ProfileList)
   const timeZoneOptions = moment.tz.names().map((tz) => ({
     id: tz,
     name: tz,
   }));
- 
+
   const [formData, setFormData] = useState({
-    userId: "",
+    employeeId: "",
     name: "",
     email: "",
     role: "",
@@ -108,6 +113,7 @@ const Profile = () => {
   ];
 
   const teamOptions = [{ id: "IT Pentabay", name: "IT Pentabay" }];
+
   const handleDaysChange = (days, type) => {
     setFormData((prev) => ({
       ...prev,
@@ -122,22 +128,21 @@ const Profile = () => {
   };
 
   const dayNameMap = {
-  MO: "Monday",
-  TU: "Tuesday",
-  WE: "Wednesday",
-  TH: "Thursday",
-  FR: "Friday",
-  SA: "Saturday",
-  SU: "Sunday",
-};
+    MO: "Monday",
+    TU: "Tuesday",
+    WE: "Wednesday",
+    TH: "Thursday",
+    FR: "Friday",
+    SA: "Saturday",
+    SU: "Sunday",
+  };
 
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
-        const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
-    const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
+      const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
+      const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
       const payload = {
-        userId: formData.userId,
+        employeeId: formData.employeeId,
         name: formData.name,
         email: formData.email,
         role: formData.role,
@@ -147,7 +152,7 @@ const Profile = () => {
         team: formData.team,
         workStartTime: formData.workStartTime,
         workEndTime: formData.workEndTime,
-        trackingStartTime: formData.trackingStartTime ,
+        trackingStartTime: formData.trackingStartTime,
         trackingEndTime: formData.trackingEndTime,
         timeFormat: formData.timeFormat,
         minimumHours: formData.minimumHours,
@@ -156,14 +161,13 @@ const Profile = () => {
         flexibleHours: formData.flexibleHours,
         timeZone: formData.timeZone,
       };
-      console.log(payload,"PAYLOAD DATA")
-
-      const response = axios.post("https://httpbin.org/post", payload);
-      console.log("Profile updated successfully:", response.data);
+      const response = await createProfile(payload).unwrap();
+      console.log("Profile updated successfully:", response);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
+
   return (
     <Box>
       <Box
@@ -179,9 +183,8 @@ const Profile = () => {
             variant="contained"
             color="white"
             sx={{ marginBottom: "16px" }}
-            onClick={()=> setOpen(true)}
+            onClick={() => setOpen(true)}
           >
-          
             <Typography fontSize={14}>Change Password</Typography>
           </Button>
         </Box>
@@ -190,12 +193,13 @@ const Profile = () => {
             variant="contained"
             color="success"
             onClick={() => handleSubmit()}
+            disabled={isLoading}
           >
             <Typography fontSize={14}>Save Changes</Typography>
           </Button>
         </Box>
       </Box>
-      <Grid container gap={2} sx={{ width: "100%", minWidth: "100%" }}>
+      <Grid container gap={4} sx={{ display: "flex", justifyContent: "" }}>
         {/* Column 1 */}
         <ProfileDeatils
           formData={formData}
@@ -223,14 +227,7 @@ const Profile = () => {
         />
 
         {/* Column 3 */}
-        <Grid
-          item
-          xs={12}
-          sm={12}
-          md={12}
-          lg={2}
-          sx={{ width: { xs: "100%", lg: "20%" } }}
-        >
+        <Grid size={{ xs: 12, md: 2 }} item xs={12} sm={12} md={12} lg={2}>
           <Paper elevation={12} sx={{ padding: "16px", width: "100%" }}>
             <Typography variant="p" gutterBottom>
               Email Subscription
@@ -242,9 +239,9 @@ const Profile = () => {
           </Paper>
         </Grid>
         <ChangePasswordModal
-        open={open}
-        setOpen={setOpen}
-        handleChange={handleChange}
+          open={open}
+          setOpen={setOpen}
+          handleChange={handleChange}
         />
       </Grid>
     </Box>

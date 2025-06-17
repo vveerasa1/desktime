@@ -4,6 +4,7 @@ const Dashboard = React.lazy(() => import('../pages/Dashboard/index.jsx'));
 import AppLayout from '../layout/index';
 import Profile from '../pages/Profile/index.jsx';
 import Colleagues from '../pages/Colleagues/index.jsx';
+import Projects from '../pages/Projects/index.jsx';
 // const Reports = React.lazy(() => import('../pages/Reports'));
 // const NotFound = React.lazy(() => import('../pages/NotFound'));
 
@@ -57,6 +58,18 @@ export const routes = [
       {
         index: true, // renders on /
         element: <Colleagues />,
+      },
+      
+      // Add other nested routes here
+    ],
+  },
+   {
+    path: '/projects',
+    element: <AppLayout />,
+    children: [
+      {
+        index: true, // renders on /
+        element: <Projects />,
       },
       
       // Add other nested routes here

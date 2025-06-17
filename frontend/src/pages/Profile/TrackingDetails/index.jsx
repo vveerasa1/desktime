@@ -24,12 +24,12 @@ const TrackingDetails = ({
 
   return (
     <Grid
+    size={{xs:12,md:5}}
       item
       xs={12}
       sm={12}
       md={12}
       lg={4}
-      sx={{ width: { xs: "100%", lg: "40%" } }}
     >
       {/* Working Days */}
       <Paper
@@ -79,7 +79,7 @@ const TrackingDetails = ({
           </Box>
 
           <Box>
-            <Box sx={{ width: "50%" }}>
+            <Box sx={{ width: "49%" }}>
               <CustomDropdown
                 label="Minimum Hours"
                 name="hours"
