@@ -20,11 +20,18 @@ export const User = createApi({
         body: profileData,
       }),
     }),
+    getAllProfile:builder.query({
+        query:()=>({
+            url:URL_CONSTANTS.USER,
+            method:'GET',
+        })
+    })
   }),
 });
 
 // ✅ Export only the hooks you defined
 export const {
   useCreateProfileMutation,
-  useUpdateProfileMutation
+  useUpdateProfileMutation,
+  useGetAllProfileQuery
 } = User;

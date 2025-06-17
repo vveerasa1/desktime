@@ -18,7 +18,7 @@ import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
 import TrackingDetails from "./TrackingDetails";
 import ChangePasswordModal from "./ChangePasswordModal";
-import {useCreateProfileMutation} from "../../redux/services/userService";
+import { useCreateProfileMutation } from "../../redux/services/userService";
 
 const Profile = () => {
   const [workingDays, setWorkingDays] = useState([]);
@@ -26,9 +26,9 @@ const Profile = () => {
   const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
   // const [updateProfile, { isLoading }] = useUpdateProfileMutation();
-const [createProfile,{isLoading}] = useCreateProfileMutation();
+  const [createProfile, { isLoading }] = useCreateProfileMutation();
   // const { data:ProfileList } = useGetPostsQuery();
-// console.log(ProfileList)
+  // console.log(ProfileList)
   const timeZoneOptions = moment.tz.names().map((tz) => ({
     id: tz,
     name: tz,
@@ -36,8 +36,9 @@ const [createProfile,{isLoading}] = useCreateProfileMutation();
 
   const [formData, setFormData] = useState({
     employeeId: "",
-    name: "",
+    username: "",
     email: "",
+    password: "",
     role: "",
     gender: "",
     phone: "",
@@ -143,8 +144,9 @@ const [createProfile,{isLoading}] = useCreateProfileMutation();
       const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
       const payload = {
         employeeId: formData.employeeId,
-        name: formData.name,
+        username: formData.username,
         email: formData.email,
+        password: formData.password,
         role: formData.role,
         gender: formData.gender,
         phone: formData.phone,
@@ -163,6 +165,27 @@ const [createProfile,{isLoading}] = useCreateProfileMutation();
       };
       const response = await createProfile(payload).unwrap();
       console.log("Profile updated successfully:", response);
+      setFormData({
+        employeeId: "",
+        username: "",
+        email: "",
+        password: "",
+        role: "",
+        gender: "",
+        phone: "",
+        countryCode: "",
+        team: "",
+        timeZone: "",
+        timeFormat: "",
+        workStartTime: "",
+        workEndTime: "",
+        trackingStartTime: "",
+        trackingEndTime: "",
+        minimumHours: "",
+        workingDays: workingDays,
+        trackingDays: trackingDays,
+        flexibleHours: flexibleHours,
+      });
     } catch (error) {
       console.error("Error submitting form:", error);
     }

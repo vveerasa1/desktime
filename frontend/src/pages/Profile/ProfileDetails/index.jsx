@@ -55,13 +55,13 @@ const ProfileDeatils = ({
             </Box>
             <Box mt={5} sx={{ flexGrow: 1 }}>
               <CustomTextField
-                label="Name"
-                name="name"
+                label="User Name"
+                name="username"
                 value={formData.name}
                 handleChange={(event) => {
-                  handleChange(event, "name");
+                  handleChange(event, "username");
                 }}
-                placeholder="Enter your Name"
+                placeholder="Enter your User Name"
                 isRequired
               />
             </Box>
@@ -87,6 +87,18 @@ const ProfileDeatils = ({
                 handleChange(event, "email");
               }}
               placeholder="Enter your Email"
+              isRequired
+            />
+          </Box>
+          <Box>
+            <CustomTextField
+              label="Password"
+              name="password"
+              value={formData.password}
+              handleChange={(event) => {
+                handleChange(event, "password");
+              }}
+              placeholder="Enter your Password"
               isRequired
             />
           </Box>
