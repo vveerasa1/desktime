@@ -41,7 +41,6 @@ function createWindow() {
     console.warn('⚠️ Tray icon not found:', iconPath);
   }
 
-  tray = new Tray(iconPath);
   
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
