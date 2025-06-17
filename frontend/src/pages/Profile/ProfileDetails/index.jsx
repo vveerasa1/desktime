@@ -45,7 +45,7 @@ const ProfileDeatils = ({
             <Box>
               <Avatar
                 alt="User Profile"
-                src="https://via.placeholder.com/100"
+                src="https://ui-avatars.com/api/?name=Avinesh&background=38b000&color=fff"
                 sx={{
                   width: 100,
                   height: 100,

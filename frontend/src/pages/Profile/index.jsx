@@ -18,10 +18,12 @@ import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
 import TrackingDetails from "./TrackingDetails";
 import axios from "axios";
+import ChangePasswordModal from "./ChangePasswordModal";
 const Profile = () => {
   const [workingDays, setWorkingDays] = useState([]);
   const [trackingDays, setTrackingDays] = useState([]);
   const [flexibleHours, setFlexibleHours] = useState(false);
+  const [open, setOpen] = useState(false);
   const timeZoneOptions = moment.tz.names().map((tz) => ({
     id: tz,
     name: tz,
@@ -133,7 +135,7 @@ const Profile = () => {
   const handleSubmit = () => {
     try {
         const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
-  const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
+    const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
       const payload = {
         userId: formData.userId,
         name: formData.name,
@@ -177,7 +179,9 @@ const Profile = () => {
             variant="contained"
             color="white"
             sx={{ marginBottom: "16px" }}
+            onClick={()=> setOpen(true)}
           >
+          
             <Typography fontSize={14}>Change Password</Typography>
           </Button>
         </Box>
@@ -237,6 +241,11 @@ const Profile = () => {
             </Typography>
           </Paper>
         </Grid>
+        <ChangePasswordModal
+        open={open}
+        setOpen={setOpen}
+        handleChange={handleChange}
+        />
       </Grid>
     </Box>
   );
