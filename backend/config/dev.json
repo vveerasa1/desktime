@@ -1,0 +1,8 @@
+{
+  "port": 8080,
+  "env": "local",
+  "mongoDb": {
+    "url": "mongodb://localhost:27017/",
+    "dbName": "desktime"
+  }
+}
