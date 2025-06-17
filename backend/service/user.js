@@ -46,7 +46,7 @@ const addUser = async (req, res) => {
       trackingStartTime,
       trackingEndTime,
       timeZone,
-      photo:`https://ui-avatars.com/api/?name==${username.split(' ').join('+')}&background=0D8ABC&color=fff`,
+      photo:`https://ui-avatars.com/api/?name=${username.split(' ').join('+')}&background=0D8ABC&color=fff`,
       workDuration: durationSeconds,
     });
 
