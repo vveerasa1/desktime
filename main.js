@@ -1,16 +1,17 @@
 // desktime-clone/main.js
-const { app, BrowserWindow, Tray, Menu, powerMonitor ,shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, powerMonitor, shell } = require('electron');
 const path = require('path');
 const { mouse, keyboard, Button, Key } = require('@nut-tree-fork/nut-js');
 const activeWin = require('active-win');
 const screenshot = require('screenshot-desktop');
 const axios = require('axios');
 const fs = require('fs');
-
+const Store = require('electron-store').default
+const store = new Store();
 let mainWindow;
 let tray = null;
 let lastActivity = Date.now();
-const IDLE_THRESHOLD = 1 * 60 * 1000; 
+const IDLE_THRESHOLD = 1 * 60 * 1000;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -19,7 +20,8 @@ function createWindow() {
     show: false,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -28,7 +30,7 @@ function createWindow() {
     e.preventDefault();
     mainWindow.hide();
   });
-  
+
   // ✅ This will hide the window instead of minimizing to taskbar
   mainWindow.on('minimize', (e) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ function createWindow() {
     console.warn('⚠️ Tray icon not found:', iconPath);
   }
 
-  
+
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Show App', click: () => mainWindow.show() },
@@ -56,6 +58,20 @@ function createWindow() {
   startTracking();
 
 }
+
+function getStoredToken() {
+  return store.get('authToken');
+}
+const { ipcMain } = require('electron');
+
+ipcMain.on('token', (event, token) => {
+  console.log('Received token from renderer:', token);
+  // You can store the token or use it as needed here
+  // Optionally, send a response back to renderer
+  store.set('authToken', token);
+
+  event.sender.send('token-response', 'Token received');
+});
 
 function startTracking() {
   // Use powerMonitor to detect idle time
@@ -102,11 +118,29 @@ function startTracking() {
       const tag = win ? win.owner.name.replace(/\s+/g, '-') : 'unknown';
       const filename = path.join(__dirname, `screenshot_${tag}_${Date.now()}.jpg`);
       await screenshot({ filename });
+    const  timestamp= new Date()
+      const formData = new FormData();
+      formData.append('screenshot', fs.createReadStream(filename));
+      formData.append('app', win?.owner.name || 'unknown');
+      formData.append('title', win?.title || 'unknown');
+      formData.append('timestamp', timestamp.toISOString());
+      const token =getStoredToken()
+      console.log(token,"token<<<<<<<<<<<<<<<<<");
+      
+      await axios.post('http://localhost:5000/api/screenshot', formData, {
+        headers: {
+          ...formData.getHeaders(),
+          Authorization: `Bearer ${token}`, // 👈 Add token here
+        }
+      },);
+
       console.log('[Screenshot] Captured:', filename);
     } catch (err) {
+
+
       console.error('[Screenshot Error]', err);
     }
-  }, 5 * 60 * 1000);
+  }, 1 * 60 * 1000);
 }
 
 function sendActivityToServer(data) {
