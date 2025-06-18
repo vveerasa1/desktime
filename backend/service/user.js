@@ -10,6 +10,7 @@ const addUser = async (req, res) => {
       email,
       password,
       team,
+      gender,
       role,
       phone,
       workingDays,
@@ -35,6 +36,7 @@ const addUser = async (req, res) => {
       email,
       password,
       team,
+      gender,
       role,
       phone,
       workingDays,
@@ -46,7 +48,7 @@ const addUser = async (req, res) => {
       trackingStartTime,
       trackingEndTime,
       timeZone,
-      photo:`https://ui-avatars.com/api/?name==${username.split(' ').join('+')}&background=0D8ABC&color=fff`,
+      photo:`https://ui-avatars.com/api/?name=${username.split(' ').join('+')}&background=0D8ABC&color=fff`,
       workDuration: durationSeconds,
     });
 
@@ -71,7 +73,8 @@ const addUser = async (req, res) => {
 
 const getUserById = async (req, res) => {
     try {
-      const users = await User.find(req.params.id);
+      const id = req.params.id;
+      const users = await User.findById(id);
       res.status(200).json({
         code: 200,
         status: "Success",

@@ -14,8 +14,8 @@ export const User = createApi({
       }),
     }),
     updateProfile: builder.mutation({
-      query: (profileData) => ({
-        url: URL_CONSTANTS.USER,
+      query: ({id,profileData}) => ({
+        url: `${URL_CONSTANTS.USER}/${id}`,
         method: 'PUT',
         body: profileData,
       }),
@@ -25,6 +25,15 @@ export const User = createApi({
             url:URL_CONSTANTS.USER,
             method:'GET',
         })
+    }),
+    getSingleProfile:builder.query({
+        query:(id)=>({
+            url:`${URL_CONSTANTS.USER}/${id}`,
+            method:'GET',
+            // params:{
+            //     id:id
+            // }
+        })
     })
   }),
 });
@@ -33,5 +42,6 @@ export const User = createApi({
 export const {
   useCreateProfileMutation,
   useUpdateProfileMutation,
-  useGetAllProfileQuery
+  useGetAllProfileQuery,
+  useGetSingleProfileQuery
 } = User;

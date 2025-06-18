@@ -19,10 +19,11 @@
     "moment-timezone": "^0.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hot-toast": "^2.5.2",
+    "react-phone-input-2": "^2.15.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.2",
-    "recharts": "^2.15.3",
-    "react-phone-input-2": "^2.15.1"
+    "recharts": "^2.15.3"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   Paper,
@@ -18,17 +18,27 @@ import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
 import TrackingDetails from "./TrackingDetails";
 import ChangePasswordModal from "./ChangePasswordModal";
-import { useCreateProfileMutation } from "../../redux/services/userService";
-
+import {
+  useCreateProfileMutation,
+  useGetSingleProfileQuery,
+  useUpdateProfileMutation,
+} from "../../redux/services/userService";
+import { useParams } from "react-router-dom";
+import { __DO_NOT_USE__ActionTypes } from "@reduxjs/toolkit";
+import {Toaster,toast} from 'react-hot-toast';
 const Profile = () => {
+  const { _id } = useParams();
   const [workingDays, setWorkingDays] = useState([]);
   const [trackingDays, setTrackingDays] = useState([]);
   const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
-  // const [updateProfile, { isLoading }] = useUpdateProfileMutation();
-  const [createProfile, { isLoading }] = useCreateProfileMutation();
-  // const { data:ProfileList } = useGetPostsQuery();
-  // console.log(ProfileList)
+
+  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
+    useCreateProfileMutation();
+  const { data: profileDetails, isLoading: getSingleProfileApiIsLoading } =
+    useGetSingleProfileQuery(_id);
+
   const timeZoneOptions = moment.tz.names().map((tz) => ({
     id: tz,
     name: tz,
@@ -45,7 +55,7 @@ const Profile = () => {
     countryCode: "",
     team: "",
     timeZone: "",
-    timeFormat: "",
+    // timeFormat: "",
     workStartTime: "",
     workEndTime: "",
     trackingStartTime: "",
@@ -55,6 +65,51 @@ const Profile = () => {
     trackingDays: trackingDays,
     flexibleHours: flexibleHours,
   });
+
+  const reverseDayNameMap = {
+    Monday: "MO",
+    Tuesday: "TU",
+    Wednesday: "WE",
+    Thursday: "TH",
+    Friday: "FR",
+    Saturday: "SA",
+    Sunday: "SU",
+  };
+
+  useEffect(() => {
+    if (profileDetails?.data) {
+      console.log("API Response:", profileDetails.data); // <-- Debug
+      const data = profileDetails.data;
+      const workingDayCodes =
+        data.workingDays?.map((day) => reverseDayNameMap[day]) || [];
+
+      const trackingDayCodes =
+        data.trackingDays?.map((day) => reverseDayNameMap[day]) || [];
+
+      setWorkingDays(workingDayCodes);
+      setTrackingDays(trackingDayCodes);
+      setFormData({
+        employeeId: data.employeeId || "",
+        username: data.username || "",
+        email: data.email || "",
+        password: data.password || "",
+        gender: data.gender || "",
+        role: data.role || "",
+        team: data.team || "",
+        phone: data.phone || "",
+        countryCode: data.countryCode || "",
+        timeZone: data.timeZone || "",
+        workStartTime: data.workStartTime || "",
+        workEndTime: data.workEndTime || "",
+        trackingStartTime: data.trackingStartTime || "",
+        trackingEndTime: data.trackingEndTime || "",
+        minimumHours: data.minimumHours || "",
+        workingDays: data?.workingDays || [],
+        trackingDays: data?.trackingDays || [],
+        flexibleHours: data.flexibleHours || false,
+      });
+    }
+  }, [profileDetails]);
 
   const handleChange = (event, name) => {
     const { value } = event.target;
@@ -101,10 +156,10 @@ const Profile = () => {
     { id: "Manager", name: "Manager" },
   ];
 
-  const timeFormatOptions = [
-    { id: "24Hour", name: "24Hour" },
-    { id: "12Hour", name: "12Hour" },
-  ];
+  // const timeFormatOptions = [
+  //   { id: "24Hour", name: "24Hour" },
+  //   { id: "12Hour", name: "12Hour" },
+  // ];
 
   const minimumHoursOptions = [
     { id: "4 Hours", name: "4 Hours" },
@@ -137,11 +192,11 @@ const Profile = () => {
     SA: "Saturday",
     SU: "Sunday",
   };
+  const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
+  const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
 
   const handleSubmit = async () => {
     try {
-      const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
-      const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
       const payload = {
         employeeId: formData.employeeId,
         username: formData.username,
@@ -156,36 +211,43 @@ const Profile = () => {
         workEndTime: formData.workEndTime,
         trackingStartTime: formData.trackingStartTime,
         trackingEndTime: formData.trackingEndTime,
-        timeFormat: formData.timeFormat,
         minimumHours: formData.minimumHours,
         workingDays: workingDaysFull,
         trackingDays: trackingDaysFull,
         flexibleHours: formData.flexibleHours,
         timeZone: formData.timeZone,
       };
-      const response = await createProfile(payload).unwrap();
-      console.log("Profile updated successfully:", response);
-      setFormData({
-        employeeId: "",
-        username: "",
-        email: "",
-        password: "",
-        role: "",
-        gender: "",
-        phone: "",
-        countryCode: "",
-        team: "",
-        timeZone: "",
-        timeFormat: "",
-        workStartTime: "",
-        workEndTime: "",
-        trackingStartTime: "",
-        trackingEndTime: "",
-        minimumHours: "",
-        workingDays: workingDays,
-        trackingDays: trackingDays,
-        flexibleHours: flexibleHours,
-      });
+      if (profileDetails) {
+        const response = await updateProfile({
+          id:_id,
+          profileData:payload
+        }).unwrap();
+        console.log(response, "USER UPDATED");
+        toast.success("User Profile Updated")
+      } else {
+        const response = await createProfileApi(payload).unwrap();
+        console.log("Profile updated successfully:", response);
+        setFormData({
+          employeeId: "",
+          username: "",
+          email: "",
+          password: "",
+          role: "",
+          gender: "",
+          phone: "",
+          countryCode: "",
+          team: "",
+          timeZone: "",
+          workStartTime: "",
+          workEndTime: "",
+          trackingStartTime: "",
+          trackingEndTime: "",
+          minimumHours: "",
+          workingDays: workingDays,
+          trackingDays: trackingDays,
+          flexibleHours: flexibleHours,
+        });
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -193,6 +255,7 @@ const Profile = () => {
 
   return (
     <Box>
+      <Toaster/>
       <Box
         sx={{
           display: "flex",
@@ -216,7 +279,7 @@ const Profile = () => {
             variant="contained"
             color="success"
             onClick={() => handleSubmit()}
-            disabled={isLoading}
+            disabled={createProfileApiIsLoading}
           >
             <Typography fontSize={14}>Save Changes</Typography>
           </Button>
@@ -231,10 +294,12 @@ const Profile = () => {
           genderOptions={genderOptions}
           roleOptions={roleOptions}
           timeZoneOptions={timeZoneOptions}
-          timeFormatOptions={timeFormatOptions}
+          // timeFormatOptions={timeFormatOptions}
           minimumHoursOptions={minimumHoursOptions}
           teamOptions={teamOptions}
           handlePhoneChange={handlePhoneChange}
+          profileDetails={profileDetails}
+          getSingleProfileApiIsLoading={getSingleProfileApiIsLoading}
         />
 
         {/* Column 2 */}

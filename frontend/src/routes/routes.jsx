@@ -39,7 +39,7 @@ export const routes = [
   },
 
   {
-    path: '/settings',
+    path: '/settings/:_id',
     element: <AppLayout />,
     children: [
       {
