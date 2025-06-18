@@ -1,6 +1,6 @@
 const express = require("express");
 const { addUser, getUserById, updateUser, getAllUser, getScreenshotsById } = require("../service/user");
-const { addScreenshot } = require("../service/screenshot");
+const { authenticate } = require("../utils/middleware");
 const router = express.Router();
 router.use(express.json());
 
