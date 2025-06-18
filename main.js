@@ -1,5 +1,5 @@
 // desktime-clone/main.js
-const { app, BrowserWindow, Tray, Menu, powerMonitor ,shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, powerMonitor, shell } = require('electron');
 const path = require('path');
 const { mouse, keyboard, Button, Key } = require('@nut-tree-fork/nut-js');
 const activeWin = require('active-win');
@@ -7,7 +7,8 @@ const screenshot = require('screenshot-desktop');
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
-
+const Store = require('electron-store').default
+const store = new Store();
 let mainWindow;
 let tray = null;
 let lastActivity = Date.now();
@@ -28,7 +29,8 @@ function createWindow() {
     show: false,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -37,7 +39,7 @@ function createWindow() {
     e.preventDefault();
     mainWindow.hide();
   });
-  
+
   // ✅ This will hide the window instead of minimizing to taskbar
   mainWindow.on('minimize', (e) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ function createWindow() {
     console.warn('⚠️ Tray icon not found:', iconPath);
   }
 
-  
+
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Show App', click: () => mainWindow.show() },
@@ -67,9 +69,23 @@ function createWindow() {
 
 }
 
-async function startTracking() {
-  await initializeDailyTracking(USER_ID); // 💡 Important: waits for session setup
+function getStoredToken() {
+  return store.get('authToken');
+}
+const { ipcMain } = require('electron');
 
+ipcMain.on('token', (event, token) => {
+  console.log('Received token from renderer:', token);
+  // You can store the token or use it as needed here
+  // Optionally, send a response back to renderer
+  store.set('authToken', token);
+
+  event.sender.send('token-response', 'Token received');
+});
+
+async function startTracking() {
+  await initializeDailyTracking(USER_ID);
+  // Use powerMonitor to detect idle time
   setInterval(() => {
     try {
       const idleTime = powerMonitor.getSystemIdleTime() * 1000;
@@ -103,34 +119,41 @@ async function startTracking() {
   }, 2000);
 
   setInterval(async () => {
-  try {
-    const win = await activeWin();
-    const appName = win ? win.owner.name : 'unknown';
+    try {
+      const win = await activeWin();
+      const tag = win ? win.owner.name.replace(/\s+/g, '-') : 'unknown';
+      const filename = path.join(__dirname, `screenshot_${tag}_${Date.now()}.jpg`);
+      const imgBuffer = await screenshot({ format: 'jpg' });
+      console.log('[Screenshot Taken - Buffer]');
 
-    // Get screenshot buffer directly (no file saved)
-    const imgBuffer = await screenshot({ format: 'jpg' });
-    console.log('[Screenshot Taken - Buffer]');
+      const formData = new FormData();
+      await screenshot({ filename });
+      const timestamp = new Date()
 
-    const formData = new FormData();
-    formData.append('userId', USER_ID);
-    formData.append('sessionId', sessionId);
-    formData.append('screenshotApp', appName);
-    formData.append('screenshot', imgBuffer, {
-      filename: `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`,
-      contentType: 'image/jpeg',
-    });
+      
+      formData.append('userId', USER_ID);
+      formData.append('sessionId', sessionId);
+      formData.append('screenshotApp', appName);
+      formData.append('screenshot', imgBuffer, {
+        filename: `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`,
+        contentType: 'image/jpeg',
+      });
 
-    const response = await axios.post('http://localhost:8080/tracking/sessions/screenshots', formData, {
-      headers: {
-        headers: formData.getHeaders(),
-      },
-    });
+      const response = await axios.post('http://localhost:8080/tracking/sessions/screenshots', formData, {
+        headers: {
+          ...formData.getHeaders(),
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    console.log('[Screenshot Uploaded]', response.data);
-  } catch (err) {
-    console.error('[Screenshot Error]', err);
-  }
-}, 1 * 60 * 1000);
+      console.log('[Screenshot Uploaded]', response.data);
+
+    } catch (err) {
+
+
+      console.error('[Screenshot Error]', err);
+    }
+  }, 1 * 60 * 1000);
 }
 
 
