@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     employeeId: { type: String },
     email: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String },
     team: { type: String },
     role: { type: String },
     phone: { type: String },
@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     workDuration: { type: String },
     active:{type: Boolean, default: true},
 }, {timestamps: true});
+
 
 const User = mongoose.model('User', userSchema);
 
