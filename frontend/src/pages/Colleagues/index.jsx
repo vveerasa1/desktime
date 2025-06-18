@@ -14,6 +14,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useEffect, useState } from "react";
 import CustomSearchInput from "../../components/CustomSearchInput/index"; // adjust path as needed
 import { useGetAllProfileQuery } from "../../redux/services/userService";
+import LoadingComponent from "../../components/ComponentLoader";
+
 import { useNavigate } from "react-router-dom";
 import ColleaguesTable from "../../components/ColleaguesTable";
 const Colleagues = () => {

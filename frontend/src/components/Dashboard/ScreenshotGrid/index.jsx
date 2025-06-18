@@ -1,38 +1,88 @@
-import React from 'react';
-import { Paper, Box, Grid, Typography, Avatar } from '@mui/material';
+import React from "react";
+import { Paper, Box, Grid, Typography, Avatar } from "@mui/material";
+import { useGetScreenshotQuery } from "../../../redux/services/dashboardService";
+import dayjs from "dayjs";
+import ScreenshotCarouselModal from "../ScreenshotCarouselModal";
+import { useState } from "react";
+const ScreenshotGrid = () => {
+  const id = "68514f992f863e8d91756a17";
+  const date = dayjs().format("YYYY-MM-DD");
+  console.log(id, date, "DSDSDSDSDSD");
+  const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
+    useGetScreenshotQuery({ id, date });
 
-const ScreenshotGrid = ({ screenshots }) => {
-    return (
-        <Paper sx={{ padding: '10px 10px', marginTop: '15px' }}>
+  console.log(getScreenshots, "DATAAA");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-            <Box>
-                <Typography variant="h6" gutterBottom>Screenshots</Typography>
-                <Grid container spacing={2}>
-                    {screenshots.map((shot, idx) => (
-                        <Grid item xs={12} sm={6} md={3} key={idx}>
-                            <Box sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 2 }}>
-                                <img
-                                    src={shot.imageUrl}
-                                    alt={shot.title}
-                                    style={{ width: '100%', height: 'auto', display: 'block' }}
-                                />
-                                <Box sx={{ p: 1 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Avatar src={shot.iconUrl} sx={{ width: 24, height: 24 }} />
-                                        <Typography variant="body2">{shot.title}</Typography>
-                                    </Box>
-                                    <Typography variant="body2" color="error" sx={{ fontWeight: 600 }}>
-                                        {shot.percentage}
-                                    </Typography>
-                                    <Typography variant="caption">{shot.time}</Typography>
-                                </Box>
-                            </Box>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Box>
-        </Paper>
-    );
+  const handleImageClick = (index) => {
+    setCurrentIndex(index);
+    setModalOpen(true);
+  };
+  return (
+    <Paper sx={{ padding: "10px 10px", marginTop: "15px" }}>
+      <Box>
+        <Typography variant="h6" gutterBottom>
+          Screenshots
+        </Typography>
+        <Grid container spacing={2}>
+          {getScreenshots &&
+            getScreenshots.data.map((shot, idx) => (
+              <Grid
+                size={{ xs: 12, md: 3 }}
+                item
+                xs={12}
+                sm={6}
+                md={3}
+                key={idx}
+              >
+                <Box
+                  onClick={() => handleImageClick(idx)}
+                  sx={{ borderRadius: 2, overflow: "hidden", boxShadow: 2,cursor:'pointer' }}
+                >
+                  <img
+                    src={shot.screenshotPath}
+                    alt={shot.screenshotApp}
+                    style={{ width: "100%", height: "auto", display: "block" }}
+                  />
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="body2">
+                        {shot.screenshotApp}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        sx={{ fontWeight: 600 }}
+                      >
+                        {dayjs(shot.screenshotTime).format("HH:mm")}{" "}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Grid>
+            ))}
+        </Grid>
+      </Box>
+      {getScreenshots?.data?.length > 0 && (
+        <ScreenshotCarouselModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          screenshots={getScreenshots.data}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
+        />
+      )}
+    </Paper>
+  );
 };
 
 export default ScreenshotGrid;

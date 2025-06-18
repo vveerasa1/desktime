@@ -1,5 +1,6 @@
-import { Box,Typography,Grid,Paper } from "@mui/material"
+import { Box,Typography,Grid,Paper,Button } from "@mui/material"
 import LoadingComponent from "../ComponentLoader"
+import EditIcon from "@mui/icons-material/Edit";
 const ColleaguesTable = ({
     navigate,
       filteredData,
