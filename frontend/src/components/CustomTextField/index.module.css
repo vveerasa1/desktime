@@ -1,0 +1,41 @@
+.textFieldWrapper {
+    width: 100%;
+   
+}
+.pricing{
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+}
+.label {
+    font-size: 14px !important;
+    color: #555454;
+    margin-bottom: 0 !important;
+}
+
+.noSpinnerInput::-webkit-outer-spin-button,
+.noSpinnerInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.noSpinnerInput {
+  -moz-appearance: textfield;
+}
+.zeroPaddingInput {
+    padding: 10px 10px 10px 10px !important;
+  }
+
+
+.error {
+    color: red;
+    background-color: transparent !important;
+}
+
+.requiredSymbol{
+    color: red;
+}
+.createOrderError {
+    background: none !important;
+    color: #c70707;
+    font-size: 14px;
+}

@@ -5,13 +5,22 @@ const { mouse, keyboard, Button, Key } = require('@nut-tree-fork/nut-js');
 const activeWin = require('active-win');
 const screenshot = require('screenshot-desktop');
 const axios = require('axios');
+const FormData = require('form-data');
 const fs = require('fs');
 const Store = require('electron-store').default
 const store = new Store();
 let mainWindow;
 let tray = null;
 let lastActivity = Date.now();
-const IDLE_THRESHOLD = 1 * 60 * 1000;
+
+let sessionId = null;
+let idleStart = null;
+const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
+const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+const USER_ID = '68501bb5c58fcc96281e10e3'
+let activeLastSent = null;
+
+let idleCheckStart = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -55,6 +64,7 @@ function createWindow() {
   tray.on('click', () => {
     shell.openExternal('http://localhost:5173'); // Opens React app in default browser
   });
+
   startTracking();
 
 }
@@ -73,14 +83,13 @@ ipcMain.on('token', (event, token) => {
   event.sender.send('token-response', 'Token received');
 });
 
-function startTracking() {
+async function startTracking() {
+  await initializeDailyTracking(USER_ID);
   // Use powerMonitor to detect idle time
   setInterval(() => {
     try {
       const idleTime = powerMonitor.getSystemIdleTime() * 1000;
-      console.log(`[Idle Time] ${idleTime / 1000} seconds`);
       if (idleTime > IDLE_THRESHOLD) {
-        console.log('[Idle] User inactive');
         sendActivityToServer({ type: 'idle', timestamp: new Date() });
       } else {
         activeWin().then(win => {
@@ -91,7 +100,6 @@ function startTracking() {
               title: win.title,
               timestamp: new Date()
             };
-            console.log('[Active App]', activity);
             sendActivityToServer(activity);
           }
         }).catch(err => console.error('[ActiveWin Error]', err));
@@ -101,7 +109,6 @@ function startTracking() {
     }
   }, 10000);
 
-  // Poll mouse position every 2 seconds
   setInterval(async () => {
     try {
       const pos = await mouse.getPosition();
@@ -111,30 +118,36 @@ function startTracking() {
     }
   }, 2000);
 
-  // Take screenshots every 5 minutes
   setInterval(async () => {
     try {
       const win = await activeWin();
       const tag = win ? win.owner.name.replace(/\s+/g, '-') : 'unknown';
       const filename = path.join(__dirname, `screenshot_${tag}_${Date.now()}.jpg`);
-      await screenshot({ filename });
-    const  timestamp= new Date()
+      const imgBuffer = await screenshot({ format: 'jpg' });
+      console.log('[Screenshot Taken - Buffer]');
+
       const formData = new FormData();
-      formData.append('screenshot', fs.createReadStream(filename));
-      formData.append('app', win?.owner.name || 'unknown');
-      formData.append('title', win?.title || 'unknown');
-      formData.append('timestamp', timestamp.toISOString());
-      const token =getStoredToken()
-      console.log(token,"token<<<<<<<<<<<<<<<<<");
+      await screenshot({ filename });
+      const timestamp = new Date()
+
       
-      await axios.post('http://localhost:5000/api/screenshot', formData, {
+      formData.append('userId', USER_ID);
+      formData.append('sessionId', sessionId);
+      formData.append('screenshotApp', appName);
+      formData.append('screenshot', imgBuffer, {
+        filename: `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`,
+        contentType: 'image/jpeg',
+      });
+
+      const response = await axios.post('http://localhost:8080/tracking/sessions/screenshots', formData, {
         headers: {
           ...formData.getHeaders(),
-          Authorization: `Bearer ${token}`, // 👈 Add token here
-        }
-      },);
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      console.log('[Screenshot] Captured:', filename);
+      console.log('[Screenshot Uploaded]', response.data);
+
     } catch (err) {
 
 
@@ -143,14 +156,123 @@ function startTracking() {
   }, 1 * 60 * 1000);
 }
 
+
+let activeStartTime = null;
+
 function sendActivityToServer(data) {
-  console.log('[Server] Sending activity', data);
-  //   axios.post('http://localhost:5000/api/activity', data)
-  //     .then(() => console.log('[Server] Activity logged'))
-  //     .catch(err => console.error('[Server] Error sending activity', err));
+  if (!sessionId) return;
+
+  const now = new Date();
+
+  if (data.type === 'idle') {
+    if (!idleCheckStart) idleCheckStart = now;
+
+    if ((now - idleCheckStart) >= IDLE_THRESHOLD && !idleStart) {
+      idleStart = idleCheckStart;
+
+      // End current active period
+      if (activeStartTime) {
+        const endTime = idleStart;
+        const duration = Math.floor((endTime - activeStartTime) / 1000);
+        axios.put('http://localhost:8080/tracking/sessions/active', {
+          sessionId,
+          duration,
+          startTime: activeStartTime,
+          endTime
+        }).catch(console.error);
+        activeStartTime = null;
+        activeLastSent = null;
+      }
+    }
+  }
+
+  else if (data.type === 'active') {
+    // 🟢 If user was idle and now becomes active, log the idle period
+    if (idleStart) {
+      const idleEnd = now;
+      const idleDuration = Math.floor((idleEnd - idleStart) / 1000);
+      axios.put('http://localhost:8080/tracking/sessions/idle', {
+        sessionId,
+        startTime: idleStart,
+        endTime: idleEnd,
+        duration: idleDuration
+      }).catch(console.error);
+    }
+
+    // Reset idle tracking
+    idleStart = null;
+    idleCheckStart = null;
+
+    // Start new active block
+    if (!activeStartTime) {
+      activeStartTime = now;
+      activeLastSent = now;
+    }
+
+    // Push active block every 5 minutes
+    if ((now - activeLastSent) >= ACTIVE_LOG_THRESHOLD) {
+      const endTime = now;
+      const duration = Math.floor((endTime - activeStartTime) / 1000);
+      axios.put('http://localhost:8080/tracking/sessions/active', {
+        sessionId,
+        duration,
+        startTime: activeStartTime,
+        endTime
+      }).catch(console.error);
+
+      // Start next block
+      activeStartTime = now;
+      activeLastSent = now;
+    }
+  }
+}
+
+
+
+
+// async function endSession() {
+//   if (sessionId) {
+//     try {
+//       await axios.put('http://localhost:8080/tracking/session/end', { sessionId });
+//       console.log('[Tracking] Session ended.');
+//     } catch (err) {
+//       console.error('[End Session Error]', err);
+//     }
+//   }
+// }
+
+async function initializeDailyTracking(userId) {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const res = await axios.get(`http://localhost:8080/tracking/sessions?userId=${userId}&date=${today}`);
+    console.log('[Tracking] Session found:', res.data);
+    if (res.data.data) {
+      sessionId = res.data.data._id;
+    } else {
+      const createRes = await axios.post('http://localhost:8080/tracking/sessions', {
+        userId
+      });
+      sessionId = createRes.data.sessionId;
+    }
+    console.log('[Tracking] Initialized session:', sessionId);
+  } catch (err) {
+    console.error('[Tracking Init Error]', err);
+  }
 }
 
 app.whenReady().then(createWindow);
+
+// app.on('before-quit', async () => {
+//   await endSession();
+// });
+
+// powerMonitor.on('shutdown', () => {
+//  endSession(); // gracefully close session
+// });
+
+// powerMonitor.on('suspend', () => {
+//  endSession(); // system is sleeping
+// });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
