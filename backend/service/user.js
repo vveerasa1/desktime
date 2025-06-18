@@ -141,9 +141,46 @@ const getUserById = async (req, res) => {
       }
     }
 
+const ScreenshotLog = require("../models/screenshot");
+
+const getScreenshotsById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { date } = req.query;
+    console.log(date);
+
+    if (!date) {
+      return res.status(400).json({ message: "Date query parameter is required (YYYY-MM-DD)" });
+    }
+    const screenshots = await ScreenshotLog.findOne({
+      userId: userId,
+      "dailyScreenshots.date": date
+    });
+    console.log(screenshots);
+
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Gathered screenshots successfully",
+      data: screenshots?.dailyScreenshots?.screenshots
+    });
+
+  } catch (error) {
+    console.error("Error fetching screenshots:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error fetching screenshots",
+      error: error.message,
+    });
+  }
+};
+
+
 module.exports = {
     addUser,
     getUserById,
     updateUser,
-    getAllUser
+    getAllUser,
+    getScreenshotsById
 }

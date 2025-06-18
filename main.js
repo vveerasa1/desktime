@@ -5,6 +5,7 @@ const { mouse, keyboard, Button, Key } = require('@nut-tree-fork/nut-js');
 const activeWin = require('active-win');
 const screenshot = require('screenshot-desktop');
 const axios = require('axios');
+const FormData = require('form-data');
 const fs = require('fs');
 
 let mainWindow;
@@ -13,8 +14,12 @@ let lastActivity = Date.now();
 
 let sessionId = null;
 let idleStart = null;
-const IDLE_THRESHOLD = 1 * 60 * 1000; 
+const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
+const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
 const USER_ID = '68501bb5c58fcc96281e10e3'
+let activeLastSent = null;
+
+let idleCheckStart = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -98,63 +103,129 @@ async function startTracking() {
   }, 2000);
 
   setInterval(async () => {
-    try {
-      const win = await activeWin();
-      const tag = win ? win.owner.name.replace(/\s+/g, '-') : 'unknown';
-      const filename = path.join(__dirname, `screenshot_${tag}_${Date.now()}.jpg`);
-      await screenshot({ filename });
-      console.log('[Screenshot] Captured:', filename);
-    } catch (err) {
-      console.error('[Screenshot Error]', err);
-    }
-  }, 5 * 60 * 1000);
+  try {
+    const win = await activeWin();
+    const appName = win ? win.owner.name : 'unknown';
+    const filename = path.join(__dirname, `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`);
+    await screenshot({ filename });
+    console.log('[Screenshot Taken]', filename);
+
+    const formData = new FormData();
+    formData.append('userId', USER_ID);
+    formData.append('sessionId', sessionId);
+    formData.append('screenshotApp', appName);
+    formData.append('screenshot', fs.createReadStream(filename));
+
+    const response = await axios.post('http://localhost:8080/tracking/sessions/screenshots', formData, {
+      headers: {
+        headers: formData.getHeaders(),
+      },
+    });
+
+    console.log('[Screenshot Uploaded]', response.data);
+    
+    // Optionally delete local file after upload
+    fs.unlinkSync(filename);
+  } catch (err) {
+    console.error('[Screenshot Error]', err);
+  }
+}, 1 * 60 * 1000);
 }
 
+
+let activeStartTime = null;
 
 function sendActivityToServer(data) {
   if (!sessionId) return;
 
+  const now = new Date();
+
   if (data.type === 'idle') {
-    if (!idleStart) idleStart = new Date();
-  } else if (data.type === 'active') {
+    if (!idleCheckStart) idleCheckStart = now;
+
+    if ((now - idleCheckStart) >= IDLE_THRESHOLD && !idleStart) {
+      idleStart = idleCheckStart;
+
+      // End current active period
+      if (activeStartTime) {
+        const endTime = idleStart;
+        const duration = Math.floor((endTime - activeStartTime) / 1000);
+        axios.put('http://localhost:8080/tracking/sessions/active', {
+          sessionId,
+          duration,
+          startTime: activeStartTime,
+          endTime
+        }).catch(console.error);
+        activeStartTime = null;
+        activeLastSent = null;
+      }
+    }
+  }
+
+  else if (data.type === 'active') {
+    // 🟢 If user was idle and now becomes active, log the idle period
     if (idleStart) {
-      const idleEnd = new Date();
-      axios.put('http://localhost:8080/tracking/session/idle', {
-        userId: USER_ID,
+      const idleEnd = now;
+      const idleDuration = Math.floor((idleEnd - idleStart) / 1000);
+      axios.put('http://localhost:8080/tracking/sessions/idle', {
         sessionId,
-        idleStartTime: idleStart,
-        idleEndTime: idleEnd
+        startTime: idleStart,
+        endTime: idleEnd,
+        duration: idleDuration
       }).catch(console.error);
-      idleStart = null;
     }
 
-    axios.put('http://localhost:8080/tracking/session/active', {
-      sessionId,
-      duration: 10
-    }).catch(console.error);
+    // Reset idle tracking
+    idleStart = null;
+    idleCheckStart = null;
+
+    // Start new active block
+    if (!activeStartTime) {
+      activeStartTime = now;
+      activeLastSent = now;
+    }
+
+    // Push active block every 5 minutes
+    if ((now - activeLastSent) >= ACTIVE_LOG_THRESHOLD) {
+      const endTime = now;
+      const duration = Math.floor((endTime - activeStartTime) / 1000);
+      axios.put('http://localhost:8080/tracking/sessions/active', {
+        sessionId,
+        duration,
+        startTime: activeStartTime,
+        endTime
+      }).catch(console.error);
+
+      // Start next block
+      activeStartTime = now;
+      activeLastSent = now;
+    }
   }
 }
 
-async function endSession() {
-  if (sessionId) {
-    try {
-      await axios.put('http://localhost:8080/tracking/session/end', { sessionId });
-      console.log('[Tracking] Session ended.');
-    } catch (err) {
-      console.error('[End Session Error]', err);
-    }
-  }
-}
+
+
+
+// async function endSession() {
+//   if (sessionId) {
+//     try {
+//       await axios.put('http://localhost:8080/tracking/session/end', { sessionId });
+//       console.log('[Tracking] Session ended.');
+//     } catch (err) {
+//       console.error('[End Session Error]', err);
+//     }
+//   }
+// }
 
 async function initializeDailyTracking(userId) {
   const today = new Date().toISOString().split('T')[0];
   try {
-    const res = await axios.get(`http://localhost:8080/tracking/session?userId=${userId}&date=${today}`);
+    const res = await axios.get(`http://localhost:8080/tracking/sessions?userId=${userId}&date=${today}`);
     console.log('[Tracking] Session found:', res.data);
-    if (res.data.data._id) {
+    if (res.data.data) {
       sessionId = res.data.data._id;
     } else {
-      const createRes = await axios.post('http://localhost:8080/tracking/session', {
+      const createRes = await axios.post('http://localhost:8080/tracking/sessions', {
         userId
       });
       sessionId = createRes.data.sessionId;
@@ -167,17 +238,17 @@ async function initializeDailyTracking(userId) {
 
 app.whenReady().then(createWindow);
 
-app.on('before-quit', async () => {
-  await endSession();
-});
+// app.on('before-quit', async () => {
+//   await endSession();
+// });
 
-powerMonitor.on('shutdown', () => {
- endSession(); // gracefully close session
-});
+// powerMonitor.on('shutdown', () => {
+//  endSession(); // gracefully close session
+// });
 
-powerMonitor.on('suspend', () => {
- endSession(); // system is sleeping
-});
+// powerMonitor.on('suspend', () => {
+//  endSession(); // system is sleeping
+// });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

@@ -5,12 +5,19 @@ const TrackingSessionSchema = new mongoose.Schema({
   date: { type: String }, // e.g., '2025-06-17'
   arrivalTime: { type: Date },
   leftTime: { type: Date },
-  activeTime: { type: Number, default: 0 }, // in seconds
+  totalTrackedTime: { type: Number, default: 0 }, // in seconds
   idlePeriods: [
     {
       start: Date,
       end: Date,
       duration: Number
+    }
+  ],
+   activePeriods: [
+    {
+      start: Date,
+      end: Date,
+      duration: Number // in seconds
     }
   ]
 }, { timestamps: true });
