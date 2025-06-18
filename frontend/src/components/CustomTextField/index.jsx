@@ -13,7 +13,9 @@ const CustomTextField = (
         disabled,
         isRequired,
         icon,
-        handleBlur }
+        handleBlur,
+        startIcon
+    }
 
 ) => {
     return (
@@ -24,11 +26,11 @@ const CustomTextField = (
                 </Typography>
             )}
             <TextField
-           
+
                 name={name}
                 value={value}
                 placeholder={placeholder}
-                onChange={(event)=>{
+                onChange={(event) => {
                     handleChange(event, name)
                 }}
                 onBlur={handleBlur}
@@ -37,12 +39,22 @@ const CustomTextField = (
                 disabled={disabled}
                 fullWidth
                 variant='outlined'
-               size="small" // <-- add this line
+                size="small" // <-- add this line
                 InputProps={{
                     sx: {
-        fontSize: "14px",
-            height: '40px',          // explicit height to match Select
-          },
+                        fontSize: "14px",
+                        height: '40px',          // explicit height to match Select
+                    },
+                    startAdornment: startIcon ? (
+                        <InputAdornment position="start">
+                            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                                {React.cloneElement(startIcon, { sx: { fontSize: 18 } })}
+                            </Box>
+                        </InputAdornment>
+                    ) : null,
+                    // startAdornment: startIcon ? (
+                    //     <InputAdornment position="end">{startIcon}</InputAdornment>
+                    // ) : null,
                     endAdornment: icon ? (
                         <InputAdornment position="end">{icon}</InputAdornment>
                     ) : null,
