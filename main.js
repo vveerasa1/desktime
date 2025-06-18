@@ -106,15 +106,19 @@ async function startTracking() {
   try {
     const win = await activeWin();
     const appName = win ? win.owner.name : 'unknown';
-    const filename = path.join(__dirname, `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`);
-    await screenshot({ filename });
-    console.log('[Screenshot Taken]', filename);
+
+    // Get screenshot buffer directly (no file saved)
+    const imgBuffer = await screenshot({ format: 'jpg' });
+    console.log('[Screenshot Taken - Buffer]');
 
     const formData = new FormData();
     formData.append('userId', USER_ID);
     formData.append('sessionId', sessionId);
     formData.append('screenshotApp', appName);
-    formData.append('screenshot', fs.createReadStream(filename));
+    formData.append('screenshot', imgBuffer, {
+      filename: `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`,
+      contentType: 'image/jpeg',
+    });
 
     const response = await axios.post('http://localhost:8080/tracking/sessions/screenshots', formData, {
       headers: {
@@ -123,9 +127,6 @@ async function startTracking() {
     });
 
     console.log('[Screenshot Uploaded]', response.data);
-    
-    // Optionally delete local file after upload
-    fs.unlinkSync(filename);
   } catch (err) {
     console.error('[Screenshot Error]', err);
   }
