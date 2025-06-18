@@ -1,6 +1,6 @@
 const moment = require("moment/moment");
-const config = require("../config");
 const User = require("../models/user");
+const bcrypt = require('bcrypt');
 
 const addUser = async (req, res) => {
   try {
@@ -29,12 +29,13 @@ const addUser = async (req, res) => {
     const end = moment(workEndTime, "HH:mm:ss");
 
     let durationSeconds = end.diff(start, 'seconds');
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
       username,
       employeeId,
       email,
-      password,
+      password:hashedPassword,
       team,
       gender,
       role,
@@ -178,7 +179,6 @@ const getScreenshotsById = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
     addUser,
