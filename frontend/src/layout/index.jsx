@@ -10,6 +10,7 @@ const AppLayout = () => {
     const isMobile = useMediaQuery('(max-width:900px)');
     const [mobileOpen, setMobileOpen] = useState(false);
     const handleDrawerToggle = () => {
+        console.log(mobileOpen, "KKKKKKKKKKKKKKKK")
         setMobileOpen(!mobileOpen);
     };
     console.log(mobileOpen, "mobileOpen")
@@ -17,20 +18,25 @@ const AppLayout = () => {
 
     return (
 
-        <Box sx={{ display: 'flex', width: '100%'}}>
+        <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
             <Sidebar />
             <Box
-                sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100vh'  }}
-            >
+            //  sx={{ flexGrow: 1, bgcolor: 'background.default', minHeight: '100vh' }}
+           sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
+             >
                 <Header />
-                <Toolbar />
-                <Box component="main"
-                    sx={{
-                        flexGrow: 1,
-                        px: 3,
-                        py: 2,
-                        backgroundColor: '#f9f9f9',
-                    }}
+                {/* <Toolbar /> */}
+                <Box component="main" 
+                // sx={{ p: 4, height:'100%',width:'100%',backgroundColor: 'gray'}}
+                sx={{
+                    flexGrow: 1,
+                    
+                    width: '100% !important',
+                    px: 3,
+                    py: 2,
+                    backgroundColor: '#f9f9f9',
+                    
+                  }}
                 >
                     <Outlet />
                 </Box>

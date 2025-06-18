@@ -1,6 +1,6 @@
 const IdleLog = require("../models/idleTimeLogs");
 const TrackingSession = require("../models/trackingSession");
-
+const cron = require('node-cron');
 
 const tracking = async (req, res) => {
   try {
@@ -93,17 +93,26 @@ const idleTimeTracker = async (req, res) => {
 // body: { sessionId, duration }
 const activeTimeTracker = async (req, res) => {
   try {
-    const { sessionId, duration } = req.body;
+    const { sessionId, duration, startTime, endTime } = req.body;
+
     await TrackingSession.findByIdAndUpdate(sessionId, {
-      $inc: { totalTrackedTime: duration }
+      $inc: { totalTrackedTime: duration },
+      $push: {
+        activePeriods: {
+          start: new Date(startTime),
+          end: new Date(endTime),
+          duration: duration
+        }
+      }
     });
+
     res.json({ status: 'active time updated' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to update active time', error });
   }
 };
 
-// body: { sessionId }
+
 const endSession = async (req, res) => {
   try {
     const { sessionId } = req.body;
@@ -115,6 +124,31 @@ const endSession = async (req, res) => {
     res.status(500).json({ message: 'Failed to end session', error });
   }
 };
+
+
+cron.schedule('59 23 * * *', async () => {
+  console.log('[CRON] Running sessionStop at 11:59 PM');
+
+  try {
+    const sessions = await TrackingSession.find({ leftTime: null });
+
+    for (const session of sessions) {
+      const lastIdle = session.idlePeriods?.[session.idlePeriods.length - 1];
+
+      if (lastIdle && lastIdle.start) {
+        session.leftTime = lastIdle.start;
+      } else {
+        session.leftTime = new Date();
+      }
+
+      await session.save();
+    }
+
+    console.log('[CRON] sessionStop completed');
+  } catch (error) {
+    console.error('[CRON Error in sessionStop]', error);
+  }
+});
 
 module.exports = { tracking, idleTimeTracker, activeTimeTracker, endSession, getUserTrackingInfo };
 

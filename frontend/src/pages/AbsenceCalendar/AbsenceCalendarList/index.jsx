@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Grid, Box } from '@mui/material';
 import styles from './index.module.css';
 import AnalyticCards from '../../components/Dashboard/AnalyticCards'
@@ -34,16 +34,10 @@ const productiveApps = [
 ];
 
 const Dashboard = () => {
-
-  useEffect(() => {
-    if (window.electronAPI && window.electronAPI.sendToken) {
-      window.electronAPI.sendToken('sample-token-12345');
-    }
-  }, []);
   return (
     <Box className={styles.container}>
-      <DateTimeRangePicker />
-      <DeskTimeHeader />
+      <DateTimeRangePicker/>
+      <DeskTimeHeader/>
       <AnalyticCards />
       {/* <Grid container spacing={2}> */}
       <ProductivityBar data={{ productive: 60, neutral: 25, unproductive: 15 }} />
@@ -67,7 +61,7 @@ const Dashboard = () => {
       />
       {/* <Grid item xs={12}><ProductivityBar /></Grid>  */}
       {/* </Grid> */}
-      <EmployeeCalendar />
+      <EmployeeCalendar/>
       <CategoryBar
         categories={[
           { name: 'Creative & Design', color: '#93278f' },
