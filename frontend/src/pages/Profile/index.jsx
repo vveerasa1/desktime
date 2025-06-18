@@ -254,7 +254,7 @@ const Profile = () => {
   };
 
   return (
-    <Box>
+    <Box >
       <Toaster/>
       <Box
         sx={{

@@ -7,7 +7,7 @@ const ColleaguesTable = ({
       isLoading
 }) => {
   return (
-    <div>
+    <Box>
       {isLoading ? (
         <LoadingComponent />
       ) : (
@@ -99,7 +99,7 @@ const ColleaguesTable = ({
             ))}
         </Grid>
       )}
-    </div>
+    </Box>
   )
 }
 

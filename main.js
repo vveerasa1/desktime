@@ -122,8 +122,6 @@ async function startTracking() {
     try {
       const win = await activeWin();
       const tag = win ? win.owner.name.replace(/\s+/g, '-') : 'unknown';
-      const appName = win ? win.owner.name : 'unknown';
-      const token =getStoredToken()
       const filename = path.join(__dirname, `screenshot_${tag}_${Date.now()}.jpg`);
       const imgBuffer = await screenshot({ format: 'jpg' });
       console.log('[Screenshot Taken - Buffer]');
