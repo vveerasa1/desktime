@@ -1,0 +1,61 @@
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.leftSection {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #ffffff;
+}
+
+.formBox {
+    width: 100%;
+    max-width: 400px;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.link {
+    text-align: right;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: #007bff;
+}
+
+.button {
+    margin-top: 1.5rem;
+}
+
+.divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    color: #aaa;
+}
+
+.googleBtn {
+    width: 100%;
+    border: 1px solid #ccc;
+    text-transform: none;
+}
