@@ -1,6 +1,8 @@
 const moment = require("moment/moment");
 const User = require("../models/user");
 const bcrypt = require('bcrypt');
+const nodemailer = require("nodemailer");
+const config = require("../config");
 
 const addUser = async (req, res) => {
   try {
@@ -54,6 +56,39 @@ const addUser = async (req, res) => {
     });
 
     await user.save();
+    const transporter = nodemailer.createTransport({
+      service: config.smtp?.service,
+      auth: {
+        user: config.smtp?.email,
+        pass: config.smtp?.password,
+      },
+    });
+    mailOptions = {
+  from: config.smtp?.email,
+  to: user.email,
+  subject: "Desktime - Invitation",
+  text: `Hi ${user.username},
+
+You have been invited to join Desktime.
+
+Here are your login credentials:
+Email: ${user.email}
+Password: ${password}
+
+Please log in to your account to get started.
+
+***** This is an auto-generated email. Please do not reply. *****
+
+Best regards,  
+Desktime - Pentabay Team`,
+};
+
+    transporter.sendMail(mailOptions, (error) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Error sending Mail" });
+      }
+    });
 
     res.status(200).json({
       code: 200,

@@ -57,9 +57,7 @@ const getUserTrackingInfo = async (req, res) => {
 // body: { userId, sessionId, idleStartTime, idleEndTime }
 const idleTimeTracker = async (req, res) => {
   try {
-    const { userId, sessionId, idleStartTime, idleEndTime } = req.body;
-
-    const duration = (new Date(idleEndTime) - new Date(idleStartTime)) / 1000;
+    const { userId, sessionId, idleStartTime, idleEndTime,duration } = req.body;
 
     // Log idle entry separately (optional for audit)
     await IdleLog.create({
