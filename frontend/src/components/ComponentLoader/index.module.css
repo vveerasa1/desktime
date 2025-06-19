@@ -3,9 +3,9 @@
     justify-content: center !important;
     align-items: center !important;
     margin-bottom: 100px !important;
-    height: inherit;
+    height: 100vh;
 }
 
 .loader {
-    color: #be2f2c !important;
+    color: #175ed1 !important;
 }

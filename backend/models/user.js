@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     team: { type: String },
     role: { type: String },
     phone: { type: String },
+    gender: { type: String },
     workingDays: { type: Array },
     workStartTime: { type: String },
     workEndTime: { type: String },

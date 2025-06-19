@@ -17,7 +17,7 @@ let sessionId = null;
 let idleStart = null;
 const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
 const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-const USER_ID = '68501bb5c58fcc96281e10e3'
+const USER_ID = '68514f992f863e8d91756a17'
 let activeLastSent = null;
 
 let idleCheckStart = null;
@@ -122,17 +122,14 @@ async function startTracking() {
     try {
       const win = await activeWin();
       const tag = win ? win.owner.name.replace(/\s+/g, '-') : 'unknown';
-      const appName = win ? win.owner.name : 'unknown';
-      const token =getStoredToken()
       const filename = path.join(__dirname, `screenshot_${tag}_${Date.now()}.jpg`);
       const imgBuffer = await screenshot({ format: 'jpg' });
       console.log('[Screenshot Taken - Buffer]');
 
       const formData = new FormData();
       await screenshot({ filename });
-      const timestamp = new Date()
-
-      
+      const appName = win ? win.owner.name : 'unknown';
+      const token = getStoredToken()
       formData.append('userId', USER_ID);
       formData.append('sessionId', sessionId);
       formData.append('screenshotApp', appName);

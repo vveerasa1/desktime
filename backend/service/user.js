@@ -12,6 +12,7 @@ const addUser = async (req, res) => {
       email,
       password,
       team,
+      gender,
       role,
       phone,
       workingDays,
@@ -38,6 +39,7 @@ const addUser = async (req, res) => {
       email,
       password:hashedPassword,
       team,
+      gender,
       role,
       phone,
       workingDays,
@@ -107,7 +109,8 @@ Desktime - Pentabay Team`,
 
 const getUserById = async (req, res) => {
     try {
-      const users = await User.find(req.params.id);
+      const id = req.params.id;
+      const users = await User.findById(id);
       res.status(200).json({
         code: 200,
         status: "Success",

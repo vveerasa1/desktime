@@ -18,7 +18,7 @@ const AppLayout = () => {
 
     return (
 
-        <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
+        <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' ,paddingTop:8}}>
             <Sidebar />
             <Box
             //  sx={{ flexGrow: 1, bgcolor: 'background.default', minHeight: '100vh' }}
