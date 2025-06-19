@@ -1,17 +1,15 @@
 import React from "react";
 import { Paper, Box, Grid, Typography, Avatar } from "@mui/material";
-import { useGetScreenshotQuery } from "../../../redux/services/dashboardService";
+import { useGetScreenshotQuery } from "../../../redux/services/dashboard";
 import dayjs from "dayjs";
-import ScreenshotCarouselModal from "../ScreenshotCarouselModal";
 import { useState } from "react";
+import ImagePreviewModal from "../ImagePreviewModal";
 const ScreenshotGrid = () => {
   const id = "68514f992f863e8d91756a17";
   const date = dayjs().format("YYYY-MM-DD");
-  console.log(id, date, "DSDSDSDSDSD");
   const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
     useGetScreenshotQuery({ id, date });
 
-  console.log(getScreenshots, "DATAAA");
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -73,7 +71,7 @@ const ScreenshotGrid = () => {
         </Grid>
       </Box>
       {getScreenshots?.data?.length > 0 && (
-        <ScreenshotCarouselModal
+        <ImagePreviewModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           screenshots={getScreenshots.data}

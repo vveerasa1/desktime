@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +10,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
 
-const ScreenshotCarouselModal = ({
+const ImagePreviewModal = ({
   open,
   onClose,
   screenshots,
@@ -95,4 +94,4 @@ const ScreenshotCarouselModal = ({
   );
 };
 
-export default ScreenshotCarouselModal;
+export default ImagePreviewModal;

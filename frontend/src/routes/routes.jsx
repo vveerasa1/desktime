@@ -5,7 +5,6 @@ import AppLayout from '../layout/index';
 import Login from '../pages/Auth/Login';
 import Profile from '../pages/Profile/index.jsx';
 import Colleagues from '../pages/Colleagues/index.jsx';
-import Projects from '../pages/Projects/index.jsx';
 
 
 export const routes = [
@@ -63,18 +62,7 @@ export const routes = [
       // Add other nested routes here
     ],
   },
-   {
-    path: '/projects',
-    element: <AppLayout />,
-    children: [
-      {
-        index: true, // renders on /
-        element: <Projects />,
-      },
-      
-      // Add other nested routes here
-    ],
-  },
+  
   
 ];
 

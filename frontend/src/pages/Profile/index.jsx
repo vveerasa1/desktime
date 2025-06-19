@@ -3,16 +3,8 @@ import {
   Grid,
   Paper,
   Typography,
-  Avatar,
-  TextField,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Box,
-  Checkbox,
-  FormControlLabel,
 } from "@mui/material";
 import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
@@ -22,17 +14,16 @@ import {
   useCreateProfileMutation,
   useGetSingleProfileQuery,
   useUpdateProfileMutation,
-} from "../../redux/services/userService";
+} from "../../redux/services/user";
 import { useParams } from "react-router-dom";
-import { __DO_NOT_USE__ActionTypes } from "@reduxjs/toolkit";
-import {Toaster,toast} from 'react-hot-toast';
+import MuiToaster from "../../components/MuiToaster";
 const Profile = () => {
   const { _id } = useParams();
   const [workingDays, setWorkingDays] = useState([]);
   const [trackingDays, setTrackingDays] = useState([]);
   const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
-
+  const [openToaster,setOpenToaster] = useState(false)
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
@@ -55,7 +46,6 @@ const Profile = () => {
     countryCode: "",
     team: "",
     timeZone: "",
-    // timeFormat: "",
     workStartTime: "",
     workEndTime: "",
     trackingStartTime: "",
@@ -78,7 +68,6 @@ const Profile = () => {
 
   useEffect(() => {
     if (profileDetails?.data) {
-      console.log("API Response:", profileDetails.data); // <-- Debug
       const data = profileDetails.data;
       const workingDayCodes =
         data.workingDays?.map((day) => reverseDayNameMap[day]) || [];
@@ -156,10 +145,6 @@ const Profile = () => {
     { id: "Manager", name: "Manager" },
   ];
 
-  // const timeFormatOptions = [
-  //   { id: "24Hour", name: "24Hour" },
-  //   { id: "12Hour", name: "12Hour" },
-  // ];
 
   const minimumHoursOptions = [
     { id: "4 Hours", name: "4 Hours" },
@@ -222,11 +207,12 @@ const Profile = () => {
           id:_id,
           profileData:payload
         }).unwrap();
-        console.log(response, "USER UPDATED");
-        toast.success("User Profile Updated")
+       setOpenToaster(true)
+      setTimeout(()=>{
+      setOpenToaster(false)
+      },3000)
       } else {
         const response = await createProfileApi(payload).unwrap();
-        console.log("Profile updated successfully:", response);
         setFormData({
           employeeId: "",
           username: "",
@@ -252,10 +238,21 @@ const Profile = () => {
       console.error("Error submitting form:", error);
     }
   };
+  const handleClose = (event, reason) => {
+    if (reason == 'clickaway') {
+    setOpenToaster(false);
 
+    };
+  };
+  const reason = 'clickaway'
   return (
     <Box >
-      <Toaster/>
+      <MuiToaster
+      handleClose={()=> handleClose(reason,"clickaway")}
+      open={openToaster}
+      message={"User Profile Updated"}
+      severity="success" // success | error | warning | info
+      />
       <Box
         sx={{
           display: "flex",
@@ -294,7 +291,6 @@ const Profile = () => {
           genderOptions={genderOptions}
           roleOptions={roleOptions}
           timeZoneOptions={timeZoneOptions}
-          // timeFormatOptions={timeFormatOptions}
           minimumHoursOptions={minimumHoursOptions}
           teamOptions={teamOptions}
           handlePhoneChange={handlePhoneChange}

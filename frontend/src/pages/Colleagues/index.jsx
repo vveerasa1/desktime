@@ -13,33 +13,31 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useEffect, useState } from "react";
 import CustomSearchInput from "../../components/CustomSearchInput/index"; // adjust path as needed
-import { useGetAllProfileQuery } from "../../redux/services/userService";
+import { useGetAllProfileQuery } from "../../redux/services/user";
 import LoadingComponent from "../../components/ComponentLoader";
-
 import { useNavigate } from "react-router-dom";
-import ColleaguesTable from "../../components/ColleaguesTable";
+import ColleaguesList from "../../components/Colleagues/ColleaguesList";
+import MuiToaster from "../../components/MuiToaster";
 const Colleagues = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const { data: getProfile, isLoading } = useGetAllProfileQuery();
-  const [filteredData, setFilteredData] = useState([]);
-
-  console.log(getProfile, "PROFILE DATAS");
-
+  const [colleaguesData, setColleaguesData] = useState([]);
+  
   useEffect(() => {
     if (getProfile) {
-      setFilteredData(getProfile.data);
+      setColleaguesData(getProfile.data);
     }
   }, [getProfile]);
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchText(value);
-    const result = collegeData.filter((item) =>
-      item.username.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredData(result);
-  };
+  // const handleSearch = (e) => {
+  //   const value = e.target.value;
+  //   setSearchText(value);
+  //   const result = getProfile.data.filter((item) =>
+  //     item.username.toLowerCase().includes(value.toLowerCase())
+  //   );
+  //   setFilteredData(result);
+  // };
 
   return (
     <Box sx={{ padding: 5 }}>
@@ -52,7 +50,11 @@ const Colleagues = () => {
         sx={{ marginBottom: 3 }}
       >
         <Box width={200}>
-          <CustomSearchInput value={searchText} onChange={handleSearch} />
+          <CustomSearchInput value={searchText}
+          
+          // onChange={handleSearch} 
+          
+          />
         </Box>
 
         <IconButton>
@@ -69,9 +71,9 @@ const Colleagues = () => {
         </ToggleButtonGroup>
       </Box>
       {/* Colleagues Grid */}
-      <ColleaguesTable
+      <ColleaguesList
       navigate={navigate}
-      filteredData={filteredData}
+      colleaguesData={colleaguesData}
       isLoading={isLoading}
       />
     </Box>

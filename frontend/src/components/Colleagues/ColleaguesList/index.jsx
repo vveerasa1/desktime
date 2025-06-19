@@ -1,9 +1,9 @@
 import { Box,Typography,Grid,Paper,Button } from "@mui/material"
-import LoadingComponent from "../ComponentLoader"
+import LoadingComponent from "../../ComponentLoader"
 import EditIcon from "@mui/icons-material/Edit";
-const ColleaguesTable = ({
+const ColleaguesList = ({
     navigate,
-      filteredData,
+      colleaguesData,
       isLoading
 }) => {
   return (
@@ -19,10 +19,9 @@ const ColleaguesTable = ({
             justifyContent: "",
           }}
         >
-          {console.log(filteredData, "FILTERD DATA")}
-          {filteredData &&
-            filteredData.length > 0 &&
-            filteredData.map((colleague, index) => (
+          {colleaguesData &&
+            colleaguesData.length > 0 &&
+            colleaguesData.map((colleague, index) => (
               <Grid
                 size={{ xs: 12, md: 4 }}
                 item
@@ -72,11 +71,6 @@ const ColleaguesTable = ({
                       }}
                       display={"flex"}
                     >
-                      {/* <Box>
-                        <Button >
-                          <AddIcon />
-                        </Button>
-                      </Box> */}
                       <Box>
                         <Button
                         onClick={()=>{
@@ -103,4 +97,4 @@ const ColleaguesTable = ({
   )
 }
 
-export default ColleaguesTable
+export default ColleaguesList

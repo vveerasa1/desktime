@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { User } from "../services/userService";
-import { Dashboard } from "../services/dashboardService";
+import { User } from "../services/user";
+import { Dashboard } from "../services/dashboard";
 export const store = configureStore({
     reducer:{
         [User.reducerPath]:User.reducer,
