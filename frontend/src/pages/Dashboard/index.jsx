@@ -36,14 +36,21 @@ const productiveApps = [
 const Dashboard = () => {
 
   useEffect(() => {
-    if (window.electronAPI && window.electronAPI.sendToken) {
-      window.electronAPI.sendToken('sample-token-12345');
+    if (window.electronAPI?.testPreload) {
+      const msg = window.electronAPI.testPreload();
+      console.log('🧪 Renderer received preload:', msg);
+    } else {
+      console.warn('❌ testPreload not found on window.electronAPI');
     }
-  }, []);
+        // Send sample token to Electron main process to test IPC
+        if (window.electronAPI && window.electronAPI.sendToken) {
+          window.electronAPI.sendToken('sample-token-12345');
+        }
+     }, []);
   return (
     <Box className={styles.container}>
-      <DateTimeRangePicker />
-      <DeskTimeHeader />
+      <DateTimeRangePicker/>
+      <DeskTimeHeader/>
       <AnalyticCards />
       {/* <Grid container spacing={2}> */}
       <ProductivityBar data={{ productive: 60, neutral: 25, unproductive: 15 }} />
@@ -65,9 +72,7 @@ const Dashboard = () => {
         apps={productiveApps}
         headerColor="gray" // green
       />
-      {/* <Grid item xs={12}><ProductivityBar /></Grid>  */}
-      {/* </Grid> */}
-      <EmployeeCalendar />
+      <EmployeeCalendar/>
       <CategoryBar
         categories={[
           { name: 'Creative & Design', color: '#93278f' },

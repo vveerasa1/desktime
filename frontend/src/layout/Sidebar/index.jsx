@@ -17,7 +17,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import styles from './index.module.css';
 
 const navItems = [
-  { label: 'My DeskTime', path: '/', icon: <DashboardIcon /> },
+  { label: 'My DeskTime', path: '/dashboard', icon: <DashboardIcon /> },
   { label: 'Colleagues', path: '/colleagues', icon: <PeopleIcon /> },
   { label: 'Projects', path: '/projects', icon: <AssignmentIcon /> },
   { label: 'Work Schedules', path: '/work-schedules', icon: <CalendarMonthIcon /> },

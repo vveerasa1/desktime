@@ -14,7 +14,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useEffect, useState } from "react";
 import CustomSearchInput from "../../components/CustomSearchInput/index"; // adjust path as needed
-import { useGetAllProfileQuery } from "../../redux/services/userService";
+import { useGetAllProfileQuery } from "../../redux/services/user";
 import LoadingComponent from "../../components/ComponentLoader";
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
@@ -41,7 +41,6 @@ const Colleagues = () => {
     );
     setFilteredData(result);
   };
-
   return (
     <Box sx={{ padding: 5 }}>
       {/* Top Control Bar */}

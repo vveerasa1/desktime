@@ -12,9 +12,12 @@ const CustomTextField = (
         helperText,
         disabled,
         isRequired,
-        icon,
+        endIcon,
         handleBlur,
-        startIcon
+        startIcon,
+        onStartIconClick,
+        onEndIconClick,
+        type
     }
 
 ) => {
@@ -38,6 +41,7 @@ const CustomTextField = (
                 helperText={helperText}
                 disabled={disabled}
                 fullWidth
+                type={type || 'text'}
                 variant='outlined'
                 size="small" // <-- add this line
                 InputProps={{
@@ -55,8 +59,11 @@ const CustomTextField = (
                     // startAdornment: startIcon ? (
                     //     <InputAdornment position="end">{startIcon}</InputAdornment>
                     // ) : null,
-                    endAdornment: icon ? (
-                        <InputAdornment position="end">{icon}</InputAdornment>
+                    endAdornment: endIcon ? (
+                        <InputAdornment position="end" onClick={onEndIconClick}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                                {endIcon}</Box>
+                        </InputAdornment>
                     ) : null,
                 }}
             />
