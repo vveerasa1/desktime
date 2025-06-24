@@ -2,7 +2,7 @@ const IdleLog = require("../models/idleTimeLogs");
 const TrackingSession = require("../models/trackingSession");
 const cron = require("node-cron");
 const User = require("../models/user");
-const moment = require("moment");
+const moment = require("moment-timezone");
 
 const tracking = async (req, res) => {
   try {
@@ -109,7 +109,7 @@ const idleTimeTracker = async (req, res) => {
 const activeTimeTracker = async (req, res) => {
   try {
     const { sessionId, duration, startTime, endTime } = req.body;
-    const session = await TrackingSession.findOne(sessionId);
+    const session = await TrackingSession.findById(sessionId);
 
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
@@ -126,21 +126,26 @@ const activeTimeTracker = async (req, res) => {
       );
       return;
     }
-
+    // Calculate productivity %
+    const fullBlock = 300; // 5 minutes = 300 seconds
+    let productivity = (duration / fullBlock) * 100;
+    productivity = Math.min(100, Math.round(productivity)); // clamp to 100%
+    console.log("Productivity:", productivity, "%");
     await TrackingSession.findByIdAndUpdate(sessionId, {
       $inc: { totalTrackedTime: duration },
       $push: {
         activePeriods: {
           start: new Date(startTime),
           end: new Date(endTime),
-          duration: duration,
+          duration,
+          productivity,
         },
       },
     });
 
     res.json({ status: "active time updated" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update active time", error });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update active time", error: err.message });
   }
 };
 
