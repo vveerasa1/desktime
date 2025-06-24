@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const idleLogSchema = new mongoose.Schema({
   sessionId: { type: mongoose.Schema.Types.ObjectId, ref: 'TrackingSession' },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  idleStartTime: { type: Date },
-  idleEndTime: { type: Date },
+  startTime: { type: Date },
+  endTime: { type: Date },
   duration: { type: Number }, // seconds
 }, { timestamps: true });
 

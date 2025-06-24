@@ -17,7 +17,7 @@ let sessionId = null;
 let idleStart = null;
 const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
 const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-const USER_ID = '68514f992f863e8d91756a17'
+const USER_ID = '685290c3a0315261c26ad0f1'
 let activeLastSent = null;
 
 let idleCheckStart = null;
@@ -35,6 +35,7 @@ function createWindow() {
   });
 
   mainWindow.loadURL('http://localhost:5173');
+  // mainWindow.loadFile(path.join(__dirname, "frontend/build/index.html"));
   mainWindow.on('close', (e) => {
     e.preventDefault();
     mainWindow.hide();
@@ -121,15 +122,13 @@ async function startTracking() {
   setInterval(async () => {
     try {
       const win = await activeWin();
-      const tag = win ? win.owner.name.replace(/\s+/g, '-') : 'unknown';
-      const filename = path.join(__dirname, `screenshot_${tag}_${Date.now()}.jpg`);
+      const appName = win ? win.owner.name : 'unknown';
+      const token =getStoredToken()
       const imgBuffer = await screenshot({ format: 'jpg' });
       console.log('[Screenshot Taken - Buffer]');
 
       const formData = new FormData();
-      await screenshot({ filename });
-      const appName = win ? win.owner.name : 'unknown';
-      const token = getStoredToken()
+          
       formData.append('userId', USER_ID);
       formData.append('sessionId', sessionId);
       formData.append('screenshotApp', appName);
@@ -155,15 +154,32 @@ async function startTracking() {
   }, 5 * 60 * 1000);
 }
 
+let sessionEnded = false;
+
+async function checkIfSessionEnded() {
+  if (!sessionId || sessionEnded) return;
+
+  try {
+    const response = await axios.get(`http://localhost:8080/tracking/sessions/${sessionId}`);
+    if (response.data?.leftTime) {
+      console.log('[Tracking] Session already ended at', response.data.leftTime);
+      sessionEnded = true; // flag to prevent further calls
+    }
+  } catch (err) {
+    console.error('[Session Check Error]', err);
+  }
+}
+
 
 let activeStartTime = null;
 
-function sendActivityToServer(data) {
-  if (!sessionId) return;
-
-  const now = new Date();
-
-  if (data.type === 'idle') {
+async function sendActivityToServer(data) {
+   if (!sessionId || sessionEnded) return;
+   await checkIfSessionEnded();
+   if (sessionEnded) return;
+   
+   const now = new Date();
+   if (data.type === 'idle') {
     if (!idleCheckStart) idleCheckStart = now;
 
     if ((now - idleCheckStart) >= IDLE_THRESHOLD && !idleStart) {

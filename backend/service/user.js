@@ -1,4 +1,4 @@
-const moment = require("moment/moment");
+const moment = require("moment");
 const User = require("../models/user");
 const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
