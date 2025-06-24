@@ -16,12 +16,14 @@ import styles from './index.module.css';
 import ImageSection from '../../../components/AuthImageSection';
 import CustomTextField from '../../../components/CustomTextField';
 import { useLoginMutation } from '../../../redux/services/login';
-const Login = () => {
+
+const ResetPassword = () => {
   const navigate = useNavigate();
-  const [loginInfo, setLoginInfo] = useState({ email: 'akash@gmail.com', password: 'Akash21@' });
+  const [loginInfo, setLoginInfo] = useState({ email: '', password: 'Akash21@' });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
   const [loginApi, { isLoading, isError, error }] = useLoginMutation();
+
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -65,7 +67,7 @@ const Login = () => {
       // if (window.electronAPI && window.electronAPI.sendToken) {
       //   window.electronAPI.sendToken(token);
       // }
-      console.error(window.electronAPI,window.electronAPI,'inside the window.electronAPI');
+      console.error(window.electronAPI, window.electronAPI, 'inside the window.electronAPI');
 
       if (window.electronAPI && window.electronAPI.sendToken) {
 
@@ -84,15 +86,14 @@ const Login = () => {
       <Box className={styles.leftSection}>
         <Box className={styles.formBox}>
           <Typography variant="h5" gutterBottom className={styles.title}>
-            Welcome
-          </Typography>
+          Reset Your Password
+                    </Typography>
           <Typography variant="body2" gutterBottom className={styles.subtitle}>
-            Get started for a seamless work tracking experience.
+          Create a new password for your account.
           </Typography>
-
           <CustomTextField
-            label="Email"
-            name="email"
+            label="New Password"
+            name="newPassword"
             type="email"
             fullWidth
             startIcon={<EmailIcon />}
@@ -101,32 +102,17 @@ const Login = () => {
             error={Boolean(errors.email)}
             helperText={errors.email}
           />
-
           <CustomTextField
-            label="Password"
-            name="password"
-            type={showPassword ? "text" : "password"}
+            label="Confirm Password"
+            name="confirmPassword"
+            type="email"
             fullWidth
-            startIcon={<LockIcon />}
-            endIcon={
-              showPassword ? (
-                <VisibilityOff onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }} />
-              ) : (
-                <Visibility onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }} />
-              )
-            }
-            value={loginInfo.password}
-            handleChange={(e) => handleChange(e, 'password')}
-            error={Boolean(errors.password)}
-            helperText={errors.password}
+            startIcon={<EmailIcon />}
+            value={loginInfo.email}
+            handleChange={(e) => handleChange(e, 'email')}
+            error={Boolean(errors.email)}
+            helperText={errors.email}
           />
-
-          <Box className={styles.link} onClick={()=>{
-            navigate('/forgot-password')
-          }}>
-            <a href="">Forgot Password?</a>
-          </Box>
-
           <Button
             variant="contained"
             fullWidth
@@ -138,7 +124,7 @@ const Login = () => {
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Login'
+              'Continue'
             )}
           </Button>
 
@@ -149,9 +135,23 @@ const Login = () => {
           )}
 
           <Divider className={styles.divider}>OR</Divider>
-
-          <Button variant="outlined" fullWidth className={styles.googleBtn}>
-            Google
+          <Button
+            variant="contained"
+            fullWidth
+            className={styles.button}
+            onClick={handleLogin}
+            disabled={isLoading}
+            onEndIconClick={togglePasswordVisibility}
+            sx={{
+              backgroundColor: "white",
+              color: '#1976d2'
+            }}
+          >
+            {isLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              'Send reset link.'
+            )}
           </Button>
         </Box>
       </Box>
@@ -161,4 +161,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;

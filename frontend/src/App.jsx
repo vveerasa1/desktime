@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import './App.css'
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
-import {routes} from './routes/routes'; 
+import {routes} from './routes/index'; 
 
 const theme = createTheme(); 
 

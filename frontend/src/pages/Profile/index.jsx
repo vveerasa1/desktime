@@ -18,7 +18,7 @@ import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
 import TrackingDetails from "./TrackingDetails";
 import ChangePasswordModal from "./ChangePasswordModal";
-import { useCreateProfileMutation } from "../../redux/services/userService";
+import { useCreateProfileMutation } from "../../redux/services/user";
 
 const Profile = () => {
   const [workingDays, setWorkingDays] = useState([]);
