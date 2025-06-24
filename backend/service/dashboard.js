@@ -3,15 +3,22 @@ const TrackingSession = require("../models/trackingSession");
 
 const dashboardCard = async (req, res) => {
   try {
-    const { type } = req.query; // expects type=day|week|month
+    const { type,date } = req.query; // expects type=day|week|month
     const user = req.user;
     console.log(user);
     let userId = user.userId;
 
     let result = {};
-
+    let formattedDate;
     if (type === "day") {
-      const formattedDate = new Date().toISOString().split("T")[0];
+      if (date) {
+    // If `date` is provided in params, use that directly (assuming it's already in YYYY-MM-DD format)
+    formattedDate = date;
+  } else {
+    // If not provided, use current date in YYYY-MM-DD format
+    formattedDate = new Date().toISOString().split("T")[0];
+  }
+
       const session = await TrackingSession.findOne({
         userId,
         $expr: {
@@ -140,5 +147,18 @@ const dashboardCard = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+// const dashboardProductivityTime = async (req, res) => {
+//   try {
+//       const { type,date } = req.query; // expects type=day|week|month
+//     const user = req.user;
+//     console.log(user);
+//     let userId = user.userId;
+
+
+//   } catch(error) {
+
+//   }
+// };
 
 module.exports = { dashboardCard };
