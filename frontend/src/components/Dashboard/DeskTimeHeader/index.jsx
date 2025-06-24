@@ -13,22 +13,33 @@ import {
   CalendarToday,
   HelpOutline
 } from '@mui/icons-material';
+import CustomCalendar from '../../CustomCalender';
+import dayjs from 'dayjs';
 
-export default function DeskTimeHeader() {
+export default function DeskTimeHeader({setFilters}) {
+  const currentDate = new Date()
+  const formattedCurrentDate = dayjs(currentDate).format('ddd MMM DD YYYY')
   const [view, setView] = useState('day');
-
+  const [date, setDate] = useState();
+  const[activeDate,setActiveDate] = useState("")
   const handleViewChange = (_, nextView) => {
     if (nextView !== null) {
       setView(nextView);
     }
   };
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  const handleChange = (newDate,name) =>{
+    const formattedDate = dayjs(newDate).format("MM/DD/YYYY")
+    setActiveDate(dayjs(newDate).format('ddd MMM DD YYYY'));
+    setDate((prev)=>{
+      return {...prev, [name]:formattedDate}
+    })
+    setFilters((prev)=>({
+      ...prev,
+      type:view,
+      date:formattedDate
+    }))
+  }
 
   return (
     <Box
@@ -50,8 +61,10 @@ export default function DeskTimeHeader() {
       <Box display="flex" alignItems="center" gap={2}>
         {/* Date and Calendar */}
         <Box display="flex" alignItems="center" gap={1}>
-          <Typography color="#333333">{currentDate}</Typography>
-          <CalendarToday fontSize="small" sx={{ color: '#666666' }} />
+          <Typography color="#333333">{activeDate === "" ? formattedCurrentDate : activeDate}</Typography>
+          <CustomCalendar selectedDate={date?.date} name="date" onChange={(newDate)=>{
+            handleChange(newDate,"date")
+          }} fontSize="small" sx={{ color: '#666666' }} />
         </Box>
 
         {/* Arrows */}
@@ -75,6 +88,11 @@ export default function DeskTimeHeader() {
             <ToggleButton
               key={val}
               value={val}
+              onClick={()=>{
+                setFilters({
+                  viewMode:val
+                })
+              }}
               sx={{
                 textTransform: 'capitalize',
                 fontWeight: 500,

@@ -14,7 +14,7 @@ const formatSecondsToHHMM = (seconds) => {
 };
 
 
-const AnalyticCards = ({ getDashboardData }) => {
+const AnalyticCards = ({ getDashboardData, setFilters }) => {
   const dashboardData = getDashboardData?.data || {};
   const dynamicStatCards = statCardsData.map((card) => {
     switch (card.title) {

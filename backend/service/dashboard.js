@@ -31,7 +31,7 @@ const dashboardCard = async (req, res) => {
 
       if (!session) {
         return res
-          .status(404)
+          .status(200)
           .json({ message: "No tracking data found for today." });
       }
 

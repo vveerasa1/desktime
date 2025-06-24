@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Grid, Box } from '@mui/material';
 import styles from './index.module.css';
 import AnalyticCards from '../../components/Dashboard/AnalyticCards'
@@ -8,8 +8,8 @@ import ScreenshotGrid from '../../components/Dashboard/ScreenshotGrid'
 import CategoryBar from '../../components/Dashboard/CategoryBar'
 import DeskTimeHeader from '../../components/Dashboard/DeskTimeHeader'
 import EmployeeCalendar from '../../components/Dashboard/DeskCalendar'
-import DateTimeRangePicker from '../../components/CustomDatePicker'
 import { useGetDashboardDataQuery } from '../../redux/services/dashboard';
+import LoadingComponent from '../../components/ComponentLoader';
 const productiveApps = [
   { name: 'localhost', time: '1h 31m' },
   { name: 'Code', time: '1h 5m' },
@@ -34,33 +34,23 @@ const productiveApps = [
 ];
 
 const Dashboard = () => {
-  const [trackingData,setTrackingData] = useState([
-    {arrivalTime:"",deskTime:"",timeAtWork:""}
-  ])
-  const userToken = localStorage.getItem('token')
-console.log(userToken,"USER>?>?.");
-  const day = "day"
-  const { data:getDashboardData, isLoading } = useGetDashboardDataQuery({token:userToken,day});
-  console.log(getDashboardData,"DASHBOARD DATA")
-
-  // useEffect(() => {
-
-  //   if(getDashboardData && getDashboardData.data){
-  //     setTrackingData({
-        
-
-  //     })
-  //   }
-  //    }, []);
-
+  const [filters,setFilters]=useState({
+    date:null,
+    viewMode:'day'
+  })
+  const { data:getDashboardData, isLoading } = useGetDashboardDataQuery({day:filters.viewMode,date:filters.date});
   return (
     <Box className={styles.container}>
-      <DateTimeRangePicker/>
-      <DeskTimeHeader/>
-      <AnalyticCards 
+      <DeskTimeHeader setFilters={setFilters} />
+
+      {isLoading ?  <LoadingComponent/> :(
+        <AnalyticCards
+      setFilters={setFilters} 
       getDashboardData={getDashboardData}
       
       />
+      )}
+      
       {/* <Grid container spacing={2}> */}
       <ProductivityBar data={{ productive: 60, neutral: 25, unproductive: 15 }} />
       <AppCategoryPanel
