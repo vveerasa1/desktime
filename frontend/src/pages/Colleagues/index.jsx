@@ -30,14 +30,15 @@ const Colleagues = () => {
     }
   }, [getProfile]);
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchText(value);
-    const result = collegeData.filter((item) =>
-      item.username.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredData(result);
-  };
+  // const handleSearch = (e) => {
+  //   const value = e.target.value;
+  //   setSearchText(value);
+  //   const result = getProfile.data.filter((item) =>
+  //     item.username.toLowerCase().includes(value.toLowerCase())
+  //   );
+  //   setFilteredData(result);
+  // };
+
   return (
     <Box sx={{ padding: 5 }}>
       {/* Top Control Bar */}
