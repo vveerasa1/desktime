@@ -12,8 +12,13 @@ const CustomTextField = (
         helperText,
         disabled,
         isRequired,
-        icon,
-        handleBlur }
+        endIcon,
+        handleBlur,
+        startIcon,
+        onStartIconClick,
+        onEndIconClick,
+        type
+    }
 
 ) => {
     return (
@@ -24,11 +29,11 @@ const CustomTextField = (
                 </Typography>
             )}
             <TextField
-           
+
                 name={name}
                 value={value}
                 placeholder={placeholder}
-                onChange={(event)=>{
+                onChange={(event) => {
                     handleChange(event, name)
                 }}
                 onBlur={handleBlur}
@@ -36,15 +41,29 @@ const CustomTextField = (
                 helperText={helperText}
                 disabled={disabled}
                 fullWidth
+                type={type || 'text'}
                 variant='outlined'
-               size="small" // <-- add this line
+                size="small" // <-- add this line
                 InputProps={{
                     sx: {
-        fontSize: "14px",
-            height: '40px',          // explicit height to match Select
-          },
-                    endAdornment: icon ? (
-                        <InputAdornment position="end">{icon}</InputAdornment>
+                        fontSize: "14px",
+                        height: '40px',          // explicit height to match Select
+                    },
+                    startAdornment: startIcon ? (
+                        <InputAdornment position="start">
+                            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                                {React.cloneElement(startIcon, { sx: { fontSize: 18 } })}
+                            </Box>
+                        </InputAdornment>
+                    ) : null,
+                    // startAdornment: startIcon ? (
+                    //     <InputAdornment position="end">{startIcon}</InputAdornment>
+                    // ) : null,
+                    endAdornment: endIcon ? (
+                        <InputAdornment position="end" onClick={onEndIconClick}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                                {endIcon}</Box>
+                        </InputAdornment>
                     ) : null,
                 }}
             />

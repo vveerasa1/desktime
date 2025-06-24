@@ -9,6 +9,11 @@ const FormData = require('form-data');
 const fs = require('fs');
 const Store = require('electron-store').default
 const store = new Store();
+store.clear();
+console.log('[Store] Cleared all data');
+
+const { ipcMain } = require('electron');
+
 let mainWindow;
 let tray = null;
 let lastActivity = Date.now();
@@ -21,6 +26,7 @@ const USER_ID = '685a3e5726ac65ec09c16786'
 let activeLastSent = null;
 
 let idleCheckStart = null;
+console.log('Preload path:', path.join(__dirname, 'preload.js'));
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -30,7 +36,9 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
+      // preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.js')
+
     },
   });
 
@@ -65,7 +73,6 @@ function createWindow() {
   tray.on('click', () => {
     shell.openExternal('http://localhost:5173'); // Opens React app in default browser
   });
-
   startTracking();
 
 }
@@ -73,16 +80,16 @@ function createWindow() {
 function getStoredToken() {
   return store.get('authToken');
 }
-const { ipcMain } = require('electron');
 
 ipcMain.on('token', (event, token) => {
+
   console.log('Received token from renderer:', token);
-  // You can store the token or use it as needed here
-  // Optionally, send a response back to renderer
   store.set('authToken', token);
 
   event.sender.send('token-response', 'Token received');
 });
+console.log('from mainnnnnnnnnnnnnnnnnn')
+// window.electronAPI?.sendToken('your-token-value-here');
 
 async function startTracking() {
   await initializeDailyTracking(USER_ID);
@@ -136,6 +143,7 @@ async function startTracking() {
         filename: `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`,
         contentType: 'image/jpeg',
       });
+      console.log(token,"LLLLLLLLLLLLLLLL");
 
       const response = await axios.post('http://localhost:8080/tracking/sessions/screenshots', formData, {
         headers: {
