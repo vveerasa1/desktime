@@ -6,7 +6,6 @@ import Login from '../pages/Auth/Login';
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Profile = lazy(() => import('../pages/Profile'));
 const Colleagues = lazy(() => import('../pages/Colleagues'));
-const Projects = lazy(() => import('../pages/Projects'));
 const ForgotPassword = lazy(() => import('../pages/Auth/ForgotPassword'));
 const OtpVerify = lazy(() => import('../pages/Auth/OtpVerify'));
 const ResetPassword = lazy(() => import('../pages/Auth/ResetPassword'));
@@ -28,10 +27,6 @@ export const routes = [
       {
         path: 'colleagues',
         element: <Colleagues />,
-      },
-      {
-        path: 'projects',
-        element: <Projects />,
       },
     ],
   },
