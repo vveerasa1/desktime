@@ -25,7 +25,7 @@ const ScreenshotGrid = () => {
         </Typography>
         <Grid container spacing={2}>
           {getScreenshots &&
-            getScreenshots.data.map((shot, idx) => (
+            getScreenshots?.data?.map((shot, idx) => (
               <Grid
                 size={{ xs: 12, md: 3 }}
                 item
