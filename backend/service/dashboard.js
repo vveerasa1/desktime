@@ -1,0 +1,144 @@
+const moment = require("moment");
+const TrackingSession = require("../models/trackingSession");
+
+const dashboardCard = async (req, res) => {
+  try {
+    const { type } = req.query; // expects type=day|week|month
+    const user = req.user;
+    console.log(user);
+    let userId = user.userId;
+
+    let result = {};
+
+    if (type === "day") {
+      const formattedDate = new Date().toISOString().split("T")[0];
+      const session = await TrackingSession.findOne({
+        userId,
+        $expr: {
+          $eq: [
+            { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
+            formattedDate,
+          ],
+        },
+      });
+
+      if (!session) {
+        return res
+          .status(404)
+          .json({ message: "No tracking data found for today." });
+      }
+
+      const arrivalTime = new Date(session.arrivalTime);
+      let deskTime = 0;
+      let idleTime = 0;
+      let timeAtWork = 0;
+      if(session.leftTime) {
+        deskTime = Math.floor((session.leftTime - arrivalTime) / 1000); // seconds
+       idleTime = (session.idlePeriods || []).reduce(
+        (acc, p) => acc + (p.duration || 0),
+        0
+      );
+      timeAtWork = deskTime - idleTime;
+      } else {
+      const now = new Date();
+      deskTime = Math.floor((now - arrivalTime) / 1000); // seconds
+
+      idleTime = (session.idlePeriods || []).reduce(
+        (acc, p) => acc + (p.duration || 0),
+        0
+      );
+      timeAtWork = deskTime - idleTime;
+    }
+
+      result = {
+        type: "day",
+        arrivalTime: moment(session.arrivalTime).format("HH:mm:ss"),
+        leftTime: session?.leftTime
+          ? moment(session.leftTime).format("HH:mm:ss")
+          : null,
+        deskTime, // in seconds
+        idleTime, // in seconds
+        timeAtWork, // in seconds
+      };
+    } else if (type === "week" || type === "month") {
+      const now = moment();
+
+      // Get start of week (Monday) or start of month
+      const start =
+        type === "week"
+          ? now.clone().startOf("week").add(1, "day")
+          : now.clone().startOf("month");
+      const end = now.clone().endOf("day"); // now till end of today
+
+      console.log("Start:", start.toISOString());
+      console.log("End:", end.toISOString());
+
+      // Use string field `date` in 'YYYY-MM-DD' format for query
+      const sessions = await TrackingSession.find({
+        userId,
+        arrivalTime: {
+          $gte: start.toDate(),
+          $lte: end.toDate(),
+        },
+      });
+
+      if (sessions.length === 0) {
+        return res
+          .status(404)
+          .json({ message: `No tracking data found for this ${type}.` });
+      }
+
+      let totalDeskTime = 0;
+      let totalIdleTime = 0;
+      let totalTimeAtWork = 0;
+      let totalArrivalTime = 0;
+      let totalLeftTime = 0;
+      let count = 0;
+      let leftCount = 0;
+
+      sessions.forEach((session) => {
+        const arrival = moment(session.arrivalTime);
+        const left = session.leftTime ? moment(session.leftTime) : moment();
+
+        const deskTime = left.diff(arrival, "seconds");
+        const idleTime = (session.idlePeriods || []).reduce(
+          (acc, p) => acc + (p.duration || 0),
+          0
+        );
+        const timeAtWork = deskTime - idleTime;
+
+        totalDeskTime += deskTime;
+        totalIdleTime += idleTime;
+        totalTimeAtWork += timeAtWork;
+        totalArrivalTime += arrival.valueOf(); // milliseconds
+        if (session?.leftTime) {
+          totalLeftTime += left.valueOf();
+          leftCount++;
+        }
+        count++;
+      });
+
+      result = {
+        type,
+        arrivalTime: moment(totalArrivalTime / count).format("HH:mm:ss"),
+        leftTime: leftCount
+          ? moment(totalLeftTime / leftCount).format("HH:mm:ss")
+          : null,
+        deskTime: Math.floor(totalDeskTime / count),
+        idleTime: Math.floor(totalIdleTime / count),
+        timeAtWork: Math.floor(totalTimeAtWork / count),
+      };
+    }
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Dashboard card data fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("dashboardCard error:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { dashboardCard };
