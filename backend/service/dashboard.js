@@ -1,24 +1,17 @@
-const moment = require("moment");
+const moment = require("moment-timezone");
 const TrackingSession = require("../models/trackingSession");
 
 const dashboardCard = async (req, res) => {
   try {
-    const { type,date } = req.query; // expects type=day|week|month
+    const { type, date } = req.query; // expects type=day|week|month
     const user = req.user;
     console.log(user);
     let userId = user.userId;
+    let timeZone = user.timeZone;
 
     let result = {};
-    let formattedDate;
     if (type === "day") {
-      if (date) {
-    // If `date` is provided in params, use that directly (assuming it's already in YYYY-MM-DD format)
-    formattedDate = date;
-  } else {
-    // If not provided, use current date in YYYY-MM-DD format
-    formattedDate = new Date().toISOString().split("T")[0];
-  }
-
+      const formattedDate = date || moment().tz(timeZone).format("YYYY-MM-DD");
       const session = await TrackingSession.findOne({
         userId,
         $expr: {
@@ -39,23 +32,23 @@ const dashboardCard = async (req, res) => {
       let deskTime = 0;
       let idleTime = 0;
       let timeAtWork = 0;
-      if(session.leftTime) {
+      if (session.leftTime) {
         deskTime = Math.floor((session.leftTime - arrivalTime) / 1000); // seconds
-       idleTime = (session.idlePeriods || []).reduce(
-        (acc, p) => acc + (p.duration || 0),
-        0
-      );
-      timeAtWork = deskTime - idleTime;
+        idleTime = (session.idlePeriods || []).reduce(
+          (acc, p) => acc + (p.duration || 0),
+          0
+        );
+        timeAtWork = deskTime - idleTime;
       } else {
-      const now = new Date();
-      deskTime = Math.floor((now - arrivalTime) / 1000); // seconds
+        const now = new Date();
+        deskTime = Math.floor((now - arrivalTime) / 1000); // seconds
 
-      idleTime = (session.idlePeriods || []).reduce(
-        (acc, p) => acc + (p.duration || 0),
-        0
-      );
-      timeAtWork = deskTime - idleTime;
-    }
+        idleTime = (session.idlePeriods || []).reduce(
+          (acc, p) => acc + (p.duration || 0),
+          0
+        );
+        timeAtWork = deskTime - idleTime;
+      }
 
       result = {
         type: "day",
@@ -148,17 +141,132 @@ const dashboardCard = async (req, res) => {
   }
 };
 
-// const dashboardProductivityTime = async (req, res) => {
-//   try {
-//       const { type,date } = req.query; // expects type=day|week|month
-//     const user = req.user;
-//     console.log(user);
-//     let userId = user.userId;
+const formatDuration = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}m ${secs}s`;
+};
 
+const dashboardProductivityTime = async (req, res) => {
+  try {
+    const { type, date } = req.query;
+    const user = req.user;
+    const userId = user.userId;
+    const timeZone = user.timeZone;
 
-//   } catch(error) {
+    if (type === "day") {
+      const targetDate = date || moment().tz(timeZone).format("YYYY-MM-DD");
 
-//   }
-// };
+      const session = await TrackingSession.findOne({
+        userId,
+        $expr: {
+          $eq: [
+            { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
+            targetDate,
+          ],
+        },
+      });
+      console.log(session);
 
-module.exports = { dashboardCard };
+      let formatted = [];
+
+      if (session && session.activePeriods) {
+        formatted = session.activePeriods
+          .filter((period) => period.start && period.end)
+          .map((period) => {
+            const start = moment(period.start);
+            const end = moment(period.end);
+            const duration = period.duration || 0;
+
+            return {
+              time: start.format("HH:mm"),
+              productive: period.productivity || 0,
+              neutral: period.neutral || 0,
+              break: 0,
+              timeRange: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+              apps: [],
+              total: formatDuration(duration),
+            };
+          });
+      }
+
+      return res.status(200).json({
+        code: 200,
+        status: "Success",
+        message: "Dashboard card data fetched successfully",
+        data: {
+          date: targetDate,
+          session: formatted,
+        },
+      });
+    }
+
+    if (type === "week") {
+      const sessions = [];
+
+      for (let i = 0; i < 7; i++) {
+        const targetDate = moment()
+          .tz(timeZone)
+          .subtract(i, "days")
+          .format("YYYY-MM-DD");
+
+        const session = await TrackingSession.findOne({
+          userId,
+          $expr: {
+            $eq: [
+              { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
+              targetDate,
+            ],
+          },
+        });
+
+        let formatted = [];
+
+        if (session && session.activePeriods) {
+          formatted = session.activePeriods.map((period) => {
+            const start = moment(period.start).tz(timeZone);
+            const end = moment(period.end).tz(timeZone);
+            const duration = period.duration || 0;
+
+            return {
+              time: start.format("HH:mm"),
+              productive: period.productivity || 0,
+              neutral: period.neutral || 0,
+              break: 0,
+              timeRange: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+              apps: [],
+              total: formatDuration(duration),
+            };
+          });
+        }
+
+        sessions.push({
+          date: targetDate,
+          session: formatted,
+        });
+      }
+
+      sessions.reverse(); // chronological order
+
+      return res.status(200).json({
+        code: 200,
+        status: "Success",
+        message: "Dashboard card data fetched successfully",
+        data: {
+          session: sessions,
+        },
+      });
+    }
+
+    return res
+      .status(400)
+      .json({ message: "Invalid type. Use 'day' or 'week'." });
+  } catch (error) {
+    console.error("Error fetching dashboard productivity time:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch tracking data", error });
+  }
+};
+
+module.exports = { dashboardCard, dashboardProductivityTime };

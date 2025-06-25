@@ -18,7 +18,8 @@ const TrackingSessionSchema = new mongoose.Schema({
       start: Date,
       end: Date,
       duration: Number, // in seconds
-      productivity: Number
+      productivity: Number,
+      neutral: Number
     }
   ]
 }, { timestamps: true });

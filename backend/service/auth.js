@@ -55,6 +55,7 @@ const login = async (req, res) => {
       userId: user._id,
       role: user.role,
       email: user.email,
+      timeZone: user.timeZone
     };
 
     // Generate tokens
@@ -73,6 +74,7 @@ const login = async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        timeZone: user.timeZone,
       },
     });
   } catch (err) {

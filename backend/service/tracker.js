@@ -61,7 +61,7 @@ const idleTimeTracker = async (req, res) => {
   try {
     const { sessionId, startTime, endTime, duration } = req.body;
 
-    const session = await TrackingSession.findOne(sessionId);
+    const session = await TrackingSession.findById(sessionId);
 
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
@@ -131,6 +131,7 @@ const activeTimeTracker = async (req, res) => {
     let productivity = (duration / fullBlock) * 100;
     productivity = Math.min(100, Math.round(productivity)); // clamp to 100%
     console.log("Productivity:", productivity, "%");
+    let neutral = 100 - productivity;
     await TrackingSession.findByIdAndUpdate(sessionId, {
       $inc: { totalTrackedTime: duration },
       $push: {
@@ -139,6 +140,7 @@ const activeTimeTracker = async (req, res) => {
           end: new Date(endTime),
           duration,
           productivity,
+          neutral,
         },
       },
     });
