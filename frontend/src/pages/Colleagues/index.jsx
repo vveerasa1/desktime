@@ -1,8 +1,5 @@
 import {
   Box,
-  Grid,
-  Typography,
-  Paper,
   IconButton,
   ToggleButtonGroup,
   ToggleButton,
@@ -17,7 +14,6 @@ import { useGetAllProfileQuery } from "../../redux/services/user";
 import LoadingComponent from "../../components/ComponentLoader";
 import { useNavigate } from "react-router-dom";
 import ColleaguesList from "../../components/Colleagues/ColleaguesList";
-import MuiToaster from "../../components/MuiToaster";
 const Colleagues = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");

@@ -8,12 +8,10 @@ const CustomCalendar = ({
   name, // ✅ accept name
   selectedDate,
   onChange,
-  placeholder,
   isRequired,
   minDate,
   maxDate,
   disabled,
-  fullWidth = true,
 }) => {
   return (
     <Box>
@@ -31,10 +29,7 @@ const CustomCalendar = ({
         disabled={disabled}
         slotProps={{
           textField: {
-            variant: 'outlined',
-            size: 'small',
-            fullWidth: fullWidth,
-            placeholder: placeholder || 'Select date',
+            display:"none",
             InputProps: {
               sx: {
                 fontSize: '14px',

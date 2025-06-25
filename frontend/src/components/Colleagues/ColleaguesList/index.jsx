@@ -74,7 +74,7 @@ const ColleaguesList = ({
                       <Box>
                         <Button
                         onClick={()=>{
-                          navigate(`/settings/${colleague._id}`)
+                          navigate(`/settings/edit/${colleague._id}`)
                         }}
                         >
                           <EditIcon />

@@ -10,7 +10,6 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
-  CalendarToday,
   HelpOutline
 } from '@mui/icons-material';
 import CustomCalendar from '../../CustomCalender';
@@ -87,7 +86,7 @@ export default function DeskTimeHeader({setFilters}) {
           {['day', 'week', 'month'].map((val) => (
             <ToggleButton
               key={val}
-              value={val}
+              value={val===""?currentDate:val}
               onClick={()=>{
                 setFilters({
                   viewMode:val

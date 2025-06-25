@@ -28,7 +28,9 @@ const Profile = () => {
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
   const { data: profileDetails, isLoading: getSingleProfileApiIsLoading } =
-    useGetSingleProfileQuery(_id);
+    useGetSingleProfileQuery(_id,{
+      skip:!_id
+    });
 
   const timeZoneOptions = moment.tz.names().map((tz) => ({
     id: tz,
@@ -67,7 +69,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (profileDetails?.data) {
+    if (_id && profileDetails?.data) {
       const data = profileDetails.data;
       const workingDayCodes =
         data.workingDays?.map((day) => reverseDayNameMap[day]) || [];

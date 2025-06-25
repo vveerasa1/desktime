@@ -1,11 +1,9 @@
-import React from 'react';
 import { Paper, Box, Typography } from '@mui/material';
 import { Customized } from 'recharts';
 
 import {
   BarChart,
   Bar,
-  XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer
