@@ -54,29 +54,31 @@ const Login = () => {
 
 
   const handleLogin = async () => {
-    if (!validateForm()) return;
+  if (!validateForm()) {
+    console.log("Login form validation failed.");
+    return;
+  }
 
-    try {
-      const res = await loginApi(loginInfo).unwrap();
-      console.log(res)
-      const token = res?.accessToken;
+  try {
+    const res = await loginApi(loginInfo).unwrap();
+    console.log("Login API response:", res); // Log the full response
 
+    const token = res?.accessToken;
+    console.log("Extracted token from response:", token); // Log the extracted token
+
+    if (token) {
       localStorage.setItem('token', token);
-      // if (window.electronAPI && window.electronAPI.sendToken) {
-      //   window.electronAPI.sendToken(token);
-      // }
-      console.error(window.electronAPI,window.electronAPI,'inside the window.electronAPI');
-
-      if (window.electronAPI && window.electronAPI.sendToken) {
-
-        window.electronAPI.sendToken(token);
-      }
-       navigate('/dashboard');
-
-    } catch (err) {
-      console.error('Login failed:', err);
+      console.log('Token successfully saved to localStorage:', token);
+      navigate('/dashboard');
+    } else {
+      console.warn('Login successful, but no accessToken found in response.');
     }
-  };
+
+  } catch (err) {
+    console.error('Login failed:', err);
+    // You might want to display an error message to the user here
+  }
+};
 
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 

@@ -11,3 +11,12 @@
     padding-left: 16px;
   }
   
+.menuIcon :hover{
+  background-color:#194CF0 ;
+  color: white;
+  transition: 0.3s ease-in-out;
+}
+
+.menuIcon{
+  transition: 0.3s ease-in-out;
+}

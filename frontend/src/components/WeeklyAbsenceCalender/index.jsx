@@ -15,7 +15,11 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AddIcon from "@mui/icons-material/Add";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AbsenceCalenderModal from "./AbsenceCalenderModal";
-import { weekDays,teamMembers,leaveTypes } from "../../constants/absenceCalenderData";
+import {
+  weekDays,
+  teamMembers,
+  leaveTypes,
+} from "../../constants/absenceCalenderData";
 export default function WeeklyAbsenceCalendar() {
   const theme = useTheme();
   const [tab, setTab] = useState(0);
@@ -23,15 +27,19 @@ export default function WeeklyAbsenceCalendar() {
   const [selectedDay, setSelectedDay] = useState("");
   const [isFullMode, setIsFullMode] = useState(false);
   const [allLeaves, setAllLeaves] = useState([...teamMembers]);
+  const [selectedMemberId, setSelectedMemberId] = useState(null);
 
-  const handleCellClick = (dayIdx, memberId) => {
+  const handleCellClick = (dayIdx, id) => {
+    console.log(dayIdx,"TRACK")
     setSelectedDay(weekDays[dayIdx]);
+    setSelectedMemberId(id); // track which member is clicked
     setIsFullMode(false);
     setDialogOpen(true);
   };
 
   const handleAddAwayTimeClick = () => {
     setSelectedDay("");
+    setSelectedMemberId(null);
     setIsFullMode(true);
     setDialogOpen(true);
   };
@@ -47,12 +55,19 @@ export default function WeeklyAbsenceCalendar() {
       dateRange: `${weekDays[start]}–${weekDays[end]}`,
     };
 
-    const updated = [...allLeaves];
-    updated[0].leaves.push(newLeave); // Add to first member for demo
+    const updated = allLeaves.map((member) => {
+      if (member.id === selectedMemberId || selectedMemberId === null) {
+        return {
+          ...member,
+          leaves: [...member.leaves, newLeave],
+        };
+      }
+      return member;
+    });
     setAllLeaves(updated);
     setDialogOpen(false);
   };
-
+  
   return (
     <Box p={3}>
       <Typography variant="h6">Absence Calendar</Typography>
@@ -63,16 +78,31 @@ export default function WeeklyAbsenceCalendar() {
           <Tab label="Team 1" />
         </Tabs>
         <Box flexGrow={1} />
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddAwayTimeClick}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleAddAwayTimeClick}
+        >
           Add Away Time
         </Button>
       </Box>
 
-      <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
+      <Box
+        mt={2}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+      >
         <Box>
-          <IconButton><ArrowBackIosIcon /></IconButton>
-          <Typography component="span" mx={1}>This Week</Typography>
-          <IconButton><ArrowForwardIosIcon /></IconButton>
+          <IconButton>
+            <ArrowBackIosIcon />
+          </IconButton>
+          <Typography component="span" mx={1}>
+            This Week
+          </Typography>
+          <IconButton>
+            <ArrowForwardIosIcon />
+          </IconButton>
         </Box>
       </Box>
 
@@ -109,22 +139,27 @@ export default function WeeklyAbsenceCalendar() {
               <Avatar>{m.avatar}</Avatar>
               <Box>
                 <Typography fontWeight={600}>{m.name}</Typography>
-                <Typography variant="caption" color="text.secondary">{m.role}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {m.role}
+                </Typography>
               </Box>
             </Box>
-
             {weekDays.map((_, d) => {
               const leave = m.leaves.find((l) => d >= l.start && d <= l.end);
+              console.log(leave,"LEAVE TRACK")
               if (leave && d === leave.start) {
                 return (
                   <Box
                     key={d}
+                    onClick={() => handleCellClick(d, m.id)}
                     gridColumn={`span ${leave.end - leave.start + 1}`}
                     sx={{
-                      bgcolor: leaveTypes[leave.type] || '#e0f7fa',
+                      bgcolor: leaveTypes[leave.type] || "#e0f7fa",
                       borderRadius: 1,
                       p: 1,
                       textAlign: "center",
+                    "&:hover": { bgcolor: "#f0f0f0", cursor: "pointer" },
+
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
@@ -141,7 +176,7 @@ export default function WeeklyAbsenceCalendar() {
                     onClick={() => handleCellClick(d, m.id)}
                     sx={{
                       height: "100%",
-                      '&:hover': { bgcolor: "#f0f0f0", cursor: "pointer" },
+                      "&:hover": { bgcolor: "#f0f0f0", cursor: "pointer" },
                     }}
                   />
                 );
@@ -152,7 +187,6 @@ export default function WeeklyAbsenceCalendar() {
           </React.Fragment>
         ))}
       </Box>
-
       <AbsenceCalenderModal
         dialogOpen={dialogOpen}
         handleClose={handleClose}

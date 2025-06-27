@@ -120,7 +120,6 @@ async function startTracking() {
   setInterval(async () => {
     try {
       const pos = await mouse.getPosition();
-      console.log('[Mouse Position]', pos);
     } catch (err) {
       console.error('[Mouse Poll Error]', err);
     }

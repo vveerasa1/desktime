@@ -13,9 +13,9 @@ export const teamMembers = [
     leaves: [
       {
         type: "personal",
-        start: 0,
-        end: 1,
-        label: "Personal Leave",
+        startDay: 0,
+        endDay: 1,
+        rason: "Personal Leave",
         dateRange: "Jun 16–17",
       },
     ],
@@ -28,9 +28,9 @@ export const teamMembers = [
     leaves: [
       {
         type: "paid",
-        start: 1,
-        end: 1,
-        label: "Paid Leave",
+        startDay: 1,
+        endDay: 1,
+        reason: "Paid Leave",
         dateRange: "Jun 17",
       },
     ],
