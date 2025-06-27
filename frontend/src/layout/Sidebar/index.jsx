@@ -25,6 +25,7 @@ const navItems = [
   { label: 'Reports', path: '/reports', icon: <AssessmentIcon /> },
   { label: 'Exports', path: '/exports', icon: <FileDownloadIcon /> },
   { label: 'Settings', path: '/settings', icon: <SettingsIcon /> },
+  { label: 'Logout', path: '/login', icon: <SettingsIcon /> },
 ];
 
 const Sidebar = () => {
@@ -58,11 +59,14 @@ const Sidebar = () => {
                 if (isMobile) setMobileOpen(false);
               }}
               className={selected ? styles.activeItem : ''}
-              sx={{ gap: 1 }}
+              sx={{ gap: 1}}
             >
-              <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{}}>
+ <Box className={styles.menuIcon} component="span" sx={{ display: 'flex', alignItems: 'center',cursor:"pointer" }}>
                 {icon}
               </Box>
+              </Box>
+             
               {(!isMobile && mobileOpen) && <ListItemText primary={label} />}
             </ListItem>
           );

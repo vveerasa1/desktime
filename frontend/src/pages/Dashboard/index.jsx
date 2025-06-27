@@ -8,9 +8,10 @@ import ScreenshotGrid from '../../components/Dashboard/ScreenshotGrid'
 import CategoryBar from '../../components/Dashboard/CategoryBar'
 import DeskTimeHeader from '../../components/Dashboard/DeskTimeHeader'
 import EmployeeCalendar from '../../components/Dashboard/DeskCalendar'
-import { useGetDashboardDataQuery } from '../../redux/services/dashboard';
+import { useGetDashboardDataQuery,useGetProductivityDataQuery } from '../../redux/services/dashboard';
 import LoadingComponent from '../../components/ComponentLoader';
 import { useNavigate,useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 const productiveApps = [
   { name: 'localhost', time: '1h 31m' },
   { name: 'Code', time: '1h 5m' },
@@ -35,10 +36,13 @@ const productiveApps = [
 ];
 
 const Dashboard = () => {
+  
+const date = dayjs().format("YYYY-MM-DD");
   const [filters,setFilters]=useState({
-    date:null,
+    date:date,
     viewMode:'day'
   })
+  console.log(filters,"FILTERS TRACKING")
   const navigate = useNavigate()
   const {type} = useParams()
   useEffect(() => {
@@ -47,6 +51,11 @@ const Dashboard = () => {
     }
   }, [filters.viewMode, navigate, type]);
   const { data:getDashboardData, isLoading } = useGetDashboardDataQuery({day:filters.viewMode,date:filters.date});
+  const { data:getProductiviyData, isLoading:isProductivityLoading } = useGetProductivityDataQuery({day:filters.viewMode,date:filters.date});
+  // console.log(getProductiviyData?.data,"GET PRODUCTIVOTy")
+
+  // ... rest of your App component
+  
   return (
     <Box className={styles.container}>
       <DeskTimeHeader setFilters={setFilters} />
@@ -60,7 +69,9 @@ const Dashboard = () => {
       )}
       
       {/* <Grid container spacing={2}> */}
-      <ProductivityBar data={{ productive: 60, neutral: 25, unproductive: 15 }} />
+      {isProductivityLoading? <LoadingComponent/>:(
+      <ProductivityBar getProductiviyData={getProductiviyData} data={{ productive: 60, neutral: 25, unproductive: 15 }} />
+      )}
       <AppCategoryPanel
         title="Productive apps"
         totalTime="3h 41m"

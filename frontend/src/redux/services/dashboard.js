@@ -7,8 +7,14 @@ export const Dashboard = createApi({
     baseUrl: URL_CONSTANTS.BASE_URL,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
+      console.log(token,"TOKKKKKK")
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
+        if (window?.electronAPI?.sendToken) {
+          window.electronAPI.sendToken(token);
+        console.log( window.electronAPI,"ELECTRON CONSOE")
+
+        }
       }
       return headers;
     }
@@ -25,14 +31,33 @@ export const Dashboard = createApi({
 
     getDashboardData: builder.query({
       query: ({ day, date }) => {
-        const params = date
-          ? { type: day, date: date }  // if date exists, include both
-          : { type: day };             // otherwise only type
+        // const params = date
+        //   ? { type: day, date: date }  // if date exists, include both
+        //   : { type: day };             // otherwise only type
 
         return {
           url: `${URL_CONSTANTS.DASHBOARD}`,
           method: 'GET',
-          params,
+          params: {
+            type: day,
+            date: date
+          },
+        };
+      },
+    }),
+    getProductivityData: builder.query({
+      query: ({ day, date }) => {
+        // const params = date
+        //   ? { type: day, date: date } 
+        //   : { type: day };           
+
+        return {
+          url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.PRODUCTIVITY}`,
+          method: 'GET',
+          params: {
+            type: day,
+            date: date
+          },
         };
       },
     }),
@@ -40,8 +65,8 @@ export const Dashboard = createApi({
   }),
 });
 
-// ✅ Export hooks
 export const {
   useGetScreenshotQuery,
   useGetDashboardDataQuery,
+  useGetProductivityDataQuery,
 } = Dashboard;
