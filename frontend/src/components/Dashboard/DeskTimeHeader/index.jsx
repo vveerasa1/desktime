@@ -17,9 +17,12 @@ import dayjs from 'dayjs';
 
 export default function DeskTimeHeader({setFilters}) {
   const currentDate = new Date()
+  const trackDate = new Date()
+  const formattedTrackDate = dayjs(trackDate).format("YYYY-MM-DD")
   const formattedCurrentDate = dayjs(currentDate).format('ddd MMM DD YYYY')
   const [view, setView] = useState('day');
   const [date, setDate] = useState();
+  const [dateTracking,setDateTracking] = useState(formattedTrackDate)
   const[activeDate,setActiveDate] = useState("")
   const handleViewChange = (_, nextView) => {
     if (nextView !== null) {
@@ -28,8 +31,9 @@ export default function DeskTimeHeader({setFilters}) {
   };
 
   const handleChange = (newDate,name) =>{
-    const formattedDate = dayjs(newDate).format("MM/DD/YYYY")
+    const formattedDate = dayjs(newDate).format("YYYY-MM-DD")
     setActiveDate(dayjs(newDate).format('ddd MMM DD YYYY'));
+    setDateTracking(dayjs(newDate).format("YYYY-MM-DD"))
     setDate((prev)=>{
       return {...prev, [name]:formattedDate}
     })
@@ -39,7 +43,7 @@ export default function DeskTimeHeader({setFilters}) {
       date:formattedDate
     }))
   }
-
+console.log(dateTracking,"DATE TRACKING")
   return (
     <Box
       display="flex"
@@ -89,7 +93,8 @@ export default function DeskTimeHeader({setFilters}) {
               value={val===""?currentDate:val}
               onClick={()=>{
                 setFilters({
-                  viewMode:val
+                  viewMode:val,
+                  date:dateTracking
                 })
               }}
               sx={{

@@ -3,7 +3,6 @@ import React, { lazy } from "react";
 import AppLayout from "../layout";
 import Login from "../pages/Auth/Login";
 import AbsenceCalender from "../pages/AbsenceCalendar";
-
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Profile = lazy(() => import("../pages/Profile"));
 const Colleagues = lazy(() => import("../pages/Colleagues"));

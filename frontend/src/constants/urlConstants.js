@@ -4,5 +4,6 @@ export const URL_CONSTANTS={
     AUTH:'auth',
     LOGIN:'login',
     DASHBOARD:"dashboard",
-    SCREENSHOT:"screenshots"
+    SCREENSHOT:"screenshots",
+    PRODUCTIVITY:"productivity"
 }

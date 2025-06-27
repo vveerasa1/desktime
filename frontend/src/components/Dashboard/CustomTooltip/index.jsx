@@ -1,115 +1,52 @@
+// CustomTooltip.jsx
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
 
-const CustomTooltip = ({ active, payload, label, coordinate }) => {
-  if (
-    active &&
-    payload &&
-    payload.length &&
-    payload[0].payload.apps.length > 0
-  ) {
-    const data = payload[0].payload;
-    const productiveApps = data.apps.filter(app => app.type === 'productive');
-    const neutralApps = data.apps.filter(app => app.type === 'neutral');
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    // Define a custom order for display to ensure consistency
+    const order = { 'productive': 1, 'neutral': 2, 'unproductive': 3 };
+    const sortedPayload = [...payload].sort((a, b) => {
+      // Handle cases where dataKey might not be in the predefined order (shouldn't happen with our data)
+      const orderA = order[a.dataKey] || 99;
+      const orderB = order[b.dataKey] || 99;
+      return orderA - orderB;
+    });
 
     return (
-      <Box
-        sx={{
-          position: 'absolute',
-          left: coordinate?.x || 0,
-          top: (coordinate?.y || 0) - 10,
-          transform: 'translateY(-100%)',
-          backgroundColor: 'white',
-          border: '1px solid #ccc',
-          borderRadius: 2,
-          p: 2,
-          fontSize: 12,
-          boxShadow: 3,
-          zIndex: 1000,
-          minWidth: 200,
-        }}
-      >
-        <Typography fontWeight={600} mb={1}>
-          {data.timeRange || label}
+      <Paper elevation={3} sx={{ p: 1, bgcolor: 'background.paper', opacity: 0.9, borderRadius: '4px' }}>
+        <Typography variant="caption" sx={{ fontWeight: 'bold', mb: 0.5, display: 'block' }}>
+          {label} {/* This will be "HH:MM" for day, or "Mon"/"Tue" for week */}
         </Typography>
-
-        {data.productive > 0 && (
-          <>
-            <Box display="flex" alignItems="center" mb={1}>
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  backgroundColor: '#4caf50',
-                  borderRadius: 0.5,
-                  mr: 1,
-                }}
-              />
-              <Typography variant="body2">productive</Typography>
-              <Typography sx={{ ml: 'auto', fontWeight: 600 }}>
-                {data.productive}%
+        {sortedPayload.map((entry, index) => (
+          <Box key={`item-${index}`} sx={{ display: 'flex', alignItems: 'center', mb: 0.2 }}>
+            <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: entry.color, mr: 1 }} />
+            <Typography variant="caption" sx={{ fontSize: '12px' }}>
+              {/* Capitalize the first letter of the dataKey for display */}
+              {entry.dataKey.charAt(0).toUpperCase() + entry.dataKey.slice(1)}: {entry.value.toFixed(0)}%
+            </Typography>
+          </Box>
+        ))}
+        {/*
+        // You can conditionally show apps/total if the data in payload[0].payload has it.
+        // This generally applies to day view, as week view aggregates.
+        {payload[0].payload.apps && payload[0].payload.apps.length > 0 && (
+          <Box sx={{ mt: 0.5 }}>
+            <Typography variant="caption" sx={{ fontSize: '12px', fontWeight: 'bold' }}>Top Apps:</Typography>
+            {payload[0].payload.apps.slice(0, 3).map((app, appIndex) => (
+              <Typography key={`app-${appIndex}`} variant="caption" sx={{ fontSize: '10px', display: 'block' }}>
+                - {app.name}
               </Typography>
-            </Box>
-
-            {productiveApps.map((app, index) => (
-              <Box
-                key={index}
-                display="flex"
-                justifyContent="space-between"
-                mb={0.5}
-                pl={2}
-              >
-                <Typography variant="body2">{app.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {app.time}
-                </Typography>
-              </Box>
             ))}
-          </>
-        )}
-
-        {data.neutral > 0 && (
-          <>
-            <Box display="flex" alignItems="center" mb={1} mt={1}>
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  backgroundColor: '#9e9e9e',
-                  borderRadius: 0.5,
-                  mr: 1,
-                }}
-              />
-              <Typography variant="body2">neutral</Typography>
-              <Typography sx={{ ml: 'auto', fontWeight: 600 }}>
-                {data.neutral}%
+            {payload[0].payload.apps.length > 3 && (
+              <Typography variant="caption" sx={{ fontSize: '10px' }}>
+                ...and {payload[0].payload.apps.length - 3} more
               </Typography>
-            </Box>
-
-            {neutralApps.map((app, index) => (
-              <Box
-                key={index}
-                display="flex"
-                justifyContent="space-between"
-                mb={0.5}
-                pl={2}
-              >
-                <Typography variant="body2">{app.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {app.time}
-                </Typography>
-              </Box>
-            ))}
-          </>
+            )}
+          </Box>
         )}
-
-        <Divider sx={{ mt: 1, mb: 1 }} />
-
-        <Box display="flex" justifyContent="space-between" fontWeight={600}>
-          <Typography variant="body2">Total:</Typography>
-          <Typography variant="body2">{data.total}</Typography>
-        </Box>
-      </Box>
+        */}
+      </Paper>
     );
   }
 

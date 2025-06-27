@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
-  TextField,
   Button,
   DialogActions,
-  MenuItem,
-} from '@mui/material';
-import { weekDays } from '../../../constants/absenceCalenderData';
+  Box,
+} from "@mui/material";
+import { weekDays } from "../../../constants/absenceCalenderData";
+import CustomTextField from "../../CustomTextField";
+import CustomDropDown from "../../CustomDropDown";
 const AbsenceCalenderModal = ({
   dialogOpen,
   handleClose,
@@ -17,23 +18,32 @@ const AbsenceCalenderModal = ({
   isFullMode = false,
 }) => {
   const [formData, setFormData] = useState({
-    reason: '',
-    startDay: '',
-    endDay: '',
+    reason: "",
+    startDay: "",
+    endDay: "",
   });
 
+  const weekDaysOptions = [
+    { id: "Mon", name: "Mon" },
+    { id: "Tue", name: "Tue" },
+    { id: "Wed", name: "Wed" },
+    { id: "Thu", name: "Thu" },
+    { id: "Fri", name: "Fri" },
+    { id: "Sat", name: "Sat" },
+    { id: "Sun", name: "Sun" },
+  ];
   useEffect(() => {
     if (dialogOpen) {
       setFormData({
-        reason: '',
-        startDay: isFullMode ? '' : selectedDay, // if fullMode false, default to selected
-        endDay: isFullMode ? '' : selectedDay,
+        reason: "",
+        startDay: isFullMode ? "" : selectedDay, // if fullMode false, default to selected
+        endDay: isFullMode ? "" : selectedDay,
       });
     }
   }, [dialogOpen, selectedDay, isFullMode]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (e, name) => {
+    const { value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -44,56 +54,70 @@ const AbsenceCalenderModal = ({
     handleSave(reason, start, end);
   };
 
+  const handleSelect = (e, name) => {
+    const { value } = e.target;
+    console.log(value,"VALUE")
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
     <Dialog open={dialogOpen} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>Add Away Time for {selectedDay}</DialogTitle>
       <DialogContent>
-        <TextField
-          fullWidth
-          label="Reason"
-          name="reason"
-          value={formData.reason}
-          onChange={handleChange}
-          margin="dense"
-        />
+        <Box>
+          <CustomTextField
+            fullWidth
+            label="Reason"
+            name="reason"
+            value={formData.reason}
+            handleChange={(e) => handleChange(e, "reason")}
+            margin="dense"
+          />
+        </Box>
+
         {isFullMode && (
           <>
-            <TextField
-              select
-              fullWidth
-              label="Start Day"
-              name="startDay"
-              value={formData.startDay}
-              onChange={handleChange}
-              margin="dense"
-            >
-              {weekDays.map((day) => (
-                <MenuItem key={day} value={day}>
-                  {day}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              fullWidth
-              label="End Day"
-              name="endDay"
-              value={formData.endDay}
-              onChange={handleChange}
-              margin="dense"
-            >
-              {weekDays.map((day) => (
-                <MenuItem key={day} value={day}>
-                  {day}
-                </MenuItem>
-              ))}
-            </TextField>
+            <Box>
+              <CustomDropDown
+                select
+                fullWidth
+                label="Start Day"
+                name="startDay"
+                options={weekDaysOptions}
+                selectedValue={formData.startDay}
+                handleSelect={(e) => {
+                  handleSelect(e, "startDay");
+                }}
+                margin="dense"
+              ></CustomDropDown>
+            </Box>
+            <Box>
+              <CustomDropDown
+                select
+                fullWidth
+                label="End Day"
+                name="endDay"
+                options={weekDaysOptions}
+                selectedValue={formData.endDay}
+                handleSelect={(e) => {
+                  handleSelect(e, "endDay");
+                }}
+                margin="dense"
+              ></CustomDropDown>
+            </Box>
           </>
         )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={onSave} disabled={!formData.reason}>
+        <Button
+          variant="contained"
+          onClick={onSave}
+          disabled={!formData.reason}
+        >
           Save
         </Button>
       </DialogActions>
