@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Box } from '@mui/material';
 import styles from './index.module.css';
 import AnalyticCards from '../../components/Dashboard/AnalyticCards'
@@ -8,8 +8,9 @@ import ScreenshotGrid from '../../components/Dashboard/ScreenshotGrid'
 import CategoryBar from '../../components/Dashboard/CategoryBar'
 import DeskTimeHeader from '../../components/Dashboard/DeskTimeHeader'
 import EmployeeCalendar from '../../components/Dashboard/DeskCalendar'
-import DateTimeRangePicker from '../../components/CustomDatePicker'
-
+import { useGetDashboardDataQuery } from '../../redux/services/dashboard';
+import LoadingComponent from '../../components/ComponentLoader';
+import { useNavigate,useParams } from 'react-router-dom';
 const productiveApps = [
   { name: 'localhost', time: '1h 31m' },
   { name: 'Code', time: '1h 5m' },
@@ -34,24 +35,30 @@ const productiveApps = [
 ];
 
 const Dashboard = () => {
-
+  const [filters,setFilters]=useState({
+    date:null,
+    viewMode:'day'
+  })
+  const navigate = useNavigate()
+  const {type} = useParams()
   useEffect(() => {
-    if (window.electronAPI?.testPreload) {
-      const msg = window.electronAPI.testPreload();
-      console.log('🧪 Renderer received preload:', msg);
-    } else {
-      console.warn('❌ testPreload not found on window.electronAPI');
+    if (type !== filters.viewMode) {
+      navigate(`/dashboard/?view=${filters.viewMode}`);
     }
-        // Send sample token to Electron main process to test IPC
-        if (window.electronAPI && window.electronAPI.sendToken) {
-          window.electronAPI.sendToken('sample-token-12345');
-        }
-     }, []);
+  }, [filters.viewMode, navigate, type]);
+  const { data:getDashboardData, isLoading } = useGetDashboardDataQuery({day:filters.viewMode,date:filters.date});
   return (
     <Box className={styles.container}>
-      <DateTimeRangePicker/>
-      <DeskTimeHeader/>
-      <AnalyticCards />
+      <DeskTimeHeader setFilters={setFilters} />
+
+      {isLoading ?  <LoadingComponent/> :(
+        <AnalyticCards
+      setFilters={setFilters} 
+      getDashboardData={getDashboardData}
+      
+      />
+      )}
+      
       {/* <Grid container spacing={2}> */}
       <ProductivityBar data={{ productive: 60, neutral: 25, unproductive: 15 }} />
       <AppCategoryPanel

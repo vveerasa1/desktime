@@ -18,7 +18,7 @@ import CustomTextField from '../../../components/CustomTextField';
 import { useLoginMutation } from '../../../redux/services/login';
 const Login = () => {
   const navigate = useNavigate();
-  const [loginInfo, setLoginInfo] = useState({ email: 'akash@gmail.com', password: 'Akash21@' });
+  const [loginInfo, setLoginInfo] = useState({ email: 'avinesh.r@pentabay.com', password: 'Avinesh@123' });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
   const [loginApi, { isLoading, isError, error }] = useLoginMutation();
@@ -71,7 +71,8 @@ const Login = () => {
 
         window.electronAPI.sendToken(token);
       }
-      // navigate('/dashboard');
+       navigate('/dashboard');
+
     } catch (err) {
       console.error('Login failed:', err);
     }

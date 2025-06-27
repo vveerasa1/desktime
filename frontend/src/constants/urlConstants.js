@@ -2,5 +2,7 @@ export const URL_CONSTANTS={
     BASE_URL:'http://localhost:8080/',
     USER:'users',
     AUTH:'auth',
-    LOGIN:'login'
+    LOGIN:'login',
+    DASHBOARD:"dashboard",
+    SCREENSHOT:"screenshots"
 }

@@ -22,7 +22,7 @@ let sessionId = null;
 let idleStart = null;
 const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
 const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-const USER_ID = '685290c3a0315261c26ad0f1'
+const USER_ID = '685a3e5726ac65ec09c16786'
 let activeLastSent = null;
 
 let idleCheckStart = null;

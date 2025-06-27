@@ -1,11 +1,9 @@
-import React from 'react';
 import { Paper, Box, Typography } from '@mui/material';
 import { Customized } from 'recharts';
 
 import {
   BarChart,
   Bar,
-  XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer
@@ -155,11 +153,8 @@ const ProductivityBar = ({ data = productivityData }) => {
             /> */}
             <Customized
               component={({ xAxisMap, height, width, offset }) => {
-                console.log(width,offset)
                 const barWidth = width / normalizedData.length;
-                console.log(Math.round(barWidth))
                 const x0 = offset.left;
-                console.log((offset.left),"offset.left")
 
                 return (
                   <g>

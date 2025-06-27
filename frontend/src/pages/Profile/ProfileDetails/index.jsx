@@ -11,9 +11,10 @@ const ProfileDeatils = ({
   genderOptions,
   roleOptions,
   timeZoneOptions,
-  timeFormatOptions,
+  // timeFormatOptions,
   teamOptions,
   handlePhoneChange,
+  profileDetails
 }) => {
   return (
     <Grid
@@ -45,7 +46,7 @@ const ProfileDeatils = ({
             <Box>
               <Avatar
                 alt="User Profile"
-                src="https://ui-avatars.com/api/?name=Avinesh&background=38b000&color=fff"
+                src={profileDetails?.data?.photo}
                 sx={{
                   width: 100,
                   height: 100,
@@ -57,7 +58,7 @@ const ProfileDeatils = ({
               <CustomTextField
                 label="User Name"
                 name="username"
-                value={formData.name}
+                value={formData.username}
                 handleChange={(event) => {
                   handleChange(event, "username");
                 }}
@@ -161,7 +162,7 @@ const ProfileDeatils = ({
               isRequired
             />
           </Box>
-          <Box>
+          {/* <Box>
             <Box>
               <CustomDropdown
                 label="Time Format"
@@ -173,7 +174,7 @@ const ProfileDeatils = ({
                 isRequired
               />
             </Box>
-          </Box>
+          </Box> */}
         </Box>
       </Paper>
 
