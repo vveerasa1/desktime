@@ -9,8 +9,40 @@ const FormData = require('form-data');
 const fs = require('fs');
 const Store = require('electron-store').default
 const store = new Store();
+console.log(store,"STORE DA DEIIII")
 store.clear();
 console.log('[Store] Cleared all data');
+
+
+// ---------------------------------------------
+// 🆕 Embedded Express server to receive token
+// ---------------------------------------------
+const express = require('express');
+const cors = require('cors');
+
+const apiServer = express();
+const API_PORT = 3100;
+
+apiServer.use(cors());
+apiServer.use(express.json());
+
+apiServer.post('/store-token', (req, res) => {
+  const { token, userId } = req.body;
+  console.log('✅ Token received in Electron:', token);
+  console.log('✅ User ID received in Electron:', userId);
+  getStoredToken(token)
+  store.set('authToken', token);
+  store.set('USER_ID', userId);
+  USER_ID = userId
+  startTracking();
+
+  res.status(200).json({ message: 'Token and User ID received' });
+});
+
+
+apiServer.listen(API_PORT, () => {
+  console.log(`🚀 Express API server in Electron listening on http://localhost:${API_PORT}`);
+});
 
 const { ipcMain } = require('electron');
 
@@ -22,7 +54,8 @@ let sessionId = null;
 let idleStart = null;
 const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
 const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-const USER_ID = '685a3e5726ac65ec09c16786'
+let USER_ID = null
+console.log(USER_ID,"USER ID DAW DEIII")
 let activeLastSent = null;
 
 let idleCheckStart = null;
@@ -73,13 +106,17 @@ function createWindow() {
   tray.on('click', () => {
     shell.openExternal('http://localhost:5173'); // Opens React app in default browser
   });
-  startTracking();
 
 }
 
-function getStoredToken() {
+function getStoredToken(tokenFromBrowser = null) {
+  if (tokenFromBrowser) {
+    store.set('authToken', tokenFromBrowser);
+  }
   return store.get('authToken');
 }
+
+
 
 ipcMain.on('token', (event, token) => {
 
@@ -92,6 +129,10 @@ console.log('from mainnnnnnnnnnnnnnnnnn')
 // window.electronAPI?.sendToken('your-token-value-here');
 
 async function startTracking() {
+    if (!USER_ID) {
+    console.warn('[Tracking] Cannot start tracking without USER_ID');
+    return;
+  }
   await initializeDailyTracking(USER_ID);
   // Use powerMonitor to detect idle time
   setInterval(() => {
@@ -120,6 +161,7 @@ async function startTracking() {
   setInterval(async () => {
     try {
       const pos = await mouse.getPosition();
+      console.log('[Mouse Position]', pos);
     } catch (err) {
       console.error('[Mouse Poll Error]', err);
     }
@@ -129,36 +171,50 @@ async function startTracking() {
     try {
       const win = await activeWin();
       const appName = win ? win.owner.name : 'unknown';
-      const token =getStoredToken()
-      const imgBuffer = await screenshot({ format: 'jpg' });
-      console.log('[Screenshot Taken - Buffer]');
+      const token = getStoredToken();
+if (!token) {
+  console.warn('[Screenshot Upload] No token available, skipping upload.');
+  return;
+}
 
-      const formData = new FormData();
-          
-      formData.append('userId', USER_ID);
-      formData.append('sessionId', sessionId);
-      formData.append('screenshotApp', appName);
-      formData.append('screenshot', imgBuffer, {
-        filename: `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`,
-        contentType: 'image/jpeg',
-      });
-      console.log(token,"LLLLLLLLLLLLLLLL");
+const imgBuffer = await screenshot({ format: 'jpg' });
+console.log('[Screenshot Taken - Buffer]');
 
-      const response = await axios.post('http://localhost:8080/tracking/sessions/screenshots', formData, {
-        headers: {
-          ...formData.getHeaders(),
-          Authorization: `Bearer ${token}`,
-        },
-      });
+const formData = new FormData();
+formData.append('userId', USER_ID);
+formData.append('sessionId', sessionId);
+formData.append('screenshotApp', appName);
+formData.append('screenshot', Buffer.from(imgBuffer), {
+  filename: `screenshot_${Date.now()}.jpg`,
+  contentType: 'image/jpeg',
+});
 
-      console.log('[Screenshot Uploaded]', response.data);
+try {
+  const headers = {
+    ...formData.getHeaders(),
+    Authorization: `Bearer ${token}`,
+  };
+
+  const response = await axios.post(
+    'http://localhost:8080/tracking/sessions/screenshots',
+    formData,
+    { headers }
+  );
+  console.log('[Screenshot Uploaded]', response.data);
+} catch (err) {
+  console.error('[Screenshot Upload Error]', err.message);
+  if (err.response) {
+    console.error('[Backend Response]', err.response.data);
+  }
+}
+
 
     } catch (err) {
 
 
       console.error('[Screenshot Error]', err);
     }
-  }, 5 * 60 * 1000);
+  },5 * 60 * 1000);
 }
 
 let sessionEnded = false;

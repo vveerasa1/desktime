@@ -30,11 +30,10 @@ const ActivityTimelineBar = ({
         <Box
           sx={{
             display: "flex",
-            height: 15,
+            height: 20,
             width: "100%",
-            borderRadius: "2px",
             overflow: "hidden",
-            border: "1px solid #ccc",
+            border: "2px dashed grey",
           }}
 
         >

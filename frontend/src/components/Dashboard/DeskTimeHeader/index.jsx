@@ -62,25 +62,8 @@ console.log(dateTracking,"DATE TRACKING")
       </Typography>
 
       <Box display="flex" alignItems="center" gap={2}>
-        {/* Date and Calendar */}
-        <Box display="flex" alignItems="center" gap={1}>
-          <Typography color="#333333">{activeDate === "" ? formattedCurrentDate : activeDate}</Typography>
-          <CustomCalendar selectedDate={date?.date} name="date" onChange={(newDate)=>{
-            handleChange(newDate,"date")
-          }} fontSize="small" sx={{ color: '#666666' }} />
-        </Box>
 
-        {/* Arrows */}
-        <Box>
-          <IconButton>
-            <ChevronLeft sx={{ color: '#666666' }} />
-          </IconButton>
-          <IconButton>
-            <ChevronRight sx={{ color: '#666666' }} />
-          </IconButton>
-        </Box>
-
-        {/* View Toggle */}
+{/* View Toggle */}
         <ToggleButtonGroup
           value={view}
           exclusive
@@ -101,7 +84,7 @@ console.log(dateTracking,"DATE TRACKING")
                 textTransform: 'capitalize',
                 fontWeight: 500,
                 color: view === val ? '#ffffff !important' : '#333333',
-                backgroundColor: view === val ? '#4ea819 !important' : '#ffffff',
+                backgroundColor: view === val ? '#143351 !important' : '#ffffff',
                 // border: '1px solid #cccccc',
                 '&:hover': {
                   backgroundColor: view === val ? '#4ea819' : '#f5f5f5'
@@ -112,6 +95,26 @@ console.log(dateTracking,"DATE TRACKING")
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
+
+        {/* Date and Calendar */}
+        <Box display="flex" alignItems="center" gap={1}>
+          <Typography color="#333333">{activeDate === "" ? formattedCurrentDate : activeDate}</Typography>
+          <CustomCalendar selectedDate={date?.date} name="date" onChange={(newDate)=>{
+            handleChange(newDate,"date")
+          }} fontSize="small" sx={{ color: '#666666' }} />
+        </Box>
+
+        {/* Arrows */}
+        {/* <Box>
+          <IconButton>
+            <ChevronLeft sx={{ color: '#666666' }} />
+          </IconButton>
+          <IconButton>
+            <ChevronRight sx={{ color: '#666666' }} />
+          </IconButton>
+        </Box> */}
+
+        
 
         {/* Help Icon */}
         <Tooltip title="Help">

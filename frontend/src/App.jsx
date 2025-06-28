@@ -14,28 +14,28 @@ function AppRoutes() {
 
 function App() {
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (window?.electronAPI?.testPreload) {
-      const preloadMessage = window.electronAPI.testPreload();
-      console.log("React App: Message from preload script (via testPreload):", preloadMessage); // THIS IS THE KEY LOG
-    } else {
-      console.error("React App: window.electronAPI or testPreload is NOT available.");
-    }
+  //   if (window?.electronAPI?.testPreload) {
+  //     const preloadMessage = window.electronAPI.testPreload();
+  //     console.log("React App: Message from preload script (via testPreload):", preloadMessage); // THIS IS THE KEY LOG
+  //   } else {
+  //     console.error("React App: window.electronAPI or testPreload is NOT available.");
+  //   }
 
-    const token = localStorage.getItem('token');
+  //   const token = localStorage.getItem('token');
 
-    if (token && window?.electronAPI?.sendToken) {
-      window.electronAPI.sendToken(token);
-      window.electronAPI.onTokenResponse((message) => {
-        console.log("React App: Main process responded:", message);
-      });
-    } else if (token) {
-      console.warn("React App: Token exists, but electronAPI.sendToken is not available for initial send.");
-    } else {
-      console.warn("React App: No token found in localStorage.");
-    }
-  }, []);
+  //   if (token && window?.electronAPI?.sendToken) {
+  //     window.electronAPI.sendToken(token);
+  //     window.electronAPI.onTokenResponse((message) => {
+  //       console.log("React App: Main process responded:", message);
+  //     });
+  //   } else if (token) {
+  //     console.warn("React App: Token exists, but electronAPI.sendToken is not available for initial send.");
+  //   } else {
+  //     console.warn("React App: No token found in localStorage.");
+  //   }
+  // }, []);
 
   return (
     <ThemeProvider theme={theme}>
