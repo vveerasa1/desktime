@@ -20,6 +20,7 @@ const cors = require('cors');
 
 const apiServer = express();
 const API_PORT = 3100;
+let USER_ID;
 
 apiServer.use(cors());
 apiServer.use(express.json());
@@ -29,19 +30,32 @@ apiServer.post('/store-token', (req, res) => {
   console.log('✅ Token received in Electron:', token);
   console.log('✅ User ID received in Electron:', userId);
   getStoredToken(token)
-  store.set('authToken', token);
-  store.set('USER_ID', userId);
-  USER_ID = userId
-  startTracking();
+  setToken(userId, token);
+  // store.set('authToken', token);
+  // store.set('USER_ID', userId);
+  // USER_ID = userId
+  startTrackingForUser(userId)
 
   res.status(200).json({ message: 'Token and User ID received' });
+});
+
+apiServer.post('/logout', async (req, res) => {
+  const { userId } = req.body;
+  console.log(`[Logout] Request received for user ${userId}`);
+
+  try {
+    await stopTrackingForUser(userId);
+    res.status(200).json({ message: 'Tracking stopped and session ended.' });
+  } catch (error) {
+    console.error('[Logout Error]', error);
+    res.status(500).json({ error: 'Failed to stop tracking' });
+  }
 });
 
 
 apiServer.listen(API_PORT, () => {
   console.log(`🚀 Express API server in Electron listening on http://localhost:${API_PORT}`);
 });
-const { ipcMain } = require('electron');
 
 let mainWindow;
 let tray = null;
@@ -243,7 +257,8 @@ async function initializeDailyTracking(userId, token) {
     const res = await axios.get('http://localhost:8080/tracking/sessions', {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (res.data.data && res.data.data.date === new Date().toISOString().split('T')[0]) {
+    console.log('[Init Tracking] Existing sessions:', res.data.data);
+    if (res.data.data) {
       return res.data.data._id;
     }
 
@@ -332,6 +347,32 @@ async function sendActivityToServer(data) {
     }
   }
 }
+
+async function stopTrackingForUser(userId) {
+  const sessionId = getSessionId(userId);
+  const token = getToken(userId);
+
+  if (trackingTimers[userId]) {
+    Object.values(trackingTimers[userId]).forEach(clearInterval);
+    delete trackingTimers[userId];
+  }
+
+  delete idleStartMap[userId];
+  delete activeStartMap[userId];
+  delete activeLastSentMap[userId];
+
+  if (sessionId && token) {
+    await endSession(sessionId, token);
+  }
+
+  // Clear store
+  store.delete(`${getUserSessionKey(userId)}_id`);
+  store.delete(`${getUserSessionKey(userId)}_date`);
+  store.delete(`token_${userId}`);
+
+  console.log(`[Logout] Tracking stopped and store cleared for user ${userId}`);
+}
+
 
 app.whenReady().then(createWindow);
 

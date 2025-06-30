@@ -1,5 +1,6 @@
 const moment = require("moment-timezone");
 const TrackingSession = require("../models/trackingSession");
+const User = require("../models/user");
 
 const dashboardCard = async (req, res) => {
   try {
@@ -61,14 +62,19 @@ const dashboardCard = async (req, res) => {
         timeAtWork, // in seconds
       };
     } else if (type === "week" || type === "month") {
-      const now = moment();
+      const baseDate = date
+        ? moment(date, "YYYY-MM-DD").tz(timeZone)
+        : moment().tz(timeZone);
 
-      // Get start of week (Monday) or start of month
       const start =
         type === "week"
-          ? now.clone().startOf("week").add(1, "day")
-          : now.clone().startOf("month");
-      const end = now.clone().endOf("day"); // now till end of today
+          ? baseDate.clone().startOf("isoWeek") // Monday
+          : baseDate.clone().startOf("month");
+
+      const end =
+        type === "week"
+          ? baseDate.clone().endOf("isoWeek") // Sunday
+          : baseDate.clone().endOf("month");
 
       console.log("Start:", start.toISOString());
       console.log("End:", end.toISOString());
@@ -204,18 +210,25 @@ const dashboardProductivityTime = async (req, res) => {
     if (type === "week") {
       const sessions = [];
 
-      for (let i = 0; i < 7; i++) {
-        const targetDate = moment()
-          .tz(timeZone)
-          .subtract(i, "days")
-          .format("YYYY-MM-DD");
+      const baseMoment = date
+        ? moment(date).tz(timeZone) // custom date given
+        : moment().tz(timeZone); // default to today
+      const startOfWeek = baseMoment.clone().startOf("isoWeek"); // Monday
+      const endOfWeek = baseMoment.clone().endOf("isoWeek"); // Sunday
+
+      for (
+        let current = startOfWeek.clone();
+        current.isSameOrBefore(endOfWeek, "day");
+        current.add(1, "day")
+      ) {
+        const formattedDate = current.format("YYYY-MM-DD");
 
         const session = await TrackingSession.findOne({
           userId,
           $expr: {
             $eq: [
               { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
-              targetDate,
+              formattedDate,
             ],
           },
         });
@@ -241,7 +254,7 @@ const dashboardProductivityTime = async (req, res) => {
         }
 
         sessions.push({
-          date: targetDate,
+          date: formattedDate,
           session: formatted,
         });
       }
@@ -254,6 +267,84 @@ const dashboardProductivityTime = async (req, res) => {
         message: "Dashboard card data fetched successfully",
         data: {
           session: sessions,
+        },
+      });
+    } else if (type === "month") {
+      const baseDate = date ? moment(date).tz(timeZone) : moment().tz(timeZone);
+
+      const startOfRange = baseDate.clone().startOf("month");
+      const endOfRange = baseDate.clone().endOf("month");
+      const todayKey = baseDate.format("YYYY-MM-DD");
+      const sessions = await TrackingSession.find({
+        userId,
+        arrivalTime: {
+          $gte: startOfRange.toDate(),
+          $lte: endOfRange.toDate(),
+        },
+      });
+
+      // Index sessions by date (YYYY-MM-DD)
+      const sessionMap = {};
+      for (const session of sessions) {
+        const key = moment(session.arrivalTime)
+          .tz(timeZone)
+          .format("YYYY-MM-DD");
+        sessionMap[key] = session;
+      }
+
+      const result = {};
+      const dayCursor = startOfRange.clone();
+
+      while (dayCursor.isSameOrBefore(endOfRange, "day")) {
+        const key = dayCursor.format("YYYY-MM-DD");
+        const session = sessionMap[key];
+        // Determine status
+        const status =
+          key < todayKey ? "completed" : key === todayKey ? "working" : null;
+
+        if (!session) {
+          result[key] = {
+            arrival: null,
+            left: null,
+            worked: null,
+            deskTime: null,
+            status,
+          };
+        } else {
+          const arrivalTime = moment(session.arrivalTime).tz(timeZone);
+          const leftTime = session.leftTime
+            ? moment(session.leftTime).tz(timeZone)
+            : moment();
+
+          const deskTimeSeconds = Math.floor(
+            leftTime.diff(arrivalTime, "seconds")
+          );
+          const idleTime = (session.idlePeriods || []).reduce(
+            (acc, p) => acc + (p.duration || 0),
+            0
+          );
+          const workedSeconds = deskTimeSeconds - idleTime;
+
+          result[key] = {
+            arrival: arrivalTime.format("HH:mm"),
+            left: session.leftTime ? leftTime.format("HH:mm") : null,
+            worked: formatDuration(workedSeconds),
+            deskTime: formatDuration(deskTimeSeconds),
+            status,
+          };
+        }
+
+        dayCursor.add(1, "day");
+      }
+      const user = await User.findById(userId).lean();
+
+      return res.status(200).json({
+        code: 200,
+        status: "Success",
+        message: "User month data fetched successfully",
+        data: {
+          user,
+          session: result,
         },
       });
     }

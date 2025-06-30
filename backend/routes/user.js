@@ -8,6 +8,6 @@ router.post("/",addUser);
 router.get("/:id",getUserById);
 router.put("/:id",updateUser);
 router.get("/",getAllUser);
-router.get("/:id/screenshots",getScreenshotsById);
+router.get("/:id/screenshots",authenticate,getScreenshotsById);
 router.get("/sessions",authenticate,getUser);
 module.exports = router;

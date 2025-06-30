@@ -1,6 +1,6 @@
-const moment = require("moment");
+const moment = require("moment-timezone");
 const User = require("../models/user");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const config = require("../config");
 
@@ -23,21 +23,21 @@ const addUser = async (req, res) => {
       trackingDays,
       trackingStartTime,
       trackingEndTime,
-      timeZone
+      timeZone,
     } = req.body;
 
     // Calculate work_duration in seconds
     const start = moment(workStartTime, "HH:mm:ss");
     const end = moment(workEndTime, "HH:mm:ss");
 
-    let durationSeconds = end.diff(start, 'seconds');
+    let durationSeconds = end.diff(start, "seconds");
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
       username,
       employeeId,
       email,
-      password:hashedPassword,
+      password: hashedPassword,
       team,
       gender,
       role,
@@ -51,7 +51,9 @@ const addUser = async (req, res) => {
       trackingStartTime,
       trackingEndTime,
       timeZone,
-      photo:`https://ui-avatars.com/api/?name=${username.split(' ').join('+')}&background=0D8ABC&color=fff`,
+      photo: `https://ui-avatars.com/api/?name=${username
+        .split(" ")
+        .join("+")}&background=0D8ABC&color=fff`,
       workDuration: durationSeconds,
     });
 
@@ -64,10 +66,10 @@ const addUser = async (req, res) => {
       },
     });
     mailOptions = {
-  from: config.smtp?.email,
-  to: user.email,
-  subject: "Desktime - Invitation",
-  text: `Hi ${user.username},
+      from: config.smtp?.email,
+      to: user.email,
+      subject: "Desktime - Invitation",
+      text: `Hi ${user.username},
 
 You have been invited to join Desktime.
 
@@ -81,7 +83,7 @@ Please log in to your account to get started.
 
 Best regards,  
 Desktime - Pentabay Team`,
-};
+    };
 
     transporter.sendMail(mailOptions, (error) => {
       if (error) {
@@ -99,102 +101,104 @@ Desktime - Pentabay Team`,
   } catch (error) {
     console.error("Error adding user:", error);
     res.status(500).json({
-        code: 500,
-        status: "Error",
-        message: "Error adding user",
-        error: error.message,
-      });
+      code: 500,
+      status: "Error",
+      message: "Error adding user",
+      error: error.message,
+    });
   }
 };
 
 const getUserById = async (req, res) => {
-    try {
-      const id = req.params.id;
-      const users = await User.findById(id);
-      res.status(200).json({
-        code: 200,
-        status: "Success",
-        message: "Users info fetched successfully",
-        data: users,
-      });
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(500).json({
-        code: 500,
-        status: "Error",
-        message: "Error fetching users",
-        error: error.message,
-      });
-    }
+  try {
+    const id = req.params.id;
+    const users = await User.findById(id);
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Users info fetched successfully",
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error fetching users",
+      error: error.message,
+    });
   }
-    
-    const updateUser = async (req, res) => {
-      try {
-        const start = moment(req.body.workStartTime, "HH:mm:ss");
-        const end = moment(req.body.workEndTime, "HH:mm:ss");
-        let durationSeconds = end.diff(start, 'seconds');
-        const updateData = {
-          ...req.body,
-          workDuration: durationSeconds,
-        };
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: req.params.id },
-          updateData,
-          { new: true }
-        );
-        res.status(200).json({
-          code: 200,
-          status: "Success",
-          message: "User updated successfully",
-          data: updatedUser,
-        });
+};
 
-      } catch(error) {
-        console.error("Error updating user:", error);
-        res.status(500).json({
-          code: 500,
-          status: "Error",
-          message: "Error updating user",
-          error: error.message,
-        });
-      }
+const updateUser = async (req, res) => {
+  try {
+    const start = moment(req.body.workStartTime, "HH:mm:ss");
+    const end = moment(req.body.workEndTime, "HH:mm:ss");
+    let durationSeconds = end.diff(start, "seconds");
+    const updateData = {
+      ...req.body,
+      workDuration: durationSeconds,
     };
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.params.id },
+      updateData,
+      { new: true }
+    );
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error updating user",
+      error: error.message,
+    });
+  }
+};
 
-    const getAllUser = async (req, res) => {
-      try {
-        const users = await User.find();
-        res.status(200).json({
-          code: 200,
-          status: "Success",
-          message: "Users info fetched successfully",
-          data: users,
-        });
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        res.status(500).json({
-          code: 500,
-          status: "Error",
-          message: "Error fetching users",
-          error: error.message,
-        });
-      }
-    }
+const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Users info fetched successfully",
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error fetching users",
+      error: error.message,
+    });
+  }
+};
 
 const ScreenshotLog = require("../models/screenshot");
 const trackingSession = require("../models/trackingSession");
 
 const getScreenshotsById = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const user = req.user;
+    let userId = user.userId;
     const { date } = req.query;
     console.log(date);
 
     if (!date) {
-      return res.status(400).json({ message: "Date query parameter is required (YYYY-MM-DD)" });
+      return res
+        .status(400)
+        .json({ message: "Date query parameter is required (YYYY-MM-DD)" });
     }
     const screenshots = await ScreenshotLog.findOne({
       userId: userId,
-      "dailyScreenshots.date": date
+      "dailyScreenshots.date": date,
     });
     console.log(screenshots);
 
@@ -202,9 +206,8 @@ const getScreenshotsById = async (req, res) => {
       code: 200,
       status: "Success",
       message: "Gathered screenshots successfully",
-      data: screenshots?.dailyScreenshots?.screenshots
+      data: screenshots?.dailyScreenshots?.screenshots,
     });
-
   } catch (error) {
     console.error("Error fetching screenshots:", error);
     res.status(500).json({
@@ -218,7 +221,7 @@ const getScreenshotsById = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-     const { date } = req.query; // expects type=day|week|month
+    const { date } = req.query; // expects type=day|week|month
     const user = req.user;
     console.log(user);
     let userId = user.userId;
@@ -235,10 +238,10 @@ const getUser = async (req, res) => {
       code: 200,
       status: "Success",
       message: "Gathered user info successfully",
-      data: session
+      data: session,
     });
-  } catch(error) {
-     console.error("Error fetching user info:", error);
+  } catch (error) {
+    console.error("Error fetching user info:", error);
     res.status(500).json({
       code: 500,
       status: "Error",
@@ -246,13 +249,13 @@ const getUser = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
 
 module.exports = {
-    addUser,
-    getUserById,
-    updateUser,
-    getAllUser,
-    getScreenshotsById,
-    getUser
-}
+  addUser,
+  getUserById,
+  updateUser,
+  getAllUser,
+  getScreenshotsById,
+  getUser,
+};
