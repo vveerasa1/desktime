@@ -11,7 +11,7 @@
   color: #4caf50;
   position: absolute;
   top: 68px;
-  left: 2px;
+  left:  -11px;
 }
 
 
@@ -50,7 +50,7 @@
   font-weight: 600 !important;
   position: absolute !important;
   top: 4px !important;
-  left: -26px !important;
+  left: 85px !important;
 }
 
 .absentText {
@@ -58,7 +58,7 @@
   font-weight: 500;
   margin-top: 16px;
   position: absolute !important;
-  left: 10px !important;
+  left: -11px !important;
   top: 68px !important;
 }
 
@@ -125,7 +125,7 @@
   position: absolute !important;
   /* left: -16px !important;
   top: 28px !important; */
-  left: -22px !important;
+  left: -38px !important;
   top: 42px !important;
 };
 

@@ -84,11 +84,23 @@ const AnalyticCards = ({ getDashboardData }) => {
 
   return (
     <Grid container>
-      <TrackingCard
-        orderedCards={orderedCards}
-      />
-      <ProjectCard/>
-    </Grid>
+  <Box
+    gap={3}
+    sx={{
+      display: 'flex',
+      justifyContent: 'space-between',
+    }}
+  >
+    <Box >
+      <TrackingCard orderedCards={orderedCards} />
+    </Box>
+
+    <Box>
+      <ProjectCard />
+    </Box>
+  </Box>
+</Grid>
+
   );
 };
 

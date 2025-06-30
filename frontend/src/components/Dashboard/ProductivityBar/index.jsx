@@ -1,17 +1,24 @@
-import React from 'react';
+import React from "react";
 import { Paper, Box, Typography } from "@mui/material";
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, AreaChart, Area } from "recharts";
+import {
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
 import CustomTooltip from "../CustomTooltip";
-import ActivityTimelineBar from './ActivityTimelineBar';
+import ActivityTimelineBar from "./ActivityTimelineBar";
 
 // --- Helper Functions ---
 const timeToMinutes = (timeString) => {
   if (!timeString) return 0;
-  if (typeof timeString === 'number') {
+  if (typeof timeString === "number") {
     return timeString;
   }
-  if (typeof timeString === 'string' && timeString.includes(':')) {
-    const [hours, minutes] = timeString.split(':').map(Number);
+  if (typeof timeString === "string" && timeString.includes(":")) {
+    const [hours, minutes] = timeString.split(":").map(Number);
     return hours * 60 + minutes;
   }
   try {
@@ -28,8 +35,8 @@ const timeToMinutes = (timeString) => {
 const getNearestSlotTime = (minutes) => {
   const roundedMinutes = Math.floor(minutes / 5) * 5;
   const hour = Math.floor(roundedMinutes / 60);
-  const minute = roundedMinutes % 60;
-  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  const minute = (roundedMinutes % 60).toString().padStart(2, "0");
+  return `${String(hour).padStart(2, "0")}:${minute}`;
 };
 
 const generateTimeSlots = (start, end, interval) => {
@@ -53,68 +60,65 @@ const generateTimeSlots = (start, end, interval) => {
 // --- Time Slot and Label Definitions ---
 const dayTimeSlots = generateTimeSlots("08:00", "22:00", 5);
 const dayTimeLabels = [
-  "08:00", "10:00", "12:00", "14:00",
-  "16:00", "18:00", "20:00", "22:00"
+  "08:00",
+  "10:00",
+  "12:00",
+  "14:00",
+  "16:00",
+  "18:00",
+  "20:00",
+  "22:00",
 ];
 
-const weekDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const weekTimeSlots = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const weekTimeLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-
 // --- Styling Constants ---
-const TRACKED_COLOR = "#5664e7"; // Green for tracked
+const TRACKED_COLOR = "#5664e7"; // Blue for tracked
 const UNTRACKED_COLOR = "white"; // Grey for untracked/idle
 
 
 const ProductivityBar = ({ getProductiviyData }) => {
   const productivity = getProductiviyData?.data;
 
-  // --- Determine viewMode based on data structure ---
-  let currentViewMode = 'day'; // Default to day view
+  let currentViewMode = "day";
   let sessionList = [];
 
   if (Array.isArray(productivity?.session)) {
-    // Check if the primary 'session' array contains 'date' property and 'session' array within
-    // This heuristic determines if it's weekly data (an array of daily summaries)
     const isAPIMoreThanOneDay =
       productivity.session.length > 0 &&
       productivity.session[0]?.date &&
       Array.isArray(productivity.session[0]?.session);
 
     if (isAPIMoreThanOneDay) {
-      currentViewMode = 'week';
-      // Flatten week data: [{date: "...", session: [...]}, ...] -> [{time: "...", date: "..."}, ...]
+      currentViewMode = "week";
       sessionList = productivity.session.flatMap((day) =>
         (day.session || []).map((s) => ({ ...s, date: day.date }))
       );
     } else {
-      currentViewMode = 'day';
-      // It's already single day data: [{time: "...", apps: [...]}, ...]
+      currentViewMode = "day";
       sessionList = productivity.session.map((s) => ({
         ...s,
-        date: productivity.date, // Ensure date is present if coming from a higher level
+        date: productivity.date,
       }));
     }
   }
 
-
-  // --- Data Aggregation and Normalization based on currentViewMode ---
-  let currentNormalizedData = [];
   let currentChartComponent;
-  let currentLabels;
+  let chartTitle;
 
-  if (currentViewMode === 'day') {
-    // DAY VIEW LOGIC (Aggregates to 5-minute slots)
+  // Create a dummy data array that contains all dayTimeSlots for the XAxis
+  const xAxisDummyData = dayTimeSlots.map(slot => ({ time: slot, value: 0 }));
+
+
+  if (currentViewMode === "day") {
     const aggregatedDataMap = new Map(
-      dayTimeSlots.map(slot => [slot, { productive: 0, neutral: 0, unproductive: 0, apps: [], total: "" }])
+      dayTimeSlots.map((slot) => [
+        slot,
+        { productive: 0, neutral: 0, unproductive: 0, apps: [], total: "" },
+      ])
     );
 
-    sessionList.forEach(item => {
-      // Filter sessions for the specific day if data contains multiple days (e.g., if a week dataset was passed, but we are in derived day mode)
-      // For single-day data, productivity.date will already match item.date (if present)
-      const targetDate = productivity.date; // The specific date for the day view
-      if (!targetDate || item.date === targetDate) { // If targetDate is not specified, assume all data is for the day
+    sessionList.forEach((item) => {
+      const targetDate = productivity.date;
+      if (!targetDate || item.date === targetDate) {
         const itemMinutes = timeToMinutes(item.time);
         const slotKey = getNearestSlotTime(itemMinutes);
 
@@ -124,12 +128,14 @@ const ProductivityBar = ({ getProductiviyData }) => {
           currentSlotData.neutral += item.neutral;
           currentSlotData.unproductive += item.break || 0;
           currentSlotData.apps = [...currentSlotData.apps, ...item.apps];
-          if (item.total) { currentSlotData.total = item.total; }
+          if (item.total) {
+            currentSlotData.total = item.total;
+          }
         }
       }
     });
 
-    currentNormalizedData = dayTimeSlots.map(slot => {
+    const dayNormalizedData = dayTimeSlots.map((slot) => {
       const data = aggregatedDataMap.get(slot);
       const total = data.productive + data.neutral + data.unproductive;
       let isTracked = false;
@@ -143,7 +149,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
           unproductive: (data.unproductive / total) * 100,
           apps: data.apps,
           total: data.total,
-          isTracked: isTracked
+          isTracked: isTracked,
         };
       } else {
         return {
@@ -153,142 +159,251 @@ const ProductivityBar = ({ getProductiviyData }) => {
           unproductive: 0,
           apps: [],
           total: "",
-          isTracked: isTracked
+          isTracked: isTracked,
         };
       }
     });
 
-    currentLabels = dayTimeLabels;
-
-    // Chart component for Day View: BarChart
+    chartTitle = "Daily Productivity Timeline";
     currentChartComponent = (
-        <BarChart
-            data={currentNormalizedData}
-            barSize={15}
-            barGap={0}
-            barCategoryGap={'10%'}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+      <>
+        <Box
+          sx={{
+            position: "relative",
+            width: "100%",
+            height: 250,
+            backgroundColor: "",
+            borderRadius: "4px",
+          }}
         >
-            <XAxis // XAxis is retained here for proper chart functionality
-                dataKey="time"
-                axisLine={false}
-                tickLine={false}
-                ticks={currentLabels}
-                tick={{ fontSize: 10, fill: "#666", dy: 10 }}
-            />
-            <YAxis
-                domain={[0, 100]}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(value) => `${value}%`}
-                tick={{ fontSize: 10, fill: "#666" }}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="productive" stackId="a" fill="#4caf50" />
-            <Bar dataKey="neutral" stackId="a" fill="#9e9e9e" />
-            <Bar dataKey="unproductive" stackId="a" fill="#ffc107" />
-        </BarChart>
-    );
-
-  } else { // currentViewMode === 'week'
-    // WEEK VIEW LOGIC (Aggregates to daily data)
-    const aggregatedWeekDataMap = new Map(
-        weekTimeSlots.map(day => [day, { productive: 0, neutral: 0, unproductive: 0, isTracked: false }])
-    );
-
-    sessionList.forEach(item => {
-        const itemDate = new Date(item.date);
-        const dayOfWeekIndex = itemDate.getDay();
-        const dayName = weekDayNames[dayOfWeekIndex];
-
-        if (aggregatedWeekDataMap.has(dayName)) {
-            const currentDayData = aggregatedWeekDataMap.get(dayName);
-            currentDayData.productive += item.productive;
-            currentDayData.neutral += item.neutral;
-            currentDayData.unproductive += item.break || 0;
-            currentDayData.isTracked = true;
-        }
-    });
-
-    currentNormalizedData = weekTimeSlots.map(day => {
-        const data = aggregatedWeekDataMap.get(day);
-        const total = data.productive + data.neutral + data.unproductive;
-
-        if (total > 0) {
-            return {
-                time: day, // X-axis data key (e.g., "Mon")
-                productive: (data.productive / total) * 100,
-                neutral: (data.neutral / total) * 100,
-                unproductive: (data.unproductive / total) * 100,
-                isTracked: data.isTracked
-            };
-        } else {
-            return {
-                time: day,
-                productive: 0,
-                neutral: 0,
-                unproductive: 0,
-                isTracked: false
-            };
-        }
-    });
-
-    currentLabels = weekTimeLabels;
-
-    // Chart component for Week View: AreaChart (wavy bar)
-    currentChartComponent = (
-        <AreaChart
-            data={currentNormalizedData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        >
-            <XAxis // XAxis is retained here for proper chart functionality
-                dataKey="time"
-                axisLine={false}
-                tickLine={false}
-                ticks={currentLabels}
-                tick={{ fontSize: 10, fill: "#666", dy: 10 }}
-            />
-            <YAxis
-                domain={[0, 100]}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(value) => `${value}%`}
-                tick={{ fontSize: 10, fill: "#666" }}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="unproductive" stackId="1" stroke="#ff7a00" fill="#ffc107" fillOpacity={0.8} />
-            <Area type="monotone" dataKey="neutral" stackId="1" stroke="#b0b0b0" fill="#b0b0b0" fillOpacity={0.8} />
-            <Area type="monotone" dataKey="productive" stackId="1" stroke="#82ca9d" fill="#4caf50" fillOpacity={0.8} />
-        </AreaChart>
-    );
-  }
-
-  return (
-    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px",marginTop:2 }}>
-      <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#333", mb: 2 }}>
-          {currentViewMode === 'day' ? 'Daily Productivity Timeline' : 'Weekly Productivity Timeline'}
-        </Typography>
-
-        {/* Main Chart Area */}
-        <Box sx={{ position: "relative", width: "100%", height: 250, backgroundColor: '', borderRadius: '4px' }}>
           <ResponsiveContainer width="100%" height="100%">
-            {currentChartComponent}
+            <BarChart
+              data={dayNormalizedData}
+              barSize={15}
+              barGap={0}
+              barCategoryGap={"10%"}
+              margin={{ top: 20, right: 30, left: 20, bottom: 0 }}
+            >
+              <YAxis
+                domain={[0, 100]}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(value) => `${value}%`}
+                tick={{ fontSize: 10, fill: "#666" }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="productive" stackId="a" fill="#4caf50" />
+              <Bar dataKey="neutral" stackId="a" fill="#9e9e9e" />
+              <Bar dataKey="unproductive" stackId="a" fill="#ffc107" />
+            </BarChart>
           </ResponsiveContainer>
         </Box>
-
         <ActivityTimelineBar
-          currentNormalizedData={currentNormalizedData}
+          currentNormalizedData={dayNormalizedData}
           TRACKED_COLOR={TRACKED_COLOR}
           UNTRACKED_COLOR={UNTRACKED_COLOR}
         />
+        {/* Render XAxis separately below the ActivityTimelineBar */}
+        <Box sx={{ width: '100%', height: 30, mt: 0, /* px: '20px' */ }}> {/* Removed px here as it's handled by margin below */}
+           <ResponsiveContainer width="100%" height="100%">
+             <BarChart
+               data={xAxisDummyData} // Use dummy data with all time slots
+               layout="horizontal"
+               margin={{ top: 0, right: 30, left: 80, bottom: 2 }} // Match main chart's horizontal margins
+             >
+               <XAxis
+                 dataKey="time"
+                 type="category"
+                 axisLine={false}
+                 tickLine={false}
+                 ticks={dayTimeLabels}
+                 tick={{ fontSize: 10, fill: "#666", dy: 10 }}
+                 interval={0}
+                 // Adjust padding to align with the bars above
+                 padding={{ left: 0, right: 0 }} // Explicitly set padding
+                 minTickGap={-10} // Allow ticks to be closer if needed
+               />
+             </BarChart>
+           </ResponsiveContainer>
+         </Box>
+      </>
+    );
+  } else {
+    // currentViewMode === 'week' - RENDER MULTIPLE DAILY BARS IN SEPARATE Paper COMPONENTS
+    chartTitle = "Weekly Productivity Timeline";
+    const dailyDataMaps = new Map();
 
+    sessionList.forEach((item) => {
+      const itemDate = new Date(item.date).toDateString();
+      if (!dailyDataMaps.has(itemDate)) {
+        dailyDataMaps.set(
+          itemDate,
+          new Map(
+            dayTimeSlots.map((slot) => [
+              slot,
+              { productive: 0, neutral: 0, unproductive: 0, apps: [], total: "" },
+            ])
+          )
+        );
+      }
+      const aggregatedDataMap = dailyDataMaps.get(itemDate);
+      const itemMinutes = timeToMinutes(item.time);
+      const slotKey = getNearestSlotTime(itemMinutes);
+
+      if (aggregatedDataMap.has(slotKey)) {
+        const currentSlotData = aggregatedDataMap.get(slotKey);
+        currentSlotData.productive += item.productive;
+        currentSlotData.neutral += item.neutral;
+        currentSlotData.unproductive += item.break || 0;
+        currentSlotData.apps = [...currentSlotData.apps, ...item.apps];
+        if (item.total) {
+          currentSlotData.total = item.total;
+        }
+      }
+    });
+
+    const sortedDates = Array.from(dailyDataMaps.keys()).sort((a, b) => new Date(a) - new Date(b));
+
+    currentChartComponent = sortedDates.map((dateString) => {
+      const aggregatedDataMap = dailyDataMaps.get(dateString);
+      const dailyNormalizedData = dayTimeSlots.map((slot) => {
+        const data = aggregatedDataMap.get(slot);
+        const total = data.productive + data.neutral + data.unproductive;
+        let isTracked = false;
+
+        if (total > 0) {
+          isTracked = true;
+          return {
+            time: slot,
+            productive: (data.productive / total) * 100,
+            neutral: (data.neutral / total) * 100,
+            unproductive: (data.unproductive / total) * 100,
+            apps: data.apps,
+            total: data.total,
+            isTracked: isTracked,
+          };
+        } else {
+          return {
+            time: slot,
+            productive: 0,
+            neutral: 0,
+            unproductive: 0,
+            apps: [],
+            total: "",
+            isTracked: false,
+          };
+        }
+      });
+
+      return (
+        <Paper
+          key={dateString}
+          elevation={1} // Subtle shadow for the box
+          sx={{
+            mb: 3, // Margin bottom for separation between daily boxes
+            p: 2, // Padding inside each daily box
+            borderRadius: "8px", // Rounded corners
+            border: "1px solid #e0e0e0", // A light border for definition
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 600, color: "#555", mb: 1 }}
+          >
+            {new Date(dateString).toLocaleDateString("en-US", {
+              weekday: "short",
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </Typography>
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: 200, // Bar height as set previously
+              borderRadius: "4px",
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={dailyNormalizedData}
+                barSize={15}
+                barGap={0}
+                barCategoryGap={"10%"}
+                margin={{ top: 20, right: 30, left: 20, bottom: 0 }}
+              >
+                <YAxis
+                  domain={[0, 100]}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(value) => `${value}%`}
+                  tick={{ fontSize: 9, fill: "#666" }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="productive" stackId="a" fill="#4caf50" />
+                <Bar dataKey="neutral" stackId="a" fill="#9e9e9e" />
+                <Bar dataKey="unproductive" stackId="a" fill="#ffc107" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
+          <ActivityTimelineBar
+            currentNormalizedData={dailyNormalizedData}
+            TRACKED_COLOR={TRACKED_COLOR}
+            UNTRACKED_COLOR={UNTRACKED_COLOR}
+          />
+          {/* Render XAxis separately below the ActivityTimelineBar */}
+          <Box sx={{ width: '100%', height: 30, mt: 0, /* px: '20px' */ }}> {/* Removed px here */}
+             <ResponsiveContainer width="100%" height="100%">
+               <BarChart
+                 data={xAxisDummyData} // Use dummy data with all time slots
+                 layout="horizontal"
+                 margin={{top: 0, right: 30, left: 80, bottom: 2 }} // Match main chart's horizontal margins
+               >
+                 <XAxis
+                   dataKey="time"
+                   type="category"
+                   axisLine={false}
+                   tickLine={false}
+                   ticks={dayTimeLabels}
+                   tick={{ fontSize: 9, fill: "#666", dy: 10 }}
+                   interval={0}
+                   // Adjust padding to align with the bars above
+                   padding={{ left: 0, right: 0 }} // Explicitly set padding
+                   minTickGap={-10} // Allow ticks to be closer if needed
+                 />
+               </BarChart>
+             </ResponsiveContainer>
+           </Box>
+        </Paper>
+      );
+    });
+  }
+
+  return (
+    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px", marginTop: 2 }}>
+      <Box sx={{ p: 2 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: 600, color: "#333", mb: 2 }}
+        >
+          {chartTitle}
+        </Typography>
+
+        <Box
+          sx={{
+            width: "100%",
+          }}
+        >
+          {currentChartComponent}
+        </Box>
       </Box>
     </Paper>
   );
 };
 
 export default ProductivityBar;
+
 // import React from 'react';
 // import { Paper, Box, Typography } from '@mui/material';
 // import { Customized } from 'recharts';
@@ -429,8 +544,8 @@ export default ProductivityBar;
 //       <Box sx={{ position: 'relative', width: '100%', height: 250 }}>
 //         <ResponsiveContainer width="100%" height="100%">
 
-//           <BarChart 
-          
+//           <BarChart
+
 //             data={normalizedData}
 //             barSize={4}              // small bar
 //             // barGap={1}               // 1px gap between stacked bars
@@ -457,7 +572,7 @@ export default ProductivityBar;
 //                     {normalizedData.map((d, i) => {
 //                         const hasData = d.productive > 0 || d.neutral > 0 || d.break > 0;
 //                         const x = x0 + i * BAR_SIZE;
-                     
+
 //                       return (
 //                         <rect
 //                           key={i}
@@ -488,7 +603,7 @@ export default ProductivityBar;
 //           </BarChart>
 //         </ResponsiveContainer>
 //       </Box>
-    
+
 //     </Box>
 //       <Box
 //       sx={{
