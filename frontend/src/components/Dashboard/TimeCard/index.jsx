@@ -12,7 +12,7 @@ const StatCardWithChart = ({
 }) => {
   return (
     // <Paper elevation={1} className={styles.card}>
-    <Grid  item className={styles.card}>
+    <Grid item size={{xs:12,md:3}}>
       <Box className={styles.header}>
         <Typography variant="subtitle2" className={styles.title}>
           {title}

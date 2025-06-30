@@ -9,11 +9,48 @@ const fs = require('fs');
 const Store = require('electron-store').default;
 
 const store = new Store();
-let mainWindow, tray = null;
+store.clear();
+console.log('[Store] Cleared all data');
 
-const IDLE_THRESHOLD = 3 * 60 * 1000;
-const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000;
+// ---------------------------------------------
+// 🆕 Embedded Express server to receive token
+// ---------------------------------------------
+const express = require('express');
+const cors = require('cors');
 
+const apiServer = express();
+const API_PORT = 3100;
+
+apiServer.use(cors());
+apiServer.use(express.json());
+
+apiServer.post('/store-token', (req, res) => {
+  const { token, userId } = req.body;
+  console.log('✅ Token received in Electron:', token);
+  console.log('✅ User ID received in Electron:', userId);
+  getStoredToken(token)
+  store.set('authToken', token);
+  store.set('USER_ID', userId);
+  USER_ID = userId
+  startTracking();
+
+  res.status(200).json({ message: 'Token and User ID received' });
+});
+
+
+apiServer.listen(API_PORT, () => {
+  console.log(`🚀 Express API server in Electron listening on http://localhost:${API_PORT}`);
+});
+const { ipcMain } = require('electron');
+
+let mainWindow;
+let tray = null;
+let lastActivity = Date.now();
+
+let sessionId = null;
+let idleStart = null;
+const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
+const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
 let trackingTimers = {}; // per user
 
 function getUserSessionKey(userId) {
@@ -43,13 +80,11 @@ function getToken(userId) {
 function setToken(userId, token) {
   store.set(`token_${userId}`, token);
 }
+//const USER_ID = '685a3e5726ac65ec09c16786'
+let activeLastSent = null;
 
-ipcMain.on('token', async (event, { userId, token }) => {
-  console.log(`[Auth] Received token for user ${userId}`);
-  setToken(userId, token);
-  await startTrackingForUser(userId);
-  event.sender.send('token-response', 'Token received');
-});
+let idleCheckStart = null;
+console.log('Preload path:', path.join(__dirname, 'preload.js'));
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -82,8 +117,30 @@ function createWindow() {
   ]);
   tray.setToolTip('DeskTime Clone');
   tray.setContextMenu(contextMenu);
-  tray.on('click', () => shell.openExternal('http://localhost:5173'));
+
+  tray.on('click', () => {
+    shell.openExternal('http://localhost:5173'); // Opens React app in default browser
+  });
+
 }
+
+function getStoredToken(tokenFromBrowser = null) {
+  if (tokenFromBrowser) {
+    store.set('authToken', tokenFromBrowser);
+  }
+  return store.get('authToken');
+}
+
+
+
+ipcMain.on('token', async (event, { userId, token }) => {
+  console.log(`[Auth] Received token for user ${userId}`);
+  setToken(userId, token);
+  await startTrackingForUser(userId);
+  event.sender.send('token-response', 'Token received');
+});
+console.log('from mainnnnnnnnnnnnnnnnnn')
+// window.electronAPI?.sendToken('your-token-value-here');
 
 async function startTrackingForUser(userId) {
   const token = getToken(userId);
@@ -137,13 +194,15 @@ async function startTrackingForUser(userId) {
           });
         }
       }
-    }, 10 * 1000),
+    }, 10* 10000),
 
     mousePoll: setInterval(() => {
       mouse.getPosition().catch(err => console.error('[Mouse Error]', err));
     }, 2000),
 
-    screenshot: setInterval(async () => {
+
+
+   screenshot: setInterval(async () => {
       try {
         const win = await activeWin();
         const appName = win ? win.owner.name : 'unknown';
@@ -175,7 +234,11 @@ async function startTrackingForUser(userId) {
   };
 }
 
+let sessionEnded = false;
+
 async function initializeDailyTracking(userId, token) {
+  // if (!sessionId || sessionEnded) return;
+
   try {
     const res = await axios.get('http://localhost:8080/tracking/sessions', {
       headers: { Authorization: `Bearer ${token}` },

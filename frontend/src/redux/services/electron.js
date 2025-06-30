@@ -3,28 +3,24 @@ import { URL_CONSTANTS } from '../../constants/urlConstants';
 
 export const Login = createApi({
     reducerPath: 'login',
-    baseQuery: fetchBaseQuery({ baseUrl: URL_CONSTANTS.BASE_URL }),
+    baseQuery: fetchBaseQuery({ baseUrl: URL_CONSTANTS.ELECTRON_BASE_URL }),
     tagTypes: ['login'],
     endpoints: (builder) => ({
-        login: builder.mutation({
-            query: (loginInfo) => ({
-                url: `${URL_CONSTANTS.AUTH}/${URL_CONSTANTS.LOGIN}`,
-                method: 'POST',
-                body: loginInfo,
-            }),
-        }),
          session: builder.mutation({
             query: ({token,userId}) => ({
-                url: `${URL_CONSTANTS.AUTH}/${URL_CONSTANTS.LOGIN}`,
+                url: `${URL_CONSTANTS.STORE_TOKEN}`,
                 method: 'POST',
-                body: loginInfo,
+                body: {
+                    token:token,userId:userId
+                },
             }),
         }),
+        
 
     }),
 });
 
 // ✅ Export only the hooks you defined
 export const {
-    useLoginMutation
+    useSessionMutation
 } = Login;

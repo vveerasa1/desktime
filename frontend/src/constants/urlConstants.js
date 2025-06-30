@@ -6,5 +6,7 @@ export const URL_CONSTANTS={
     LOGIN:'login',
     DASHBOARD:"dashboard",
     SCREENSHOT:"screenshots",
-    PRODUCTIVITY:"productivity"
+    PRODUCTIVITY:"productivity",
+    ELECTRON_BASE_URL:'http://localhost:3100/',
+    STORE_TOKEN:"store-token"
 }

@@ -7,14 +7,8 @@ export const Dashboard = createApi({
     baseUrl: URL_CONSTANTS.BASE_URL,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
-      console.log(token,"TOKKKKKK")
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
-        if (window?.electronAPI?.sendToken) {
-          window.electronAPI.sendToken(token);
-        console.log( window.electronAPI,"ELECTRON CONSOE")
-
-        }
       }
       return headers;
     }
@@ -38,9 +32,9 @@ export const Dashboard = createApi({
         return {
           url: `${URL_CONSTANTS.DASHBOARD}`,
           method: 'GET',
-          params: {
+          params:{
             type: day,
-            date: date
+            date:date
           },
         };
       },
@@ -54,9 +48,9 @@ export const Dashboard = createApi({
         return {
           url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.PRODUCTIVITY}`,
           method: 'GET',
-          params: {
+         params:{
             type: day,
-            date: date
+            date:date
           },
         };
       },

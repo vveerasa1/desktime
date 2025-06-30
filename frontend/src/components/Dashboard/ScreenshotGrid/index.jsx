@@ -9,7 +9,6 @@ const ScreenshotGrid = () => {
   const date = dayjs().format("YYYY-MM-DD");
   const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
     useGetScreenshotQuery({ id, date });
-
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
