@@ -63,7 +63,7 @@ console.log(dateTracking,"DATE TRACKING")
 
       <Box display="flex" alignItems="center" gap={2}>
 
-{/* View Toggle */}
+      {/* View Toggle */}
         <ToggleButtonGroup
           value={view}
           exclusive
@@ -98,30 +98,20 @@ console.log(dateTracking,"DATE TRACKING")
 
         {/* Date and Calendar */}
         <Box display="flex" alignItems="center" gap={1}>
-          <Typography color="#333333">{activeDate === "" ? formattedCurrentDate : activeDate}</Typography>
           <CustomCalendar selectedDate={date?.date} name="date" onChange={(newDate)=>{
             handleChange(newDate,"date")
           }} fontSize="small" sx={{ color: '#666666' }} />
         </Box>
 
         {/* Arrows */}
-        {/* <Box>
+        <Box>
           <IconButton>
             <ChevronLeft sx={{ color: '#666666' }} />
           </IconButton>
           <IconButton>
             <ChevronRight sx={{ color: '#666666' }} />
           </IconButton>
-        </Box> */}
-
-        
-
-        {/* Help Icon */}
-        <Tooltip title="Help">
-          <IconButton>
-            <HelpOutline sx={{ color: '#666666' }} />
-          </IconButton>
-        </Tooltip>
+        </Box>
       </Box>
     </Box>
   );
