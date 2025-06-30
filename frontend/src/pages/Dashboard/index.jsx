@@ -70,7 +70,7 @@ const date = dayjs().format("YYYY-MM-DD");
       
       {/* <Grid container spacing={2}> */}
       {isProductivityLoading? <LoadingComponent/>:(
-      <ProductivityBar getProductiviyData={getProductiviyData} data={{ productive: 60, neutral: 25, unproductive: 15 }} />
+      <ProductivityBar  getProductiviyData={getProductiviyData} data={{ productive: 60, neutral: 25, unproductive: 15 }} />
       )}
       <AppCategoryPanel
         title="Productive apps"

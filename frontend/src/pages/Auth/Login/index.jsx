@@ -1,27 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
   Typography,
   Divider,
   CircularProgress,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import EmailIcon from '@mui/icons-material/Email';
-import LockIcon from '@mui/icons-material/Lock';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-
-import styles from './index.module.css';
-import ImageSection from '../../../components/AuthImageSection';
-import CustomTextField from '../../../components/CustomTextField';
-import { useLoginMutation } from '../../../redux/services/login';
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useSessionMutation } from "../../../redux/services/electron";
+import styles from "./index.module.css";
+import ImageSection from "../../../components/AuthImageSection";
+import CustomTextField from "../../../components/CustomTextField";
+import { useLoginMutation } from "../../../redux/services/login";
 const Login = () => {
   const navigate = useNavigate();
-  const [loginInfo, setLoginInfo] = useState({ email: 'avinesh.r@pentabay.com', password: 'Avinesh@123' });
+  const [loginInfo, setLoginInfo] = useState({
+    email: "avinesh.r@pentabay.com",
+    password: "Avinesh@123",
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const [loginApi, { isLoading, isError, error }] = useLoginMutation();
+  const [electronAPi,{isLoading:electronIsLoading,isError:electronIsError,error:electronError}] = useSessionMutation();
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -32,7 +36,7 @@ const Login = () => {
 
     setErrors((prev) => ({
       ...prev,
-      [name]: value ? '' : `${capitalize(name)} is required`,
+      [name]: value ? "" : `${capitalize(name)} is required`,
     }));
   };
 
@@ -41,44 +45,68 @@ const Login = () => {
 
     const newErrors = {
       email: !loginInfo.email
-        ? 'Email is required'
+        ? "Email is required"
         : !emailRegex.test(loginInfo.email)
-          ? 'Enter a valid email'
-          : '',
-      password: loginInfo.password.trim() ? '' : 'Password is required',
+        ? "Enter a valid email"
+        : "",
+      password: loginInfo.password.trim() ? "" : "Password is required",
     };
 
     setErrors(newErrors);
     return Object.values(newErrors).every((err) => !err);
   };
 
-
   const handleLogin = async () => {
-  if (!validateForm()) {
-    console.log("Login form validation failed.");
-    return;
-  }
-
-  try {
-    const res = await loginApi(loginInfo).unwrap();
-    console.log("Login API response:", res); // Log the full response
-
-    const token = res?.accessToken;
-    console.log("Extracted token from response:", token); // Log the extracted token
-
-    if (token) {
-      localStorage.setItem('token', token);
-      console.log('Token successfully saved to localStorage:', token);
-      navigate('/dashboard');
-    } else {
-      console.warn('Login successful, but no accessToken found in response.');
+    if (!validateForm()) {
+      console.log("Login form validation failed.");
+      return;
     }
 
-  } catch (err) {
-    console.error('Login failed:', err);
-    // You might want to display an error message to the user here
-  }
-};
+    try {
+      const res = await loginApi(loginInfo).unwrap();
+      console.log("Login API response:", res); // Log the full response
+
+      const token = res?.accessToken;
+      const userId = res?.user?.id;
+
+      console.log("Extracted token from response:", token);
+      console.log("Extracted userId from response:", userId);
+
+      if (token) {
+        localStorage.setItem("token", token);
+        console.log("Token successfully saved to localStorage:", token);
+
+        // 🔌 Send token to Electron server
+        try {
+          const electronResponse = await electronAPi({token,userId})
+          console.log("Login API response:", electronResponse); // Log the full response
+          console.log("📦 Token sent to Electron server:", electronResponse.message);
+        } catch (electronErr) {
+          console.error(
+            "⚠️ Failed to send token to Electron server:",
+            electronErr.message
+          );
+        }
+
+        navigate("/dashboard");
+      } else {
+        console.warn("Login successful, but no accessToken found in response.");
+      }
+
+      const userData = {
+        email: loginInfo.email,
+        password: loginInfo.password,
+      };
+
+      if (userData) {
+        localStorage.setItem("userData", JSON.stringify(userData)); // 🛠 fix: stringify object
+        console.log("Successfully saved to localStorage:", userData);
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      // You might want to display an error message to the user here
+    }
+  };
 
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -100,7 +128,7 @@ const Login = () => {
             fullWidth
             startIcon={<EmailIcon />}
             value={loginInfo.email}
-            handleChange={(e) => handleChange(e, 'email')}
+            handleChange={(e) => handleChange(e, "email")}
             error={Boolean(errors.email)}
             helperText={errors.email}
           />
@@ -113,20 +141,29 @@ const Login = () => {
             startIcon={<LockIcon />}
             endIcon={
               showPassword ? (
-                <VisibilityOff onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }} />
+                <VisibilityOff
+                  onClick={togglePasswordVisibility}
+                  style={{ cursor: "pointer" }}
+                />
               ) : (
-                <Visibility onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }} />
+                <Visibility
+                  onClick={togglePasswordVisibility}
+                  style={{ cursor: "pointer" }}
+                />
               )
             }
             value={loginInfo.password}
-            handleChange={(e) => handleChange(e, 'password')}
+            handleChange={(e) => handleChange(e, "password")}
             error={Boolean(errors.password)}
             helperText={errors.password}
           />
 
-          <Box className={styles.link} onClick={()=>{
-            navigate('/forgot-password')
-          }}>
+          <Box
+            className={styles.link}
+            onClick={() => {
+              navigate("/forgot-password");
+            }}
+          >
             <a href="">Forgot Password?</a>
           </Box>
 
@@ -141,13 +178,13 @@ const Login = () => {
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Login'
+              "Login"
             )}
           </Button>
 
           {isError && (
             <Typography color="error" variant="body2" mt={1}>
-              {error?.data?.message || 'Invalid credentials'}
+              {error?.data?.message || "Invalid credentials"}
             </Typography>
           )}
 
