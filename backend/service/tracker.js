@@ -6,10 +6,13 @@ const moment = require("moment-timezone");
 
 const tracking = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const user = req.user;
+    console.log(user);
+    let userId = user.userId;
+    const now = moment().tz(timeZone).toDate();
     const session = await TrackingSession.create({
       userId,
-      arrivalTime: new Date(),
+      arrivalTime: now,
     });
     res.json({ sessionId: session._id });
   } catch (error) {
@@ -19,9 +22,12 @@ const tracking = async (req, res) => {
 
 const getUserTrackingInfo = async (req, res) => {
   try {
-    const { userId, date } = req.query;
+   const user = req.user;
+    console.log(user);
+    let userId = user.userId;
+    const now = moment().tz(timeZone).toDate();
 
-    if (!userId || !date) {
+    if (!userId || !now) {
       return res.status(400).json({
         code: 400,
         status: "Bad Request",
@@ -29,16 +35,15 @@ const getUserTrackingInfo = async (req, res) => {
       });
     }
 
-    const formattedDate = new Date(date).toISOString().split("T")[0];
+    const startOfDay = moment.tz(now, timeZone).startOf('day').toDate();
+    const endOfDay = moment.tz(now, timeZone).endOf('day').toDate();
+    
     const session = await TrackingSession.findOne({
       userId,
-      $expr: {
-        $eq: [
-          { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
-          formattedDate,
-        ],
-      },
-    });
+      arrivalTime: {
+        $gte: startOfDay,
+        $lte: endOfDay
+      }});
 
     res.status(200).json({
       code: 200,

@@ -181,6 +181,7 @@ const getUserById = async (req, res) => {
     }
 
 const ScreenshotLog = require("../models/screenshot");
+const trackingSession = require("../models/trackingSession");
 
 const getScreenshotsById = async (req, res) => {
   try {
@@ -215,10 +216,43 @@ const getScreenshotsById = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  try {
+     const { date } = req.query; // expects type=day|week|month
+    const user = req.user;
+    console.log(user);
+    let userId = user.userId;
+    const session = await trackingSession.findOne({
+      userId: userId,
+      $expr: {
+        $eq: [
+          { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
+          date,
+        ],
+      },
+    });
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Gathered user info successfully",
+      data: session
+    });
+  } catch(error) {
+     console.error("Error fetching user info:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error fetching user info",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
     addUser,
     getUserById,
     updateUser,
     getAllUser,
-    getScreenshotsById
+    getScreenshotsById,
+    getUser
 }
