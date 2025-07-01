@@ -117,7 +117,7 @@ const Dashboard = () => {
           { color: '#a6b1c2', percentage: 50 },
         ]}
       /> */}
-      {filters.viewMode === "month" ? <EmployeeCalendar /> : ""}
+      {filters.viewMode === "month" ? <EmployeeCalendar getProductiviyData={getProductiviyData}  /> : ""}
 
       {filters.viewMode === "week" || filters.viewMode === "month" ? (
         ""

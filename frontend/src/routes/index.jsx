@@ -17,10 +17,6 @@ export const routes = [
     element: <AppLayout />,
     children: [
       {
-    path: "/login",
-    element: <Login />,
-  },
-      {
         path: "dashboard/:type?",
         element: <Dashboard />,
       },
@@ -44,7 +40,10 @@ export const routes = [
       },
     ],
   },
-  
+  {
+    path: "/login",
+    element: <Login />,
+  },
   {
     path: "/forgot-password",
     element: <ForgotPassword />,

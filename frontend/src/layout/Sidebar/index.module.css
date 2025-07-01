@@ -20,3 +20,19 @@
 .menuIcon{
   transition: 0.3s ease-in-out;
 }
+
+.sidebar :global(.MuiListItem-root) {
+  transition: background-color 0.2s ease;
+}
+
+.sidebar :global(.MuiListItem-root:hover) {
+  background-color: #1565c0; /* hover blue */
+}
+
+.activeItem {
+  background-color: #1565c0 !important; /* active blue */
+}
+
+.menuIcon {
+  color: white;
+}

@@ -48,7 +48,7 @@ const AnalyticCards = ({ getDashboardData }) => {
           // Value can be null, a time string, or "ONLINE"
           value:
             dashboardData.leftTime === null
-              ? "ONLINE"
+              ? "--"
               : dashboardData.leftTime
               ? moment(dashboardData.leftTime, "HH:mm:ss").format("HH:mm") // Format if it's a time string
               : "--",

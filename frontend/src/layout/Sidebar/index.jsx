@@ -73,6 +73,8 @@ const handleCloseDialog =() =>{
             <ListItem
               button
               key={label}
+              className={selected ? styles.activeItem : ""}
+
               onClick={() => {
                 navigate(path);
                 if (isMobile) setMobileOpen(false);
@@ -80,7 +82,7 @@ const handleCloseDialog =() =>{
                   setOpen(true)
                 }
               }}
-              className={selected ? styles.activeItem : ""}
+              // className={selected ? styles.activeItem : ""}
               sx={{ gap: 1 }}
             >
               <Box sx={{
@@ -119,6 +121,7 @@ const handleCloseDialog =() =>{
           width: drawerWidth,
           boxSizing: "border-box",
           backgroundColor: "#143351",
+              borderRadius: '0px 20px 20px 0px !important',
           color: "#fff",
           zIndex: (theme) => theme.zIndex.appBar + 2, // keep it below header
           //   pt: 8, // pushes content below header height (64px)

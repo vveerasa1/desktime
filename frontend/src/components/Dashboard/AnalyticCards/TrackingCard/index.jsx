@@ -25,9 +25,9 @@ const TrackingCard = ({ orderedCards }) => {
         elevation={3}
         sx={{ p: 2, borderRadius: "8px", overflow: "hidden" }}
       >
-        <Box  sx={{ display: "flex", justifyContent: "space-around", alignItems: "stretch" }}>
+        <Box  sx={{ display: "flex", justifyContent: "space-around"}}>
           {/* Top-Left: Arrival Time */}
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Box sx={{  display: 'flex', flexDirection: 'column', justifyContent: 'center' ,minWidth:'170px'}}>
             <MetricDisplay
               title={orderedCards[0]?.title}
               value={orderedCards[0]?.value}
@@ -35,10 +35,10 @@ const TrackingCard = ({ orderedCards }) => {
           </Box>
 
           {/* Vertical Divider 1 */}
-          <Divider orientation="vertical" flexItem sx={{ mx: 2,p:1 }} />
+          <Divider orientation="vertical" flexItem />
 
           {/* Top-Right: Left Time */}
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center',minWidth:'170px' }}>
             <MetricDisplay
               title={orderedCards[1]?.title}
               value={orderedCards[1]?.value}
@@ -50,9 +50,9 @@ const TrackingCard = ({ orderedCards }) => {
         {/* Horizontal Divider */}
         <Divider sx={{ my: 0 }} />
 
-        <Box sx={{ display: "flex", justifyContent: "space-around", alignItems: "stretch" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-around", }}>
           {/* Bottom-Left: Desktime */}
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center',minWidth:'170px' }}>
             <MetricDisplay
               title={orderedCards[2]?.title}
               value={orderedCards[2]?.value}
@@ -60,10 +60,10 @@ const TrackingCard = ({ orderedCards }) => {
           </Box>
 
           {/* Vertical Divider 2 */}
-          <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+          <Divider orientation="vertical" flexItem />
 
           {/* Bottom-Right: Time at Work */}
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Box sx={{  display: 'flex', flexDirection: 'column', justifyContent: 'center',minWidth:'170px' }}>
             <MetricDisplay
               title={orderedCards[3]?.title}
               value={orderedCards[3]?.value}
