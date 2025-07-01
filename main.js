@@ -7,10 +7,10 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const Store = require('electron-store').default;
+const moment = require('moment-timezone');
 
 const store = new Store();
-store.clear();
-console.log('[Store] Cleared all data');
+// store.clear();
 
 // ---------------------------------------------
 // 🆕 Embedded Express server to receive token
@@ -153,7 +153,6 @@ ipcMain.on('token', async (event, { userId, token }) => {
   await startTrackingForUser(userId);
   event.sender.send('token-response', 'Token received');
 });
-console.log('from mainnnnnnnnnnnnnnnnnn')
 // window.electronAPI?.sendToken('your-token-value-here');
 
 async function startTrackingForUser(userId) {
@@ -187,6 +186,7 @@ async function startTrackingForUser(userId) {
         if (newSessionId) {
           setSessionId(userId, newSessionId);
           setSessionDate(userId, today);
+          console.log(`[⏰ New Day] Session rolled over to new date ${today}`);
         }
       }
     }, 60 * 1000),
@@ -293,6 +293,29 @@ async function sendActivityToServer(data) {
   const sessionId = getSessionId(userId);
   if (!token || !sessionId) return;
 
+    const user = await axios.get(`http://localhost:8080/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  if (!user) return;
+  console.log('[Send Activity] User:', user.data);
+  const timeZone = user.data.data.timeZone;
+  const trackingEndTimeStr = user.data.data.trackingEndTime || "12:00";
+  const flexible = user.data.data.flexibleHours;
+   const currentTime = moment().tz(timeZone);
+  const [cutHour, cutMin] = trackingEndTimeStr.split(':').map(Number);
+
+  const trackingEnd = currentTime.clone().hour(cutHour).minute(cutMin).second(0);
+  const cutoff = flexible ? currentTime.clone().endOf("day").seconds(0) // 23:59:00
+  : trackingEnd;
+
+  // ✅ If current time is past cutoff, stop tracking
+  if (currentTime.isAfter(cutoff)) {
+    console.log(`[Tracking] Skipped for user ${userId} as current time ${currentTime.format()} > cutoff ${cutoff.format()}`);
+    return;
+  }  else {
+  console.log(`[Tracking] Time ${currentTime.format("HH:mm")} <= cutoff ${cutoff.format("HH:mm")}`);
+}
+
   if (type === 'idle') {
     if (!idleStartMap[userId]) idleStartMap[userId] = now;
 
@@ -374,7 +397,21 @@ async function stopTrackingForUser(userId) {
 }
 
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  createWindow();
+
+  // ✅ Auto-resume tracking on app restart
+  const allKeys = store.store;
+  const userTokenKeys = Object.keys(allKeys).filter(key => key.startsWith('token_'));
+  for (const tokenKey of userTokenKeys) {
+    const userId = tokenKey.split('_')[1]; // from 'token_<userId>'
+    const token = store.get(tokenKey);
+    if (token) {
+      console.log(`[Auto Resume] Found stored token for user ${userId}. Resuming tracking...`);
+      await startTrackingForUser(userId);
+    }
+  }
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
