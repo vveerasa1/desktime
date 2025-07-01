@@ -1,6 +1,6 @@
 // ProjectCard/index.jsx
 
-import React from "react";
+import React,{useState } from "react";
 import {
   Paper,
   Box,
@@ -16,8 +16,12 @@ import {
 } from "@mui/material";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import { projectData } from "./ProjectData/ProjectData";
-
+import TaskForm from './TaskForm'
 const ProjectCard = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
   const tableHeaders = [
     { title: "Project" },
     { title: "Task" },
@@ -47,12 +51,12 @@ const ProjectCard = () => {
               </Typography>
             </Box>
             <Box sx={{}}>
-              <Button sx={{ border: "1px solid" ,backgroundColor:"#194CF0",color:"white",borderRadius:"12px"}}>
+              <Button onClick={handleOpen} sx={{ border: "1px solid", backgroundColor: "#194CF0", color: "white", borderRadius: "12px" }}>
                 Add Task <ControlPointIcon sx={{ ml: 1 }} />
               </Button>
             </Box>
           </Box>
-
+          <TaskForm open={isModalOpen} onClose={handleClose} />
           {/* Adjust the TableContainer's sx prop */}
           <TableContainer sx={{ overflowY: "scroll", maxHeight: "175px" }}>
             {" "}
