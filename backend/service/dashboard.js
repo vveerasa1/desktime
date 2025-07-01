@@ -39,16 +39,20 @@ const dashboardCard = async (req, res) => {
           (acc, p) => acc + (p.duration || 0),
           0
         );
-        timeAtWork = deskTime - idleTime;
+       const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
+        //timeAtWork = deskTime - idleTime;
+        timeAtWork = activeTime;
       } else {
         const now = new Date();
         deskTime = Math.floor((now - arrivalTime) / 1000); // seconds
 
-        idleTime = (session.idlePeriods || []).reduce(
-          (acc, p) => acc + (p.duration || 0),
-          0
-        );
-        timeAtWork = deskTime - idleTime;
+        // idleTime = (session.idlePeriods || []).reduce(
+        //   (acc, p) => acc + (p.duration || 0),
+        //   0
+        // );
+        const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
+        timeAtWork = activeTime;
+        // timeAtWork = deskTime - idleTime;
       }
 
       result = {
