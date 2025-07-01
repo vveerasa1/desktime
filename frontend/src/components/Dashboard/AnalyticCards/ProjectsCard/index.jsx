@@ -32,7 +32,7 @@ const ProjectCard = () => {
   ];
 
   return (
-    <Grid item xs={12} md={9}>
+    <Grid item size={{xs:12 ,md:8}} sx={{display:"flex",flexDirection:'column'}} >
       <Paper
         elevation={3}
         sx={{
@@ -72,8 +72,6 @@ const ProjectCard = () => {
                       sx={{
                         fontWeight: 600,
                         color: "#999",
-                        width: header.width, // Note: header.width is undefined
-                        whiteSpace: "nowrap",
                         pl: header.title === "Project" ? 3 : 1,
                         borderBottom: "none",
                       }}
@@ -103,7 +101,6 @@ const ProjectCard = () => {
                         py: 2,
                         color: "#333",
                         fontWeight: 500,
-                        whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         position: "relative",
@@ -128,7 +125,7 @@ const ProjectCard = () => {
                       sx={{
                         py: 1.5,
                         color: "#555",
-                        whiteSpace: "nowrap",
+                        // whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         borderBottom: "none",

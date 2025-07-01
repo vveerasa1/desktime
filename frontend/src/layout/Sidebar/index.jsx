@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -9,7 +8,6 @@ import {
   Divider,
   Box,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -40,16 +38,12 @@ const navItems = [
   { label: "Logout", icon: <PowerSettingsNewIcon /> },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({setOpen,setMobileOpen,mobileOpen,isMobile,drawerWidth,open}) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const isMobile = useMediaQuery("(max-width:900px)");
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [open,setOpen] = useState(false)
-  const drawerWidth = mobileOpen || isMobile ? 240 : 72;
-const handleCloseDialog =() =>{
-  setOpen(false)
-}
+  
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
   const drawerContent = (
     <>
       <Toolbar
@@ -68,25 +62,24 @@ const handleCloseDialog =() =>{
       <Divider />
       <List className={styles.sidebar}>
         {navItems.map(({ label, path, icon }) => {
-          const selected = location.pathname === path;
+          const isActive = location.pathname === path;
+          console.log(isActive,"ACTIVW")
           return (
             <ListItem
               button
               key={label}
-              className={selected ? styles.activeItem : ""}
-
+              className={isActive ? styles.activeItem : ""}
               onClick={() => {
                 navigate(path);
                 if (isMobile) setMobileOpen(false);
-                if(label === 'Logout'){
-                  setOpen(true)
+                if (label === "Logout") {
+                  setOpen(true);
                 }
               }}
               // className={selected ? styles.activeItem : ""}
               sx={{ gap: 1 }}
             >
-              <Box sx={{
-              }}>
+              <Box sx={{}}>
                 <Box
                   className={styles.menuIcon}
                   component="span"
@@ -121,7 +114,7 @@ const handleCloseDialog =() =>{
           width: drawerWidth,
           boxSizing: "border-box",
           backgroundColor: "#143351",
-              borderRadius: '0px 20px 20px 0px !important',
+          borderRadius: "0px 20px 20px 0px !important",
           color: "#fff",
           zIndex: (theme) => theme.zIndex.appBar + 2, // keep it below header
           //   pt: 8, // pushes content below header height (64px)
@@ -132,7 +125,11 @@ const handleCloseDialog =() =>{
       }}
     >
       {drawerContent}
-      <LogoutConfirmationDialog open={open} setOpen={setOpen} handleCloseDialog={handleCloseDialog}/>
+      <LogoutConfirmationDialog
+        open={open}
+        setOpen={setOpen}
+        handleCloseDialog={handleCloseDialog}
+      />
     </Drawer>
   );
 };

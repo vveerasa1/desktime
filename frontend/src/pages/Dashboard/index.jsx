@@ -61,7 +61,7 @@ const Dashboard = () => {
   // console.log(getProductiviyData?.data,"GET PRODUCTIVOTy")
 
   return (
-    <Box>
+    <Box sx={{width:'100%'}}>
       <DeskTimeHeader setFilters={setFilters} />
 
       {isLoading ? (
@@ -81,42 +81,7 @@ const Dashboard = () => {
           <ProductivityBar getProductiviyData={getProductiviyData} />
         ))}
 
-      {/* <AppCategoryPanel
-        title="Productive apps"
-        totalTime="3h 41m"
-        apps={productiveApps}
-        headerColor="#4caf50" // green
-      />
-      <AppCategoryPanel
-        title="Unproductive apps"
-        totalTime="3h 41m"
-        apps={productiveApps}
-        headerColor="#f63" // green
-      />
-      <AppCategoryPanel
-        title="Neutral apps"
-        totalTime="3h 41m"
-        apps={productiveApps}
-        headerColor="gray" // green
-      />
-      
-      */}
-      {/* <CategoryBar
-        categories={[
-          { name: 'Creative & Design', color: '#93278f' },
-          { name: 'Training & Research', color: '#fcee21' },
-          { name: 'E-mail', color: '#2e3192' },
-          { name: 'Social Media', color: '#ed1e79' },
-          { name: 'Office apps', color: '#00aeef' },
-          { name: 'Entertainment', color: '#f7931e' },
-          { name: 'News', color: '#662d91' },
-          { name: 'Undefined', color: '#a6b1c2' },
-        ]}
-        barSegments={[
-          { color: '#00aeef', percentage: 50 },
-          { color: '#a6b1c2', percentage: 50 },
-        ]}
-      /> */}
+    
       {filters.viewMode === "month" ? <EmployeeCalendar getProductiviyData={getProductiviyData}  /> : ""}
 
       {filters.viewMode === "week" || filters.viewMode === "month" ? (

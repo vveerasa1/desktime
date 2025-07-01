@@ -48,7 +48,7 @@ const AnalyticCards = ({ getDashboardData }) => {
           // Value can be null, a time string, or "ONLINE"
           value:
             dashboardData.leftTime === null
-              ? "--"
+              ? "ONLINE"
               : dashboardData.leftTime
               ? moment(dashboardData.leftTime, "HH:mm:ss").format("HH:mm") // Format if it's a time string
               : "--",
@@ -85,19 +85,15 @@ const AnalyticCards = ({ getDashboardData }) => {
   return (
     <Grid container>
   <Box
-    gap={3}
+    gap={2}
     sx={{
       display: 'flex',
       justifyContent: 'space-between',
     }}
   >
-    <Box >
       <TrackingCard orderedCards={orderedCards} />
-    </Box>
 
-    <Box>
       <ProjectCard />
-    </Box>
   </Box>
 </Grid>
 
