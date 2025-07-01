@@ -17,7 +17,8 @@ const CustomTextField = (
         startIcon,
         onStartIconClick,
         onEndIconClick,
-        type
+        type,
+        rows
     }
 
 ) => {
@@ -29,7 +30,7 @@ const CustomTextField = (
                 </Typography>
             )}
             <TextField
-
+                rows={rows}
                 name={name}
                 value={value}
                 placeholder={placeholder}

@@ -11,7 +11,6 @@ const ScreenshotGrid = () => {
     useGetScreenshotQuery({ id, date });
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const handleImageClick = (index) => {
     setCurrentIndex(index);
     setModalOpen(true);
