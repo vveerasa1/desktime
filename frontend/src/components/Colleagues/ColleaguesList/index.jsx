@@ -15,13 +15,23 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
+import { jwtDecode } from "jwt-decode";
 const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
+
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedColleague, setSelectedColleague] = useState(null);
+  const token = localStorage.getItem('token')
+  let userRole = ''
+
+  if(token){
+    let decoded = jwtDecode(token)
+    userRole = decoded?.role
+  }
+  console.log(userRole)
   const handleEdit = () => {
     console.log("Edit", selectedColleague);
     handleMenuClose();
-    navigate(`/edit/${selectedColleague._id}`); // or however you route to edit
+    navigate(`/colleagues/edit/${selectedColleague._id}`);
   };
   const handleMenuOpen = (event, colleague) => {
     setMenuAnchorEl(event.currentTarget);

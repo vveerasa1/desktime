@@ -1,33 +1,4 @@
-// // src/components/layout/Header.jsx
-// import React from 'react';
-// import { AppBar, Toolbar, IconButton, Typography, useMediaQuery } from '@mui/material';
-// import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-// import { useTheme } from '@mui/material/styles';
-
-// const Header = ({ onMenuClick }) => {
-//   const theme = useTheme();
-//   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-//   return (
-//     <AppBar position="fixed" sx={{ backgroundColor: '#fff', color: '#000' }}>
-//       {/* <Toolbar>
-
-//         <Typography
-//           variant="h6"
-//           noWrap
-//           component="div"
-//           onClick={onMenuClick} // Optional: Also toggle on logo click
-//           sx={{ cursor: 'pointer' }}
-//         >
-//           DeskTime
-//         </Typography>
-//       </Toolbar> */}
-//     </AppBar>
-//   );
-// };
-
-// export default Header;
-import React from 'react';
+// src/components/layout/Header.jsx
 import {
   AppBar,
   Toolbar,
@@ -39,19 +10,37 @@ import {
 } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import {jwtDecode} from "jwt-decode";
+import { useGetSingleProfileQuery } from '../../redux/services/user'; 
 
 const Header = () => {
+  const token = localStorage.getItem('token');
+  let userId = null;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded?.userId || decoded?.sub; 
+      console.log(userId, "DECODED USER ID");
+    } catch (err) {
+      console.error("Invalid token", err);
+    }
+  }
+
+  const { data: currentUserProfile, isLoading, isError } =
+    useGetSingleProfileQuery(userId, {
+      skip: !userId
+    });
+
+  const username = currentUserProfile?.data?.username || "Guest";
+  const avatarLetter = username ? username.charAt(0).toUpperCase() : '?';
   return (
     <AppBar
-      // position="fixed"
       elevation={0}
       sx={{
         backgroundColor: '#fff',
         color: '#000',
-        // zIndex: (theme) => theme.zIndex.drawer + 1,
         borderBottom: '1px solid #e0e0e0',
-        // left: '240px'
-
       }}
     >
       <Toolbar sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
@@ -72,12 +61,18 @@ const Header = () => {
         {/* User Info */}
         <Box display="flex" alignItems="center" gap={1}>
           <Box textAlign="right">
-            <Typography variant="subtitle2">Vineetha Yenugula</Typography>
+            {isLoading ? (
+              <Typography variant="subtitle2">Loading...</Typography>
+            ) : isError ? (
+              <Typography variant="subtitle2" color="error">Error</Typography>
+            ) : (
+              <Typography variant="subtitle2">{username}</Typography>
+            )}
             <Typography variant="caption" color="text.secondary">
               Pentabay Softwares
             </Typography>
           </Box>
-          <Avatar sx={{ bgcolor: 'green' }}>V</Avatar>
+          <Avatar sx={{ bgcolor: 'green' }}>{avatarLetter}</Avatar>
         </Box>
       </Toolbar>
     </AppBar>

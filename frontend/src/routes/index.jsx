@@ -40,14 +40,6 @@ export const routes = [
         element: <Dashboard />,
       },
       {
-        path: "settings",
-        element: <Profile />,
-      },
-      {
-        path: "settings/edit/:_id",
-        element: <Profile />,
-      },
-      {
         path: "colleagues/edit/:_id",
         element: <Profile />,
       },
@@ -55,6 +47,12 @@ export const routes = [
         path: "colleagues",
         element: <Colleagues />,
       },
+      {
+        path: "settings",
+        element: <Profile />,
+      },
+      
+      
       {
         path: "absence-calendar",
         element: <AbsenceCalender />,

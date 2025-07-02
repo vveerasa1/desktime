@@ -16,6 +16,7 @@ import styles from "./index.module.css";
 import ImageSection from "../../../components/AuthImageSection";
 import CustomTextField from "../../../components/CustomTextField";
 import { useLoginMutation } from "../../../redux/services/login";
+import { jwtDecode } from "jwt-decode";
 const Login = () => {
   const navigate = useNavigate();
   const [loginInfo, setLoginInfo] = useState({
@@ -65,17 +66,18 @@ const Login = () => {
     try {
       const res = await loginApi(loginInfo).unwrap();
       console.log("Login API response:", res); // Log the full response
-
+      
       const token = res?.accessToken;
-      const userId = res?.user?.id;
+      let userId = null
+      if(token){
+        const decoded = jwtDecode(token)
+        userId = decoded?.userId
+      }
 
-      console.log("Extracted token from response:", token);
-      console.log("Extracted userId from response:", userId);
 
       if (token) {
         localStorage.setItem("token", token);
         console.log("Token successfully saved to localStorage:", token);
-
         // 🔌 Send token to Electron server
         try {
           const electronResponse = await electronAPi({token,userId})
@@ -91,16 +93,6 @@ const Login = () => {
         navigate("/dashboard");
       } else {
         console.warn("Login successful, but no accessToken found in response.");
-      }
-
-      const userData = {
-        email: loginInfo.email,
-        password: loginInfo.password,
-      };
-
-      if (userData) {
-        localStorage.setItem("userData", JSON.stringify(userData)); // 🛠 fix: stringify object
-        console.log("Successfully saved to localStorage:", userData);
       }
     } catch (err) {
       console.error("Login failed:", err);

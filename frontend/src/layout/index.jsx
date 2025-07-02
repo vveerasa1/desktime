@@ -43,7 +43,7 @@ const AppLayout = () => {
         <Box
           sx={{
             px: 3,
-            py: 7,
+            py: 10,
             flex: 1,
             backgroundColor: "#f9f9f9",
           }}

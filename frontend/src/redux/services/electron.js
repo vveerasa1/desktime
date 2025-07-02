@@ -15,12 +15,20 @@ export const Login = createApi({
                 },
             }),
         }),
-        
-
+        logoutSession : builder.mutation({
+            query: ({userId}) => ({
+                url:`${URL_CONSTANTS.LOGOUT}`,
+                method:'POST',
+                body:{
+                    userId:userId
+                }
+            })
+        })
     }),
 });
 
 // ✅ Export only the hooks you defined
 export const {
-    useSessionMutation
+    useSessionMutation,
+    useLogoutSessionMutation
 } = Login;

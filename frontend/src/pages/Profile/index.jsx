@@ -12,24 +12,35 @@ import TrackingDetails from "./TrackingDetails";
 import ChangePasswordModal from "./ChangePasswordModal";
 import {
   useCreateProfileMutation,
-  useGetSingleProfileQuery,
+  useGetSingleProfileQuery, // We will use this existing one
   useUpdateProfileMutation,
 } from "../../redux/services/user";
 import { useParams } from "react-router-dom";
 import MuiToaster from "../../components/MuiToaster";
+import { jwtDecode } from "jwt-decode";
 const Profile = () => {
-  const { _id } = useParams();
+  const { _id: paramId } = useParams(); // ID from URL params (e.g., when editing a colleague)
   const [workingDays, setWorkingDays] = useState([]);
   const [trackingDays, setTrackingDays] = useState([]);
   const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
-  const [openToaster,setOpenToaster] = useState(false)
-  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const [openToaster, setOpenToaster] = useState(false);
+
+  const [updateProfile, { isLoading: updateProfileIsLoading }] = useUpdateProfileMutation();
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
-  const { data: profileDetails, isLoading: getSingleProfileApiIsLoading } =
-    useGetSingleProfileQuery(_id,{
-      skip:!_id
+
+  const token = localStorage.getItem('token'); 
+  let userId = null
+  if(token){
+    const decoded = jwtDecode(token);
+    userId = decoded?.userId
+  }
+  const userIdToFetch = paramId || userId;
+
+  const { data: profileDetails, isLoading: getSingleProfileApiIsLoading, isError, error } =
+    useGetSingleProfileQuery(userIdToFetch, {
+      skip: !userIdToFetch,
     });
 
   const timeZoneOptions = moment.tz.names().map((tz) => ({
@@ -41,7 +52,7 @@ const Profile = () => {
     employeeId: "",
     username: "",
     email: "",
-    password: "",
+    password: "", 
     role: "",
     gender: "",
     phone: "",
@@ -69,7 +80,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (_id && profileDetails?.data) {
+    if (profileDetails?.data && !getSingleProfileApiIsLoading) {
       const data = profileDetails.data;
       const workingDayCodes =
         data.workingDays?.map((day) => reverseDayNameMap[day]) || [];
@@ -83,7 +94,7 @@ const Profile = () => {
         employeeId: data.employeeId || "",
         username: data.username || "",
         email: data.email || "",
-        password: data.password || "",
+        password: "", // Keep password field empty for security reasons
         gender: data.gender || "",
         role: data.role || "",
         team: data.team || "",
@@ -99,8 +110,11 @@ const Profile = () => {
         trackingDays: data?.trackingDays || [],
         flexibleHours: data.flexibleHours || false,
       });
+    } else if (isError) {
+        console.error("Error fetching profile details:", error);
+        // Optionally, handle error state (e.g., display error message)
     }
-  }, [profileDetails]);
+  }, [profileDetails, getSingleProfileApiIsLoading, isError, error]); // Add error and isError to dependencies
 
   const handleChange = (event, name) => {
     const { value } = event.target;
@@ -122,7 +136,7 @@ const Profile = () => {
     setFormData((prev) => ({
       ...prev,
       phone: phone,
-      countryCode: data.dialCode, // "91", "1", etc.
+      countryCode: data.dialCode,
     }));
   };
 
@@ -146,7 +160,6 @@ const Profile = () => {
     { id: "User", name: "User" },
     { id: "Manager", name: "Manager" },
   ];
-
 
   const minimumHoursOptions = [
     { id: "4 Hours", name: "4 Hours" },
@@ -188,7 +201,8 @@ const Profile = () => {
         employeeId: formData.employeeId,
         username: formData.username,
         email: formData.email,
-        password: formData.password,
+        // Do NOT include password in the payload unless it's explicitly being changed (e.g., via a separate password change form)
+        // password: formData.password,
         role: formData.role,
         gender: formData.gender,
         phone: formData.phone,
@@ -204,16 +218,17 @@ const Profile = () => {
         flexibleHours: formData.flexibleHours,
         timeZone: formData.timeZone,
       };
-      if (profileDetails) {
+
+      if (userIdToFetch) { // If there's an ID to fetch (either from URL or logged-in user), it's an update
         const response = await updateProfile({
-          id:_id,
-          profileData:payload
+          id: userIdToFetch, // Use the ID that was used to fetch the data
+          profileData: payload
         }).unwrap();
-       setOpenToaster(true)
-      setTimeout(()=>{
-      setOpenToaster(false)
-      },3000)
-      } else {
+        setOpenToaster(true);
+        setTimeout(() => {
+          setOpenToaster(false);
+        }, 3000);
+      } else { // No ID means it's a new profile creation (e.g., by an admin)
         const response = await createProfileApi(payload).unwrap();
         setFormData({
           employeeId: "",
@@ -231,29 +246,53 @@ const Profile = () => {
           trackingStartTime: "",
           trackingEndTime: "",
           minimumHours: "",
-          workingDays: workingDays,
-          trackingDays: trackingDays,
-          flexibleHours: flexibleHours,
+          workingDays: [], // Clear for new creation
+          trackingDays: [], // Clear for new creation
+          flexibleHours: false,
         });
+        setWorkingDays([]); // Reset selected days
+        setTrackingDays([]); // Reset selected days
+        setOpenToaster(true); // Show toaster for new creation as well
+        setTimeout(() => {
+          setOpenToaster(false);
+        }, 3000);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      // You might want to display an error toaster here as well
     }
   };
-  const handleClose = (event, reason) => {
-    if (reason == 'clickaway') {
-    setOpenToaster(false);
 
-    };
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      setOpenToaster(false);
+    }
   };
-  const reason = 'clickaway'
+
+  // Optional: Add loading and error UI
+  if (getSingleProfileApiIsLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Typography variant="h6">Loading profile...</Typography>
+      </Box>
+    );
+  }
+
+  if (isError && !getSingleProfileApiIsLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'error.main' }}>
+        <Typography variant="h6">Error loading profile: {error?.data?.message || error?.message || 'Unknown error'}</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box >
       <MuiToaster
-      handleClose={()=> handleClose(reason,"clickaway")}
-      open={openToaster}
-      message={"User Profile Updated"}
-      severity="success" // success | error | warning | info
+        handleClose={() => handleClose(null, "clickaway")}
+        open={openToaster}
+        message={"User Profile Updated"}
+        severity="success"
       />
       <Box
         sx={{
@@ -277,8 +316,8 @@ const Profile = () => {
           <Button
             variant="contained"
             color="success"
-            onClick={() => handleSubmit()}
-            disabled={createProfileApiIsLoading}
+            onClick={handleSubmit}
+            disabled={createProfileApiIsLoading || updateProfileIsLoading}
           >
             <Typography fontSize={14}>Save Changes</Typography>
           </Button>
