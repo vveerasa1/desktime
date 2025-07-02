@@ -41,7 +41,7 @@ const dashboardCard = async (req, res) => {
         );
        const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
         //timeAtWork = deskTime - idleTime;
-        timeAtWork = activeTime;
+        timeAtWork = activeTime?activeTime:0;
       } else {
         const now = new Date();
         deskTime = Math.floor((now - arrivalTime) / 1000); // seconds
@@ -51,7 +51,7 @@ const dashboardCard = async (req, res) => {
         //   0
         // );
         const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
-        timeAtWork = activeTime;
+        timeAtWork = activeTime?activeTime:0;
         // timeAtWork = deskTime - idleTime;
       }
 
@@ -111,11 +111,8 @@ const dashboardCard = async (req, res) => {
         const left = session.leftTime ? moment(session.leftTime) : moment();
 
         const deskTime = left.diff(arrival, "seconds");
-        const idleTime = (session.idlePeriods || []).reduce(
-          (acc, p) => acc + (p.duration || 0),
-          0
-        );
-        const timeAtWork = deskTime - idleTime;
+        const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
+        const timeAtWork = activeTime?activeTime:0;
 
         totalDeskTime += deskTime;
         totalIdleTime += idleTime;
