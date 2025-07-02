@@ -1,9 +1,8 @@
-/* index.module.css */
 .sidebar {
-  padding: 8px !important;  
+  padding: 8px !important;
   display: flex;
   flex-direction: column;
-  align-items: center ;
+  align-items: center;
   gap: 8px;
 }
 
@@ -11,32 +10,44 @@
   padding-left: 16px;
 }
 
-/* .menuIcon :hover {
-  background-color: #194cf0;
-  color: white;
-  transition: 0.3s ease-in-out;
-  
-} */
-
-/* .menuIcon {
-  transition: 0.3s ease-in-out;
-} */
-
 .sidebar :global(.MuiListItem-root) {
   transition: background-color 0.2s ease;
 }
 
 .sidebar :global(.MuiListItem-root:hover) {
-  background-color: #1565c0; /* hover blue */
-   border-radius: 10px;
+  background-color: #1565c0;
+  border-radius: 10px;
 }
 
 .activeItem {
-  background-color: #1565c0 !important; /* active blue */
+  background-color: #1565c0 !important;
   transition: #1565c0 0.1s ease;
   border-radius: 10px;
 }
 
 .menuIcon {
   color: white;
+}
+.logoWrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important; /* optional spacing between icon and text */
+  width: 100% !important;
+}
+.logoWrapperWeb{
+ display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important; /* optional spacing between icon and text */
+  width: 100% !important;
+}
+.listItem{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.listItemText{
+  display: flex;
+  align-items: center;
 }

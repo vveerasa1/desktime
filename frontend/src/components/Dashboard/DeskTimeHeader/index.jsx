@@ -1,118 +1,96 @@
-import React, { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Box,
   Typography,
   IconButton,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip
 } from '@mui/material';
-import {
-  ChevronLeft,
-  ChevronRight,
-  HelpOutline
-} from '@mui/icons-material';
-import CustomCalendar from '../../CustomCalender';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import dayjs from 'dayjs';
 
-export default function DeskTimeHeader({setFilters}) {
-  const currentDate = new Date()
-  const trackDate = new Date()
-  const formattedTrackDate = dayjs(trackDate).format("YYYY-MM-DD")
-  const formattedCurrentDate = dayjs(currentDate).format('ddd MMM DD YYYY')
+import CustomCalendar from '../../CustomCalender';
+import styles from './index.module.css';
+
+const DeskTimeHeader = ({ setFilters }) => {
+  const currentDate = useMemo(() => new Date(), []);
+  const formattedTrackDate = useMemo(() => dayjs(currentDate).format("YYYY-MM-DD"), [currentDate]);
+  const formattedCurrentDate = useMemo(() => dayjs(currentDate).format('ddd MMM DD YYYY'), [currentDate]);
+
   const [view, setView] = useState('day');
-  const [date, setDate] = useState();
-  const [dateTracking,setDateTracking] = useState(formattedTrackDate)
-  const[activeDate,setActiveDate] = useState("")
-  const handleViewChange = (_, nextView) => {
+  const [date, setDate] = useState({ date: formattedTrackDate });
+  const [dateTracking, setDateTracking] = useState(formattedTrackDate);
+  const [activeDate, setActiveDate] = useState(formattedCurrentDate);
+
+  const handleViewChange = useCallback((_, nextView) => {
     if (nextView !== null) {
       setView(nextView);
     }
-  };
+  }, []);
 
-  const handleChange = (newDate,name) =>{
-    const formattedDate = dayjs(newDate).format("YYYY-MM-DD")
+  const handleChange = useCallback((newDate, name) => {
+    const formattedDate = dayjs(newDate).format("YYYY-MM-DD");
     setActiveDate(dayjs(newDate).format('ddd MMM DD YYYY'));
-    setDateTracking(dayjs(newDate).format("YYYY-MM-DD"))
-    setDate((prev)=>{
-      return {...prev, [name]:formattedDate}
-    })
-    setFilters((prev)=>({
+    setDateTracking(formattedDate);
+    setDate(prev => ({ ...prev, [name]: formattedDate }));
+
+    setFilters(prev => ({
       ...prev,
-      type:view,
-      date:formattedDate
-    }))
-  }
-console.log(dateTracking,"DATE TRACKING")
+      type: view,
+      date: formattedDate,
+    }));
+  }, [setFilters, view]);
+
+  const viewModes = useMemo(() => ['day', 'week', 'month'], []);
+
   return (
-    <Box
-      display="flex"
-      justifyContent="space-between"
-      alignItems="center"
-    //   px={4}
-      py={2}
-      sx={{
-        // backgroundColor: '#eeeeee', // light gray
-        // borderBottom: '1px solid #dddddd'
-        marginBottom: '10px', // adjust the 
-      }}
-    >
-      <Typography variant="h6" fontWeight={600} color="#333333">
+    <Box className={styles.headerContainer}>
+      <Typography variant="h6" className={styles.title}>
         My DeskTime
       </Typography>
 
-      <Box display="flex" alignItems="center" gap={2}>
-
-      {/* View Toggle */}
+      <Box className={styles.controls}>
         <ToggleButtonGroup
           value={view}
           exclusive
           onChange={handleViewChange}
           size="small"
         >
-          {['day', 'week', 'month'].map((val) => (
+          {viewModes.map((val) => (
             <ToggleButton
               key={val}
-              value={val===""?currentDate:val}
-              onClick={()=>{
-                setFilters({
-                  viewMode:val,
-                  date:dateTracking
-                })
+              value={val}
+              onClick={() => {
+                setFilters({ viewMode: val, date: dateTracking });
               }}
-              sx={{
-                textTransform: 'capitalize',
-                fontWeight: 500,
-                color: view === val ? '#ffffff !important' : '#333333',
-                backgroundColor: view === val ? '#143351 !important' : '#ffffff',
-                // border: '1px solid #cccccc',
-                '&:hover': {
-                  backgroundColor: view === val ? '#4ea819' : '#f5f5f5'
-                }
-              }}
+              className={`${styles.toggleButton} ${view === val ? styles.active : ''}`}
             >
               {val}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
 
-        {/* Date and Calendar */}
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomCalendar selectedDate={date?.date} name="date" onChange={(newDate)=>{
-            handleChange(newDate,"date")
-          }} fontSize="small" sx={{ color: '#666666' }} />
+        <Box className={styles.datePicker}>
+          <CustomCalendar
+            selectedDate={date?.date}
+            name="date"
+            onChange={(newDate) => handleChange(newDate, "date")}
+            fontSize="small"
+            maxDate={new Date()} 
+          />
         </Box>
 
-        {/* Arrows */}
-        <Box>
+        <Box className={styles.arrowButtons}>
           <IconButton>
-            <ChevronLeft sx={{ color: '#666666' }} />
+            <ChevronLeft className={styles.icon} />
           </IconButton>
           <IconButton>
-            <ChevronRight sx={{ color: '#666666' }} />
+            <ChevronRight className={styles.icon} />
           </IconButton>
         </Box>
       </Box>
     </Box>
   );
-}
+};
+
+export default DeskTimeHeader;

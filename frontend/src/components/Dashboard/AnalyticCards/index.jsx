@@ -4,8 +4,8 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import moment from "moment";
 import { useMemo } from "react";
-import TrackingCard from "./TrackingCard";
-import ProjectCard from "./ProjectsCard";
+import TrackingCard from "./Tracking";
+import ProjectCard from "./Projects";
 import styles from "./index.module.css";
 
 dayjs.extend(duration);
@@ -77,7 +77,7 @@ const AnalyticCards = ({ getDashboardData }) => {
   }, [dynamicStatCards]);
 
   return (
-    <Grid container>
+    <Grid container sx={{width:'100%'}}>
       <Box className={styles.container}>
         <TrackingCard orderedCards={orderedCards} />
         <ProjectCard />
