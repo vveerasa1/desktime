@@ -244,7 +244,7 @@ async function startTrackingForUser(userId) {
       } catch (err) {
         console.error('[Screenshot Error]', err);
       }
-    }, 50 * 60 * 1000),
+    }, 5 * 60 * 1000),
   };
 }
 
