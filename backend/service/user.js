@@ -3,6 +3,8 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const config = require("../config");
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const addUser = async (req, res) => {
   try {
@@ -10,7 +12,6 @@ const addUser = async (req, res) => {
       username,
       employeeId,
       email,
-      password,
       team,
       gender,
       role,
@@ -31,6 +32,7 @@ const addUser = async (req, res) => {
     const end = moment(workEndTime, "HH:mm:ss");
 
     let durationSeconds = end.diff(start, "seconds");
+    const password = generateRandomPassword(); // plain text password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
@@ -108,6 +110,13 @@ Desktime - Pentabay Team`,
     });
   }
 };
+
+function generateRandomPassword(length = 8) {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+  return Array.from(crypto.randomFillSync(new Uint32Array(length)))
+    .map(x => charset[x % charset.length])
+    .join('');
+}
 
 const getUserById = async (req, res) => {
   try {
