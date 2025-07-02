@@ -82,7 +82,7 @@ const Dashboard = () => {
         ))}
 
     
-      {filters.viewMode === "month" ? <EmployeeCalendar getProductiviyData={getProductiviyData}  /> : ""}
+      {filters.viewMode === "month" ? <EmployeeCalendar getProductiviyData={getProductiviyData}  filters={filters}/> : ""}
 
       {filters.viewMode === "week" || filters.viewMode === "month" ? (
         ""

@@ -91,7 +91,7 @@ const ProfileDeatils = ({
               isRequired
             />
           </Box>
-          <Box>
+          {/* <Box>
             <CustomTextField
               label="Password"
               name="password"
@@ -102,7 +102,7 @@ const ProfileDeatils = ({
               placeholder="Enter your Password"
               isRequired
             />
-          </Box>
+          </Box> */}
           <Box>
             <CustomDropdown
               label="Gender"

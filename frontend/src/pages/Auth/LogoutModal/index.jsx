@@ -38,8 +38,7 @@ const LogoutConfirmationDialog = ({ open, setOpen, handleCloseDialog }) => {
 
   const handleConfirmLogout = () => {
     localStorage.clear();
-    console.log("Local storage cleared. User logged out.");
-    navigate("/login");
+    navigate("/");
     setOpen(false);
   };
 

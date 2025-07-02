@@ -62,8 +62,9 @@ const Sidebar = ({setOpen,setMobileOpen,mobileOpen,isMobile,drawerWidth,open}) =
       <Divider />
       <List className={styles.sidebar}>
         {navItems.map(({ label, path, icon }) => {
-          const isActive = location.pathname === path;
-          console.log(isActive,"ACTIVW")
+          // const selected = location.pathname === path;
+          const isActive = path && location.pathname.startsWith(path);
+
           return (
             <ListItem
               button
@@ -76,8 +77,11 @@ const Sidebar = ({setOpen,setMobileOpen,mobileOpen,isMobile,drawerWidth,open}) =
                   setOpen(true);
                 }
               }}
-              // className={selected ? styles.activeItem : ""}
-              sx={{ gap: 1 }}
+              sx={{  padding: "5px" ,
+                    width: '100%',
+    display: 'flex',
+    justifyContent: 'center'
+              }}
             >
               <Box sx={{}}>
                 <Box

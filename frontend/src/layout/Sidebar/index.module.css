@@ -1,23 +1,24 @@
 /* index.module.css */
 .sidebar {
-    padding: 0;
-  }
-  
-  .activeItem {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .MuiListItem-root {
-    padding-left: 16px;
-  }
-  
-/* .menuIcon :hover{
-  background-color:#194CF0 ;
-  color: white;
-  transition: 0.3s ease-in-out;
+  padding: 8px !important;  
+  display: flex;
+  flex-direction: column;
+  align-items: center ;
+  gap: 8px;
 }
 
-.menuIcon{
+.MuiListItem-root {
+  padding-left: 16px;
+}
+
+/* .menuIcon :hover {
+  background-color: #194cf0;
+  color: white;
+  transition: 0.3s ease-in-out;
+  
+} */
+
+/* .menuIcon {
   transition: 0.3s ease-in-out;
 } */
 
@@ -27,10 +28,13 @@
 
 .sidebar :global(.MuiListItem-root:hover) {
   background-color: #1565c0; /* hover blue */
+   border-radius: 10px;
 }
 
 .activeItem {
   background-color: #1565c0 !important; /* active blue */
+  transition: #1565c0 0.1s ease;
+  border-radius: 10px;
 }
 
 .menuIcon {
