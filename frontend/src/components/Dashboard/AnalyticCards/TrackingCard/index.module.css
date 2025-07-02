@@ -1,0 +1,42 @@
+.card {
+    padding: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 250px;
+
+}
+
+.row {
+    display: flex;
+    height: 50%;
+}
+
+.cell {
+    display: flex;
+    justify-content: space-around;
+    min-width: 150px;
+}
+
+.metricBox {
+    text-align: center;
+    padding: 16px;
+}
+
+.metricTitle {
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.metricValue {
+    font-weight: 600;
+    line-height: 2;
+    color: #333;
+}
+
+.orange {
+    color: #FFA500;
+}
+
+.hDivider {
+    margin: 0;
+}

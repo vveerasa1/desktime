@@ -1,87 +1,67 @@
-// src/components/AddTaskModal.jsx
-import React from "react";
+import { useCallback, useMemo } from "react";
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
-    TextField,
-    IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Grid,
+  IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomTextField from "../../../../CustomTextField";
+import styles from "./index.module.css";
 
 const AddTaskModal = ({ open, onClose }) => {
-    return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
-                Add Task
-                <IconButton onClick={onClose}>
-                    <CloseIcon />
-                </IconButton>
-            </DialogTitle>
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
 
-            <DialogContent dividers>
-                <Grid container spacing={2}>
-                    <Grid item xs={6}  size={6}>
-                        <CustomTextField
-                            fullWidth
-                            label="Project Name"
-                            name="projectName"
-                            // value={formData.projectName}
-                            // handleChange={(e) => handleChange(e, "reason")}
-                            margin="dense"
-                        />
-                    </Grid>
-                    <Grid item xs={6}  size={6}>
-                        <CustomTextField
-                            fullWidth
-                            label="Task Name"
-                            name="taskName"
-                            // value={formData.reason}
-                            // handleChange={(e) => handleChange(e, "reason")}
-                            margin="dense"
-                        />
-                        {/* <TextField
-              fullWidth
-              label="Task Name"
-              variant="outlined"
-              size="small"
-            /> */}
-                    </Grid>
-                    <Grid item xs={12}>
-                        {/* <CustomTextField
-                            fullWidth
-                            label="Description"
-                            name="Description"
-                            // value={formData.reason}
-                            // handleChange={(e) => handleChange(e, "reason")}
-                            margin="dense"
-                        /> */}
-                        {/* <TextField
-              fullWidth
-              label="Description"
-              multiline
-              rows={3}
-              variant="outlined"
-              size="small"
-            /> */}
-                    </Grid>
-                </Grid>
-            </DialogContent>
+  const content = useMemo(() => (
+    <Grid container spacing={2}>
+      <Grid item xs={6} size={6}>
+        <CustomTextField
+          fullWidth
+          label="Project Name"
+          name="projectName"
+          margin="dense"
+        />
+      </Grid>
+      <Grid item xs={6} size={6}>
+        <CustomTextField
+          fullWidth
+          label="Task Name"
+          name="taskName"
+          margin="dense"
+        />
+      </Grid>
+    </Grid>
+  ), []);
 
-            <DialogActions>
-                <Button onClick={onClose} variant="outlined">
-                    Cancel
-                </Button>
-                <Button variant="contained" sx={{ bgcolor: "#194CF0" }}>
-                    Save
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
+  const actions = useMemo(() => (
+    <>
+      <Button onClick={handleClose} variant="outlined">
+        Cancel
+      </Button>
+      <Button variant="contained" className={styles.saveButton}>
+        Save
+      </Button>
+    </>
+  ), [handleClose]);
+
+  return (
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogTitle className={styles.dialogTitle}>
+        Add Task
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent dividers>{content}</DialogContent>
+      <DialogActions>{actions}</DialogActions>
+    </Dialog>
+  );
 };
 
 export default AddTaskModal;

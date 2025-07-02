@@ -1,44 +1,36 @@
-import { Grid, Paper, Typography, Box, Divider } from '@mui/material'; // Import Divider
+import { useMemo } from 'react';
+import { Grid, Paper, Divider, Typography, Box } from '@mui/material';
+import clsx from 'clsx'; // for conditional className
+import styles from './index.module.css';
 
-const MetricDisplay = ({ title, value, valueColor }) => (
-  <Box sx={{ textAlign: "center", p: 2 }}>
-    <Typography variant="body1" sx={{ color: "#666", mb: 0.5 }}>
-      {title}
-    </Typography>
-    <Typography
-      variant="h5"
-      sx={{
-        fontWeight: 600,
-        color: valueColor || "#333",
-        lineHeight: 2,
-      }}
-    >
-      {value}
-    </Typography>
-  </Box>
-);
+const MetricDisplay = ({ title, value, valueColor }) => {
+  return (
+    <Box className={styles.metricBox}>
+      <Typography variant="body1" className={styles.metricTitle}>
+        {title}
+      </Typography>
+      <Typography
+        variant="h5"
+        className={clsx(styles.metricValue, {
+          [styles.orange]: valueColor === '#FFA500',
+        })}
+      >
+        {value}
+      </Typography>
+    </Box>
+  );
+};
 
 const TrackingCard = ({ orderedCards }) => {
-  return (
-    <Grid item size={{xs:12,md:4}}>
-      <Paper
-        elevation={3}
-        sx={{ p: 2, borderRadius: "8px", overflow: "hidden" }}
-      >
-        <Box  sx={{ display: "flex", justifyContent: "space-around"}}>
-          {/* Top-Left: Arrival Time */}
-          <Box sx={{  display: 'flex', flexDirection: 'column', justifyContent: 'center' ,minWidth:'170px'}}>
-            <MetricDisplay
-              title={orderedCards[0]?.title}
-              value={orderedCards[0]?.value}
-            />
+  const content = useMemo(() => {
+    return (
+      <Paper elevation={3} className={styles.card}>
+        <Box className={styles.row}>
+          <Box className={styles.cell}>
+            <MetricDisplay title={orderedCards[0]?.title} value={orderedCards[0]?.value} />
           </Box>
-
-          {/* Vertical Divider 1 */}
           <Divider orientation="vertical" flexItem />
-
-          {/* Top-Right: Left Time */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center',minWidth:'170px' }}>
+          <Box className={styles.cell}>
             <MetricDisplay
               title={orderedCards[1]?.title}
               value={orderedCards[1]?.value}
@@ -47,32 +39,22 @@ const TrackingCard = ({ orderedCards }) => {
           </Box>
         </Box>
 
-        {/* Horizontal Divider */}
-        <Divider sx={{ my: 0 }} />
+        <Divider className={styles.hDivider} />
 
-        <Box sx={{ display: "flex", justifyContent: "space-around", }}>
-          {/* Bottom-Left: Desktime */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center',minWidth:'170px' }}>
-            <MetricDisplay
-              title={orderedCards[2]?.title}
-              value={orderedCards[2]?.value}
-            />
+        <Box className={styles.row}>
+          <Box className={styles.cell}>
+            <MetricDisplay title={orderedCards[2]?.title} value={orderedCards[2]?.value} />
           </Box>
-
-          {/* Vertical Divider 2 */}
           <Divider orientation="vertical" flexItem />
-
-          {/* Bottom-Right: Time at Work */}
-          <Box sx={{  display: 'flex', flexDirection: 'column', justifyContent: 'center',minWidth:'170px' }}>
-            <MetricDisplay
-              title={orderedCards[3]?.title}
-              value={orderedCards[3]?.value}
-            />
+          <Box className={styles.cell}>
+            <MetricDisplay title={orderedCards[3]?.title} value={orderedCards[3]?.value} />
           </Box>
         </Box>
       </Paper>
-    </Grid>
-  );
+    );
+  }, [orderedCards]);
+
+  return <Grid item xs={12} md={4}>{content}</Grid>;
 };
 
 export default TrackingCard;
