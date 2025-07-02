@@ -168,7 +168,7 @@ const dashboardProductivityTime = async (req, res) => {
         userId,
         $expr: {
           $eq: [
-            { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
+            { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime", timezone: timeZone } },
             targetDate,
           ],
         },
@@ -181,8 +181,8 @@ const dashboardProductivityTime = async (req, res) => {
         formatted = session.activePeriods
           .filter((period) => period.start && period.end)
           .map((period) => {
-            const start = moment(period.start);
-            const end = moment(period.end);
+            const start = moment(period.start).tz(timeZone);
+            const end = moment(period.end).tz(timeZone);
             const duration = period.duration || 0;
 
             return {
@@ -228,7 +228,7 @@ const dashboardProductivityTime = async (req, res) => {
           userId,
           $expr: {
             $eq: [
-              { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
+              { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime", timezone: timeZone } },
               formattedDate,
             ],
           },
@@ -315,7 +315,7 @@ const dashboardProductivityTime = async (req, res) => {
           const arrivalTime = moment(session.arrivalTime).tz(timeZone);
           const leftTime = session.leftTime
             ? moment(session.leftTime).tz(timeZone)
-            : moment();
+            : moment().tz(timeZone);
 
           const deskTimeSeconds = Math.floor(
             leftTime.diff(arrivalTime, "seconds")
