@@ -13,5 +13,9 @@
     "email": "vijayholdingsinc@gmail.com",
     "service": "gmail",
     "password": "xxbkgytfwlkrgvwv"
+  },
+  "AWS": {
+  "ACCESS_KEY_ID":"AKIATIVJ4HZQOEEOYSOU",
+  "SECRET_ACCESS_KEY":"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"
   }
 }
