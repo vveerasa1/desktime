@@ -12,6 +12,7 @@ export const User = createApi({
         method: 'POST',
         body: profileData,
       }),
+      invalidatesTags:['User']
     }),
     updateProfile: builder.mutation({
       query: ({id,profileData}) => ({
@@ -19,12 +20,14 @@ export const User = createApi({
         method: 'PUT',
         body: profileData,
       }),
+      invalidatesTags:['User']
     }),
     getAllProfile:builder.query({
         query:()=>({
             url:URL_CONSTANTS.USER,
             method:'GET',
-        })
+        }),
+        providesTags:['User']
     }),
     getSingleProfile:builder.query({
         query:(id)=>({
