@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState, useCallback } from "react";
 import {
   Box,
   Button,
@@ -12,11 +12,12 @@ import LockIcon from "@mui/icons-material/Lock";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useSessionMutation } from "../../../redux/services/electron";
+import { useLoginMutation } from "../../../redux/services/login";
+import { jwtDecode } from "jwt-decode";
 import styles from "./index.module.css";
 import ImageSection from "../../../components/AuthImageSection";
 import CustomTextField from "../../../components/CustomTextField";
-import { useLoginMutation } from "../../../redux/services/login";
-import { jwtDecode } from "jwt-decode";
+
 const Login = () => {
   const navigate = useNavigate();
   const [loginInfo, setLoginInfo] = useState({
@@ -25,23 +26,27 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
+
   const [loginApi, { isLoading, isError, error }] = useLoginMutation();
-  const [electronAPi,{isLoading:electronIsLoading,isError:electronIsError,error:electronError}] = useSessionMutation();
-  const togglePasswordVisibility = () => {
+  const [electronAPI] = useSessionMutation();
+
+  const togglePasswordVisibility = useCallback(() => {
     setShowPassword((prev) => !prev);
-  };
-  const handleChange = (e, name) => {
+  }, []);
+
+  const capitalize = useCallback((str) => str.charAt(0).toUpperCase() + str.slice(1), []);
+
+  const handleChange = useCallback((e, name) => {
     const { value } = e.target;
 
     setLoginInfo((prev) => ({ ...prev, [name]: value }));
-
     setErrors((prev) => ({
       ...prev,
       [name]: value ? "" : `${capitalize(name)} is required`,
     }));
-  };
+  }, [capitalize]);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const newErrors = {
@@ -55,52 +60,34 @@ const Login = () => {
 
     setErrors(newErrors);
     return Object.values(newErrors).every((err) => !err);
-  };
+  }, [loginInfo]);
 
-  const handleLogin = async () => {
-    if (!validateForm()) {
-      console.log("Login form validation failed.");
-      return;
-    }
+  const handleLogin = useCallback(async () => {
+    if (!validateForm()) return;
 
     try {
       const res = await loginApi(loginInfo).unwrap();
-      console.log("Login API response:", res); // Log the full response
-      
       const token = res?.accessToken;
-      let userId = null
-      if(token){
-        const decoded = jwtDecode(token)
-        userId = decoded?.userId
-      }
-
 
       if (token) {
+        const decoded = jwtDecode(token);
+        const userId = decoded?.userId;
+
         localStorage.setItem("token", token);
-        console.log("Token successfully saved to localStorage:", token);
-        // 🔌 Send token to Electron server
+
         try {
-          const electronResponse = await electronAPi({token,userId})
-          console.log("Login API response:", electronResponse); // Log the full response
-          console.log("📦 Token sent to Electron server:", electronResponse.message);
-        } catch (electronErr) {
-          console.error(
-            "⚠️ Failed to send token to Electron server:",
-            electronErr.message
-          );
+          const electronResponse = await electronAPI({ token, userId });
+          console.log("Token sent to Electron server:", electronResponse.message);
+        } catch (err) {
+          console.error("Failed to send token to Electron server:", err.message);
         }
 
         navigate("/dashboard");
-      } else {
-        console.warn("Login successful, but no accessToken found in response.");
       }
     } catch (err) {
       console.error("Login failed:", err);
-      // You might want to display an error message to the user here
     }
-  };
-
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+  }, [validateForm, loginApi, loginInfo, electronAPI, navigate]);
 
   return (
     <Box className={styles.container}>
@@ -133,15 +120,9 @@ const Login = () => {
             startIcon={<LockIcon />}
             endIcon={
               showPassword ? (
-                <VisibilityOff
-                  onClick={togglePasswordVisibility}
-                  style={{ cursor: "pointer" }}
-                />
+                <VisibilityOff onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
               ) : (
-                <Visibility
-                  onClick={togglePasswordVisibility}
-                  style={{ cursor: "pointer" }}
-                />
+                <Visibility onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
               )
             }
             value={loginInfo.password}
@@ -152,11 +133,9 @@ const Login = () => {
 
           <Box
             className={styles.link}
-            onClick={() => {
-              navigate("/forgot-password");
-            }}
+            onClick={() => navigate("/forgot-password")}
           >
-            <a href="">Forgot Password?</a>
+            <a href="#">Forgot Password?</a>
           </Box>
 
           <Button
@@ -165,7 +144,6 @@ const Login = () => {
             className={styles.button}
             onClick={handleLogin}
             disabled={isLoading}
-            onEndIconClick={togglePasswordVisibility}
           >
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />

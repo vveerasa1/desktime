@@ -1,6 +1,4 @@
-// ProjectCard/index.jsx
-
-import React,{useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   Paper,
   Box,
@@ -15,183 +13,102 @@ import {
   Button,
 } from "@mui/material";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
-import { projectData } from "./ProjectData/ProjectData";
-import TaskForm from './TaskForm'
+import { projectData } from "../constant";
+import TaskForm from "./TaskForm";
+import styles from "./index.module.css";
+
 const ProjectCard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleOpen = () => setIsModalOpen(true);
-  const handleClose = () => setIsModalOpen(false);
-  const tableHeaders = [
+  const handleOpen = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+
+  const tableHeaders = useMemo(() => [
     { title: "Project" },
     { title: "Task" },
     { title: "Task Date" },
     { title: "Time" },
     { title: "Status" },
     { title: "Total Hours" },
-  ];
+  ], []);
+
+  const renderedHeader = useMemo(() => (
+    <TableHead>
+      <TableRow>
+        {tableHeaders.map((header, index) => (
+          <TableCell
+            key={index}
+            className={styles.headerCell}
+            style={{
+              paddingLeft: header.title === "Project" ? 24 : 8,
+            }}
+          >
+            {header.title}
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  ), [tableHeaders]);
+
+  const renderedRows = useMemo(() => (
+    <TableBody>
+      {projectData.map((item) => (
+        <TableRow key={item.id} className={styles.tableRow}>
+          <TableCell
+            className={styles.projectCell}
+            style={{
+              "--bar-color": item.barColor,
+            }}
+          >
+            <Typography variant="overline">{item.project}</Typography>
+          </TableCell>
+          <TableCell className={`${styles.bodyCell} ${styles.noWrap}`}>
+            {item.task}
+          </TableCell>
+          <TableCell className={styles.bodyCell}>{item.taskDate}</TableCell>
+          <TableCell
+            className={`${styles.bodyCell} ${item.status === "In-Progress" ? styles.inProgress : ""}`}
+          >
+            {item.time}
+          </TableCell>
+          <TableCell
+            className={styles.statusCell}
+            style={{ color: item.statusColor }}
+          >
+            {item.status}
+          </TableCell>
+          <TableCell className={styles.totalHoursCell}>
+            {item.totalHours}
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  ), []);
 
   return (
-    <Grid item size={{xs:12 ,md:8}} sx={{display:"flex",flexDirection:'column'}} >
-      <Paper
-        elevation={3}
-        sx={{
-          marginBottom: "15px",
-          borderRadius: "8px",
-        }}
-      >
-        <Box sx={{ p: 2.3 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Box>
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: 600, color: "#333" }}
-              >
-                Projects
-              </Typography>
-            </Box>
-            <Box sx={{}}>
-              <Button onClick={handleOpen} sx={{ border: "1px solid", backgroundColor: "#194CF0", color: "white", borderRadius: "12px" }}>
-                Add Task <ControlPointIcon sx={{ ml: 1 }} />
-              </Button>
-            </Box>
+    <Grid item xs={12} md={9}>
+      <Paper elevation={3} className={styles.card}>
+        <Box className={styles.content}>
+          <Box className={styles.header}>
+            <Typography variant="body1" className={styles.headingText}>
+              Projects
+            </Typography>
+            <Button className={styles.addButton} onClick={handleOpen}>
+              Add Task <ControlPointIcon className={styles.icon} />
+            </Button>
           </Box>
+
           <TaskForm open={isModalOpen} onClose={handleClose} />
-          {/* Adjust the TableContainer's sx prop */}
-          <TableContainer sx={{ overflowY: "scroll", maxHeight: "175px" }}>
-            {" "}
-            {/* Changed to 50px */}
+
+          <TableContainer className={styles.tableContainer}>
             <Table stickyHeader aria-label="project table">
-              {/* Table Headers */}
-              <TableHead>
-                <TableRow>
-                  {tableHeaders.map((header, index) => (
-                    <TableCell
-                      key={index}
-                      align={header.align} // Note: header.align is undefined in your current tableHeaders structure
-                      sx={{
-                        fontWeight: 600,
-                        color: "#999",
-                        pl: header.title === "Project" ? 3 : 1,
-                        borderBottom: "none",
-                      }}
-                    >
-                      {header.title}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-
-              {/* Table Body */}
-              <TableBody>
-                {projectData.map((item) => (
-                  <TableRow
-                    key={item.id}
-                    sx={{
-                      "&:last-child td, &:last-child th": { border: 0 },
-                      position: "relative",
-                    }}
-                  >
-                    {/* Left Colored Bar - Integrated into the first TableCell */}
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      sx={{
-                        pl: 3,
-                        py: 2,
-                        color: "#333",
-                        fontWeight: 500,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        position: "relative",
-                        borderRadius: "11px", // This borderRadius is for the TableCell itself, not the bar
-                        borderBottom: "none",
-
-                        "&::before": {
-                          content: '""',
-                          position: "absolute",
-                          left: 0,
-                          top: 0,
-                          bottom: 0,
-                          width: "5px",
-                          backgroundColor: item.barColor,
-                        },
-                      }}
-                    >
-                      <Typography variant="overline">{item.project}</Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{
-                        py: 1.5,
-                        color: "#555",
-                        // whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        borderBottom: "none",
-                      }}
-                    >
-                      {item.task}
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{
-                        py: 1.5,
-                        color: "#555",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        borderBottom: "none",
-                      }}
-                    >
-                      {item.taskDate}
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{
-                        py: 1.5,
-                        color:
-                          item.status === "In-Progress" ? "#FFA500" : "#555",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        borderBottom: "none",
-                      }}
-                    >
-                      {item.time}
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{
-                        py: 1.5,
-                        color: item.statusColor,
-                        fontWeight: 500,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        borderBottom: "none",
-                      }}
-                    >
-                      {item.status}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        py: 1.5,
-                        color: "#333",
-                        fontWeight: 500,
-                        textAlign: "right",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        borderBottom: "none",
-                      }}
-                    >
-                      {item.totalHours}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+              {renderedHeader}
+              {renderedRows}
             </Table>
           </TableContainer>
         </Box>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -8,9 +8,6 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import EmailIcon from '@mui/icons-material/Email';
-import LockIcon from '@mui/icons-material/Lock';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import styles from './index.module.css';
 import ImageSection from '../../../components/AuthImageSection';
@@ -19,15 +16,21 @@ import { useLoginMutation } from '../../../redux/services/login';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [loginInfo, setLoginInfo] = useState({ email: 'akash@gmail.com', password: 'Akash21@' });
+  const [loginInfo, setLoginInfo] = useState({ email: ''});
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
+
   const [loginApi, { isLoading, isError, error }] = useLoginMutation();
 
-  const togglePasswordVisibility = () => {
+  const togglePasswordVisibility = useCallback(() => {
     setShowPassword((prev) => !prev);
-  };
-  const handleChange = (e, name) => {
+  }, []);
+
+  const emailRegex = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/, []);
+
+  const capitalize = useCallback((str) => str.charAt(0).toUpperCase() + str.slice(1), []);
+
+  const handleChange = useCallback((e, name) => {
     const { value } = e.target;
 
     setLoginInfo((prev) => ({ ...prev, [name]: value }));
@@ -36,11 +39,9 @@ const ForgotPassword = () => {
       ...prev,
       [name]: value ? '' : `${capitalize(name)} is required`,
     }));
-  };
+  }, [capitalize]);
 
-  const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+  const validateForm = useCallback(() => {
     const newErrors = {
       email: !loginInfo.email
         ? 'Email is required'
@@ -52,34 +53,19 @@ const ForgotPassword = () => {
 
     setErrors(newErrors);
     return Object.values(newErrors).every((err) => !err);
-  };
+  }, [loginInfo, emailRegex]);
 
-
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     if (!validateForm()) return;
 
     try {
-      const res = await loginApi(loginInfo).unwrap();
-      console.log(res)
-      const token = res?.accessToken;
+      
 
-      localStorage.setItem('token', token);
-      // if (window.electronAPI && window.electronAPI.sendToken) {
-      //   window.electronAPI.sendToken(token);
-      // }
-      console.error(window.electronAPI, window.electronAPI, 'inside the window.electronAPI');
-
-      if (window.electronAPI && window.electronAPI.sendToken) {
-
-        window.electronAPI.sendToken(token);
-      }
       // navigate('/dashboard');
     } catch (err) {
       console.error('Login failed:', err);
     }
-  };
-
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+  }, [validateForm, loginInfo, loginApi]);
 
   return (
     <Box className={styles.container}>
@@ -89,7 +75,8 @@ const ForgotPassword = () => {
             Forgot Your Password?
           </Typography>
           <Typography variant="body2" gutterBottom className={styles.subtitle}>
-            Enter your registered email, and we’ll send you a password reset link or OTP.          </Typography>
+            Enter your registered email, and we’ll send you a password reset link or OTP.
+          </Typography>
 
           <CustomTextField
             label="Email"
@@ -102,13 +89,13 @@ const ForgotPassword = () => {
             error={Boolean(errors.email)}
             helperText={errors.email}
           />
+
           <Button
             variant="contained"
             fullWidth
             className={styles.button}
             onClick={handleLogin}
             disabled={isLoading}
-            onEndIconClick={togglePasswordVisibility}
           >
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />
@@ -124,17 +111,13 @@ const ForgotPassword = () => {
           )}
 
           <Divider className={styles.divider}>OR</Divider>
+
           <Button
             variant="contained"
             fullWidth
-            className={styles.button}
+            className={`${styles.button} ${styles.whiteButton}`}
             onClick={handleLogin}
             disabled={isLoading}
-            onEndIconClick={togglePasswordVisibility}
-            sx={{
-              backgroundColor: "white",
-              color: '#1976d2'
-            }}
           >
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />
