@@ -52,7 +52,14 @@ const getUserTrackingInfo = async (req, res) => {
       code: 200,
       status: "Success",
       message: "Tracking session fetched successfully",
-      data: session,
+      data: session
+        ? {
+            ...session._doc,
+            arrivalTime: moment(session.arrivalTime)
+              .tz(timeZone)
+              .format("YYYY-MM-DD HH:mm:ss z"),
+          }
+        : null,
     });
   } catch (err) {
     console.error("Error fetching tracking session:", err);
@@ -193,13 +200,13 @@ cron.schedule("59 23 * * *", async () => {
           const lastActiveMoment = moment(lastActive);
           const minutesSinceLastActive = now.diff(lastActiveMoment, "minutes");
 
-          if (minutesSinceLastActive <= 10) {
-            // User is likely still working — skip setting leftTime
-            console.log(`Skipping user ${user.username}, still active.`);
-            continue;
-          } else {
+          // if (minutesSinceLastActive <= 10) {
+          //   // User is likely still working — skip setting leftTime
+          //   console.log(`Skipping user ${user.username}, still active.`);
+          //   continue;
+          // } else {
             leftTime = lastActiveMoment.toDate();
-          }
+          //}
         } else if (session.idlePeriods?.length > 0) {
           leftTime = session.idlePeriods[0].start;
         } else {
