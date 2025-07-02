@@ -4,7 +4,24 @@
   "description": "Tracking app",
   "main": "main.js",
   "scripts": {
-    "start": "npx electron ."
+    "start": "npx electron .",
+    "dist": "electron-builder",
+    "rebuild": "electron-rebuild"
+  },
+  "build": {
+    "appId": "com.vijay.desktime",
+    "productName": "DeskTime",
+    "files": [
+      "**/*",
+      "!node_modules/.cache"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
   },
   "author": "Vijay Ram",
   "license": "ISC",
@@ -13,12 +30,15 @@
     "active-win": "^8.2.1",
     "axios": "^1.9.0",
     "cors": "^2.8.5",
-    "electron-store": "^10.1.0",
+    "electron-store": "^8.1.0",
     "express": "^5.1.0",
     "form-data": "^4.0.3",
+    "moment-timezone": "^0.6.0",
+    "node-addon-api": "^8.4.0",
     "screenshot-desktop": "^1.15.1"
   },
   "devDependencies": {
-    "electron": "^36.4.0"
+    "electron": "^36.4.0",
+    "electron-builder": "^26.0.12"
   }
 }
