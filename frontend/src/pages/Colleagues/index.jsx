@@ -15,17 +15,43 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useEffect, useState } from "react";
 import CustomSearchInput from "../../components/CustomSearchInput/index"; // adjust path as needed
-import { useGetAllProfileQuery } from "../../redux/services/user";
+import {
+  useGetAllProfileQuery,
+  useGetSingleProfileQuery,
+} from "../../redux/services/user";
 import LoadingComponent from "../../components/ComponentLoader";
 import { useNavigate } from "react-router-dom";
 import ColleaguesList from "../../components/Colleagues/ColleaguesList";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterPopover from "../../components/CustomFilter";
+import { jwtDecode } from "jwt-decode";
+import AddEmployeeModal from "../../components/Colleagues/AddEmployeeModal";
 const Colleagues = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
+  const [open,setOpen] = useState(false);
   const { data: getProfile, isLoading } = useGetAllProfileQuery();
   const [colleaguesData, setColleaguesData] = useState([]);
+
+  const token = localStorage.getItem("token");
+  let userId = null;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded?.userId || decoded?.sub;
+      console.log(userId, "DECODED USER ID");
+    } catch (err) {
+      console.error("Invalid token", err);
+    }
+  }
+
+  const { data: currentUserProfile, isError } = useGetSingleProfileQuery(
+    userId,
+    {
+      skip: !userId,
+    }
+  );
 
   useEffect(() => {
     if (getProfile) {
@@ -41,7 +67,12 @@ const Colleagues = () => {
   //   );
   //   setFilteredData(result);
   // };
-
+const handleOpen = () =>{
+  setOpen(true)
+}
+const handleClose = () =>{
+  setOpen(false)
+}
   return (
     <>
       <Box
@@ -57,11 +88,12 @@ const Colleagues = () => {
             Colleagues
           </Typography>
         </Box>
-        <Box  sx={{
-         
-          display: "flex",
-          justifyContent: "space-between",
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           <CustomTextField
             // label="Password"
             name="password"
@@ -87,7 +119,7 @@ const Colleagues = () => {
             // error={Boolean(errors.password)}
             // helperText={errors.password}
           />
-          <FilterPopover/>
+          <FilterPopover />
         </Box>
       </Box>
 
@@ -129,61 +161,83 @@ const Colleagues = () => {
             height: "100%",
           }}
         >
-          <Box display="flex" gap={2} mb={3}>
-            <Button
-              variant="contained"
-              sx={{
-                borderRadius: 2,
-                backgroundColor: "#E2FFE2",
-                color: "black",
-                width: "200px",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              ACTIVE&nbsp;{" "}
-              <Box
-                component="span"
-                bgcolor="#0FB90F"
-                color="white"
-                px={1}
-                ml={1}
-                borderRadius={1}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={3}
+          >
+            {/* Left side buttons */}
+            <Box display="flex" gap={2}>
+              <Button
+                variant="contained"
+                sx={{
+                  borderRadius: 2,
+                  backgroundColor: "#E2FFE2",
+                  color: "black",
+                  width: "200px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
               >
-                10
-              </Box>
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              sx={{
-                borderRadius: 2,
-                backgroundColor: "#FFEAEA",
-                color: "black",
-                width: "200px",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              IN-ACTIVE&nbsp;{" "}
-              <Box
-                component="span"
-                bgcolor="#FF0000"
-                color="white"
-                px={1}
-                ml={1}
-                borderRadius={1}
+                ACTIVE&nbsp;
+                <Box
+                  component="span"
+                  bgcolor="#0FB90F"
+                  color="white"
+                  px={1}
+                  ml={1}
+                  borderRadius={1}
+                >
+                  10
+                </Box>
+              </Button>
+
+              <Button
+                variant="contained"
+                color="error"
+                sx={{
+                  borderRadius: 2,
+                  backgroundColor: "#FFEAEA",
+                  color: "black",
+                  width: "200px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
               >
-                10
-              </Box>
-            </Button>
+                IN-ACTIVE&nbsp;
+                <Box
+                  component="span"
+                  bgcolor="#FF0000"
+                  color="white"
+                  px={1}
+                  ml={1}
+                  borderRadius={1}
+                >
+                  10
+                </Box>
+              </Button>
+            </Box>
+            
+            <Button
+            variant="contained"
+            onClick={handleOpen}
+            >Add Employee</Button>
           </Box>
+
           <ColleaguesList
             navigate={navigate}
             colleaguesData={colleaguesData}
             isLoading={isLoading}
+            handleOpen={handleOpen}
+            handleClose={handleClose}
+            setOpen = {setOpen}
           />
         </Paper>
+        <AddEmployeeModal
+          open={open}
+          handleClose={handleClose}
+        />
       </Box>
     </>
   );

@@ -12,14 +12,14 @@ import TrackingDetails from "./TrackingDetails";
 import ChangePasswordModal from "./ChangePasswordModal";
 import {
   useCreateProfileMutation,
-  useGetSingleProfileQuery, // We will use this existing one
+  useGetSingleProfileQuery, 
   useUpdateProfileMutation,
 } from "../../redux/services/user";
 import { useParams } from "react-router-dom";
 import MuiToaster from "../../components/MuiToaster";
 import { jwtDecode } from "jwt-decode";
 const Profile = () => {
-  const { _id: paramId } = useParams(); // ID from URL params (e.g., when editing a colleague)
+  const { _id: paramId } = useParams(); 
   const [workingDays, setWorkingDays] = useState([]);
   const [trackingDays, setTrackingDays] = useState([]);
   const [flexibleHours] = useState(false);
@@ -94,7 +94,7 @@ const Profile = () => {
         employeeId: data.employeeId || "",
         username: data.username || "",
         email: data.email || "",
-        password: "", // Keep password field empty for security reasons
+        password: "",
         gender: data.gender || "",
         role: data.role || "",
         team: data.team || "",
@@ -112,9 +112,8 @@ const Profile = () => {
       });
     } else if (isError) {
         console.error("Error fetching profile details:", error);
-        // Optionally, handle error state (e.g., display error message)
     }
-  }, [profileDetails, getSingleProfileApiIsLoading, isError, error]); // Add error and isError to dependencies
+  }, [profileDetails, getSingleProfileApiIsLoading, isError, error]);
 
   const handleChange = (event, name) => {
     const { value } = event.target;
@@ -157,8 +156,7 @@ const Profile = () => {
 
   const roleOptions = [
     { id: "Admin", name: "Admin" },
-    { id: "User", name: "User" },
-    { id: "Manager", name: "Manager" },
+    { id: "Employee", name: "Employee" },
   ];
 
   const minimumHoursOptions = [

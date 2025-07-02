@@ -84,14 +84,17 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                     border: "1px solid #eee",
                     position: "relative",
                   }}
-                >
-                  <IconButton
+                > 
+                {userRole === 'Admin' &&(
+                   <IconButton
                     size="small"
                     onClick={(e) => handleMenuOpen(e, colleague)}
                     sx={{ position: "absolute", top: 4, right: 4 }}
                   >
                     <MoreVertIcon fontSize="small" />
                   </IconButton>
+                )}
+                 
 
                   <Box display="flex" alignItems="center" gap={2} mb={1}>
                     <Avatar
