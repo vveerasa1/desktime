@@ -111,7 +111,9 @@ Desktime - Pentabay Team`,
 
 const getUserById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const user = req.user;
+    console.log(user);
+    let id = user.userId;
     const users = await User.findById(id);
     res.status(200).json({
       code: 200,
@@ -132,6 +134,9 @@ const getUserById = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
+    const user = req.user;
+    console.log(user);
+    let id = user.userId;
     const start = moment(req.body.workStartTime, "HH:mm:ss");
     const end = moment(req.body.workEndTime, "HH:mm:ss");
     let durationSeconds = end.diff(start, "seconds");
@@ -140,7 +145,7 @@ const updateUser = async (req, res) => {
       workDuration: durationSeconds,
     };
     const updatedUser = await User.findOneAndUpdate(
-      { _id: req.params.id },
+      { _id: id },
       updateData,
       { new: true }
     );
