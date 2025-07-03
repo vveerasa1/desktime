@@ -17,7 +17,7 @@ const ProfileDeatils = ({
   profileDetails,
 }) => {
   return (
-    <Grid item xs={12} sm={12} md={12} lg={6}>
+    <Grid item xs={12} sm={12} md={12} lg={6} size={6}>
       {/* Profile Details */}
       <Paper elevation={12} className={styles.profileDetailsCard}>
         <Typography variant="subtitle1" className={styles.profileDetailsTitle}>

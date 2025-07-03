@@ -24,7 +24,7 @@ const ScreenshotGrid = ({ filters }) => {
         </Typography>
         <Grid container spacing={2}>
           {getScreenshots?.data?.map((shot, idx) => (
-            <Grid item xs={12} sm={6} md={3} key={idx}>
+            <Grid item xs={12} sm={6} md={3} key={idx} size={{xs:2,md:3}}>
               <Box
                 className={styles.screenshotCard}
                 onClick={() => handleImageClick(idx)}
