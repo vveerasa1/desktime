@@ -117,7 +117,7 @@ function renderDayCell(arg, apiSessionData, userData) {
 
         {/* Render content based on mapped data and determined statusClass */}
         {statusClass === styles.absent ? (
-          <Typography className={styles.absentText}>Absent</Typography>
+          <Typography className={styles.absentText}></Typography>
         ) : statusClass === styles.working ? (
           <Typography className={styles.workingText}>Working</Typography>
         ) : data && data.arrival ? ( // Details for completed days with attendance

@@ -16,18 +16,19 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
-const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
+import styles from "./index.module.css";
 
+const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedColleague, setSelectedColleague] = useState(null);
-  const token = localStorage.getItem('token')
-  let userRole = ''
+  const token = localStorage.getItem("token");
+  let userRole = "";
 
-  if(token){
-    let decoded = jwtDecode(token)
-    userRole = decoded?.role
+  if (token) {
+    let decoded = jwtDecode(token);
+    userRole = decoded?.role;
   }
-  console.log(userRole)
+  console.log(userRole);
   const handleEdit = () => {
     console.log("Edit", selectedColleague);
     handleMenuClose();
@@ -52,51 +53,22 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
       {isLoading ? (
         <LoadingComponent />
       ) : (
-        <Grid
-          container
-          spacing={3}
-          sx={{
-            // justifyContent: "space-between", // ensures left alignment with spacing
-            alignItems: "stretch", // ensures equal height
-          }}
-        >
+        <Grid container spacing={3}>
           {colleaguesData?.length > 0 &&
             colleaguesData.map((colleague, index) => (
-              <Grid
-                item
-                // xs={12}
-                // sm={6}
-                // md={3}
-                key={index}
-                size={3}
-                sx={{ display: "flex", justifyContent: "center" }}
-              >
-                <Paper
-                  elevation={1}
-                  sx={{
-                    width: "100%",
-                    borderRadius: 2,
-                    padding: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    minHeight: "130px",
-                    border: "1px solid #eee",
-                    position: "relative",
-                  }}
-                > 
-                {userRole === 'Admin' &&(
-                   <IconButton
-                    size="small"
-                    onClick={(e) => handleMenuOpen(e, colleague)}
-                    sx={{ position: "absolute", top: 4, right: 4 }}
-                  >
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-                )}
-                 
+              <Grid item key={index} size={3} className={styles.gridItem}>
+                <Paper className={styles.card} elevation={1}>
+                  {userRole === "Admin" && (
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleMenuOpen(e, colleague)}
+                      className={styles.menuIcon}
+                    >
+                      <MoreVertIcon fontSize="small" />
+                    </IconButton>
+                  )}
 
-                  <Box display="flex" alignItems="center" gap={2} mb={1}>
+                  <Box className={styles.profileBox}>
                     <Avatar
                       alt={colleague.username}
                       src={colleague.photo}
@@ -112,18 +84,15 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                     </Box>
                   </Box>
 
-                  <Box
-                    width="100%"
-                    borderBottom="1px solid #e0e0e0"
-                    mb={1}
-                  ></Box>
+                  <Box className={styles.divider}></Box>
 
-                  <Box display="flex" alignItems="center" gap={1}>
+                  <Box className={styles.emailBox}>
                     <EmailIcon fontSize="small" sx={{ color: "gray" }} />
                     <Typography variant="body2" color="text.secondary">
                       {colleague.email}
                     </Typography>
                   </Box>
+
                   <Menu
                     anchorEl={menuAnchorEl}
                     open={Boolean(menuAnchorEl)}

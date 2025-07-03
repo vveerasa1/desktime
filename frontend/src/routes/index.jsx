@@ -2,6 +2,7 @@ import React, { lazy } from "react";
 import AppLayout from "../layout";
 import Login from "../pages/Auth/Login";
 import AbsenceCalender from "../pages/AbsenceCalendar";
+import Projects from "../pages/UserProjects";
 
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Profile = lazy(() => import("../pages/Profile"));
@@ -56,6 +57,10 @@ export const routes = [
       {
         path: "absence-calendar",
         element: <AbsenceCalender />,
+      },
+       {
+        path: "projects",
+        element: <Projects />,
       },
     ],
   },

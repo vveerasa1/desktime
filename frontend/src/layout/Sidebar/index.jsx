@@ -18,6 +18,7 @@ import {
   EventBusy as EventBusyIcon,
   Settings as SettingsIcon,
   PowerSettingsNew as PowerSettingsNewIcon,
+  Folder as FolderIcon
 } from "@mui/icons-material";
 
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
@@ -27,6 +28,7 @@ const navItems = [
   { label: "My DeskTime", path: "/dashboard", icon: <DashboardIcon /> },
   { label: "Colleagues", path: "/colleagues", icon: <PeopleIcon /> },
   { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
+  { label: "Projects", path: "/projects", icon: <FolderIcon /> },
   { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   { label: "Logout", icon: <PowerSettingsNewIcon /> },
 ];

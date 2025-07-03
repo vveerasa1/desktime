@@ -1,10 +1,10 @@
 import { Grid, Paper, Typography, Box, Avatar, Button } from "@mui/material";
 import CustomTextField from "../../../../components/CustomTextField";
-
+import styles from './index.module.css'
 const EmployeeProfileDetails = ({ formData, handleChange }) => {
   return (
     <Grid>
-      <Box sx={{ display: "flex", gap: 2, flexDirection: "column" }}>
+      <Box className={styles.container}>
         <Box>
           <CustomTextField
             label="User Name"

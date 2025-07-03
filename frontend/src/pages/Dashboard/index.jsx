@@ -73,7 +73,7 @@ const Dashboard = () => {
       {filters.viewMode === "week" || filters.viewMode === "month" ? (
         ""
       ) : (
-        <ScreenshotGrid />
+        <ScreenshotGrid  filters={filters}/>
       )}
     </Box>
   );

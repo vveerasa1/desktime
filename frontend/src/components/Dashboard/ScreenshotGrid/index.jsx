@@ -4,11 +4,11 @@ import { useGetScreenshotQuery } from "../../../redux/services/dashboard";
 import dayjs from "dayjs";
 import { useState } from "react";
 import ImagePreviewModal from "../ImagePreviewModal";
-const ScreenshotGrid = () => {
+const ScreenshotGrid = ({filters}) => {
   const id = "685a3e5726ac65ec09c16786";
   const date = dayjs().format("YYYY-MM-DD");
   const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
-    useGetScreenshotQuery({ id, date });
+    useGetScreenshotQuery({ id, date:filters.date });
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const handleImageClick = (index) => {

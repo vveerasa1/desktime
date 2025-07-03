@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -8,38 +8,46 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import dayjs from 'dayjs';
+import { useSearchParams } from 'react-router-dom'; // ✅ React Router
 
 import CustomCalendar from '../../CustomCalender';
 import styles from './index.module.css';
 
 const DeskTimeHeader = ({ setFilters }) => {
-  const currentDate = useMemo(() => new Date(), []);
-  const formattedTrackDate = useMemo(() => dayjs(currentDate).format("YYYY-MM-DD"), [currentDate]);
-  const formattedCurrentDate = useMemo(() => dayjs(currentDate).format('ddd MMM DD YYYY'), [currentDate]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [view, setView] = useState('day');
-  const [date, setDate] = useState({ date: formattedTrackDate });
-  const [dateTracking, setDateTracking] = useState(formattedTrackDate);
-  const [activeDate, setActiveDate] = useState(formattedCurrentDate);
+  const defaultDate = dayjs().format("YYYY-MM-DD");
+  const defaultView = "day";
+
+  // ✅ Load from URL params or fallback to defaults
+  const initialFilters = {
+    viewMode: searchParams.get("view") || defaultView,
+    date: searchParams.get("date") || defaultDate,
+  };
+
+  const [filtersState, setFiltersState] = useState(initialFilters);
+
+
+
+  // ✅ Sync with parent and URL
+  useEffect(() => {
+    setFilters(filtersState);
+    setSearchParams({
+      view: filtersState.viewMode,
+      date: filtersState.date,
+    });
+  }, [filtersState, setFilters, setSearchParams]);
 
   const handleViewChange = useCallback((_, nextView) => {
-    if (nextView !== null) {
-      setView(nextView);
+    if (nextView) {
+      setFiltersState((prev) => ({ ...prev, viewMode: nextView }));
     }
   }, []);
 
-  const handleChange = useCallback((newDate, name) => {
+  const handleDateChange = useCallback((newDate) => {
     const formattedDate = dayjs(newDate).format("YYYY-MM-DD");
-    setActiveDate(dayjs(newDate).format('ddd MMM DD YYYY'));
-    setDateTracking(formattedDate);
-    setDate(prev => ({ ...prev, [name]: formattedDate }));
-
-    setFilters(prev => ({
-      ...prev,
-      type: view,
-      date: formattedDate,
-    }));
-  }, [setFilters, view]);
+    setFiltersState((prev) => ({ ...prev, date: formattedDate }));
+  }, []);
 
   const viewModes = useMemo(() => ['day', 'week', 'month'], []);
 
@@ -51,7 +59,7 @@ const DeskTimeHeader = ({ setFilters }) => {
 
       <Box className={styles.controls}>
         <ToggleButtonGroup
-          value={view}
+          value={filtersState.viewMode}
           exclusive
           onChange={handleViewChange}
           size="small"
@@ -60,10 +68,7 @@ const DeskTimeHeader = ({ setFilters }) => {
             <ToggleButton
               key={val}
               value={val}
-              onClick={() => {
-                setFilters({ viewMode: val, date: dateTracking });
-              }}
-              className={`${styles.toggleButton} ${view === val ? styles.active : ''}`}
+              className={`${styles.toggleButton} ${filtersState.viewMode === val ? styles.active : ''}`}
             >
               {val}
             </ToggleButton>
@@ -72,9 +77,9 @@ const DeskTimeHeader = ({ setFilters }) => {
 
         <Box className={styles.datePicker}>
           <CustomCalendar
-            selectedDate={date?.date}
+            selectedDate={filtersState.date}
             name="date"
-            onChange={(newDate) => handleChange(newDate, "date")}
+            onChange={(newDate) => handleDateChange(newDate)}
             fontSize="small"
             maxDate={new Date()} 
           />
