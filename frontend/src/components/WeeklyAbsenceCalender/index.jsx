@@ -31,7 +31,6 @@ export default function WeeklyAbsenceCalendar() {
   const [selectedMemberId, setSelectedMemberId] = useState(null);
 
   const handleCellClick = (dayIdx, id) => {
-    console.log(dayIdx,"TRACK")
     setSelectedDay(weekDays[dayIdx]);
     setSelectedMemberId(id); // track which member is clicked
     setIsFullMode(false);

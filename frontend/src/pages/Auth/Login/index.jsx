@@ -77,7 +77,6 @@ const Login = () => {
 
         try {
           const electronResponse = await electronAPI({ token, userId });
-          console.log("Token sent to Electron server:", electronResponse.message);
         } catch (err) {
           console.error("Failed to send token to Electron server:", err.message);
         }

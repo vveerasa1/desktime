@@ -28,9 +28,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
     let decoded = jwtDecode(token);
     userRole = decoded?.role;
   }
-  console.log(userRole);
   const handleEdit = () => {
-    console.log("Edit", selectedColleague);
     handleMenuClose();
     navigate(`/colleagues/edit/${selectedColleague._id}`);
   };
@@ -44,7 +42,6 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
     setSelectedColleague(null);
   };
   const handleDelete = () => {
-    console.log("Delete", selectedColleague);
     handleMenuClose();
     // Add delete logic here
   };
