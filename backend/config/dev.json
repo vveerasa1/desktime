@@ -17,5 +17,8 @@
   "AWS": {
   "ACCESS_KEY_ID":"AKIATIVJ4HZQOEEOYSOU",
   "SECRET_ACCESS_KEY":"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"
+  },
+  "adminId": {
+    "id":"686662448c9ee97da82d92f0"
   }
 }
