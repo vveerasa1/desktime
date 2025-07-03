@@ -56,13 +56,11 @@ const AbsenceCalenderModal = ({
 
   const handleSelect = (e, name) => {
     const { value } = e.target;
-    console.log(value,"VALUE")
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-  console.log(teamMembers,"TEAM MEMBERS")
   return (
     <Dialog open={dialogOpen} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>Add Away Time for {selectedDay}</DialogTitle>

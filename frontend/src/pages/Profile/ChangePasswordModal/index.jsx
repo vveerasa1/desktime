@@ -45,7 +45,6 @@ const ChangePasswordModal = ({ open, setOpen }) => {
         newPassword: authData.newPassword,
       };
       const response = await axios.post("https://httpbin.org/post", payload);
-      console.log(response, "AUTH RESPOSE");
       handleClose();
     } catch (error) {
       console.log(error, "AUTH ERROR");

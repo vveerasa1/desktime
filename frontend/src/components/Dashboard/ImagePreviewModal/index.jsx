@@ -27,7 +27,6 @@ const ImagePreviewModal = ({
         try {
           const decoded = jwtDecode(token);
           userId = decoded?.userId || decoded?.sub; 
-          console.log(userId, "DECODED USER ID");
         } catch (err) {
           console.error("Invalid token", err);
         }
