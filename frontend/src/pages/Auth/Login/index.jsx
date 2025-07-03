@@ -21,8 +21,8 @@ import CustomTextField from "../../../components/CustomTextField";
 const Login = () => {
   const navigate = useNavigate();
   const [loginInfo, setLoginInfo] = useState({
-    email: "avinesh.r@pentabay.com",
-    password: "Avinesh@123",
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
