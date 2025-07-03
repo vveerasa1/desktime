@@ -49,6 +49,8 @@
 }
 .reset-button{
     background-color: white !important;
+ background-color:white !important;
+              color: #1976d2 !important;
 }
 .divider {
     text-align: center;
@@ -61,3 +63,4 @@
     border: 1px solid #ccc;
     text-transform: none;
 }
+

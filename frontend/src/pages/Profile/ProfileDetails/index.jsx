@@ -3,6 +3,7 @@ import { Grid, Paper, Typography, Box, Avatar, Button } from "@mui/material";
 import CustomTextField from "../../../components/CustomTextField";
 import CustomDropdown from "../../../components/CustomDropDown";
 import CustomPhoneInput from "../../../components/CustomPhoneInput";
+import styles from "./index.module.css";
 
 const ProfileDeatils = ({
   formData,
@@ -11,193 +12,131 @@ const ProfileDeatils = ({
   genderOptions,
   roleOptions,
   timeZoneOptions,
-  // timeFormatOptions,
   teamOptions,
   handlePhoneChange,
-  profileDetails
+  profileDetails,
 }) => {
   return (
-    <Grid
-    size={{xs:12,md:4}}
-      item
-      xs={12}
-      sm={12}
-      md={12}
-      lg={6}
-    >
+    <Grid item xs={12} sm={12} md={12} lg={6}>
       {/* Profile Details */}
-      <Paper
-        elevation={12}
-        sx={{
-          padding: "15px",
-          width: "100%",
-        }}
-      >
-        <Typography variant="">Profile Details</Typography>
-        <Box
-          sx={{
-            marginTop: 2,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          <Box sx={{ display: "flex", flexDirection: "row", gap: 2, alignItems: "center" }}>
+      <Paper elevation={12} className={styles.profileDetailsCard}>
+        <Typography variant="subtitle1" className={styles.profileDetailsTitle}>
+          Profile Details
+        </Typography>
+
+        <Box className={styles.profileBox}>
+          <Box className={styles.avatarRow}>
             <Box>
               <Avatar
                 alt="User Profile"
                 src={profileDetails?.data?.photo}
-                sx={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 0.5, // or use 'borderRadius: 0' for a sharper box
-                }}
+                className={styles.avatarImage}
               />
             </Box>
-            <Box mt={5} sx={{ flexGrow: 1 }}>
+            <Box className={styles.avatarInputWrapper}>
               <CustomTextField
                 label="User Name"
                 name="username"
                 value={formData.username}
-                handleChange={(event) => {
-                  handleChange(event, "username");
-                }}
+                handleChange={(e) => handleChange(e, "username")}
                 placeholder="Enter your User Name"
                 isRequired
               />
             </Box>
           </Box>
-           <Box>
-            <CustomTextField
-              label="Employee Id"
-              name="employeeId"
-              value={formData.employeeId}
-              handleChange={(event) => {
-                handleChange(event, "employeeId");
-              }}
-              placeholder="Enter your EmployeeId"
-              isRequired
-            />
-          </Box>
-          <Box>
-            <CustomTextField
-              label="Email"
-              name="email"
-              value={formData.email}
-              handleChange={(event) => {
-                handleChange(event, "email");
-              }}
-              placeholder="Enter your Email"
-              isRequired
-            />
-          </Box>
-          <Box>
-            <CustomTextField
-              label="Password"
-              name="password"
-              value={formData.password}
-              handleChange={(event) => {
-                handleChange(event, "password");
-              }}
-              placeholder="Enter your Password"
-              isRequired
-            />
-          </Box>
-          <Box>
-            <CustomDropdown
-              label="Gender"
-              name="gender"
-              selectedValue={formData.gender}
-              options={genderOptions}
-              handleSelect={(event) => handleSelect(event, "gender")}
-              placeholder="Select Gender"
-              isRequired
-            />
-          </Box>
-          <Box>
-            <CustomDropdown
-              label="Role"
-              name="role"
-              selectedValue={formData.role}
-              options={roleOptions}
-              handleSelect={(event) => handleSelect(event, "role")}
-              placeholder="Select Role"
-              isRequired
-            />
-          </Box>
-          <Box>
-            <CustomDropdown
-              label="Team"
-              name="team"
-              selectedValue={formData.team}
-              options={teamOptions}
-              handleSelect={(event) => handleSelect(event, "team")}
-              placeholder="Select Team"
-              isRequired
-            />
-          </Box>
-          <Box>
-            <CustomPhoneInput
-              label="Phone"
-              value={formData.phone}
-              onChange={handlePhoneChange}
-              isRequired
-            />
-          </Box>
+
+          <CustomTextField
+            label="Employee Id"
+            name="employeeId"
+            value={formData.employeeId}
+            handleChange={(e) => handleChange(e, "employeeId")}
+            placeholder="Enter your Employee Id"
+            isRequired
+          />
+
+          <CustomTextField
+            label="Email"
+            name="email"
+            value={formData.email}
+            handleChange={(e) => handleChange(e, "email")}
+            placeholder="Enter your Email"
+            isRequired
+          />
+
+          <CustomDropdown
+            label="Gender"
+            name="gender"
+            selectedValue={formData.gender}
+            options={genderOptions}
+            handleSelect={(e) => handleSelect(e, "gender")}
+            placeholder="Select Gender"
+            isRequired
+          />
+
+          <CustomDropdown
+            label="Role"
+            name="role"
+            selectedValue={formData.role}
+            options={roleOptions}
+            handleSelect={(e) => handleSelect(e, "role")}
+            placeholder="Select Role"
+            isRequired
+          />
+
+          <CustomDropdown
+            label="Team"
+            name="team"
+            selectedValue={formData.team}
+            options={teamOptions}
+            handleSelect={(e) => handleSelect(e, "team")}
+            placeholder="Select Team"
+            isRequired
+          />
+
+          <CustomPhoneInput
+            label="Phone"
+            value={formData.phone}
+            onChange={handlePhoneChange}
+            isRequired
+          />
         </Box>
       </Paper>
 
       {/* Geo Settings */}
-      <Paper elevation={12} sx={{ padding: "16px", mt: 2 }}>
+      <Paper elevation={12} className={styles.geoSettingsCard}>
         <Typography variant="subtitle1">Geo Settings</Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box>
-            <CustomDropdown
-              label="Time Zone"
-              name="timeZone"
-              selectedValue={formData.timeZone}
-              options={timeZoneOptions}
-              handleSelect={(event) => handleSelect(event, "timeZone")}
-              placeholder="Select Time Zone"
-              isRequired
-            />
-          </Box>
-          {/* <Box>
-            <Box>
-              <CustomDropdown
-                label="Time Format"
-                name="timeFormat"
-                selectedValue={formData.timeFormat}
-                options={timeFormatOptions}
-                handleSelect={(event) => handleSelect(event, "timeFormat")}
-                placeholder="Select Time Format"
-                isRequired
-              />
-            </Box>
-          </Box> */}
+        <Box className={styles.profileBox}>
+          <CustomDropdown
+            label="Time Zone"
+            name="timeZone"
+            selectedValue={formData.timeZone}
+            options={timeZoneOptions}
+            handleSelect={(e) => handleSelect(e, "timeZone")}
+            placeholder="Select Time Zone"
+            isRequired
+          />
         </Box>
       </Paper>
 
       {/* Two Factor Auth */}
-      <Paper elevation={12} sx={{ padding: "16px", mt: 2 }}>
+      <Paper elevation={12} className={styles.twoFactorCard}>
         <Typography variant="subtitle1">Two Factor Authentication</Typography>
         <Box py={1}>
-          <Typography fontSize={13}>
+          <Typography className={styles.twoFactorText}>
             Want to add an extra layer of security to your email and password?
             When you enable two-factor authentication, a security code will be
             generated on your phone whenever you sign in
           </Typography>
         </Box>
         <Box>
-          <Typography fontSize={13}>
+          <Typography className={styles.twoFactorText}>
             Note: You can't configure two-factor authentication in DeskTime if
             you log in with single sign-on. You will need a DeskTime account
             password.
           </Typography>
         </Box>
-
         <Box>
-          <Button variant="contained" color="success" sx={{ mt: 1 }}>
+          <Button variant="contained" color="success" className={styles.enableButton}>
             Enable
           </Button>
         </Box>

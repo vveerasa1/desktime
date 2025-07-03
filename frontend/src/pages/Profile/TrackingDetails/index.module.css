@@ -1,0 +1,41 @@
+.paperCard {
+  padding: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+
+.subText {
+  font-size: 12px !important;
+}
+
+.rowFlex {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+}
+
+.columnFlex {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.fullWidth {
+  width: 100% !important;
+}
+
+.halfWidth {
+  width: 49% !important;
+}
+
+.mt2 {
+  margin-top: 16px !important;
+}
+
+.label {
+  font-size: 13px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}

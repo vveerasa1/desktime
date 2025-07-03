@@ -1,13 +1,18 @@
-import { Box } from "@mui/material"
-import WeeklyAbsenceCalender from "../../components/WeeklyAbsenceCalender"
-import DeskTimeHeader from "../../components/Dashboard/DeskTimeHeader"
+import { Box } from "@mui/material";
+import { useState } from "react";
+import WeeklyAbsenceCalender from "../../components/WeeklyAbsenceCalender";
+import DeskTimeHeader from "../../components/Dashboard/DeskTimeHeader";
 const AbsenceCalender = () => {
+  const [filters,setFilters] = useState({
+   view:"",
+   date:"" 
+  })
   return (
-   <Box>
-    <DeskTimeHeader/>
-        <WeeklyAbsenceCalender/>
-   </Box>
-  )
-}
+    <Box>
+      <DeskTimeHeader setFilters={setFilters} />
+      <WeeklyAbsenceCalender />
+    </Box>
+  );
+};
 
-export default AbsenceCalender
+export default AbsenceCalender;

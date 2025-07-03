@@ -1,9 +1,9 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { URL_CONSTANTS } from '../../constants/urlConstants';
-
+import customBaseQuery from '../customQuery';
 export const Login = createApi({
     reducerPath: 'login',
-    baseQuery: fetchBaseQuery({ baseUrl: URL_CONSTANTS.BASE_URL }),
+    baseQuery: customBaseQuery,
     tagTypes: ['login'],
     endpoints: (builder) => ({
         login: builder.mutation({
@@ -13,14 +13,6 @@ export const Login = createApi({
                 body: loginInfo,
             }),
         }),
-         session: builder.mutation({
-            query: ({token,userId}) => ({
-                url: `${URL_CONSTANTS.AUTH}/${URL_CONSTANTS.LOGIN}`,
-                method: 'POST',
-                body: loginInfo,
-            }),
-        }),
-
     }),
 });
 

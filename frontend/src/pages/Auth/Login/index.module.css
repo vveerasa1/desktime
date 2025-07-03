@@ -59,3 +59,12 @@
     border: 1px solid #ccc;
     text-transform: none;
 }
+.googleBtn {
+  width: 100%;
+  border: 1px solid #ccc;
+  text-transform: none;
+  transition: background-color 0.2s ease;
+}
+.link:hover {
+  text-decoration: underline;
+}

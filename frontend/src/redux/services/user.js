@@ -1,9 +1,9 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { URL_CONSTANTS } from '../../constants/urlConstants';
-
+import customBaseQuery from '../customQuery';
 export const User = createApi({
   reducerPath: 'User',
-  baseQuery: fetchBaseQuery({ baseUrl: URL_CONSTANTS.BASE_URL }),
+  baseQuery: customBaseQuery,
   tagTypes: ['User'],
   endpoints: (builder) => ({
     createProfile: builder.mutation({
@@ -12,6 +12,7 @@ export const User = createApi({
         method: 'POST',
         body: profileData,
       }),
+      invalidatesTags:['User']
     }),
     updateProfile: builder.mutation({
       query: ({id,profileData}) => ({
@@ -19,12 +20,14 @@ export const User = createApi({
         method: 'PUT',
         body: profileData,
       }),
+      invalidatesTags:['User']
     }),
     getAllProfile:builder.query({
         query:()=>({
             url:URL_CONSTANTS.USER,
             method:'GET',
-        })
+        }),
+        providesTags:['User']
     }),
     getSingleProfile:builder.query({
         query:(id)=>({

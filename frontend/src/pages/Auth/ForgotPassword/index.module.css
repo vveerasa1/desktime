@@ -47,9 +47,11 @@
 .button {
     margin-top: 1.5rem !important;
 }
-.reset-button{
+
+.reset-button {
     background-color: white !important;
 }
+
 .divider {
     text-align: center;
     margin: 1.5rem 0;
@@ -60,4 +62,9 @@
     width: 100%;
     border: 1px solid #ccc;
     text-transform: none;
+}
+
+.whiteButton {
+    background-color: white !important;
+    color: #1976d2 !important;
 }

@@ -52,7 +52,7 @@ const CustomTextField = (
                     },
                     startAdornment: startIcon ? (
                         <InputAdornment position="start">
-                            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                            <Box className={styles.startIcon}>
                                 {React.cloneElement(startIcon, { sx: { fontSize: 18 } })}
                             </Box>
                         </InputAdornment>
@@ -62,7 +62,7 @@ const CustomTextField = (
                     // ) : null,
                     endAdornment: endIcon ? (
                         <InputAdornment position="end" onClick={onEndIconClick}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                            <Box className={styles.endIcon}>
                                 {endIcon}</Box>
                         </InputAdornment>
                     ) : null,

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// export default Sidebar;
+import { useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
@@ -9,57 +10,50 @@ import {
   Divider,
   Box,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
-import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import EventBusyIcon from "@mui/icons-material/EventBusy";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import SettingsIcon from "@mui/icons-material/Settings";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import styles from "./index.module.css";
+import {
+  MenuOpen as MenuOpenIcon,
+  Dashboard as DashboardIcon,
+  People as PeopleIcon,
+  EventBusy as EventBusyIcon,
+  Settings as SettingsIcon,
+  PowerSettingsNew as PowerSettingsNewIcon,
+  Folder as FolderIcon
+} from "@mui/icons-material";
+
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
+import styles from "./index.module.css";
 
 const navItems = [
   { label: "My DeskTime", path: "/dashboard", icon: <DashboardIcon /> },
   { label: "Colleagues", path: "/colleagues", icon: <PeopleIcon /> },
-  // { label: 'Projects', path: '/projects', icon: <AssignmentIcon /> },
-  // { label: 'Work Schedules', path: '/work-schedules', icon: <CalendarMonthIcon /> },
-  {
-    label: "Absence Calendar",
-    path: "/absence-calendar",
-    icon: <EventBusyIcon />,
-  },
-  // { label: 'Reports', path: '/reports', icon: <AssessmentIcon /> },
-  // { label: 'Exports', path: '/exports', icon: <FileDownloadIcon /> },
+  { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
+  { label: "Projects", path: "/projects", icon: <FolderIcon /> },
   { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   { label: "Logout", icon: <PowerSettingsNewIcon /> },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth, open }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMediaQuery("(max-width:900px)");
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [open,setOpen] = useState(false)
-  const drawerWidth = mobileOpen || isMobile ? 240 : 72;
-const handleCloseDialog =() =>{
-  setOpen(false)
-}
-  const drawerContent = (
+
+  const handleCloseDialog = useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
+
+  const handleItemClick = useCallback((label, path) => {
+    if (path) navigate(path);
+    if (isMobile) setMobileOpen(false);
+    if (label === "Logout") setOpen(true);
+  }, [navigate, isMobile, setMobileOpen, setOpen]);
+
+  const drawerContent = useMemo(() => (
     <>
-      <Toolbar
-        sx={{ cursor: "pointer", px: 2 }}
-        onClick={() => setMobileOpen(!mobileOpen)}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Toolbar className={styles.toolbar} onClick={() => setMobileOpen(!mobileOpen)}>
+        <Box className={!isMobile && mobileOpen ?styles.logoWrapperWeb:styles.logoWrapper}>
           <MenuOpenIcon />
-          {!mobileOpen || isMobile ? null : (
-            <Typography variant="h6" sx={{ ml: 1 }}>
+          {   !isMobile && mobileOpen && (
+            <Typography variant="h6" className={styles.logoText}>
               DeskTime
             </Typography>
           )}
@@ -68,43 +62,22 @@ const handleCloseDialog =() =>{
       <Divider />
       <List className={styles.sidebar}>
         {navItems.map(({ label, path, icon }) => {
-          const selected = location.pathname === path;
+          const isActive = path && location.pathname.startsWith(path);
           return (
             <ListItem
               button
               key={label}
-              onClick={() => {
-                navigate(path);
-                if (isMobile) setMobileOpen(false);
-                if(label === 'Logout'){
-                  setOpen(true)
-                }
-              }}
-              className={selected ? styles.activeItem : ""}
-              sx={{ gap: 1 }}
+              className={`${styles.listItem} ${isActive ? styles.activeItem : ""}`}
+              onClick={() => handleItemClick(label, path)}
             >
-              <Box sx={{
-              }}>
-                <Box
-                  className={styles.menuIcon}
-                  component="span"
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  {icon}
-                </Box>
-              </Box>
-
-              {!isMobile && mobileOpen && <ListItemText primary={label} />}
+              <Box className={styles.iconWrapper}>{icon}</Box>
+              {!isMobile && mobileOpen && <ListItemText className={styles.listItemText} primary={label} />}
             </ListItem>
           );
         })}
       </List>
     </>
-  );
+  ), [mobileOpen, isMobile, location.pathname, handleItemClick, setMobileOpen]);
 
   return (
     <Drawer
@@ -119,17 +92,21 @@ const handleCloseDialog =() =>{
           width: drawerWidth,
           boxSizing: "border-box",
           backgroundColor: "#143351",
+          borderRadius: "0px 20px 20px 0px !important",
           color: "#fff",
-          zIndex: (theme) => theme.zIndex.appBar + 2, // keep it below header
-          //   pt: 8, // pushes content below header height (64px)
+          zIndex: (theme) => theme.zIndex.appBar + 2,
           transition: "width 0.3s ease-in-out",
           overflowX: "hidden",
-          top: "0px",
+          top: 0,
         },
       }}
     >
       {drawerContent}
-      <LogoutConfirmationDialog open={open} setOpen={setOpen} handleCloseDialog={handleCloseDialog}/>
+      <LogoutConfirmationDialog
+        open={open}
+        setOpen={setOpen}
+        handleCloseDialog={handleCloseDialog}
+      />
     </Drawer>
   );
 };

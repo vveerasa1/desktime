@@ -1,0 +1,15 @@
+.container{
+          width: 48;
+          height: 48;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 2;
+          border: 1px solid #E0E0E0;
+          background-color: #fff;
+
+}
+
+.paper{
+    padding: 2;
+}

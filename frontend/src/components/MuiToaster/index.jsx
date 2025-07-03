@@ -1,6 +1,6 @@
 import { Snackbar, Alert } from '@mui/material';
 
-
+import styles from './index.module.css'
 const MuiToaster = ({ open, handleClose, message, severity = 'success' }) => {
     return (
     <Snackbar
@@ -9,7 +9,7 @@ const MuiToaster = ({ open, handleClose, message, severity = 'success' }) => {
       onClose={handleClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
     >   
-      <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+      <Alert onClose={handleClose} severity={severity} variant="filled" className={styles.alert}>
         {message}
       </Alert>
     </Snackbar>

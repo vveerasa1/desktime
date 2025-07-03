@@ -1,49 +1,58 @@
 // src/components/layout/AppLayout.jsx
-import React, { useState, useEffect } from 'react';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
-import { Outlet } from 'react-router-dom';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import { Toolbar } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import { Box, Grid, useMediaQuery, useTheme } from "@mui/material";
+import { Outlet } from "react-router-dom";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
+import { Toolbar } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+
 const AppLayout = () => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery('(max-width:900px)');
-    const [mobileOpen, setMobileOpen] = useState(false);
-    const handleDrawerToggle = () => {
-        console.log(mobileOpen, "KKKKKKKKKKKKKKKK")
-        setMobileOpen(!mobileOpen);
-    };
-    console.log(mobileOpen, "mobileOpen")
+  const location = useLocation();
+  const isMobile = useMediaQuery("(max-width:900px)");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const drawerWidth = mobileOpen || isMobile ? 240 : 72;
 
-
-    return (
-
-        <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' ,paddingTop:8}}>
-            <Sidebar />
-            <Box
-            //  sx={{ flexGrow: 1, bgcolor: 'background.default', minHeight: '100vh' }}
-           sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
-             >
-                <Header />
-                {/* <Toolbar /> */}
-                <Box component="main" 
-                // sx={{ p: 4, height:'100%',width:'100%',backgroundColor: 'gray'}}
-                sx={{
-                    flexGrow: 1,
-                    
-                    width: '100% !important',
-                    px: 3,
-                    py: 2,
-                    backgroundColor: '#f9f9f9',
-                    
-                  }}
-                >
-                    <Outlet />
-                </Box>
-            </Box>
+  return (
+    <Box sx={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+      <Grid sx={{ width: drawerWidth }}>
+        <Sidebar
+          open={open}
+          setOpen={setOpen}
+          setMobileOpen={setMobileOpen}
+          mobileOpen={mobileOpen}
+          isMobile={isMobile}
+          drawerWidth={drawerWidth}
+        />
+      </Grid>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+        //   mt: 3,
+          //   ml: `${drawerWidth}px`, // Add margin-left based on sidebar
+          width: `calc(100% - ${drawerWidth}px)`,
+          transition: "all 0.3s ease-in-out",
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+        }}
+      >
+        <Header />
+        <Box
+          sx={{
+            px: 3,
+            py: 10,
+            flex: 1,
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <Outlet />
         </Box>
-
-    );
+      </Box>
+    </Box>
+  );
 };
 
 export default AppLayout;

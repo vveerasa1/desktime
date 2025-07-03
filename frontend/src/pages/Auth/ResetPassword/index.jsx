@@ -59,21 +59,7 @@ const ResetPassword = () => {
     if (!validateForm()) return;
 
     try {
-      const res = await loginApi(loginInfo).unwrap();
-      console.log(res)
-      const token = res?.accessToken;
-
-      localStorage.setItem('token', token);
-      // if (window.electronAPI && window.electronAPI.sendToken) {
-      //   window.electronAPI.sendToken(token);
-      // }
-      console.error(window.electronAPI, window.electronAPI, 'inside the window.electronAPI');
-
-      if (window.electronAPI && window.electronAPI.sendToken) {
-
-        window.electronAPI.sendToken(token);
-      }
-      // navigate('/dashboard');
+     
     } catch (err) {
       console.error('Login failed:', err);
     }
@@ -142,10 +128,7 @@ const ResetPassword = () => {
             onClick={handleLogin}
             disabled={isLoading}
             onEndIconClick={togglePasswordVisibility}
-            sx={{
-              backgroundColor: "white",
-              color: '#1976d2'
-            }}
+  
           >
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />

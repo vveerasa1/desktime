@@ -17,65 +17,50 @@ import {
 } from "../../redux/services/user";
 import { useParams } from "react-router-dom";
 import MuiToaster from "../../components/MuiToaster";
+import { jwtDecode } from "jwt-decode";
+import styles from "./index.module.css";
+
 const Profile = () => {
-  const { _id } = useParams();
+  const { _id: paramId } = useParams();
   const [workingDays, setWorkingDays] = useState([]);
   const [trackingDays, setTrackingDays] = useState([]);
   const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
-  const [openToaster,setOpenToaster] = useState(false)
-  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
-  const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
-    useCreateProfileMutation();
-  const { data: profileDetails, isLoading: getSingleProfileApiIsLoading } =
-    useGetSingleProfileQuery(_id,{
-      skip:!_id
-    });
+  const [openToaster, setOpenToaster] = useState(false);
 
-  const timeZoneOptions = moment.tz.names().map((tz) => ({
-    id: tz,
-    name: tz,
-  }));
+  const [updateProfile, { isLoading: updateProfileIsLoading }] = useUpdateProfileMutation();
+  const [createProfileApi, { isLoading: createProfileApiIsLoading }] = useCreateProfileMutation();
+
+  const token = localStorage.getItem('token');
+  let userId = null;
+  if (token) {
+    const decoded = jwtDecode(token);
+    userId = decoded?.userId;
+  }
+  const userIdToFetch = paramId || userId;
+
+  const { data: profileDetails, isLoading: getSingleProfileApiIsLoading, isError, error } =
+    useGetSingleProfileQuery(userIdToFetch, { skip: !userIdToFetch });
+
+  const timeZoneOptions = moment.tz.names().map((tz) => ({ id: tz, name: tz }));
 
   const [formData, setFormData] = useState({
-    employeeId: "",
-    username: "",
-    email: "",
-    password: "",
-    role: "",
-    gender: "",
-    phone: "",
-    countryCode: "",
-    team: "",
-    timeZone: "",
-    workStartTime: "",
-    workEndTime: "",
-    trackingStartTime: "",
-    trackingEndTime: "",
-    minimumHours: "",
-    workingDays: workingDays,
-    trackingDays: trackingDays,
-    flexibleHours: flexibleHours,
+    employeeId: "", username: "", email: "", password: "", role: "", gender: "",
+    phone: "", countryCode: "", team: "", timeZone: "", workStartTime: "", workEndTime: "",
+    trackingStartTime: "", trackingEndTime: "", minimumHours: "", workingDays: workingDays,
+    trackingDays: trackingDays, flexibleHours: flexibleHours,
   });
 
   const reverseDayNameMap = {
-    Monday: "MO",
-    Tuesday: "TU",
-    Wednesday: "WE",
-    Thursday: "TH",
-    Friday: "FR",
-    Saturday: "SA",
-    Sunday: "SU",
+    Monday: "MO", Tuesday: "TU", Wednesday: "WE", Thursday: "TH",
+    Friday: "FR", Saturday: "SA", Sunday: "SU",
   };
 
   useEffect(() => {
-    if (_id && profileDetails?.data) {
+    if (profileDetails?.data && !getSingleProfileApiIsLoading) {
       const data = profileDetails.data;
-      const workingDayCodes =
-        data.workingDays?.map((day) => reverseDayNameMap[day]) || [];
-
-      const trackingDayCodes =
-        data.trackingDays?.map((day) => reverseDayNameMap[day]) || [];
+      const workingDayCodes = data.workingDays?.map((day) => reverseDayNameMap[day]) || [];
+      const trackingDayCodes = data.trackingDays?.map((day) => reverseDayNameMap[day]) || [];
 
       setWorkingDays(workingDayCodes);
       setTrackingDays(trackingDayCodes);
@@ -83,7 +68,7 @@ const Profile = () => {
         employeeId: data.employeeId || "",
         username: data.username || "",
         email: data.email || "",
-        password: data.password || "",
+        password: "",
         gender: data.gender || "",
         role: data.role || "",
         team: data.team || "",
@@ -99,54 +84,35 @@ const Profile = () => {
         trackingDays: data?.trackingDays || [],
         flexibleHours: data.flexibleHours || false,
       });
+    } else if (isError) {
+      console.error("Error fetching profile details:", error);
     }
-  }, [profileDetails]);
+  }, [profileDetails, getSingleProfileApiIsLoading, isError, error]);
 
   const handleChange = (event, name) => {
     const { value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSelect = (event, name) => {
     const { value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePhoneChange = (phone, data) => {
-    setFormData((prev) => ({
-      ...prev,
-      phone: phone,
-      countryCode: data.dialCode, // "91", "1", etc.
-    }));
+    setFormData((prev) => ({ ...prev, phone: phone, countryCode: data.dialCode }));
   };
 
   const genderOptions = [
-    {
-      id: "Male",
-      name: "Male",
-    },
-    {
-      id: "Female",
-      name: "Female",
-    },
-    {
-      id: "Other",
-      name: "Other",
-    },
+    { id: "Male", name: "Male" },
+    { id: "Female", name: "Female" },
+    { id: "Other", name: "Other" },
   ];
 
   const roleOptions = [
     { id: "Admin", name: "Admin" },
-    { id: "User", name: "User" },
-    { id: "Manager", name: "Manager" },
+    { id: "Employee", name: "Employee" },
   ];
-
 
   const minimumHoursOptions = [
     { id: "4 Hours", name: "4 Hours" },
@@ -158,26 +124,14 @@ const Profile = () => {
   const teamOptions = [{ id: "IT Pentabay", name: "IT Pentabay" }];
 
   const handleDaysChange = (days, type) => {
-    setFormData((prev) => ({
-      ...prev,
-      [type]: days,
-    }));
-
-    if (type === "workingDays") {
-      setWorkingDays(days);
-    } else if (type === "trackingDays") {
-      setTrackingDays(days);
-    }
+    setFormData((prev) => ({ ...prev, [type]: days }));
+    if (type === "workingDays") setWorkingDays(days);
+    else if (type === "trackingDays") setTrackingDays(days);
   };
 
   const dayNameMap = {
-    MO: "Monday",
-    TU: "Tuesday",
-    WE: "Wednesday",
-    TH: "Thursday",
-    FR: "Friday",
-    SA: "Saturday",
-    SU: "Sunday",
+    MO: "Monday", TU: "Tuesday", WE: "Wednesday", TH: "Thursday",
+    FR: "Friday", SA: "Saturday", SU: "Sunday",
   };
   const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
   const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
@@ -185,107 +139,88 @@ const Profile = () => {
   const handleSubmit = async () => {
     try {
       const payload = {
-        employeeId: formData.employeeId,
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        gender: formData.gender,
-        phone: formData.phone,
-        countryCode: formData.countryCode,
-        team: formData.team,
-        workStartTime: formData.workStartTime,
-        workEndTime: formData.workEndTime,
-        trackingStartTime: formData.trackingStartTime,
-        trackingEndTime: formData.trackingEndTime,
-        minimumHours: formData.minimumHours,
-        workingDays: workingDaysFull,
-        trackingDays: trackingDaysFull,
-        flexibleHours: formData.flexibleHours,
-        timeZone: formData.timeZone,
+        employeeId: formData.employeeId, username: formData.username, email: formData.email,
+        role: formData.role, gender: formData.gender, phone: formData.phone,
+        countryCode: formData.countryCode, team: formData.team, workStartTime: formData.workStartTime,
+        workEndTime: formData.workEndTime, trackingStartTime: formData.trackingStartTime,
+        trackingEndTime: formData.trackingEndTime, minimumHours: formData.minimumHours,
+        workingDays: workingDaysFull, trackingDays: trackingDaysFull,
+        flexibleHours: formData.flexibleHours, timeZone: formData.timeZone,
       };
-      if (profileDetails) {
-        const response = await updateProfile({
-          id:_id,
-          profileData:payload
-        }).unwrap();
-       setOpenToaster(true)
-      setTimeout(()=>{
-      setOpenToaster(false)
-      },3000)
+
+      if (userIdToFetch) {
+        await updateProfile({ id: userIdToFetch, profileData: payload }).unwrap();
+        setOpenToaster(true);
       } else {
-        const response = await createProfileApi(payload).unwrap();
+        await createProfileApi(payload).unwrap();
         setFormData({
-          employeeId: "",
-          username: "",
-          email: "",
-          password: "",
-          role: "",
-          gender: "",
-          phone: "",
-          countryCode: "",
-          team: "",
-          timeZone: "",
-          workStartTime: "",
-          workEndTime: "",
-          trackingStartTime: "",
-          trackingEndTime: "",
-          minimumHours: "",
-          workingDays: workingDays,
-          trackingDays: trackingDays,
-          flexibleHours: flexibleHours,
+          employeeId: "", username: "", email: "", password: "", role: "", gender: "",
+          phone: "", countryCode: "", team: "", timeZone: "", workStartTime: "", workEndTime: "",
+          trackingStartTime: "", trackingEndTime: "", minimumHours: "",
+          workingDays: [], trackingDays: [], flexibleHours: false,
         });
+        setWorkingDays([]);
+        setTrackingDays([]);
+        setOpenToaster(true);
       }
+
+      setTimeout(() => setOpenToaster(false), 3000);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
-  const handleClose = (event, reason) => {
-    if (reason == 'clickaway') {
-    setOpenToaster(false);
 
-    };
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') setOpenToaster(false);
   };
-  const reason = 'clickaway'
-  return (
-    <Box >
-      <MuiToaster
-      handleClose={()=> handleClose(reason,"clickaway")}
-      open={openToaster}
-      message={"User Profile Updated"}
-      severity="success" // success | error | warning | info
-      />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 2,
-          justifyContent: "end",
-        }}
-      >
-        <Box>
-          <Button
-            variant="contained"
-            color="white"
-            sx={{ marginBottom: "16px" }}
-            onClick={() => setOpen(true)}
-          >
-            <Typography fontSize={14}>Change Password</Typography>
-          </Button>
-        </Box>
-        <Box>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={() => handleSubmit()}
-            disabled={createProfileApiIsLoading}
-          >
-            <Typography fontSize={14}>Save Changes</Typography>
-          </Button>
-        </Box>
+
+  if (getSingleProfileApiIsLoading) {
+    return (
+      <Box className={styles.loadingBox}>
+        <Typography variant="h6">Loading profile...</Typography>
       </Box>
-      <Grid container gap={4} sx={{ display: "flex", justifyContent: "" }}>
-        {/* Column 1 */}
+    );
+  }
+
+  if (isError) {
+    return (
+      <Box className={styles.errorBox}>
+        <Typography className={styles.errorText} variant="h6">
+          Error loading profile: {error?.data?.message || error?.message || "Unknown error"}
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box>
+      <MuiToaster
+        handleClose={() => handleClose(null, "clickaway")}
+        open={openToaster}
+        message={"User Profile Updated"}
+        severity="success"
+      />
+      <Box className={styles.container}>
+        <Button
+          variant="contained"
+          color="white"
+          className={styles.buttonWhite}
+          onClick={() => setOpen(true)}
+        >
+          <Typography fontSize={14}>Change Password</Typography>
+        </Button>
+        <Button
+          variant="contained"
+          color="success"
+          className={styles.buttonSuccess}
+          onClick={handleSubmit}
+          disabled={createProfileApiIsLoading || updateProfileIsLoading}
+        >
+          <Typography fontSize={14}>Save Changes</Typography>
+        </Button>
+      </Box>
+
+      <Grid container className={styles.gridContainer}>
         <ProfileDeatils
           formData={formData}
           handleChange={handleChange}
@@ -300,7 +235,6 @@ const Profile = () => {
           getSingleProfileApiIsLoading={getSingleProfileApiIsLoading}
         />
 
-        {/* Column 2 */}
         <TrackingDetails
           formData={formData}
           handleChange={handleChange}
@@ -312,9 +246,8 @@ const Profile = () => {
           handleDaysChange={handleDaysChange}
         />
 
-        {/* Column 3 */}
-        <Grid size={{ xs: 12, md: 2 }} item xs={12} sm={12} md={12} lg={2}>
-          <Paper elevation={12} sx={{ padding: "16px", width: "100%" }}>
+        <Grid item xs={12} sm={12} md={12} lg={2}>
+          <Paper elevation={12} className={styles.emailPaper}>
             <Typography variant="p" gutterBottom>
               Email Subscription
             </Typography>
@@ -324,11 +257,8 @@ const Profile = () => {
             </Typography>
           </Paper>
         </Grid>
-        <ChangePasswordModal
-          open={open}
-          setOpen={setOpen}
-          handleChange={handleChange}
-        />
+
+        <ChangePasswordModal open={open} setOpen={setOpen} handleChange={handleChange} />
       </Grid>
     </Box>
   );

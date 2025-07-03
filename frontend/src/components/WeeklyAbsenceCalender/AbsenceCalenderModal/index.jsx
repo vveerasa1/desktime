@@ -7,7 +7,7 @@ import {
   DialogActions,
   Box,
 } from "@mui/material";
-import { weekDays } from "../../../constants/absenceCalenderData";
+import { teamMembers, weekDays } from "../../../constants/absenceCalenderData";
 import CustomTextField from "../../CustomTextField";
 import CustomDropDown from "../../CustomDropDown";
 const AbsenceCalenderModal = ({
@@ -56,17 +56,26 @@ const AbsenceCalenderModal = ({
 
   const handleSelect = (e, name) => {
     const { value } = e.target;
-    console.log(value,"VALUE")
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
   return (
     <Dialog open={dialogOpen} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>Add Away Time for {selectedDay}</DialogTitle>
       <DialogContent>
+        <Box>
+          <CustomDropDown
+            fullWidth
+            label="Member"
+            name="reason"
+            options={teamMembers?.name}
+            selectedValue={teamMembers?.name}
+            handleChange={(e) => handleChange(e, "reason")}
+            margin="dense"
+          />
+        </Box>
         <Box>
           <CustomTextField
             fullWidth

@@ -1,0 +1,50 @@
+.gridItem {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.card {
+  width: 100% !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  min-height: 130px !important;
+  border: 1px solid #eee !important;
+  position: relative !important;
+}
+
+.menuIcon {
+  position: absolute !important;
+  top: 4px !important;
+  right: 4px !important;
+}
+
+.profileBox {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.divider {
+  width: 100% !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  margin-bottom: 8px !important;
+}
+
+.emailBox {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.avatar{
+    width: 48 !important; height: 48 !important; 
+    font-size: 18 !important;  
+}
+
+.emailIcon{
+    color: grey;
+}

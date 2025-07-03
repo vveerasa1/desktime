@@ -1,0 +1,10 @@
+.dialogTitle {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.saveButton {
+  background-color: #3a87de !important;
+  color: white !important;
+}

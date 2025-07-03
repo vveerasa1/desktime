@@ -1,0 +1,10 @@
+.phoneContainer {
+  margin-top: 2;
+  width: 100%;
+}
+.phone {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 6px;
+  font-weight: 500;
+}

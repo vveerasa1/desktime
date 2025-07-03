@@ -9,7 +9,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Box } from "@mui/material";
-
+import { useLogoutSessionMutation } from "../../../redux/services/electron";
 const theme = createTheme({
   typography: {
     fontFamily: "Inter, sans-serif",
@@ -34,12 +34,13 @@ const theme = createTheme({
 });
 
 const LogoutConfirmationDialog = ({ open, setOpen, handleCloseDialog }) => {
+ const userId =  localStorage.getItem('userId')
   const navigate = useNavigate();
-
+  const [logoutApi, { isLoading, isError, error }] = useLogoutSessionMutation();
   const handleConfirmLogout = () => {
+    logoutApi({userId});
     localStorage.clear();
-    console.log("Local storage cleared. User logged out.");
-    navigate("/login");
+    navigate("/");
     setOpen(false);
   };
 

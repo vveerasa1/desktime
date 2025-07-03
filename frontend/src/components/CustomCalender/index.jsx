@@ -5,7 +5,7 @@ import styles from './index.module.css';
 
 const CustomCalendar = ({
   label,
-  name, // ✅ accept name
+  name, 
   selectedDate,
   onChange,
   isRequired,

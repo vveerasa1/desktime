@@ -4,13 +4,13 @@ import { TextField, Box } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-
+import styles from './index.module.css'
 export default function DateTimePickerComponent() {
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ maxWidth: 300 }}>
+      <Box className={styles.container}>
         <DateTimePicker
           label="Select Date & Time"
           value={selectedDateTime}
