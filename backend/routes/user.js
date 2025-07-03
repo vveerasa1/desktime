@@ -4,10 +4,10 @@ const { authenticate } = require("../utils/middleware");
 const router = express.Router();
 router.use(express.json());
 
-router.post("/",addUser);
-router.get("/:id",getUserById);
-router.put("/:id",updateUser);
-router.get("/",getAllUser);
+router.post("/",authenticate,addUser);
+router.get("/:id",authenticate,getUserById);
+router.put("/:id",authenticate,updateUser);
+router.get("/",authenticate,getAllUser);
 router.get("/:id/screenshots",authenticate,getScreenshotsById);
 router.get("/sessions",authenticate,getUser);
 module.exports = router;

@@ -54,7 +54,7 @@ apiServer.post('/logout', async (req, res) => {
 
 
 apiServer.listen(API_PORT, () => {
-  console.log(`🚀 Express API server in Electron listening on http://44.211.37.68:${API_PORT}`);
+  console.log(`🚀 Express API server in Electron listening on http://localhost:${API_PORT}`);
 });
 
 let mainWindow;
