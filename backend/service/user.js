@@ -234,7 +234,7 @@ const deleteUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find({ isDeleted: false });
     res.status(200).json({
       code: 200,
       status: "Success",

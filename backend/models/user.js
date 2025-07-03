@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     photo: { type: String },
     workDuration: { type: String },
     active:{type: Boolean, default: true},
+    isDeleted:{type: Boolean, default: false},
 }, {timestamps: true});
 
 
