@@ -10,6 +10,8 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
 import styles from './index.module.css'
+import { useGetSingleProfileQuery } from "../../../redux/services/user";
+import { jwtDecode } from "jwt-decode";
 const ImagePreviewModal = ({
   open,
   onClose,
@@ -17,6 +19,27 @@ const ImagePreviewModal = ({
   currentIndex,
   setCurrentIndex,
 }) => {
+
+    const token = localStorage.getItem('token');
+      let userId = null;
+    
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          userId = decoded?.userId || decoded?.sub; 
+          console.log(userId, "DECODED USER ID");
+        } catch (err) {
+          console.error("Invalid token", err);
+        }
+      }
+    
+      const { data: currentUserProfile, isLoading, isError } =
+        useGetSingleProfileQuery(userId, {
+          skip: !userId
+        });
+    
+      const username = currentUserProfile?.data?.username || "Guest";
+
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? screenshots.length - 1 : prev - 1));
   };
@@ -30,7 +53,7 @@ const ImagePreviewModal = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <Box className={styles.modalHeader}>
-        <Typography variant="h6">User</Typography>
+        <Typography variant="h6">{username}</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
