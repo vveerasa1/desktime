@@ -27,50 +27,7 @@ const OfflineTrackingModal = ({ open, handleClose, timeSlotStart, timeSlotEnd,ti
   const [projectName, setProjectName] = useState('');
   const [taskName, setTaskName] = useState('');
   const [productivity, setProductivity] = useState('productive'); // Default to productive
-//   const [timeRange, setTimeRange] = useState([
-//     timeToMinutes(timeSlotStart),
-//     timeToMinutes(timeSlotEnd)
-//   ]);
 
-  // Update time range state when props change (e.g., new untracked segment clicked)
-//   useEffect(() => {
-//     if (open) {
-//       // Convert HH:MM strings from props to minutes for the slider
-//       setTimeRange([
-//         timeToMinutes(timeSlotStart),
-//         timeToMinutes(timeSlotEnd)
-//       ]);
-//       // Reset other form fields when modal opens for a new slot
-//       setDescription('');
-//       setProjectName('');
-//       setTaskName('');
-//       setProductivity('productive');
-//     }
-//   }, [open, timeSlotStart, timeSlotEnd]);
-
-//   // Handle slider changes
-//   const handleSliderChange = (event, newValue) => {
-//     setTimeRange(newValue);
-//   };
-
-//   const handleSave = () => {
-//     const formattedStartTime = minutesToTime(timeRange[0]);
-//     const formattedEndTime = minutesToToTime(timeRange[1]);
-
-//     console.log("Saving offline tracking data:");
-//     console.log("Time Range:", `${formattedStartTime} - ${formattedEndTime}`);
-//     console.log("Description:", description);
-//     console.log("Project Name:", projectName);
-//     console.log("Task Name:", taskName);
-//     console.log("Productivity:", productivity);
-
-//     // TODO: Integrate with your actual data update logic here
-//     // For static data, you would typically dispatch an action or call a function
-//     // that updates the 'productivityData' or 'sessionList' and triggers a re-render
-//     // of the chart with the new data.
-
-//     handleClose(); // Close the modal after saving
-//   };
 
   return (
    <Modal open={open} onClose={handleClose}>

@@ -12,7 +12,6 @@ import dayjs from "dayjs";
  * @returns {number} Total minutes.
  */
 const timeToMinutes = (timeString) => {
-  console.log(timeString, "TIME");
   if (!timeString) return 0;
 
   let totalMinutes = 0;
@@ -48,14 +47,11 @@ const timeToMinutes = (timeString) => {
  * @returns {string} Formatted time string.
  */
 const formatMinutesToHoursMinutes = (totalMinutes) => {
-  console.log(totalMinutes,"totalMinutesLLLLLLLLLLLLLLLL")
   if (typeof totalMinutes !== "number" || totalMinutes < 0) return "N/A";
 
   const hours = Math.floor(totalMinutes / 60);
-  console.log(totalMinutes,hours)
   const minutes = totalMinutes % 60;
 
-  console.log(totalMinutes,hours,minutes,`${hours}h ${minutes}m`)
 
   return `${hours}h ${minutes}m`;
 };
@@ -172,14 +168,12 @@ export default function EmployeeCalendar({ getProductiviyData, filters }) {
   const calendarRef = useRef(null);
 
   const goToDate = (date) => {
-    console.log(date);
 
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.gotoDate(date);
     }
   };
-  console.log(filters.date);
 
   useEffect(() => {
     if (filters?.date) {
@@ -209,23 +203,17 @@ export default function EmployeeCalendar({ getProductiviyData, filters }) {
         dayMaxEventRows={1}
         headerToolbar={{
           start: "title",
-          end: "prev,next", // Ensure prev/next buttons are visible for user navigation
+          end: "prev,next",
           center: "",
         }}
-        // Callback fired when the calendar's dates change (e.g., user clicks prev/next)
-        // You can use this to fetch new data relevant to the displayed month
         datesSet={(dateInfo) => {
-          // dateInfo.start and dateInfo.end represent the visible date range in the calendar
           console.log(
             "Calendar view changed. New range:",
             dateInfo.start,
             dateInfo.end
           );
-          // Example: If your API needs to be called when the month changes, do it here
-          // fetchProductivityDataForMonth(dateInfo.start.getFullYear(), dateInfo.start.getMonth());
         }}
         dayCellClassNames={(arg) => {
-          // Ensure consistent date formatting with how apiSessionData keys are structured
           const dateStr = arg.date.toLocaleDateString("en-CA");
           const data = apiSessionData[dateStr];
 
@@ -252,8 +240,6 @@ export default function EmployeeCalendar({ getProductiviyData, filters }) {
           return styles.fixedCell; // Default catch-all
         }}
       />
-      {/* Example: Add a button to go to a specific month programmatically */}
-      {/* <button onClick={() => goToDate(new Date(2025, 5, 1))}>Go to June 2025</button> */}
     </div>
   );
 }
