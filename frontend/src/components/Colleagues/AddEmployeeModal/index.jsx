@@ -11,30 +11,30 @@ import {
 import { useCreateProfileMutation } from "../../../redux/services/user";
 import MuiToaster from "../../../components/MuiToaster";
 import EmployeeProfileDetails from "./EmployeeProfileDetails";
-
+import CustomButton from '../../../components/CustomButton';
 const AddEmployeeModal = ({ open, handleClose }) => {
   const [openToaster, setOpenToaster] = useState(false);
-const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
+  const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
 
   const [formData, setFormData] = useState({
     username: "",
     email: "",
-    password:""
+    password: ""
   });
- const handleSubmit = async () => {
+  const handleSubmit = async () => {
     try {
       const payload = {
         username: formData.username,
         email: formData.email,
-        password:formData.password
+        password: formData.password
       };
 
       const response = await createProfileApi(payload).unwrap();
       setFormData({
         username: "",
         email: "",
-        password:""
+        password: ""
 
       });
       setOpenToaster(true); // Show toaster
@@ -52,22 +52,22 @@ const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
       setOpenToaster(false);
     }
   };
-  const handleChange = (e,name) =>{
-        const { value } = e.target;
-        setFormData((prev)=>(
-            {...prev,[name]:value}
-        ))
+  const handleChange = (e, name) => {
+    const { value } = e.target;
+    setFormData((prev) => (
+      { ...prev, [name]: value }
+    ))
   }
   return (
     <Dialog open={open} onClose={handleClose} fullWidth >
       <MuiToaster
         handleClose={() => handleCloseToaster(null, "clickaway")}
         open={openToaster}
-        message={"Employee Added Successfully!"} 
+        message={"Employee Added Successfully!"}
         severity="success"
       />
       <DialogTitle>Add New Employee</DialogTitle>
-      <DialogContent dividers > 
+      <DialogContent dividers >
         <Grid >
           <EmployeeProfileDetails
             formData={formData}
@@ -79,14 +79,15 @@ const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
         <Button onClick={handleClose} color="error" variant="outlined">
           Cancel
         </Button>
-        <Button
+        <CustomButton
           variant="contained"
           color="success"
           onClick={handleSubmit}
           disabled={createProfileApiIsLoading}
-        >
-          <Typography  fontSize={14}>Add Employee</Typography>
-        </Button>
+          loading={createProfileApiIsLoading}
+          label="Add Employee"
+        />
+
       </DialogActions>
     </Dialog>
   );

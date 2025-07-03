@@ -12,14 +12,18 @@ import {
 import LoadingComponent from "../../components/ComponentLoader";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
+import { useSearchParams } from "react-router-dom";
 import styles from './index.module.css'
 const Dashboard = () => {
-  const date = dayjs().format("YYYY-MM-DD");
+
+  const [searchParams] = useSearchParams();
+
+  const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
   const [filters, setFilters] = useState({
     date: date,
     viewMode: "day",
   });
-
+  const viewMode = searchParams.get("view") || "day";
   const navigate = useNavigate();
   const { type } = useParams();
 
@@ -28,11 +32,10 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (type !== filters.viewMode) {
-      navigate(`/dashboard/?view=${filters.viewMode}`);
+    if (!searchParams.get("view") || !searchParams.get("date")) {
+      navigate(`/dashboard?view=${viewMode}&date=${date}`, { replace: true });
     }
-  }, [filters.viewMode, navigate, type]);
-
+  }, [searchParams, viewMode, date, navigate]);
   const { data: getDashboardData, isLoading } = useGetDashboardDataQuery({
     day: filters.viewMode,
     date: filters.date,
@@ -73,7 +76,7 @@ const Dashboard = () => {
       {filters.viewMode === "week" || filters.viewMode === "month" ? (
         ""
       ) : (
-        <ScreenshotGrid  filters={filters}/>
+        <ScreenshotGrid filters={filters} />
       )}
     </Box>
   );
