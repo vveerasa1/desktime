@@ -13,6 +13,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { jwtDecode } from "jwt-decode";
 import AddEmployeeModal from "../../components/Colleagues/AddEmployeeModal";
 import styles from "./index.module.css";
+import CustomButton from "../../components/CustomButton";
 
 const Colleagues = () => {
   const navigate = useNavigate();
@@ -97,9 +98,13 @@ const Colleagues = () => {
                 </Box>
               </Button>
             </Box>
-            <Button variant="contained" onClick={handleOpen}>
-              Add Employee
-            </Button>
+            <CustomButton
+              variant="contained"
+              color="success"
+              onClick={handleOpen}
+              label="Add Employee"
+            />
+         
           </Box>
 
           <ColleaguesList
