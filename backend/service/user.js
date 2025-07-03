@@ -47,7 +47,7 @@ const addUser = async (req, res) => {
     durationSeconds = end.diff(start, "seconds");
       user = new User({
       username,
-      employeeId:employeeId ? employeeId : allUsers.length() + 1,
+      employeeId:employeeId ? employeeId : allUsers.length + 1,
       email,
       password: hashedPassword,
       team:admin.team,
