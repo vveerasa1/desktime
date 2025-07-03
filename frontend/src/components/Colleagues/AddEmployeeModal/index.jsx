@@ -16,7 +16,7 @@ const AddEmployeeModal = ({ open, handleClose }) => {
   const [openToaster, setOpenToaster] = useState(false);
 const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
-    
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -59,7 +59,7 @@ const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
         ))
   }
   return (
-    <Dialog open={open} onClose={handleClose}  >
+    <Dialog open={open} onClose={handleClose} fullWidth >
       <MuiToaster
         handleClose={() => handleCloseToaster(null, "clickaway")}
         open={openToaster}
@@ -67,7 +67,7 @@ const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
         severity="success"
       />
       <DialogTitle>Add New Employee</DialogTitle>
-      <DialogContent dividers> 
+      <DialogContent dividers > 
         <Grid >
           <EmployeeProfileDetails
             formData={formData}
