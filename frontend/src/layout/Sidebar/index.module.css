@@ -46,8 +46,10 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  gap: 5px !important;
 }
 .listItemText{
   display: flex;
   align-items: center;
+  white-space: nowrap;
 }
