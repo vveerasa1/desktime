@@ -72,7 +72,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                     <Avatar
                       alt={colleague.username}
                       src={colleague.photo}
-                      sx={{ width: 48, height: 48, fontSize: 18 }}
+                      className={styles.avatar}
                     />
                     <Box>
                       <Typography variant="subtitle1" fontWeight="bold">
@@ -87,7 +87,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                   <Box className={styles.divider}></Box>
 
                   <Box className={styles.emailBox}>
-                    <EmailIcon fontSize="small" sx={{ color: "gray" }} />
+                    <EmailIcon fontSize="small" className={styles.emailIcon} />
                     <Typography variant="body2" color="text.secondary">
                       {colleague.email}
                     </Typography>

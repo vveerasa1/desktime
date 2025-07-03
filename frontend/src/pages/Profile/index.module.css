@@ -1,0 +1,38 @@
+.container {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+  justify-content: end !important;
+  margin-bottom: 16px !important;
+}
+
+.buttonWhite {
+  margin-bottom: 16px !important;
+}
+
+.buttonSuccess {
+  margin-bottom: 16px !important;
+}
+
+.loadingBox,
+.errorBox {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100vh !important;
+}
+
+.errorText {
+  color: #d32f2f !important; /* MUI error.main equivalent */
+}
+
+.gridContainer {
+  display: flex !important;
+  gap: 32px !important;
+  flex-wrap: wrap !important;
+}
+
+.emailPaper {
+  padding: 16px !important;
+  width: 100% !important;
+}

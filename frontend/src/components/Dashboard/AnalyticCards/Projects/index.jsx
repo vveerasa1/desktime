@@ -91,7 +91,7 @@ const ProjectCard = () => {
   ), []);
 
   return (
-    <Grid item xs={12} md={9} sx={{width:'70%'}}>
+    <Grid item xs={12} md={9} className={styles.container}>
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>

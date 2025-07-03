@@ -1,6 +1,6 @@
-import React from "react";
 import { Box, Typography, Tooltip, IconButton } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import styles from "./index.module.css"; // ✅ Import the CSS module
 
 const daysList = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
@@ -15,7 +15,7 @@ const CustomDays = ({ selectedDays, onChange, label = "Select days" }) => {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+      <Box className={styles.labelWrapper}>
         <Typography variant="subtitle1">{label}</Typography>
         <Tooltip title="Select the days you want to include">
           <IconButton size="small">
@@ -24,32 +24,14 @@ const CustomDays = ({ selectedDays, onChange, label = "Select days" }) => {
         </Tooltip>
       </Box>
 
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+      <Box className={styles.daysContainer}>
         {daysList.map((day) => {
           const isSelected = selectedDays.includes(day);
           return (
             <Box
               key={day}
               onClick={() => handleToggle(day)}
-              sx={{
-                width: 30,
-                height: 30,
-                paddingX:2,
-                paddingY:2,
-                borderRadius: "50%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: "pointer",
-                fontWeight: "bold",
-                    fontSize: "12px", // 👈 Add this line to reduce font size
-
-                color: isSelected ? "white" : "gray",
-                backgroundColor: isSelected ? "#9e9e9e" : "white",
-                border: `1px solid ${isSelected ? "#9e9e9e" : "#ccc"}`,
-                transition: "all 0.2s ease-in-out",
-                userSelect: "none",
-              }}
+              className={`${styles.dayBox} ${isSelected ? styles.selected : ""}`}
             >
               {day}
             </Box>

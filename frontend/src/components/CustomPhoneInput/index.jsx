@@ -3,18 +3,14 @@ import React from "react";
 import PhoneInput from "react-phone-input-2";
 import 'react-phone-input-2/lib/material.css'; // MUI-friendly style
 import { Typography, Box } from "@mui/material";
-
+import styles from './index.module.css'
 const CustomPhoneInput = ({ value, onChange, label, isRequired }) => {
   return (
-    <Box sx={{ mt: 2, width: "100%" }}>
+    <Box  
+      className={styles.phoneContainer}>
       {label && (
         <Typography
-          sx={{
-            fontSize: "0.9rem",
-            color: "#555",
-            marginBottom: "6px",
-            fontWeight: 500,
-          }}
+          className={styles.phone}
         >
           {label} {isRequired && <span style={{ color: "red" }}>*</span>}
         </Typography>

@@ -1,0 +1,36 @@
+.labelWrapper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.daysContainer {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.dayBox {
+  width: 30px !important;
+  height: 30px !important;
+  padding: 8px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  font-size: 12px !important;
+  transition: all 0.2s ease-in-out !important;
+  user-select: none !important;
+  border: 1px solid #ccc !important;
+  background-color: white !important;
+  color: gray !important;
+}
+
+.selected {
+  background-color: #9e9e9e !important;
+  color: white !important;
+  border-color: #9e9e9e !important;
+}

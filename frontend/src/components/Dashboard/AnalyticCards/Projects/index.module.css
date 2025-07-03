@@ -110,3 +110,7 @@
   text-overflow: ellipsis !important;
   border-bottom: none !important;
 }
+
+.container{
+  width:70% !important
+}

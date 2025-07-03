@@ -1,0 +1,62 @@
+.calendarRoot {
+  padding: 24px !important;
+}
+
+.headerRow {
+  margin-top: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.weekControl {
+  margin-top: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.calendarGrid {
+  margin-top: 16px !important;
+  display: grid !important;
+  grid-template-columns: 2fr repeat(7, 1fr) !important;
+  grid-auto-rows: minmax(48px, auto) !important;
+  gap: 8px !important;
+  background-color: #ffffff !important;
+  padding: 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--mui-palette-divider) !important;
+}
+
+.dayHeader {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+.memberCell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.leaveBlock {
+  border-radius: 8px !important;
+  padding: 8px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.leaveBlock:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.emptyCell {
+  height: 100% !important;
+  cursor: pointer !important;
+}
+
+.emptyCell:hover {
+  background-color: #f0f0f0 !important;
+}

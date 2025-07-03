@@ -8,13 +8,13 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-
+import styles from './index.module.css'
 const ProjectTable = ({ data, columns }) => {
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
-          <TableRow sx={{background:'grey'}}>
+          <TableRow className={styles.tableRow}>
             {columns.map((col) => (
               <TableCell key={col}>{col}</TableCell>
             ))}

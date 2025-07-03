@@ -10,6 +10,7 @@ import {
   IconButton,
   useTheme,
 } from "@mui/material";
+import styles from './index.module.css'
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AddIcon from "@mui/icons-material/Add";
@@ -69,10 +70,10 @@ export default function WeeklyAbsenceCalendar() {
   };
   
   return (
-    <Box p={3}>
+   <Box className={styles.calendarRoot}>
       <Typography variant="h6">Absence Calendar</Typography>
 
-      <Box mt={2} display="flex" alignItems="center">
+      <Box className={styles.headerRow}>
         <Tabs value={tab} onChange={(e, v) => setTab(v)}>
           <Tab label="All Team Members" />
           <Tab label="Team 1" />
@@ -87,12 +88,7 @@ export default function WeeklyAbsenceCalendar() {
         </Button>
       </Box>
 
-      <Box
-        mt={2}
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-      >
+      <Box className={styles.weekControl}>
         <Box>
           <IconButton>
             <ArrowBackIosIcon />
@@ -106,28 +102,10 @@ export default function WeeklyAbsenceCalendar() {
         </Box>
       </Box>
 
-      <Box
-        mt={2}
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "2fr repeat(7, 1fr)",
-          gridAutoRows: "minmax(48px, auto)",
-          gap: 1,
-          bgcolor: "#fff",
-          p: 2,
-          borderRadius: 2,
-          border: `1px solid ${theme.palette.divider}`,
-        }}
-      >
+      <Box className={styles.calendarGrid}>
         <Box />
         {weekDays.map((day, idx) => (
-          <Box
-            key={idx}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={0.5}
-          >
+          <Box key={idx} className={styles.dayHeader}>
             <CalendarTodayIcon fontSize="small" />
             <Typography fontWeight={500}>{day}</Typography>
           </Box>
@@ -135,7 +113,7 @@ export default function WeeklyAbsenceCalendar() {
 
         {allLeaves.map((m) => (
           <React.Fragment key={m.id}>
-            <Box display="flex" alignItems="center" gap={1}>
+            <Box className={styles.memberCell}>
               <Avatar>{m.avatar}</Avatar>
               <Box>
                 <Typography fontWeight={600}>{m.name}</Typography>
@@ -146,20 +124,15 @@ export default function WeeklyAbsenceCalendar() {
             </Box>
             {weekDays.map((_, d) => {
               const leave = m.leaves.find((l) => d >= l.start && d <= l.end);
-              console.log(leave,"LEAVE TRACK")
               if (leave && d === leave.start) {
                 return (
                   <Box
                     key={d}
                     onClick={() => handleCellClick(d, m.id)}
-                    gridColumn={`span ${leave.end - leave.start + 1}`}
-                    sx={{
-                      bgcolor: leaveTypes[leave.type] || "#e0f7fa",
-                      borderRadius: 1,
-                      p: 1,
-                      textAlign: "center",
-                    "&:hover": { bgcolor: "#f0f0f0", cursor: "pointer" },
-
+                    className={styles.leaveBlock}
+                    style={{
+                      gridColumn: `span ${leave.end - leave.start + 1}`,
+                      backgroundColor: leaveTypes[leave.type] || "#e0f7fa",
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
@@ -174,10 +147,7 @@ export default function WeeklyAbsenceCalendar() {
                   <Box
                     key={d}
                     onClick={() => handleCellClick(d, m.id)}
-                    sx={{
-                      height: "100%",
-                      "&:hover": { bgcolor: "#f0f0f0", cursor: "pointer" },
-                    }}
+                    className={styles.emptyCell}
                   />
                 );
               } else {
@@ -187,6 +157,7 @@ export default function WeeklyAbsenceCalendar() {
           </React.Fragment>
         ))}
       </Box>
+
       <AbsenceCalenderModal
         dialogOpen={dialogOpen}
         handleClose={handleClose}

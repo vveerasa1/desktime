@@ -39,3 +39,11 @@
     color: #c70707;
     font-size: 14px;
 }
+
+.startIcon{
+    display: flex; align-items: center; height: 100%;
+}
+
+.endIcon{
+    display: flex; align-items: center; height: 100%; 
+}

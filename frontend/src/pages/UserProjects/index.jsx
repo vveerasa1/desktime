@@ -4,10 +4,10 @@ import { Tabs, Tab, Box, Typography, Paper, IconButton } from "@mui/material";
 import ProjectTable from "../../components/UserProjects/ProjectTable";
 import {
   projectData,
-  taskData,
 } from "../../components/UserProjects/StaticDatas/";
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import styles from './index.module.css'
 const Projects = () => {
   const projectColumns = [
     "Project Name",
@@ -19,8 +19,8 @@ const Projects = () => {
   ];
 
   return (
-    <Box sx={{ width: "100%",}}>
-      <Paper sx={{ padding: 2 }}>
+    <Box className={styles.container}>
+      <Paper className={styles.paperContainer}>
         <Box >
           <>
             <Box py={2} display={"flex"} justifyContent={"end"}>
