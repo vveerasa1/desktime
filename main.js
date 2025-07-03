@@ -8,6 +8,7 @@ const FormData = require('form-data');
 const fs = require('fs');
 const Store = require('electron-store');
 const moment = require('moment-timezone');
+const AutoLaunch = require('auto-launch');
 
 const store = new Store();
 // store.clear();
@@ -66,6 +67,8 @@ let idleStart = null;
 const IDLE_THRESHOLD = 3 * 60 * 1000;      // 3 minutes
 const ACTIVE_LOG_THRESHOLD = 5 * 60 * 1000; // 5 minutes
 let trackingTimers = {}; // per user
+let systemIsSleeping = false;
+
 
 function getUserSessionKey(userId) {
   return `session_${userId}`;
@@ -216,35 +219,14 @@ async function startTrackingForUser(userId) {
 
 
 
-   screenshot: setInterval(async () => {
-      try {
-        const win = await activeWin();
-        const appName = win ? win.owner.name : 'unknown';
-        const sessionId = getSessionId(userId);
-        if (!sessionId) return;
+   screenshot: setInterval(() => {
+  if (!systemIsSleeping) {
+    captureScreenshot(userId, token);
+  } else {
+    console.log(`[Sleep Mode] Skipping screenshot for ${userId}`);
+  }
+}, 5 * 60 * 1000),
 
-        const imgBuffer = await screenshot({ format: 'jpg' });
-
-        const formData = new FormData();
-        formData.append('userId', userId);
-        formData.append('sessionId', sessionId);
-        formData.append('screenshotApp', appName);
-        formData.append('screenshot', imgBuffer, {
-          filename: `screenshot_${appName.replace(/\s+/g, '-')}_${Date.now()}.jpg`,
-          contentType: 'image/jpeg',
-        });
-
-        const res = await axios.post('http://44.211.37.68:8080/tracking/sessions/screenshots', formData, {
-          headers: {
-            ...formData.getHeaders(),
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log('[Screenshot Uploaded]', res.data);
-      } catch (err) {
-        console.error('[Screenshot Error]', err);
-      }
-    }, 5 * 60 * 1000),
   };
 }
 
@@ -287,6 +269,60 @@ let idleStartMap = {};
 let activeStartMap = {};
 let activeLastSentMap = {};
 
+async function captureScreenshot(userId, token) {
+  try {
+    const sessionId = getSessionId(userId);
+    if (!sessionId) return;
+
+    const user = await axios.get(`http://44.211.37.68:8080/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const { timeZone, trackingEndTime = "12:00", flexibleHours } = user.data.data;
+    const currentTime = moment().tz(timeZone);
+    const [cutHour, cutMin] = trackingEndTime.split(":").map(Number);
+    const cutoff = flexibleHours
+      ? currentTime.clone().endOf("day").seconds(0)
+      : currentTime.clone().hour(cutHour).minute(cutMin).second(0);
+
+    if (currentTime.isAfter(cutoff)) {
+      console.log(`[Tracking] Screenshot skipped for user ${userId} - after cutoff`);
+      return;
+    }
+
+    const win = await activeWin();
+    const appName = win ? win.owner.name : "unknown";
+      if (!win || win.owner.name.toLowerCase().includes("lock") || !win.title) {
+      console.log(`[Screenshot] Skipped: locked screen for user ${userId}`);
+      return;
+    }
+
+    const imgBuffer = await screenshot({ format: "jpg" });
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("sessionId", sessionId);
+    formData.append("screenshotApp", appName);
+    formData.append("screenshot", imgBuffer, {
+      filename: `screenshot_${appName.replace(/\s+/g, "-")}_${Date.now()}.jpg`,
+      contentType: "image/jpeg",
+    });
+
+    const res = await axios.post(
+      "http://44.211.37.68:8080/tracking/sessions/screenshots",
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("[Screenshot Uploaded]", res.data);
+  } catch (err) {
+    console.error("[Screenshot Error]", err);
+  }
+}
+
 async function sendActivityToServer(data) {
   const { userId, token, type } = data;
   const now = new Date();
@@ -299,7 +335,7 @@ async function sendActivityToServer(data) {
   if (!user) return;
   console.log('[Send Activity] User:', user.data);
   const timeZone = user.data.data.timeZone;
-  const trackingEndTimeStr = user.data.data.trackingEndTime || "12:00";
+  const trackingEndTimeStr = user.data.data.trackingEndTime;
   const flexible = user.data.data.flexibleHours;
    const currentTime = moment().tz(timeZone);
   const [cutHour, cutMin] = trackingEndTimeStr.split(':').map(Number);
@@ -400,6 +436,14 @@ async function stopTrackingForUser(userId) {
 
 app.whenReady().then(async () => {
   createWindow();
+  const deskTimeAutoLauncher = new AutoLaunch({
+  name: 'DeskTimeApp',
+  path: app.getPath('exe'),
+});
+
+deskTimeAutoLauncher.isEnabled().then((isEnabled) => {
+  if (!isEnabled) deskTimeAutoLauncher.enable();
+});
 
   // ✅ Auto-resume tracking on app restart
   const allKeys = store.store;
@@ -413,6 +457,33 @@ app.whenReady().then(async () => {
     }
   }
 });
+
+powerMonitor.on('suspend', () => {
+  console.log('[System] Going to sleep...');
+  systemIsSleeping = true;
+
+  for (const userId in trackingTimers) {
+    if (trackingTimers[userId].screenshot) {
+      clearInterval(trackingTimers[userId].screenshot);
+      trackingTimers[userId].screenshot = null;
+    }
+  }
+});
+
+powerMonitor.on('resume', async () => {
+  console.log('[System] Resumed from sleep...');
+  systemIsSleeping = false;
+
+  for (const userId in trackingTimers) {
+    const token = getToken(userId);
+    if (token) {
+      trackingTimers[userId].screenshot = setInterval(() => {
+        if (!systemIsSleeping) captureScreenshot(userId, token);
+      }, 5 * 60 * 1000);
+    }
+  }
+});
+
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

@@ -205,7 +205,7 @@ cron.schedule("59 23 * * *", async () => {
           //   console.log(`Skipping user ${user.username}, still active.`);
           //   continue;
           // } else {
-            leftTime = lastActiveMoment.toDate();
+          leftTime = lastActiveMoment.toDate();
           //}
         } else if (session.idlePeriods?.length > 0) {
           leftTime = session.idlePeriods[0].start;
@@ -223,18 +223,33 @@ cron.schedule("59 23 * * *", async () => {
           );
 
           if (moment().isSameOrAfter(trackingEndMoment)) {
-            // Check if user was idle after tracking end
-            const idleAfterTrackingEnd = (session.idlePeriods || []).find((p) =>
-              moment(p.start).isSameOrAfter(trackingEndMoment)
-            );
+            // We're past tracking end time
+            const idlePeriods = session.idlePeriods || [];
 
-            if (idleAfterTrackingEnd?.start) {
-              leftTime = idleAfterTrackingEnd.start;
+            // Find the last idle period (assuming sorted chronologically)
+            const lastIdle = idlePeriods[idlePeriods.length - 1];
+
+            if (
+              lastIdle?.start &&
+              !lastIdle?.end &&
+              moment(lastIdle.start).isSameOrAfter(trackingEndMoment)
+            ) {
+              // User went idle after trackingEnd and hasn't come back
+              leftTime = moment(lastIdle.start).toDate();
             } else {
-              leftTime = trackingEndMoment.toDate();
+              // Use tracking end time or look for any idle after it
+              const idleAfterTrackingEnd = idlePeriods.find((p) =>
+                moment(p.start).isSameOrAfter(trackingEndMoment)
+              );
+
+              if (idleAfterTrackingEnd?.start) {
+                leftTime = moment(idleAfterTrackingEnd.start).toDate();
+              } else {
+                leftTime = trackingEndMoment.toDate();
+              }
             }
           } else {
-            // Still within tracking window — don't set leftTime
+            // Still within tracking window
             console.log(
               `User ${user.username} is still within tracking hours.`
             );
