@@ -12,7 +12,7 @@ import {
 import LoadingComponent from "../../components/ComponentLoader";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-
+import styles from './index.module.css'
 const Dashboard = () => {
   const date = dayjs().format("YYYY-MM-DD");
   const [filters, setFilters] = useState({
@@ -42,7 +42,7 @@ const Dashboard = () => {
     useGetProductivityDataQuery({ day: filters.viewMode, date: filters.date });
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box className={styles.dashboardContainer}>
       <DeskTimeHeader setFilters={memoizedSetFilters} />
 
       {isLoading ? (

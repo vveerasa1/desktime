@@ -39,3 +39,12 @@
   align-items: center !important;
   gap: 4px !important;
 }
+
+.avatar{
+    width: 48 !important; height: 48 !important; 
+    font-size: 18 !important;  
+}
+
+.emailIcon{
+    color: grey;
+}

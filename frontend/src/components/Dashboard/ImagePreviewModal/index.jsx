@@ -9,7 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
-
+import styles from './index.module.css'
 const ImagePreviewModal = ({
   open,
   onClose,
@@ -29,25 +29,18 @@ const ImagePreviewModal = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <Box sx={{ display: "flex", justifyContent: "space-between", p: 2 }}>
+      <Box className={styles.modalHeader}>
         <Typography variant="h6">User</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </Box>
       <DialogContent>
-        <Box sx={{ position: "relative", textAlign: "center" }}>
+        <Box className={styles.imageWrapper}>
           {/* Left Arrow */}
           <IconButton
             onClick={handlePrev}
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: 0,
-              transform: "translateY(-50%)",
-              backgroundColor: "rgba(255,255,255,0.6)",
-              "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
-            }}
+            className={`${styles.arrowButton} ${styles.arrowLeft}`}
           >
             <ArrowBackIosNewIcon />
           </IconButton>
@@ -56,31 +49,19 @@ const ImagePreviewModal = ({
           <img
             src={currentShot.screenshotPath}
             alt={currentShot.screenshotApp}
-            style={{
-              maxHeight: "70vh",
-              width: "auto",
-              maxWidth: "100%",
-              margin: "0 auto",
-            }}
+            className={styles.image}
           />
 
           {/* Right Arrow */}
           <IconButton
             onClick={handleNext}
-            sx={{
-              position: "absolute",
-              top: "50%",
-              right: 0,
-              transform: "translateY(-50%)",
-              backgroundColor: "rgba(255,255,255,0.6)",
-              "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
-            }}
+            className={`${styles.arrowButton} ${styles.arrowRight}`}
           >
             <ArrowForwardIosIcon />
           </IconButton>
 
           {/* Details */}
-          <Box sx={{ mt: 2 }}>
+          <Box className={styles.imageDetails}>
             <Typography variant="subtitle1" fontWeight="bold">
               {currentShot.screenshotApp}
             </Typography>

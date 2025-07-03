@@ -128,10 +128,7 @@ const ResetPassword = () => {
             onClick={handleLogin}
             disabled={isLoading}
             onEndIconClick={togglePasswordVisibility}
-            sx={{
-              backgroundColor: "white",
-              color: '#1976d2'
-            }}
+  
           >
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />

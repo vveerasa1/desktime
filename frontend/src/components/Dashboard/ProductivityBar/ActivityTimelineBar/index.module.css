@@ -1,0 +1,21 @@
+.wrapper {
+  width: calc(100% - 90px) !important; /* Adjust as needed */
+  margin-left: 72px !important;
+  margin-top: 24px !important; /* mt: 3 (3 * 8px) */
+  margin-bottom: 8px !important; /* mb: 1 (1 * 8px) */
+}
+
+.timelineContainer {
+  display: flex !important;
+  height: 20px !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  border: 2px dashed grey !important;
+}
+
+.timelineBlock {
+  flex-grow: 1 !important;
+  flex-shrink: 0 !important;
+  height: 100% !important;
+  cursor: pointer !important;
+}

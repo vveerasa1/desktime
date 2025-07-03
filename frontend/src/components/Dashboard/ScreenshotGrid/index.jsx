@@ -3,12 +3,13 @@ import { Paper, Box, Grid, Typography, Avatar } from "@mui/material";
 import { useGetScreenshotQuery } from "../../../redux/services/dashboard";
 import dayjs from "dayjs";
 import { useState } from "react";
+import styles from './index.module.css'
 import ImagePreviewModal from "../ImagePreviewModal";
-const ScreenshotGrid = ({filters}) => {
+const ScreenshotGrid = ({ filters }) => {
   const id = "685a3e5726ac65ec09c16786";
   const date = dayjs().format("YYYY-MM-DD");
   const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
-    useGetScreenshotQuery({ id, date:filters.date });
+    useGetScreenshotQuery({ id, date: filters.date });
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const handleImageClick = (index) => {
@@ -16,58 +17,45 @@ const ScreenshotGrid = ({filters}) => {
     setModalOpen(true);
   };
   return (
-    <Paper sx={{ padding: "10px 10px", marginTop: "15px" }}>
+    <Paper className={styles.container}>
       <Box>
         <Typography variant="h6" gutterBottom>
           Screenshots
         </Typography>
         <Grid container spacing={2}>
-          {getScreenshots &&
-            getScreenshots?.data?.map((shot, idx) => (
-              <Grid
-                size={{ xs: 12, md: 3 }}
-                item
-                xs={12}
-                sm={6}
-                md={3}
-                key={idx}
+          {getScreenshots?.data?.map((shot, idx) => (
+            <Grid item xs={12} sm={6} md={3} key={idx}>
+              <Box
+                className={styles.screenshotCard}
+                onClick={() => handleImageClick(idx)}
               >
-                <Box
-                  onClick={() => handleImageClick(idx)}
-                  sx={{ borderRadius: 2, overflow: "hidden", boxShadow: 2,cursor:'pointer' }}
-                >
-                  <img
-                    src={shot.screenshotPath}
-                    alt={shot.screenshotApp}
-                    style={{ width: "100%", height: "auto", display: "block" }}
-                  />
-                  <Box
-                    sx={{
-                      p: 1,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="body2">
-                        {shot.screenshotApp}
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        sx={{ fontWeight: 600 }}
-                      >
-                        {dayjs(shot.screenshotTime).format("HH:mm")}{" "}
-                      </Typography>
-                    </Box>
+                <img
+                  src={shot.screenshotPath}
+                  alt={shot.screenshotApp}
+                  className={styles.screenshotImage}
+                />
+                <Box className={styles.screenshotFooter}>
+                  <Box className={styles.appInfo}>
+                    <Typography variant="body2">
+                      {shot.screenshotApp}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="textSecondary"
+                      className={styles.timeText}
+                    >
+                      {dayjs(shot.screenshotTime).format("HH:mm")}
+                    </Typography>
                   </Box>
                 </Box>
-              </Grid>
-            ))}
+              </Box>
+            </Grid>
+          ))}
         </Grid>
       </Box>
+
       {getScreenshots?.data?.length > 0 && (
         <ImagePreviewModal
           open={modalOpen}

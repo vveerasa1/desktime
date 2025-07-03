@@ -7,6 +7,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
+import styles from './index.module.css'
 import FilterListIcon from "@mui/icons-material/FilterList";
 
 const FilterPopover = () => {
@@ -25,16 +26,7 @@ const FilterPopover = () => {
     <>
       <Paper
         elevation={1}
-        sx={{
-          width: 48,
-          height: 48,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: 2,
-          border: "1px solid #E0E0E0",
-          backgroundColor: "#fff",
-        }}
+        className={styles.container}
       >
         <IconButton onClick={handleClick}>
           <FilterListIcon />
@@ -50,7 +42,7 @@ const FilterPopover = () => {
           horizontal: "left",
         }}
       >
-        <Paper sx={{ p: 2 }}>
+        <Paper className={styles.paper}>
           <FormGroup>
             <FormControlLabel control={<Checkbox />} label="Active" />
             <FormControlLabel control={<Checkbox />} label="Inactive" />

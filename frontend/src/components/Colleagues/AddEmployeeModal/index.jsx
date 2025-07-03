@@ -85,7 +85,7 @@ const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
           onClick={handleSubmit}
           disabled={createProfileApiIsLoading}
         >
-          <Typography fontSize={14}>Add Employee</Typography>
+          <Typography  fontSize={14}>Add Employee</Typography>
         </Button>
       </DialogActions>
     </Dialog>

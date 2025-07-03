@@ -1,0 +1,47 @@
+.profileDetailsCard {
+  padding: 15px !important;
+  width: 100% !important;
+}
+
+.profileDetailsTitle {
+  font-weight: 500 !important;
+}
+
+.profileBox {
+  margin-top: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.avatarRow {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+  align-items: center !important;
+}
+
+.avatarImage {
+  width: 100px !important;
+  height: 100px !important;
+  border-radius: 4px !important;
+}
+
+.avatarInputWrapper {
+  flex-grow: 1 !important;
+  margin-top: 40px !important;
+}
+
+.geoSettingsCard,
+.twoFactorCard {
+  padding: 16px !important;
+  margin-top: 16px !important;
+}
+
+.twoFactorText {
+  font-size: 13px !important;
+}
+
+.enableButton {
+  margin-top: 8px !important;
+}

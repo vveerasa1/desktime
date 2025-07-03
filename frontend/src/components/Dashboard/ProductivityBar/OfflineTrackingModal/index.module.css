@@ -1,0 +1,74 @@
+.modalPaper {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 90% !important;
+  max-width: 600px !important;
+  background-color: white !important;
+  border-radius: 16px !important;
+  box-shadow: 0px 3px 6px rgba(0,0,0,0.16) !important;
+  padding: 32px !important;
+  outline: none !important;
+}
+
+.modalHeader {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+}
+
+.modalTitle {
+  font-weight: bold !important;
+  color: #4caf50 !important;
+}
+
+.descriptionText {
+  margin-bottom: 24px !important;
+  color: #555 !important;
+}
+
+.timePeriodBox {
+  margin-bottom: 32px !important;
+}
+
+.timePeriodLabel {
+  margin-bottom: 8px !important;
+}
+
+.timeRange {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+  font-weight: 500 !important;
+}
+
+.inputGroup {
+  display: flex !important;
+  gap: 16px !important;
+  margin-bottom: 24px !important;
+}
+
+.radioGroup {
+  margin-bottom: 24px !important;
+}
+
+.actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+}
+
+.greenThumb .MuiSlider-thumb {
+  background-color: #4caf50 !important;
+}
+
+.greenTrack .MuiSlider-track {
+  background-color: #4caf50 !important;
+}
+
+.greenRail .MuiSlider-rail {
+  background-color: #e0e0e0 !important;
+}

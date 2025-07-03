@@ -13,7 +13,7 @@ import {
   Paper
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-
+import styles from './index.module.css'
 // Helper to format minutes back to HH:MM
 const minutesToTime = (totalMinutes) => {
   const hours = Math.floor(totalMinutes / 60);
@@ -73,128 +73,105 @@ const OfflineTrackingModal = ({ open, handleClose, timeSlotStart, timeSlotEnd,ti
 //   };
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="offline-time-modal-title"
-      aria-describedby="offline-time-modal-description"
+   <Modal open={open} onClose={handleClose}>
+  <Paper className={styles.modalPaper}>
+    <Box className={styles.modalHeader}>
+      <Typography className={styles.modalTitle} variant="h6">
+        Offline time
+      </Typography>
+      <IconButton onClick={handleClose}>
+        <CloseIcon />
+      </IconButton>
+    </Box>
+
+    <Typography className={styles.descriptionText} variant="body2">
+      Adjust, specify or delete the whole tracked time period or parts of it.
+    </Typography>
+
+    <Box className={styles.timePeriodBox}>
+      <Typography className={styles.timePeriodLabel} variant="subtitle2">Time Period</Typography>
+      <Box className={styles.timeRange}>
+        <Typography variant="body1">
+          {minutesToTime(timeRange[0])} - {minutesToTime(timeRange[1])}
+        </Typography>
+      </Box>
+      <Slider
+        value={timeRange}
+        onChange={handleSliderChange}
+        valueLabelDisplay="off"
+        min={timeToMinutes("00:00")}
+        max={timeToMinutes("23:59")}
+        step={5}
+        className={`${styles.greenThumb} ${styles.greenTrack} ${styles.greenRail}`}
+      />
+    </Box>
+
+    <TextField
+      label="Description"
+      variant="outlined"
+      fullWidth
+      value={description}
+      onChange={(e) => setDescription(e.target.value)}
+    />
+    
+    <Box className={styles.inputGroup}>
+      <TextField
+        label="Project name"
+        variant="outlined"
+        fullWidth
+        value={projectName}
+        onChange={(e) => setProjectName(e.target.value)}
+      />
+      <TextField
+        label="Task name"
+        variant="outlined"
+        fullWidth
+        value={taskName}
+        onChange={(e) => setTaskName(e.target.value)}
+      />
+    </Box>
+
+    <Typography variant="subtitle2">Productivity</Typography>
+    <RadioGroup
+      row
+      value={productivity}
+      onChange={(e) => setProductivity(e.target.value)}
+      className={styles.radioGroup}
     >
-      <Paper
+      <FormControlLabel
+        value="productive"
+        control={<Radio sx={{ '&.Mui-checked': { color: '#4caf50 !important' } }} />}
+        label="Productive"
+      />
+      <FormControlLabel
+        value="unproductive"
+        control={<Radio sx={{ '&.Mui-checked': { color: '#ff7a00 !important' } }} />}
+        label="Unproductive"
+      />
+      <FormControlLabel
+        value="neutral"
+        control={<Radio sx={{ '&.Mui-checked': { color: '#9e9e9e !important' } }} />}
+        label="Neutral"
+      />
+    </RadioGroup>
+
+    <Box className={styles.actions}>
+      <Button variant="outlined" onClick={handleClose}>Close</Button>
+      <Button
+        variant="contained"
+        onClick={handleSave}
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: { xs: '90%', sm: 600 }, // Responsive width
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 4,
-          outline: 'none', // Remove focus outline
+          bgcolor: '#4caf50 !important',
+          '&:hover': { bgcolor: '#45a049 !important' },
+          borderRadius: '8px !important',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography id="offline-time-modal-title" variant="h6" component="h2" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
-            Offline time
-          </Typography>
-          <IconButton onClick={handleClose} aria-label="close">
-            <CloseIcon />
-          </IconButton>
-        </Box>
+        Save
+      </Button>
+    </Box>
+  </Paper>
+</Modal>
 
-        <Typography variant="body2" sx={{ mb: 3, color: '#555' }}>
-          Adjust, specify or delete the whole tracked time period or parts of it.
-        </Typography>
-
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Time Period</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-              {minutesToTime(timeRange[0])} - {minutesToTime(timeRange[1])}
-            </Typography>
-          </Box>
-          <Slider
-            value={timeRange}
-            onChange={handleSliderChange}
-            valueLabelDisplay="off" // Or "auto" for interactive display
-            min={timeToMinutes("00:00")} // Min time for the slider (midnight)
-            max={timeToMinutes("23:59")} // Max time for the slider (end of day)
-            step={5} // Snap to 5-minute intervals
-            sx={{
-                '& .MuiSlider-thumb': {
-                    backgroundColor: '#4caf50', // Green thumb
-                },
-                '& .MuiSlider-track': {
-                    backgroundColor: '#4caf50', // Green track
-                },
-                '& .MuiSlider-rail': {
-                    backgroundColor: '#e0e0e0', // Grey rail
-                },
-            }}
-          />
-        </Box>
-
-        <TextField
-          label="Description"
-          variant="outlined"
-          fullWidth
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          sx={{ mb: 2, borderRadius: '8px' }}
-        />
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-          <TextField
-            label="Project name"
-            variant="outlined"
-            fullWidth
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            sx={{ flex: 1, borderRadius: '8px' }}
-          />
-          <TextField
-            label="Task name"
-            variant="outlined"
-            fullWidth
-            value={taskName}
-            onChange={(e) => setTaskName(e.target.value)}
-            sx={{ flex: 1, borderRadius: '8px' }}
-          />
-        </Box>
-
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>Productivity</Typography>
-        <RadioGroup
-          row
-          value={productivity}
-          onChange={(e) => setProductivity(e.target.value)}
-          sx={{ mb: 3 }}
-        >
-          <FormControlLabel
-            value="productive"
-            control={<Radio sx={{ '&.Mui-checked': { color: '#4caf50' } }} />}
-            label="Productive"
-          />
-          <FormControlLabel
-            value="unproductive"
-            control={<Radio sx={{ '&.Mui-checked': { color: '#ff7a00' } }} />}
-            label="Unproductive"
-          />
-          <FormControlLabel
-            value="neutral"
-            control={<Radio sx={{ '&.Mui-checked': { color: '#9e9e9e' } }} />}
-            label="Neutral"
-          />
-        </RadioGroup>
-
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button variant="outlined" onClick={handleClose} sx={{ borderRadius: '8px' }}>
-            Close
-          </Button>
-          <Button variant="contained" onClick={handleSave} sx={{ bgcolor: '#4caf50', '&:hover': { bgcolor: '#45a049' }, borderRadius: '8px' }}>
-            Save
-          </Button>
-        </Box>
-      </Paper>
-    </Modal>
   );
 };
 

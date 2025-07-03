@@ -1,0 +1,34 @@
+.container {
+  margin-bottom: 32px !important;
+}
+
+.legend {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 16px !important;
+  gap: 16px !important;
+}
+
+.legendItem {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.colorDot {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+}
+
+.barWrapper {
+  display: flex !important;
+  height: 24px !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: var(--mui-shadow-1) !important; /* Will use MUI boxShadow value */
+}
+
+.segment {
+  transition: flex 0.3s ease !important;
+}
