@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const config = require("../config");
 const crypto = require('crypto');
+const ScreenshotLog = require("../models/screenshot");
+const trackingSession = require("../models/trackingSession");
 
 const addUser = async (req, res) => {
   try {
@@ -26,15 +28,49 @@ const addUser = async (req, res) => {
       timeZone,
     } = req.body;
 
-    // Calculate work_duration in seconds
+    const password =await generateRandomPassword(); // plain text password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    let durationSeconds=0;
+    const admin = await User.findById(`${config.adminId}`);
+    if(workStartTime && workEndTime){
     const start = moment(workStartTime, "HH:mm:ss");
     const end = moment(workEndTime, "HH:mm:ss");
 
-    let durationSeconds = end.diff(start, "seconds");
-    const password =await generateRandomPassword(); // plain text password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    durationSeconds = end.diff(start, "seconds");
+    }
+    const allUsers = await User.find();
+    let user;
+    if(admin) {
+      const start = moment(admin.workStartTime, "HH:mm:ss");
+    const end = moment(admin.workEndTime, "HH:mm:ss");
 
-    const user = new User({
+    durationSeconds = end.diff(start, "seconds");
+      user = new User({
+      username,
+      employeeId:employeeId ? employeeId : allUsers.length() + 1,
+      email,
+      password: hashedPassword,
+      team:admin.team,
+      gender,
+      role:"Employee",
+      phone,
+      workingDays:admin.workingDays,
+      workStartTime:admin.workStartTime,
+      workEndTime:admin.workEndTime,
+      minimumHours:admin.minimumHours,
+      flexibleHours:flexibleHours?true:false,
+      trackingDays:admin.trackingDays,
+      trackingStartTime:admin.trackingStartTime,
+      trackingEndTime:admin.trackingEndTime,
+      timeZone:admin.timeZone,
+      photo: `https://ui-avatars.com/api/?name=${username
+        .split(" ")
+        .join("+")}&background=0D8ABC&color=fff`,
+      workDuration: durationSeconds,
+      })
+    } else {
+
+    user = new User({
       username,
       employeeId,
       email,
@@ -57,6 +93,7 @@ const addUser = async (req, res) => {
         .join("+")}&background=0D8ABC&color=fff`,
       workDuration: durationSeconds,
     });
+  }
 
     await user.save();
     const transporter = nodemailer.createTransport({
@@ -174,6 +211,27 @@ const updateUser = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  try {
+    const user = req.user;
+    let id = user.userId;
+    await User.findOneAndUpdate({ _id: id }, { isDeleted: true });
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error deleting user",
+      error: error.message,
+    });
+  }
+};
+
 const getAllUser = async (req, res) => {
   try {
     const users = await User.find();
@@ -193,9 +251,6 @@ const getAllUser = async (req, res) => {
     });
   }
 };
-
-const ScreenshotLog = require("../models/screenshot");
-const trackingSession = require("../models/trackingSession");
 
 const getScreenshotsById = async (req, res) => {
   try {
@@ -271,4 +326,5 @@ module.exports = {
   getAllUser,
   getScreenshotsById,
   getUser,
+  deleteUser,
 };
