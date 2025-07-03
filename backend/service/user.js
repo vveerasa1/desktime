@@ -31,7 +31,7 @@ const addUser = async (req, res) => {
     const password =await generateRandomPassword(); // plain text password
     const hashedPassword = await bcrypt.hash(password, 10);
     let durationSeconds=0;
-    const admin = await User.findById(`${config.adminId}`);
+    const admin = await User.findById(`${config.adminId.id}`);
     if(workStartTime && workEndTime){
     const start = moment(workStartTime, "HH:mm:ss");
     const end = moment(workEndTime, "HH:mm:ss");
