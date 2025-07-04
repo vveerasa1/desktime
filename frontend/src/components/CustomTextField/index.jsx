@@ -23,7 +23,9 @@ const CustomTextField = (
 
 ) => {
     return (
-        <Box>
+        <Box sx={{
+            height:'70px'
+        }}>
             {label && (
                 <Typography className={styles.label} variant='subtitle2'>
                     {label}{isRequired && <span className={styles.required}>*</span>}
@@ -45,6 +47,22 @@ const CustomTextField = (
                 type={type || 'text'}
                 variant='outlined'
                 size="small" // <-- add this line
+
+                sx={{
+                    "& .MuiOutlinedInput-root": {
+                        borderRadius: "8px",
+                        "& fieldset": {
+                            borderColor: "#E8E8E8",
+                        },
+                        "&:hover fieldset": {
+                            borderColor: "#A0A0A0",
+                        },
+                        "&.Mui-focused fieldset": {
+                            borderColor: "#194CF0",
+                        },
+                    },
+                }}
+
                 InputProps={{
                     sx: {
                         fontSize: "14px",

@@ -1,11 +1,11 @@
-import  { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Box,
   Button,
   Typography,
-  Divider,
   CircularProgress,
 } from "@mui/material";
+
 import { useNavigate } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -15,7 +15,6 @@ import { useSessionMutation } from "../../../redux/services/electron";
 import { useLoginMutation } from "../../../redux/services/login";
 import { jwtDecode } from "jwt-decode";
 import styles from "./index.module.css";
-import ImageSection from "../../../components/AuthImageSection";
 import CustomTextField from "../../../components/CustomTextField";
 
 const Login = () => {
@@ -53,8 +52,8 @@ const Login = () => {
       email: !loginInfo.email
         ? "Email is required"
         : !emailRegex.test(loginInfo.email)
-        ? "Enter a valid email"
-        : "",
+          ? "Enter a valid email"
+          : "",
       password: loginInfo.password.trim() ? "" : "Password is required",
     };
 
@@ -87,54 +86,65 @@ const Login = () => {
       console.error("Login failed:", err);
     }
   }, [validateForm, loginApi, loginInfo, electronAPI, navigate]);
-
   return (
     <Box className={styles.container}>
+      <Box className={styles.imageContainer}
+      // style={{ backgroundImage: `url(${entryBackground})` }}
+      />
       <Box className={styles.leftSection}>
         <Box className={styles.formBox}>
-          <Typography variant="h5" gutterBottom className={styles.title}>
+          <Typography variant="h5" className={styles.title}>
             Welcome
           </Typography>
-          <Typography variant="body2" gutterBottom className={styles.subtitle}>
+          <Typography variant="body2" className={styles.subtitle}>
             Get started for a seamless work tracking experience.
           </Typography>
 
-          <CustomTextField
-            label="Email"
-            name="email"
-            type="email"
-            fullWidth
-            startIcon={<EmailIcon />}
-            value={loginInfo.email}
-            handleChange={(e) => handleChange(e, "email")}
-            error={Boolean(errors.email)}
-            helperText={errors.email}
-          />
+          <Box className={styles.field}>
+            <CustomTextField
+              label="Email"
+              name="email"
+              type="email"
+              fullWidth
+              startIcon={<EmailIcon />}
+              value={loginInfo.email}
+              handleChange={(e) => handleChange(e, "email")}
+              error={Boolean(errors.email)}
+              helperText={errors.email}
+            />
+          </Box>
 
-          <CustomTextField
-            label="Password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            fullWidth
-            startIcon={<LockIcon />}
-            endIcon={
-              showPassword ? (
-                <VisibilityOff onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
-              ) : (
-                <Visibility onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
-              )
-            }
-            value={loginInfo.password}
-            handleChange={(e) => handleChange(e, "password")}
-            error={Boolean(errors.password)}
-            helperText={errors.password}
-          />
+          <Box className={styles.field}>
+            <CustomTextField
+              label="Password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              fullWidth
+              startIcon={<LockIcon />}
+              endIcon={
+                showPassword ? (
+                  <VisibilityOff
+                    onClick={togglePasswordVisibility}
+                    style={{ cursor: "pointer" }}
+                  />
+                ) : (
+                  <Visibility
+                    onClick={togglePasswordVisibility}
+                    style={{ cursor: "pointer" }}
+                  />
+                )
+              }
+              value={loginInfo.password}
+              handleChange={(e) => handleChange(e, "password")}
+              error={Boolean(errors.password)}
+              helperText={errors.password}
+            />
+          </Box>
 
-          <Box
-            className={styles.link}
-            onClick={() => navigate("/forgot-password")}
-          >
-            <a href="#">Forgot Password?</a>
+          <Box className={styles.forgotPassword} onClick={()=>{navigate('/forgot-password')}}>
+            <a className={styles.link} href="">
+              Forgot Password?
+            </a>
           </Box>
 
           <Button
@@ -157,15 +167,23 @@ const Login = () => {
             </Typography>
           )}
 
-          <Divider className={styles.divider}>OR</Divider>
+          {/* <Divider className={styles.divider}>OR</Divider> */}
+          <Box className={styles.dividerWrapper}>
+            <span className={styles.line} />
+            <span className={styles.orText}>OR</span>
+            <span className={styles.line} />
+          </Box>
 
-          <Button variant="outlined" fullWidth className={styles.googleBtn}>
+          <Button variant="outlined" className={styles.googleBtn}>
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google"
+              style={{ height: 20, marginRight: 8 }}
+            />
             Google
           </Button>
         </Box>
       </Box>
-
-      <ImageSection />
     </Box>
   );
 };
