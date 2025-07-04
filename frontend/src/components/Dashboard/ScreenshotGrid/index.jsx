@@ -6,10 +6,15 @@ import { useState } from "react";
 import styles from './index.module.css'
 import ImagePreviewModal from "../ImagePreviewModal";
 const ScreenshotGrid = ({ filters }) => {
-  const id = "685a3e5726ac65ec09c16786";
+  const token = localStorage.getItem('token')
+  let userId = null
+  if(token){
+    const decoded = jwt_decode(token)
+    userId = decoded.userId
+  }
   const date = dayjs().format("YYYY-MM-DD");
   const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
-    useGetScreenshotQuery({ id, date: filters.date });
+    useGetScreenshotQuery({ id:userId, date: filters.date });
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const handleImageClick = (index) => {
