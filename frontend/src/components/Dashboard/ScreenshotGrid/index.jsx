@@ -5,11 +5,12 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import styles from './index.module.css'
 import ImagePreviewModal from "../ImagePreviewModal";
+import { jwtDecode } from "jwt-decode";
 const ScreenshotGrid = ({ filters }) => {
   const token = localStorage.getItem('token')
   let userId = null
   if(token){
-    const decoded = jwt_decode(token)
+    const decoded = jwtDecode(token)
     userId = decoded.userId
   }
   const date = dayjs().format("YYYY-MM-DD");
