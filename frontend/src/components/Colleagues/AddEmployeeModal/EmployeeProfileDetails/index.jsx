@@ -29,19 +29,6 @@ const EmployeeProfileDetails = ({ formData, handleChange }) => {
             isRequired
           />
         </Box>
-        <Box>
-          <CustomTextField
-            label="Password"
-            name="password"
-            type='password'
-            value={formData.password}
-            handleChange={(event) => {
-              handleChange(event, "password");
-            }}
-            placeholder="Enter your Password"
-            isRequired
-          />
-        </Box>
       </Box>
     </Grid>
   );
