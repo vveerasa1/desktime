@@ -156,10 +156,7 @@ function generateRandomPassword(length = 8) {
 
 const getUserById = async (req, res) => {
   try {
-    const user = req.user;
-    console.log(user);
-    let id = user.userId;
-    const users = await User.findById(id);
+    const users = await User.findById(req.params.id);
     res.status(200).json({
       code: 200,
       status: "Success",
@@ -179,9 +176,7 @@ const getUserById = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const user = req.user;
-    console.log(user);
-    let id = user.userId;
+    const { id } = req.params;
     const start = moment(req.body.workStartTime, "HH:mm:ss");
     const end = moment(req.body.workEndTime, "HH:mm:ss");
     let durationSeconds = end.diff(start, "seconds");
@@ -213,8 +208,7 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const user = req.user;
-    let id = user.userId;
+    const { id } = req.params;
     await User.findOneAndUpdate({ _id: id }, { isDeleted: true });
     res.status(200).json({
       code: 200,
@@ -254,10 +248,8 @@ const getAllUser = async (req, res) => {
 
 const getScreenshotsById = async (req, res) => {
   try {
-    const user = req.user;
-    let userId = user.userId;
     const { date } = req.query;
-    console.log(date);
+    const {id} = req.params;
 
     if (!date) {
       return res
@@ -265,7 +257,7 @@ const getScreenshotsById = async (req, res) => {
         .json({ message: "Date query parameter is required (YYYY-MM-DD)" });
     }
     const screenshots = await ScreenshotLog.findOne({
-      userId: userId,
+      userId: id,
       "dailyScreenshots.date": date,
     });
     console.log(screenshots);
