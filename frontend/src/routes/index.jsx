@@ -25,7 +25,7 @@ export const routes = [
     element: <ForgotPassword />,
   },
   {
-    path: "/otp-verify",
+    path: "/verify-otp",
     element: <OtpVerify />,
   },
   {

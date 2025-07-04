@@ -458,31 +458,31 @@ deskTimeAutoLauncher.isEnabled().then((isEnabled) => {
   }
 });
 
-powerMonitor.on('suspend', () => {
-  console.log('[System] Going to sleep...');
-  systemIsSleeping = true;
+// powerMonitor.on('suspend', () => {
+//   console.log('[System] Going to sleep...');
+//   systemIsSleeping = true;
 
-  for (const userId in trackingTimers) {
-    if (trackingTimers[userId].screenshot) {
-      clearInterval(trackingTimers[userId].screenshot);
-      trackingTimers[userId].screenshot = null;
-    }
-  }
-});
+//   for (const userId in trackingTimers) {
+//     if (trackingTimers[userId].screenshot) {
+//       clearInterval(trackingTimers[userId].screenshot);
+//       trackingTimers[userId].screenshot = null;
+//     }
+//   }
+// });
 
-powerMonitor.on('resume', async () => {
-  console.log('[System] Resumed from sleep...');
-  systemIsSleeping = false;
+// powerMonitor.on('resume', async () => {
+//   console.log('[System] Resumed from sleep...');
+//   systemIsSleeping = false;
 
-  for (const userId in trackingTimers) {
-    const token = getToken(userId);
-    if (token) {
-      trackingTimers[userId].screenshot = setInterval(() => {
-        if (!systemIsSleeping) captureScreenshot(userId, token);
-      }, 5 * 60 * 1000);
-    }
-  }
-});
+//   for (const userId in trackingTimers) {
+//     const token = getToken(userId);
+//     if (token) {
+//       trackingTimers[userId].screenshot = setInterval(() => {
+//         if (!systemIsSleeping) captureScreenshot(userId, token);
+//       }, 5 * 60 * 1000);
+//     }
+//   }
+// });
 
 
 app.on('window-all-closed', () => {
