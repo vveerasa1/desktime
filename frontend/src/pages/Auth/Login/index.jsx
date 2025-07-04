@@ -151,7 +151,10 @@ const Login = () => {
             variant="contained"
             fullWidth
             className={styles.button}
-            onClick={handleLogin}
+            onClick={(e)=>{
+              e.preventDefault();
+              handleLogin();
+            }}
             disabled={isLoading}
           >
             {isLoading ? (
