@@ -20,7 +20,6 @@ const AddEmployeeModal = ({ open, handleClose }) => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
-    password: ""
   });
   const handleSubmit = async () => {
     try {
@@ -34,7 +33,6 @@ const AddEmployeeModal = ({ open, handleClose }) => {
       setFormData({
         username: "",
         email: "",
-        password: ""
 
       });
       setOpenToaster(true); // Show toaster
