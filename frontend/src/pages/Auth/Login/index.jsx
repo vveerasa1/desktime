@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useLayoutEffect } from "react";
 import {
   Box,
   Button,
@@ -33,17 +33,28 @@ const Login = () => {
     setShowPassword((prev) => !prev);
   }, []);
 
-  const capitalize = useCallback((str) => str.charAt(0).toUpperCase() + str.slice(1), []);
+  const capitalize = useCallback(
+    (str) => str.charAt(0).toUpperCase() + str.slice(1),
+    []
+  );
+  useLayoutEffect(() => {
+    const token=localStorage.getItem('token')
+    if (token) {
+      window.location.href = '/dashboard'
+    }
+  }, []);
+  const handleChange = useCallback(
+    (e, name) => {
+      const { value } = e.target;
 
-  const handleChange = useCallback((e, name) => {
-    const { value } = e.target;
-
-    setLoginInfo((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({
-      ...prev,
-      [name]: value ? "" : `${capitalize(name)} is required`,
-    }));
-  }, [capitalize]);
+      setLoginInfo((prev) => ({ ...prev, [name]: value }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: value ? "" : `${capitalize(name)} is required`,
+      }));
+    },
+    [capitalize]
+  );
 
   const validateForm = useCallback(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,7 +88,10 @@ const Login = () => {
         try {
           const electronResponse = await electronAPI({ token, userId });
         } catch (err) {
-          console.error("Failed to send token to Electron server:", err.message);
+          console.error(
+            "Failed to send token to Electron server:",
+            err.message
+          );
         }
 
         navigate("/dashboard");
@@ -151,7 +165,7 @@ const Login = () => {
             variant="contained"
             fullWidth
             className={styles.button}
-            onClick={(e)=>{
+            onClick={(e) => {
               e.preventDefault();
               handleLogin();
             }}
