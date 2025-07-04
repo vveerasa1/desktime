@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Button ,Box,CircularProgress  } from '@mui/material';
 
 const CustomButton = ({
     label,
@@ -34,7 +34,7 @@ const CustomButton = ({
         >
              {loading ? (
         <Box display="flex" alignItems="center" gap={1}>
-          <CircularProgress color="inherit" size={loaderSize} />
+          <CircularProgress color="inherit"/>
           Loading...
         </Box>
       ) : (
