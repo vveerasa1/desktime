@@ -1,5 +1,4 @@
 import { Button ,Box,CircularProgress  } from '@mui/material';
-
 const CustomButton = ({
     label,
     color = 'white !important',
