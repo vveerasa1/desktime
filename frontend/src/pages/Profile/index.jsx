@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Grid,
-  Paper,
-  Typography,
-  Button,
-  Box,
-} from "@mui/material";
+import { Grid, Paper, Typography, Button, Box } from "@mui/material";
 import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
 import TrackingDetails from "./TrackingDetails";
@@ -28,39 +22,68 @@ const Profile = () => {
   const [open, setOpen] = useState(false);
   const [openToaster, setOpenToaster] = useState(false);
 
-  const [updateProfile, { isLoading: updateProfileIsLoading }] = useUpdateProfileMutation();
-  const [createProfileApi, { isLoading: createProfileApiIsLoading }] = useCreateProfileMutation();
+  const [updateProfile, { isLoading: updateProfileIsLoading }] =
+    useUpdateProfileMutation();
+  const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
+    useCreateProfileMutation();
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   let userId = null;
+  let role = null;
   if (token) {
     const decoded = jwtDecode(token);
     userId = decoded?.userId;
+    role = decoded?.role;
   }
   const userIdToFetch = paramId || userId;
-
-  const { data: profileDetails, isLoading: getSingleProfileApiIsLoading, isError, error } =
-    useGetSingleProfileQuery(userIdToFetch, { skip: !userIdToFetch });
+  const {
+    data: profileDetails,
+    isLoading: getSingleProfileApiIsLoading,
+    isError,
+    error,
+  } = useGetSingleProfileQuery(userIdToFetch, { skip: !userIdToFetch });
 
   const timeZoneOptions = moment.tz.names().map((tz) => ({ id: tz, name: tz }));
 
   const [formData, setFormData] = useState({
-    employeeId: "", username: "", email: "", password: "", role: "", gender: "",
-    phone: "", countryCode: "", team: "", timeZone: "", workStartTime: "", workEndTime: "",
-    trackingStartTime: "", trackingEndTime: "", minimumHours: "", workingDays: workingDays,
-    trackingDays: trackingDays, flexibleHours: flexibleHours,
+    employeeId: "",
+    username: "",
+    email: "",
+    password: "",
+    role: "",
+    gender: "",
+    phone: "",
+    countryCode: "",
+    team: "",
+    timeZone: "",
+    workStartTime: "",
+    workEndTime: "",
+    trackingStartTime: "",
+    trackingEndTime: "",
+    minimumHours: "",
+    workingDays: workingDays,
+    trackingDays: trackingDays,
+    flexibleHours: flexibleHours,
+    errors: {},
   });
 
   const reverseDayNameMap = {
-    Monday: "MO", Tuesday: "TU", Wednesday: "WE", Thursday: "TH",
-    Friday: "FR", Saturday: "SA", Sunday: "SU",
+    Monday: "MO",
+    Tuesday: "TU",
+    Wednesday: "WE",
+    Thursday: "TH",
+    Friday: "FR",
+    Saturday: "SA",
+    Sunday: "SU",
   };
 
   useEffect(() => {
     if (profileDetails?.data && !getSingleProfileApiIsLoading) {
       const data = profileDetails.data;
-      const workingDayCodes = data.workingDays?.map((day) => reverseDayNameMap[day]) || [];
-      const trackingDayCodes = data.trackingDays?.map((day) => reverseDayNameMap[day]) || [];
+      const workingDayCodes =
+        data.workingDays?.map((day) => reverseDayNameMap[day]) || [];
+      const trackingDayCodes =
+        data.trackingDays?.map((day) => reverseDayNameMap[day]) || [];
 
       setWorkingDays(workingDayCodes);
       setTrackingDays(trackingDayCodes);
@@ -91,16 +114,38 @@ const Profile = () => {
 
   const handleChange = (event, name) => {
     const { value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
   };
 
   const handleSelect = (event, name) => {
     const { value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
   };
 
   const handlePhoneChange = (phone, data) => {
-    setFormData((prev) => ({ ...prev, phone: phone, countryCode: data.dialCode }));
+    setFormData((prev) => ({
+      ...prev,
+      phone: phone,
+      countryCode: data.dialCode,
+      errors: {
+        ...prev.errors,
+        [data]: "",
+      },
+    }));
   };
 
   const genderOptions = [
@@ -118,60 +163,229 @@ const Profile = () => {
     { id: "4 Hours", name: "4 Hours" },
     { id: "6 Hours", name: "6 Hours" },
     { id: "8 Hours", name: "8 Hours" },
+    { id: "9 Hours", name: "9 Hours" },
     { id: "10 Hours", name: "10 Hours" },
   ];
 
   const teamOptions = [{ id: "IT Pentabay", name: "IT Pentabay" }];
 
   const handleDaysChange = (days, type) => {
-    setFormData((prev) => ({ ...prev, [type]: days }));
+    setFormData((prev) => ({
+      ...prev,
+      [type]: days,
+      errors: {
+        ...prev.errors,
+        [type]: "",
+      },
+    }));
+
     if (type === "workingDays") setWorkingDays(days);
     else if (type === "trackingDays") setTrackingDays(days);
   };
 
   const dayNameMap = {
-    MO: "Monday", TU: "Tuesday", WE: "Wednesday", TH: "Thursday",
-    FR: "Friday", SA: "Saturday", SU: "Sunday",
+    MO: "Monday",
+    TU: "Tuesday",
+    WE: "Wednesday",
+    TH: "Thursday",
+    FR: "Friday",
+    SA: "Saturday",
+    SU: "Sunday",
   };
   const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
   const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
 
   const handleSubmit = async () => {
+    const errors = {};
+
+    // === Validation Rules ===
+    if (!formData.username.trim()) {
+      errors.username = "User Name is required";
+    } else if (!/^[A-Za-z\s]*$/.test(formData.username)) {
+      errors.username = "User Name must contain only letters and spaces";
+    }
+
+    if (!formData.employeeId.trim()) {
+      errors.employeeId = "Employee Id Is Required";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Invalid email format";
+    }
+
+    if (!formData.role) {
+      errors.role = "Role is required";
+    }
+
+    if (!formData.gender) {
+      errors.gender = "Gender is required";
+    }
+
+    if (!formData.phone) {
+      errors.phone = "Phone number is required";
+    }
+
+    if (!formData.timeZone) {
+      errors.timeZone = "Time zone is required";
+    }
+
+    if (!formData.workStartTime || !formData.workEndTime) {
+      errors.workStartTime = "Work start time is required";
+      errors.workEndTime = "Work end time is required";
+    }
+
+    if (!formData.trackingStartTime || !formData.trackingEndTime) {
+      errors.trackingStartTime = "Tracking start time is required";
+      errors.trackingEndTime = "Tracking end time is required";
+    }
+
+    if (!formData.minimumHours) {
+      errors.minimumHours = "Minimum hours is required";
+    }
+
+    if (!formData.workingDays.length) {
+      errors.workingDays = "Select at least one working day";
+    }
+
+    if (!formData.trackingDays.length) {
+      errors.trackingDays = "Select at least one tracking day";
+    }
+    if (Object.keys(errors).length > 0) {
+      setFormData((prev) => ({ ...prev, errors }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, errors: {} }));
+
     try {
       const payload = {
-        employeeId: formData.employeeId, username: formData.username, email: formData.email,
-        role: formData.role, gender: formData.gender, phone: formData.phone,
-        countryCode: formData.countryCode, team: formData.team, workStartTime: formData.workStartTime,
-        workEndTime: formData.workEndTime, trackingStartTime: formData.trackingStartTime,
-        trackingEndTime: formData.trackingEndTime, minimumHours: formData.minimumHours,
-        workingDays: workingDaysFull, trackingDays: trackingDaysFull,
-        flexibleHours: formData.flexibleHours, timeZone: formData.timeZone,
+        employeeId: formData.employeeId,
+        username: formData.username,
+        email: formData.email,
+        role: formData.role,
+        gender: formData.gender,
+        phone: formData.phone,
+        countryCode: formData.countryCode,
+        team: formData.team,
+        workStartTime: formData.workStartTime,
+        workEndTime: formData.workEndTime,
+        trackingStartTime: formData.trackingStartTime,
+        trackingEndTime: formData.trackingEndTime,
+        minimumHours: formData.minimumHours,
+        workingDays: workingDaysFull,
+        trackingDays: trackingDaysFull,
+        flexibleHours: formData.flexibleHours,
+        timeZone: formData.timeZone,
       };
 
       if (userIdToFetch) {
-        await updateProfile({ id: userIdToFetch, profileData: payload }).unwrap();
-        setOpenToaster(true);
+        await updateProfile({
+          id: userIdToFetch,
+          profileData: payload,
+        }).unwrap();
       } else {
         await createProfileApi(payload).unwrap();
         setFormData({
-          employeeId: "", username: "", email: "", password: "", role: "", gender: "",
-          phone: "", countryCode: "", team: "", timeZone: "", workStartTime: "", workEndTime: "",
-          trackingStartTime: "", trackingEndTime: "", minimumHours: "",
-          workingDays: [], trackingDays: [], flexibleHours: false,
+          employeeId: "",
+          username: "",
+          email: "",
+          password: "",
+          role: "",
+          gender: "",
+          phone: "",
+          countryCode: "",
+          team: "",
+          timeZone: "",
+          workStartTime: "",
+          workEndTime: "",
+          trackingStartTime: "",
+          trackingEndTime: "",
+          minimumHours: "",
+          workingDays: [],
+          trackingDays: [],
+          flexibleHours: false,
+          errors: {},
         });
         setWorkingDays([]);
         setTrackingDays([]);
-        setOpenToaster(true);
       }
 
+      setOpenToaster(true);
       setTimeout(() => setOpenToaster(false), 3000);
     } catch (error) {
       console.error("Error submitting form:", error);
+      setOpenToaster(true);
     }
   };
 
+  const handleBlur = (e, name) => {
+    const { value } = e?.target || {};
+    let error = "";
+
+    switch (name) {
+      case "username":
+        if (!value?.trim()) error = "User Name is required";
+        else if (!/^[A-Za-z\s]*$/.test(value))
+          error = "Only letters and spaces allowed";
+        break;
+
+      case "employeeId":
+        if (!value?.trim()) error = "Employee ID is required";
+        break;
+
+      case "email":
+        if (!value?.trim()) error = "Email is required";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          error = "Invalid email";
+        break;
+
+      case "phone":
+        if (!formData.phone) error = "Phone number is required";
+        break;
+
+      case "role":
+      case "gender":
+      case "team":
+      case "timeZone":
+      case "minimumHours":
+        if (!value) {
+          error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+        }
+        break;
+
+      case "workStartTime":
+      case "workEndTime":
+      case "trackingStartTime":
+      case "trackingEndTime":
+        if (!value?.trim()) {
+          error =
+            name
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (c) => c.toUpperCase()) + " is required";
+        }
+        break;
+      case "workingDays":
+      case "trackingDays":
+        if (!value || value.length === 0)
+          error = "At least one day must be selected";
+        break;
+      default:
+        break;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      errors: {
+        ...prev.errors,
+        [name]: error,
+      },
+    }));
+  };
+
   const handleClose = (event, reason) => {
-    if (reason === 'clickaway') setOpenToaster(false);
+    if (reason === "clickaway") setOpenToaster(false);
   };
 
   if (getSingleProfileApiIsLoading) {
@@ -186,7 +400,8 @@ const Profile = () => {
     return (
       <Box className={styles.errorBox}>
         <Typography className={styles.errorText} variant="h6">
-          Error loading profile: {error?.data?.message || error?.message || "Unknown error"}
+          Error loading profile:{" "}
+          {error?.data?.message || error?.message || "Unknown error"}
         </Typography>
       </Box>
     );
@@ -233,6 +448,8 @@ const Profile = () => {
           handlePhoneChange={handlePhoneChange}
           profileDetails={profileDetails}
           getSingleProfileApiIsLoading={getSingleProfileApiIsLoading}
+          handleBlur={handleBlur}
+          role={role}
         />
 
         <TrackingDetails
@@ -244,6 +461,8 @@ const Profile = () => {
           workingDays={workingDays}
           trackingDays={trackingDays}
           handleDaysChange={handleDaysChange}
+          handleBlur={handleBlur}
+          role={role}
         />
 
         <Grid item xs={12} sm={12} md={12} lg={2}>
@@ -258,7 +477,11 @@ const Profile = () => {
           </Paper>
         </Grid>
 
-        <ChangePasswordModal open={open} setOpen={setOpen} handleChange={handleChange} />
+        <ChangePasswordModal
+          open={open}
+          setOpen={setOpen}
+          handleChange={handleChange}
+        />
       </Grid>
     </Box>
   );

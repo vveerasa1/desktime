@@ -247,6 +247,7 @@ async function initializeDailyTracking(userId, token) {
     const createRes = await axios.post('http://44.211.37.68:8080/tracking/sessions', {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    console.log(createRes,"CREATE RESSSSSSSSS")
     return createRes.data.sessionId;
   } catch (err) {
     console.error('[Init Tracking Error]', err);
@@ -277,7 +278,7 @@ async function captureScreenshot(userId, token) {
     const user = await axios.get(`http://44.211.37.68:8080/users/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
+    console.log(user,"USER USER SUERERER")
     const { timeZone, trackingEndTime = "12:00", flexibleHours } = user.data.data;
     const currentTime = moment().tz(timeZone);
     const [cutHour, cutMin] = trackingEndTime.split(":").map(Number);

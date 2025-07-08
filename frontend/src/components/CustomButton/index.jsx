@@ -34,7 +34,6 @@ const CustomButton = ({
              {loading ? (
         <Box display="flex" alignItems="center" gap={1}>
           <CircularProgress color="inherit"/>
-          Loading...
         </Box>
       ) : (
         label

@@ -3,70 +3,126 @@ import {
   Grid,
   Typography,
   Button,
-  Dialog,         // Import Dialog
-  DialogTitle,    // Import DialogTitle
-  DialogContent,  // Import DialogContent
-  DialogActions,  // Import DialogActions
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
 } from "@mui/material";
 import { useCreateProfileMutation } from "../../../redux/services/user";
-import MuiToaster from "../../../components/MuiToaster";
 import EmployeeProfileDetails from "./EmployeeProfileDetails";
-import CustomButton from '../../../components/CustomButton';
-const AddEmployeeModal = ({ open, handleClose }) => {
-  const [openToaster, setOpenToaster] = useState(false);
+import CustomButton from "../../../components/CustomButton";
+const AddEmployeeModal = ({ open, handleClose , openToaster }) => {
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
 
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    errors: {
+      username: "",
+      email: "",
+    },
   });
+
+  const handleChange = (event, name) => {
+    const { value } = event.target;
+
+    let error = "";
+    if (name === "username") {
+      if (!value.trim()) {
+        error = "User Name is required";
+      } else if (!/^[A-Za-z\s]*$/.test(value)) {
+        error = "Only letters and spaces allowed";
+      }
+    }
+
+    if (name === "email") {
+      if (!value.trim()) {
+        error = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = "Invalid email format";
+      }
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+       errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async () => {
+    let hasError = false;
+    const errors = {
+      username: "",
+      email: "",
+    };
+
+    if (!formData.username.trim()) {
+      errors.username = "User Name is required";
+      hasError = true;
+    } else if (!/^[A-Za-z\s]*$/.test(formData.username)) {
+      errors.username = "Only letters and spaces allowed";
+      hasError = true;
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+      hasError = true;
+    } else if (!isValidEmail(formData.email)) {
+      errors.email = "Invalid email format";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setFormData((prev) => ({ ...prev, errors }));
+      return;
+    }
+
     try {
       const payload = {
         username: formData.username,
         email: formData.email,
-        password: formData.password
       };
 
-      const response = await createProfileApi(payload).unwrap();
+      await createProfileApi(payload).unwrap();
+      openToaster("Employee Added Successfully!", "success");
+     setTimeout(() => {
+        setFormData({
+          username: "",
+          email: "",
+          errors: { username: "", email: "" },
+        });
+      }, 2000);
+      // Clear form and errors
       setFormData({
         username: "",
         email: "",
-
+        errors: {
+          username: "",
+          email: "",
+        },
       });
-      setOpenToaster(true); // Show toaster
-      setTimeout(() => {
-        setOpenToaster(false);
-      }, 2000); // Shorter timeout to close modal faster after toaster
-      handleClose()
+        handleClose();
+
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
 
-  const handleCloseToaster = (event, reason) => {
-    if (reason === 'clickaway') {
-      setOpenToaster(false);
-    }
-  };
-  const handleChange = (e, name) => {
-    const { value } = e.target;
-    setFormData((prev) => (
-      { ...prev, [name]: value }
-    ))
-  }
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth >
-      <MuiToaster
-        handleClose={() => handleCloseToaster(null, "clickaway")}
-        open={openToaster}
-        message={"Employee Added Successfully!"}
-        severity="success"
-      />
+    <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogTitle>Add New Employee</DialogTitle>
-      <DialogContent dividers >
-        <Grid >
+      <DialogContent dividers>
+        <Grid>
           <EmployeeProfileDetails
             formData={formData}
             handleChange={handleChange}
@@ -85,7 +141,6 @@ const AddEmployeeModal = ({ open, handleClose }) => {
           loading={createProfileApiIsLoading}
           label="Add Employee"
         />
-
       </DialogActions>
     </Dialog>
   );

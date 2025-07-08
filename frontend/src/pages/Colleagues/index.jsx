@@ -14,7 +14,7 @@ import { jwtDecode } from "jwt-decode";
 import AddEmployeeModal from "../../components/Colleagues/AddEmployeeModal";
 import styles from "./index.module.css";
 import CustomButton from "../../components/CustomButton";
-
+import MuiToaster from "../../components/MuiToaster";
 const Colleagues = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
@@ -47,6 +47,19 @@ const Colleagues = () => {
     }
   }, [getProfile]);
 
+  const [toaster, setToaster] = useState({
+    open: false,
+    message: "",
+    severity: "success", // or "error"
+  });
+
+  const handleOpenToaster = (message, severity = "success") => {
+    setToaster({ open: true, message, severity });
+  };
+
+  const handleCloseToaster = () => {
+    setToaster({ ...toaster, open: false });
+  };
   // const handleSearch = (e) => {
   //   const value = e.target.value;
   //   setSearchText(value);
@@ -103,7 +116,6 @@ const Colleagues = () => {
               onClick={handleOpen}
               label="Add Employee"
             />
-         
           </Box>
 
           <ColleaguesList
@@ -115,7 +127,17 @@ const Colleagues = () => {
             setOpen={setOpen}
           />
         </Paper>
-        <AddEmployeeModal open={open} handleClose={handleClose} />
+        <AddEmployeeModal
+          openToaster={handleOpenToaster}
+          open={open}
+          handleClose={handleClose}
+        />
+        <MuiToaster
+          open={toaster.open}
+          message={toaster.message}
+          severity={toaster.severity}
+          handleClose={handleCloseToaster}
+        />
       </Box>
     </>
   );

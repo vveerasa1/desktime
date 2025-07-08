@@ -15,7 +15,11 @@ const ProfileDeatils = ({
   teamOptions,
   handlePhoneChange,
   profileDetails,
+  handleBlur,
+  role
+
 }) => {
+
   return (
     <Grid item xs={12} sm={12} md={12} lg={6} size={6}>
       {/* Profile Details */}
@@ -41,6 +45,10 @@ const ProfileDeatils = ({
                 handleChange={(e) => handleChange(e, "username")}
                 placeholder="Enter your User Name"
                 isRequired
+                disabled={role !== "Admin"} 
+                onBlur={(e) => handleBlur(e, "username")}
+                error={Boolean(formData.errors?.username)}
+                helperText={formData.errors?.username}
               />
             </Box>
           </Box>
@@ -52,6 +60,11 @@ const ProfileDeatils = ({
             handleChange={(e) => handleChange(e, "employeeId")}
             placeholder="Enter your Employee Id"
             isRequired
+                disabled={role !== "Admin"} 
+
+            onBlur={(e) => handleBlur(e, "employeeId")}
+            error={Boolean(formData.errors?.employeeId)}
+            helperText={formData.errors?.employeeId}
           />
 
           <CustomTextField
@@ -61,6 +74,11 @@ const ProfileDeatils = ({
             handleChange={(e) => handleChange(e, "email")}
             placeholder="Enter your Email"
             isRequired
+                disabled={role !== "Admin"} 
+
+            onBlur={(e) => handleBlur(e, "email")}
+            error={Boolean(formData.errors?.email)}
+            helperText={formData.errors?.email}
           />
 
           <CustomDropdown
@@ -71,6 +89,9 @@ const ProfileDeatils = ({
             handleSelect={(e) => handleSelect(e, "gender")}
             placeholder="Select Gender"
             isRequired
+            onBlur={(e) => handleBlur(e, "gender")}
+            error={Boolean(formData.errors?.gender)}
+            helperText={formData.errors?.gender}
           />
 
           <CustomDropdown
@@ -81,6 +102,11 @@ const ProfileDeatils = ({
             handleSelect={(e) => handleSelect(e, "role")}
             placeholder="Select Role"
             isRequired
+                disabled={role !== "Admin"} 
+
+            onBlur={(e) => handleBlur(e, "role")}
+            error={Boolean(formData.errors?.role)}
+            helperText={formData.errors?.role}
           />
 
           <CustomDropdown
@@ -90,14 +116,22 @@ const ProfileDeatils = ({
             options={teamOptions}
             handleSelect={(e) => handleSelect(e, "team")}
             placeholder="Select Team"
+             disabled={role !== "Admin"} 
             isRequired
+            onBlur={(e) => handleBlur(e, "team")}
+            error={Boolean(formData.errors?.team)}
+            helperText={formData.errors?.team}
           />
 
           <CustomPhoneInput
             label="Phone"
+            name="phone"
             value={formData.phone}
             onChange={handlePhoneChange}
             isRequired
+            onBlur={(e) => handleBlur(e, "phone")}
+            error={Boolean(formData.errors?.phone)}
+            helperText={formData.errors?.phone}
           />
         </Box>
       </Paper>
@@ -114,6 +148,9 @@ const ProfileDeatils = ({
             handleSelect={(e) => handleSelect(e, "timeZone")}
             placeholder="Select Time Zone"
             isRequired
+              onBlur={(e) => handleBlur(e, "timeZone")}
+            error={Boolean(formData.errors?.timeZone)}
+            helperText={formData.errors?.timeZone}
           />
         </Box>
       </Paper>
@@ -136,7 +173,11 @@ const ProfileDeatils = ({
           </Typography>
         </Box>
         <Box>
-          <Button variant="contained" color="success" className={styles.enableButton}>
+          <Button
+            variant="contained"
+            color="success"
+            className={styles.enableButton}
+          >
             Enable
           </Button>
         </Box>
