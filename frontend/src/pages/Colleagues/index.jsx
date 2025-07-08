@@ -24,11 +24,12 @@ const Colleagues = () => {
 
   const token = localStorage.getItem("token");
   let userId = null;
-
+  let role = null;
   if (token) {
     try {
       const decoded = jwtDecode(token);
       userId = decoded?.userId || decoded?.sub;
+      role = decoded?.role;
     } catch (err) {
       console.error("Invalid token", err);
     }
@@ -110,12 +111,16 @@ const Colleagues = () => {
                 </Box>
               </Button>
             </Box>
-            <CustomButton
-              variant="contained"
-              color="success"
-              onClick={handleOpen}
-              label="Add Employee"
-            />
+            {role === "Admin" ? (
+              <CustomButton
+                variant="contained"
+                color="success"
+                onClick={handleOpen}
+                label="Add Employee"
+              />
+            ) : (
+              ""
+            )}
           </Box>
 
           <ColleaguesList

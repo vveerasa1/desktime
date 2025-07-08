@@ -3,15 +3,15 @@ import {
   Grid,
   Typography,
   Button,
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useCreateProfileMutation } from "../../../redux/services/user";
 import EmployeeProfileDetails from "./EmployeeProfileDetails";
 import CustomButton from "../../../components/CustomButton";
-const AddEmployeeModal = ({ open, handleClose , openToaster }) => {
+const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
 
@@ -37,9 +37,11 @@ const AddEmployeeModal = ({ open, handleClose , openToaster }) => {
     }
 
     if (name === "email") {
-      if (!value.trim()) {
+      const trimmedEmail = value.trim();
+
+      if (!trimmedEmail) {
         error = "Email is required";
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
         error = "Invalid email format";
       }
     }
@@ -47,7 +49,7 @@ const AddEmployeeModal = ({ open, handleClose , openToaster }) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-       errors: {
+      errors: {
         ...prev.errors,
         [name]: "",
       },
@@ -69,8 +71,9 @@ const AddEmployeeModal = ({ open, handleClose , openToaster }) => {
     if (!formData.username.trim()) {
       errors.username = "User Name is required";
       hasError = true;
-    } else if (!/^[A-Za-z\s]*$/.test(formData.username)) {
-      errors.username = "Only letters and spaces allowed";
+    } else if (!/^[A-Za-z]+(?:\s[A-Za-z]+)*$/.test(formData.username)) {
+      errors.username =
+        "Only letters and spaces allowed, and no leading or trailing spaces";
       hasError = true;
     }
 
@@ -89,13 +92,13 @@ const AddEmployeeModal = ({ open, handleClose , openToaster }) => {
 
     try {
       const payload = {
-        username: formData.username,
+        username: formData.username.trim(),
         email: formData.email,
       };
 
       await createProfileApi(payload).unwrap();
       openToaster("Employee Added Successfully!", "success");
-     setTimeout(() => {
+      setTimeout(() => {
         setFormData({
           username: "",
           email: "",
@@ -111,8 +114,7 @@ const AddEmployeeModal = ({ open, handleClose , openToaster }) => {
           email: "",
         },
       });
-        handleClose();
-
+      handleClose();
     } catch (error) {
       console.error("Error submitting form:", error);
     }
