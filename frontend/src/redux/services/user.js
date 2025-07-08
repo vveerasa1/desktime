@@ -33,7 +33,9 @@ export const User = createApi({
         query:(id)=>({
             url:`${URL_CONSTANTS.USER}/${id}`,
             method:'GET',
-        })
+        }),
+        providesTags:['User']
+
     })
   }),
 });
