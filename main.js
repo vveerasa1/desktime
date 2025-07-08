@@ -27,11 +27,12 @@ apiServer.use(cors());
 apiServer.use(express.json());
 
 apiServer.post('/store-token', (req, res) => {
-  const { token, userId } = req.body;
+  const { token, userId,refreshToken } = req.body;
+  console.log(refreshToken,"REFRESH TOKEN")
   console.log('✅ Token received in Electron:', token);
   console.log('✅ User ID received in Electron:', userId);
   getStoredToken(token)
-  setToken(userId, token);
+  setToken(userId, token,refreshToken);
   // store.set('authToken', token);
   // store.set('USER_ID', userId);
   // USER_ID = userId
