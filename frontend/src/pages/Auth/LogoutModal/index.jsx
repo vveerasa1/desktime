@@ -40,7 +40,7 @@ const LogoutConfirmationDialog = ({ open, setOpen, handleCloseDialog }) => {
   const handleConfirmLogout = () => {
     logoutApi({userId});
     localStorage.clear();
-    navigate("/");
+    navigate("/", { replace: true });
     setOpen(false);
   };
 

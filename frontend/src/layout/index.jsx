@@ -13,7 +13,6 @@ const AppLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const drawerWidth = mobileOpen || isMobile ? 240 : 72;
-
   return (
     <Box sx={{ display: "flex", width: "100%", minHeight: "100vh" }}>
       <Grid sx={{ width: drawerWidth }}>

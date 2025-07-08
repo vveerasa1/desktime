@@ -223,9 +223,13 @@ const Profile = () => {
       errors.gender = "Gender is required";
     }
 
-    if (!formData.phone) {
-      errors.phone = "Phone number is required";
-    }
+    // if (!formData.phone) {
+    //   errors.phone = "Phone number is required";
+    // }
+
+      if (!formData.phone || formData.phone.length < 10) {
+        errors.phone = "Valid phone number is required";
+      }
 
     if (!formData.timeZone) {
       errors.timeZone = "Time zone is required";
@@ -341,9 +345,11 @@ const Profile = () => {
           error = "Invalid email";
         break;
 
-      case "phone":
-        if (!formData.phone) error = "Phone number is required";
-        break;
+       case "phone":
+      if (!formData.phone || formData.phone.length < 10) {
+        error = "Valid phone number is required";
+      }
+      break;
 
       case "role":
       case "gender":

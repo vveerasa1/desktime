@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { Grid, Paper, Typography, Box, Avatar, Button } from "@mui/material";
 import CustomTextField from "../../../components/CustomTextField";
 import CustomDropdown from "../../../components/CustomDropDown";
@@ -19,7 +20,6 @@ const ProfileDeatils = ({
   role
 
 }) => {
-
   return (
     <Grid item xs={12} sm={12} md={12} lg={6} size={6}>
       {/* Profile Details */}
