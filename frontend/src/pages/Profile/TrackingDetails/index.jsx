@@ -95,6 +95,7 @@ const TrackingDetails = ({
               <Checkbox
                 checked={flexibleHours}
                 onChange={(e) => setFlexibleHours(e.target.checked)}
+                disabled={role !== 'Admin'}
               />
             }
             label="Flexible Hours"

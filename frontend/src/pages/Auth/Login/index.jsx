@@ -78,7 +78,7 @@ const Login = () => {
     try {
       const res = await loginApi(loginInfo).unwrap();
       const token = res?.accessToken;
-
+      const refreshToken = res?.refreshToken
       if (token) {
         const decoded = jwtDecode(token);
         const userId = decoded?.userId;
@@ -86,7 +86,7 @@ const Login = () => {
         localStorage.setItem("token", token);
 
         try {
-          const electronResponse = await electronAPI({ token, userId });
+        await electronAPI({ token, userId ,refreshToken});
         } catch (err) {
           console.error(
             "Failed to send token to Electron server:",
