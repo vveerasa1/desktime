@@ -34,24 +34,24 @@ const dashboardCard = async (req, res) => {
       let idleTime = 0;
       let timeAtWork = 0;
       if (session.leftTime) {
-        deskTime = Math.floor((session.leftTime - arrivalTime) / 1000); // seconds
+        timeAtWork = Math.floor((session.leftTime - arrivalTime) / 1000); // seconds
         idleTime = (session.idlePeriods || []).reduce(
           (acc, p) => acc + (p.duration || 0),
           0
         );
        const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
         //timeAtWork = deskTime - idleTime;
-        timeAtWork = activeTime?activeTime:0;
+        deskTime = activeTime?activeTime:0;//desktime
       } else {
         const now = new Date();
-        deskTime = Math.floor((now - arrivalTime) / 1000); // seconds
+        timeAtWork = Math.floor((now - arrivalTime) / 1000); // seconds
 
         // idleTime = (session.idlePeriods || []).reduce(
         //   (acc, p) => acc + (p.duration || 0),
         //   0
         // );
         const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
-        timeAtWork = activeTime?activeTime:0;
+        deskTime = activeTime?activeTime:0;
         // timeAtWork = deskTime - idleTime;
       }
 

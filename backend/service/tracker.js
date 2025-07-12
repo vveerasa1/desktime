@@ -11,9 +11,20 @@ const tracking = async (req, res) => {
     let userId = user.userId;
     let timeZone = user.timeZone;
     const now = moment().tz(timeZone).toDate();
+
+    // const endOfDay = moment().tz(timeZone).set({
+    //   hour: 23,
+    //   minute: 0,
+    //   second: 0,
+    //   millisecond: 0,
+    // });
+
+    // Set leftTime as the difference (in milliseconds or ISO Date format)
+    // const leftTime = endOfDay.toDate();
     const session = await TrackingSession.create({
       userId,
       arrivalTime: now,
+      // leftTime: leftTime,
     });
     res.json({ sessionId: session._id });
   } catch (error) {
@@ -129,18 +140,18 @@ const activeTimeTracker = async (req, res) => {
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
     }
-    if (session.leftTime) {
-      return res.status(200).json({ message: "Session already ended" });
-    }
+    // if (session.leftTime) {
+    //   return res.status(200).json({ message: "Session already ended" });
+    // }
     let userId = session.userId;
-    const user = await User.findById(userId);
-    const canTrack = isWithinTrackingHours(user);
-    if (!canTrack) {
-      console.log(
-        `User ${user.username} is outside tracking hours or day. Skipping.`
-      );
-      return;
-    }
+    // const user = await User.findById(userId);
+    // const canTrack = isWithinTrackingHours(user);
+    // if (!canTrack) {
+    //   console.log(
+    //     `User ${user.username} is outside tracking hours or day. Skipping.`
+    //   );
+    //   return;
+    // }
     // Calculate productivity %
     const fullBlock = 300; // 5 minutes = 300 seconds
     let productivity = (duration / fullBlock) * 100;
@@ -180,9 +191,9 @@ const endSession = async (req, res) => {
   }
 };
 
-cron.schedule("59 23 * * *", async () => {
+cron.schedule("55 23 * * *", async () => {
   console.log("[CRON] Running sessionStop at 11:59 PM");
-
+w
   try {
     const sessions = await TrackingSession.find({ leftTime: null });
 
@@ -191,77 +202,78 @@ cron.schedule("59 23 * * *", async () => {
 
       let leftTime = null;
 
-      if (user?.flexibleHours) {
-        const lastActive =
-          session.activePeriods?.[session.activePeriods.length - 1]?.end;
-        const now = moment();
+      // if (user?.flexibleHours) {
+      //   const lastActive =
+      //     session.activePeriods?.[session.activePeriods.length - 1]?.end;
+      //   const now = moment();
 
-        if (lastActive) {
-          const lastActiveMoment = moment(lastActive);
-          const minutesSinceLastActive = now.diff(lastActiveMoment, "minutes");
+      //   if (lastActive) {
+      //     const lastActiveMoment = moment(lastActive);
+      //     const minutesSinceLastActive = now.diff(lastActiveMoment, "minutes");
 
-          // if (minutesSinceLastActive <= 10) {
-          //   // User is likely still working — skip setting leftTime
-          //   console.log(`Skipping user ${user.username}, still active.`);
-          //   continue;
-          // } else {
-          leftTime = lastActiveMoment.toDate();
-          //}
-        } else if (session.idlePeriods?.length > 0) {
-          leftTime = session.idlePeriods[0].start;
-        } else {
-          leftTime = new Date();
-        }
-      } else {
-        // Not flexible: fallback to idle or current time
-        const trackingEnd = user?.trackingEndTime; // e.g., '20:00'
-        if (trackingEnd) {
-          const today = moment().format("YYYY-MM-DD");
-          const trackingEndMoment = moment(
-            `${today} ${trackingEnd}`,
-            "YYYY-MM-DD HH:mm"
-          );
+      //     // if (minutesSinceLastActive <= 10) {
+      //     //   // User is likely still working — skip setting leftTime
+      //     //   console.log(`Skipping user ${user.username}, still active.`);
+      //     //   continue;
+      //     // } else {
+      //     leftTime = lastActiveMoment.toDate();
+      //     //}
+      //   } else if (session.idlePeriods?.length > 0) {
+      //     leftTime = session.idlePeriods[0].start;
+      //   } else {
+      //     leftTime = new Date();
+      //   }
+      // } else {
+      // Not flexible: fallback to idle or current time
+      // const trackingEnd = user?.trackingEndTime; // e.g., '20:00'
+      // if (trackingEnd) {
+      // const today = moment().format("YYYY-MM-DD");
+      // const trackingEndMoment = moment(
+      //   `${today} ${trackingEnd}`,
+      //   "YYYY-MM-DD HH:mm"
+      // );
+      // const currentTime = moment().tz(timeZone);
+      // const trackingEndTime = currentTime
+      //   .clone()
+      //   .hour(cutHour)
+      //   .minute(cutMin)
+      //   .second(0);
 
-          if (moment().isSameOrAfter(trackingEndMoment)) {
-            // We're past tracking end time
-            const idlePeriods = session.idlePeriods || [];
+      // We're past tracking end time
+      const activePeriods = session.activePeriods || [];
 
-            // Find the last idle period (assuming sorted chronologically)
-            const lastIdle = idlePeriods[idlePeriods.length - 1];
+      // Find the last idle period (assuming sorted chronologically)
+      const activeIdle = activePeriods[activePeriods.length - 1];
 
-            if (
-              lastIdle?.start &&
-              !lastIdle?.end &&
-              moment(lastIdle.start).isSameOrAfter(trackingEndMoment)
-            ) {
-              // User went idle after trackingEnd and hasn't come back
-              leftTime = moment(lastIdle.start).toDate();
-            } else {
-              // Use tracking end time or look for any idle after it
-              const idleAfterTrackingEnd = idlePeriods.find((p) =>
-                moment(p.start).isSameOrAfter(trackingEndMoment)
-              );
+      // if (
+      //   activeIdle?.start &&
+      //   !activeIdle?.end &&
+      //   moment(activeIdle.end).isSameOrAfter(trackingEndMoment)
+      // ) {
+      // User went idle after trackingEnd and hasn't come back
+      leftTime = activeIdle.end;
+      //   } else {
+      //     // Use tracking end time or look for any idle after it
+      //     const idleAfterTrackingEnd = idlePeriods.find((p) =>
+      //       moment(p.start).isSameOrAfter(trackingEndMoment)
+      //     );
 
-              if (idleAfterTrackingEnd?.start) {
-                leftTime = moment(idleAfterTrackingEnd.start).toDate();
-              } else {
-                leftTime = trackingEndMoment.toDate();
-              }
-            }
-          } else {
-            // Still within tracking window
-            console.log(
-              `User ${user.username} is still within tracking hours.`
-            );
-            continue;
-          }
-        } else {
-          // If no trackingEndTime set, fallback
-          const lastIdle =
-            session.idlePeriods?.[session.idlePeriods.length - 1];
-          leftTime = lastIdle?.start || new Date();
-        }
-      }
+      //     if (idleAfterTrackingEnd?.start) {
+      //       leftTime = moment(idleAfterTrackingEnd.start).toDate();
+      //     } else {
+      //       leftTime = trackingEndMoment.toDate();
+      //     }
+      //   }
+      // } else {
+      // Still within tracking window
+      //     console.log(`User ${user.username} is still within tracking hours.`);
+      //     continue;
+      //   }
+      // } else {
+      //   // If no trackingEndTime set, fallback
+      //   const lastIdle = session.idlePeriods?.[session.idlePeriods.length - 1];
+      //   leftTime = lastIdle?.start || new Date();
+      // }
 
       session.leftTime = leftTime;
       await session.save();

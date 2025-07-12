@@ -1,10 +1,5 @@
 import { useState, useCallback, useLayoutEffect } from "react";
-import {
-  Box,
-  Button,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Button, Typography, CircularProgress } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
@@ -38,9 +33,9 @@ const Login = () => {
     []
   );
   useLayoutEffect(() => {
-    const token=localStorage.getItem('token')
+    const token = localStorage.getItem("token");
     if (token) {
-      window.location.href = '/dashboard'
+      window.location.href = "/dashboard";
     }
   }, []);
   const handleChange = useCallback(
@@ -63,8 +58,8 @@ const Login = () => {
       email: !loginInfo.email
         ? "Email is required"
         : !emailRegex.test(loginInfo.email)
-          ? "Enter a valid email"
-          : "",
+        ? "Enter a valid email"
+        : "",
       password: loginInfo.password.trim() ? "" : "Password is required",
     };
 
@@ -78,15 +73,15 @@ const Login = () => {
     try {
       const res = await loginApi(loginInfo).unwrap();
       const token = res?.accessToken;
-      const refreshToken = res?.refreshToken
+      const refreshToken = res?.refreshToken;
       if (token) {
         const decoded = jwtDecode(token);
         const userId = decoded?.userId;
 
         localStorage.setItem("token", token);
-
+        localStorage.setItem("refreshToken", refreshToken);
         try {
-        await electronAPI({ token, userId ,refreshToken});
+          await electronAPI({ token, userId, refreshToken });
         } catch (err) {
           console.error(
             "Failed to send token to Electron server:",
@@ -102,8 +97,9 @@ const Login = () => {
   }, [validateForm, loginApi, loginInfo, electronAPI, navigate]);
   return (
     <Box className={styles.container}>
-      <Box className={styles.imageContainer}
-      // style={{ backgroundImage: `url(${entryBackground})` }}
+      <Box
+        className={styles.imageContainer}
+        // style={{ backgroundImage: `url(${entryBackground})` }}
       />
       <Box className={styles.leftSection}>
         <Box className={styles.formBox}>
@@ -155,7 +151,12 @@ const Login = () => {
             />
           </Box>
 
-          <Box className={styles.forgotPassword} onClick={()=>{navigate('/forgot-password')}}>
+          <Box
+            className={styles.forgotPassword}
+            onClick={() => {
+              navigate("/forgot-password");
+            }}
+          >
             <a className={styles.link} href="">
               Forgot Password?
             </a>
