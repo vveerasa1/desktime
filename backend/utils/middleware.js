@@ -3,7 +3,6 @@ const config = require("../config");
 
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log("authHeader: " + authHeader);
   if (!authHeader) {
     return res.status(401).json({ message: "No token provided" });
   }
@@ -16,7 +15,7 @@ const authenticate = (req, res, next) => {
       req.user = decoded;
       next();
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       //console.error("JWT Verification Error:", err.message);
       return res.status(401).json({ message: "Invalid or expired token" });
     }
