@@ -1,11 +1,6 @@
-import  { useState, useCallback } from "react";
-import {
-  Box,
-  Button,
-  Typography,
-  Divider,
-  CircularProgress,
-} from "@mui/material";
+import { useState, useCallback, useLayoutEffect } from "react";
+import { Box, Button, Typography, CircularProgress } from "@mui/material";
+
 import { useNavigate } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -15,7 +10,6 @@ import { useSessionMutation } from "../../../redux/services/electron";
 import { useLoginMutation } from "../../../redux/services/login";
 import { jwtDecode } from "jwt-decode";
 import styles from "./index.module.css";
-import ImageSection from "../../../components/AuthImageSection";
 import CustomTextField from "../../../components/CustomTextField";
 
 const Login = () => {
@@ -34,17 +28,28 @@ const Login = () => {
     setShowPassword((prev) => !prev);
   }, []);
 
-  const capitalize = useCallback((str) => str.charAt(0).toUpperCase() + str.slice(1), []);
+  const capitalize = useCallback(
+    (str) => str.charAt(0).toUpperCase() + str.slice(1),
+    []
+  );
+  useLayoutEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      window.location.href = "/dashboard";
+    }
+  }, []);
+  const handleChange = useCallback(
+    (e, name) => {
+      const { value } = e.target;
 
-  const handleChange = useCallback((e, name) => {
-    const { value } = e.target;
-
-    setLoginInfo((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({
-      ...prev,
-      [name]: value ? "" : `${capitalize(name)} is required`,
-    }));
-  }, [capitalize]);
+      setLoginInfo((prev) => ({ ...prev, [name]: value }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: value ? "" : `${capitalize(name)} is required`,
+      }));
+    },
+    [capitalize]
+  );
 
   const validateForm = useCallback(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,17 +73,20 @@ const Login = () => {
     try {
       const res = await loginApi(loginInfo).unwrap();
       const token = res?.accessToken;
-
+      const refreshToken = res?.refreshToken;
       if (token) {
         const decoded = jwtDecode(token);
         const userId = decoded?.userId;
 
         localStorage.setItem("token", token);
-
+        localStorage.setItem("refreshToken", refreshToken);
         try {
-          const electronResponse = await electronAPI({ token, userId });
+          await electronAPI({ token, userId, refreshToken });
         } catch (err) {
-          console.error("Failed to send token to Electron server:", err.message);
+          console.error(
+            "Failed to send token to Electron server:",
+            err.message
+          );
         }
 
         navigate("/dashboard");
@@ -87,61 +95,78 @@ const Login = () => {
       console.error("Login failed:", err);
     }
   }, [validateForm, loginApi, loginInfo, electronAPI, navigate]);
-
   return (
     <Box className={styles.container}>
+      <Box
+        className={styles.imageContainer}
+        // style={{ backgroundImage: `url(${entryBackground})` }}
+      />
       <Box className={styles.leftSection}>
         <Box className={styles.formBox}>
-          <Typography variant="h5" gutterBottom className={styles.title}>
+          <Typography variant="h5" className={styles.title}>
             Welcome
           </Typography>
-          <Typography variant="body2" gutterBottom className={styles.subtitle}>
+          <Typography variant="body2" className={styles.subtitle}>
             Get started for a seamless work tracking experience.
           </Typography>
 
-          <CustomTextField
-            label="Email"
-            name="email"
-            type="email"
-            fullWidth
-            startIcon={<EmailIcon />}
-            value={loginInfo.email}
-            handleChange={(e) => handleChange(e, "email")}
-            error={Boolean(errors.email)}
-            helperText={errors.email}
-          />
+          <Box className={styles.field}>
+            <CustomTextField
+              label="Email"
+              name="email"
+              type="email"
+              fullWidth
+              startIcon={<EmailIcon />}
+              value={loginInfo.email}
+              handleChange={(e) => handleChange(e, "email")}
+              error={Boolean(errors.email)}
+              helperText={errors.email}
+            />
+          </Box>
 
-          <CustomTextField
-            label="Password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            fullWidth
-            startIcon={<LockIcon />}
-            endIcon={
-              showPassword ? (
-                <VisibilityOff onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
-              ) : (
-                <Visibility onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
-              )
-            }
-            value={loginInfo.password}
-            handleChange={(e) => handleChange(e, "password")}
-            error={Boolean(errors.password)}
-            helperText={errors.password}
-          />
+          <Box className={styles.field}>
+            <CustomTextField
+              label="Password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              fullWidth
+              startIcon={<LockIcon />}
+              endIcon={
+                showPassword ? (
+                  <VisibilityOff
+                    onClick={togglePasswordVisibility}
+                    style={{ cursor: "pointer" }}
+                  />
+                ) : (
+                  <Visibility
+                    onClick={togglePasswordVisibility}
+                    style={{ cursor: "pointer" }}
+                  />
+                )
+              }
+              value={loginInfo.password}
+              handleChange={(e) => handleChange(e, "password")}
+              error={Boolean(errors.password)}
+              helperText={errors.password}
+            />
+          </Box>
 
           <Box
-            className={styles.link}
-            onClick={() => navigate("/forgot-password")}
+            className={styles.forgotPassword}
+            onClick={() => {
+              navigate("/forgot-password");
+            }}
           >
-            <a href="#">Forgot Password?</a>
+            <a className={styles.link} href="">
+              Forgot Password?
+            </a>
           </Box>
 
           <Button
             variant="contained"
             fullWidth
             className={styles.button}
-            onClick={(e)=>{
+            onClick={(e) => {
               e.preventDefault();
               handleLogin();
             }}
@@ -160,15 +185,23 @@ const Login = () => {
             </Typography>
           )}
 
-          <Divider className={styles.divider}>OR</Divider>
+          {/* <Divider className={styles.divider}>OR</Divider> */}
+          <Box className={styles.dividerWrapper}>
+            <span className={styles.line} />
+            <span className={styles.orText}>OR</span>
+            <span className={styles.line} />
+          </Box>
 
-          <Button variant="outlined" fullWidth className={styles.googleBtn}>
+          <Button variant="outlined" className={styles.googleBtn}>
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google"
+              style={{ height: 20, marginRight: 8 }}
+            />
             Google
           </Button>
         </Box>
       </Box>
-
-      <ImageSection />
     </Box>
   );
 };

@@ -4,7 +4,7 @@
   "description": "",
   "main": "config.js",
   "scripts": {
-    "start:dev": "cross-env NODE_ENV=dev node server.js",
+    "start:dev": "cross-env NODE_ENV=dev nodemon --inspect server.js",
     "start:local": "cross-env NODE_ENV=local nodemon --inspect server.js",
     "start:prod": "cross-env NODE_ENV=prod node server.js",
     "build:dev": "cross-env NODE_ENV=dev webpack --config webpack.config.js --mode=none",

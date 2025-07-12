@@ -46,18 +46,24 @@ const OtpVerify = () => {
 
   return (
     <Box className={styles.container}>
+      <Box className={styles.imageContainer}
+      />
       <Box className={styles.leftSection}>
         <Box className={styles.formBox}>
-          <Typography variant="h5" gutterBottom className={styles.title}>
-            Verify Your Account
+          <Typography variant="h5" className={styles.title}>
+         Verify Your Account
           </Typography>
-          <Typography variant="body2" gutterBottom className={styles.subtitle}>
-            We&apos;ve sent a 6-digit verification code to your registered email
+          <Typography variant="body2" className={styles.subtitle}>
+           We’ve sent a 6-digit verification code to your registered  email
           </Typography>
 
-          <Typography variant="body2" className={styles.label}>
-            OTP
-          </Typography>
+          {/* <Box className={styles.field}> */}
+          <Box className={styles.field}>
+            <Typography variant="body2" className={styles.label}>
+              OTP
+            </Typography>
+          </Box>
+
           <Box className={styles.otpContainer}>
             {otp.map((data, index) => (
               <input
@@ -74,26 +80,27 @@ const OtpVerify = () => {
               />
             ))}
           </Box>
+          {/* </Box> */}
 
           <Button
             variant="contained"
             fullWidth
-            className={styles.verifyButton}
-            onClick={handleVerify}
+            className={styles.button}
+        
           >
+      
             Verify
           </Button>
 
-          <Typography variant="body2" className={styles.resendText}>
-            Didn&apos;t receive the code?{' '}
-            <Link component="button" onClick={handleResend} className={styles.resendLink}>
-              Resend code
-            </Link>
-          </Typography>
+          <Box className={styles.resetLink}>
+            Didn’t receive the code?<a className={styles.link} href="#">
+              Send resend link.
+            </a>
+          </Box>
+
+
         </Box>
       </Box>
-
-      <AuthImageSection />
     </Box>
   );
 };

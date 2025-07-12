@@ -1,10 +1,17 @@
 import { Box, Typography, Tooltip, IconButton } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import styles from "./index.module.css"; // ✅ Import the CSS module
+import styles from "./index.module.css";
 
 const daysList = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
-const CustomDays = ({ selectedDays, onChange, label = "Select days" }) => {
+const CustomDays = ({
+  selectedDays,
+  onChange,
+  label = "Select days",
+  error = false,
+  helperText = "",
+  disabled = false,
+}) => {
   const handleToggle = (day) => {
     const updated = selectedDays.includes(day)
       ? selectedDays.filter((d) => d !== day)
@@ -30,14 +37,28 @@ const CustomDays = ({ selectedDays, onChange, label = "Select days" }) => {
           return (
             <Box
               key={day}
-              onClick={() => handleToggle(day)}
-              className={`${styles.dayBox} ${isSelected ? styles.selected : ""}`}
+              onClick={() => {
+                if (!disabled) handleToggle(day);
+              }}
+              className={`${styles.dayBox} ${
+                isSelected ? styles.selected : ""
+              } ${disabled ? styles.disabled : ""}`}
             >
               {day}
             </Box>
           );
         })}
       </Box>
+
+      {error && (
+        <Typography
+          sx={{ color: "red" }}
+          variant="caption"
+          className={styles.errorText}
+        >
+          {helperText}
+        </Typography>
+      )}
     </Box>
   );
 };

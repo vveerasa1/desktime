@@ -1,4 +1,4 @@
- .imageContainer {
+ /* .imageContainer {
   flex: 1;
   background-image: url('../../assets/images/EntryImage.png');
   background-size: cover;
@@ -11,8 +11,15 @@
   color: white;
   will-change: transform, opacity;
   backface-visibility: hidden;
+} */
+.imageContainer {
+  position: absolute;
+  inset: 0;
+  background-image: url('../../assets/images/EntryImage.png');
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
 }
-
 .logoBox {
   width: 100px;
   height: 100px;

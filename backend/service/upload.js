@@ -30,6 +30,7 @@ const uploadFile = async (parameters) => {
  * @returns 
  */
 const uploadFileToS3 = async (file, folderPath) => {
+  console.log(file,"FILEEEE")
   if (!file) return;
   const fileExtension = file.originalname.split('.').pop();
   const fileNameWithoutExtension = file.originalname.split('.').slice(0, -1).join('.');

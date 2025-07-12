@@ -1,45 +1,33 @@
-import { Grid, Paper, Typography, Box, Avatar, Button } from "@mui/material";
+import { Grid, Box } from "@mui/material";
 import CustomTextField from "../../../../components/CustomTextField";
-import styles from './index.module.css'
+import styles from './index.module.css';
+
 const EmployeeProfileDetails = ({ formData, handleChange }) => {
   return (
     <Grid>
       <Box className={styles.container}>
-        <Box>
+        <Box >
           <CustomTextField
             label="User Name"
             name="username"
             value={formData.username}
-            handleChange={(event) => {
-              handleChange(event, "username");
-            }}
-            placeholder="Enter your User Name"
+            handleChange={(event) => handleChange(event, "username")}
+            placeholder="Enter User Name"
             isRequired
+            error={Boolean(formData.errors?.username)}
+            helperText={formData.errors?.username}
           />
         </Box>
-        <Box>
+        <Box mt={2.5}>
           <CustomTextField
             label="Email"
             name="email"
             value={formData.email}
-            handleChange={(event) => {
-              handleChange(event, "email");
-            }}
-            placeholder="Enter your Email"
+            handleChange={(event) => handleChange(event, "email")}
+            placeholder="Enter Email"
             isRequired
-          />
-        </Box>
-        <Box>
-          <CustomTextField
-            label="Password"
-            name="password"
-            type='password'
-            value={formData.password}
-            handleChange={(event) => {
-              handleChange(event, "password");
-            }}
-            placeholder="Enter your Password"
-            isRequired
+            error={Boolean(formData.errors?.email)}
+            helperText={formData.errors?.email}
           />
         </Box>
       </Box>

@@ -16,7 +16,7 @@ import { useLoginMutation } from '../../../redux/services/login';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [loginInfo, setLoginInfo] = useState({ email: ''});
+  const [loginInfo, setLoginInfo] = useState({ email: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
 
@@ -59,7 +59,7 @@ const ForgotPassword = () => {
     if (!validateForm()) return;
 
     try {
-      
+
 
       // navigate('/dashboard');
     } catch (err) {
@@ -68,27 +68,33 @@ const ForgotPassword = () => {
   }, [validateForm, loginInfo, loginApi]);
 
   return (
+  
     <Box className={styles.container}>
+      <Box className={styles.imageContainer}
+      />
       <Box className={styles.leftSection}>
         <Box className={styles.formBox}>
-          <Typography variant="h5" gutterBottom className={styles.title}>
+          <Typography variant="h5" className={styles.title}>
             Forgot Your Password?
           </Typography>
-          <Typography variant="body2" gutterBottom className={styles.subtitle}>
-            Enter your registered email, and we’ll send you a password reset link or OTP.
+          <Typography variant="body2" className={styles.subtitle}>
+            Enter your registered email, and we’ll send you a password
+            reset link or OTP.
           </Typography>
 
-          <CustomTextField
-            label="Email"
-            name="email"
-            type="email"
-            fullWidth
-            startIcon={<EmailIcon />}
-            value={loginInfo.email}
-            handleChange={(e) => handleChange(e, 'email')}
-            error={Boolean(errors.email)}
-            helperText={errors.email}
-          />
+          <Box className={styles.field}>
+            <CustomTextField
+              label="Email"
+              name="email"
+              type="email"
+              fullWidth
+              startIcon={<EmailIcon />}
+              value={loginInfo.email}
+              handleChange={(e) => handleChange(e, 'email')}
+              error={Boolean(errors.email)}
+              helperText={errors.email}
+            />
+          </Box>
 
           <Button
             variant="contained"
@@ -100,35 +106,24 @@ const ForgotPassword = () => {
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Continue'
+              "Continue"
             )}
           </Button>
+
+          <Box className={styles.resetLink}>
+            <a className={styles.link} href="#">
+              Send resend link.
+            </a>
+          </Box>
 
           {isError && (
             <Typography color="error" variant="body2" mt={1}>
-              {error?.data?.message || 'Invalid credentials'}
+              {error?.data?.message || "Invalid credentials"}
             </Typography>
           )}
 
-          <Divider className={styles.divider}>OR</Divider>
-
-          <Button
-            variant="contained"
-            fullWidth
-            className={`${styles.button} ${styles.whiteButton}`}
-            onClick={handleLogin}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              'Send reset link.'
-            )}
-          </Button>
         </Box>
       </Box>
-
-      <ImageSection />
     </Box>
   );
 };
