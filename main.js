@@ -113,7 +113,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on http://44.211.37.68:${API_PORT}`
+    `🚀 Express API server in Electron listening on http://localhost:${API_PORT}`
   );
 });
 
@@ -283,11 +283,7 @@ async function startTrackingForUser(userId) {
     }, 2000),
 
     screenshot: setInterval(() => {
-      if (!systemIsSleeping) {
-        captureScreenshot(userId, token);
-      } else {
-        console.log(`[Sleep Mode] Skipping screenshot for ${userId}`);
-      }
+      captureScreenshot(userId, token);
     }, 5 * 60 * 1000),
   };
 }
@@ -351,34 +347,30 @@ let activeLastSentMap = {};
 
 async function captureScreenshot(userId, token) {
   try {
+    if (isSessionEnded) return;
     const sessionId = getSessionId(userId);
     if (!sessionId) return;
 
-    // const user = await axios.get(`http://44.211.37.68:8080/users/${userId}`, {
-    //   headers: { Authorization: `Bearer ${token}` },
+    // // const user = await axios.get(`http://44.211.37.68:8080/users/${userId}`, {
+    // //   headers: { Authorization: `Bearer ${token}` },
+    // // });
+    // const user = await makeAuthenticatedRequest(userId, {
+    //   method: "get",
+    //   url: `http://44.211.37.68:8080/users/${userId}`,
     // });
-    const user = await makeAuthenticatedRequest(userId, {
-      method: "get",
-      url: `http://44.211.37.68:8080/users/${userId}`,
-    });
-    console.log(user, "USER USER SUERERER");
-    const {
-      timeZone,
-      trackingEndTime = "12:00",
-      flexibleHours,
-    } = user.data.data;
-    const currentTime = moment().tz(timeZone);
-    const [cutHour, cutMin] = trackingEndTime.split(":").map(Number);
-    const cutoff = flexibleHours
-      ? currentTime.clone().endOf("day").seconds(0)
-      : currentTime.clone().hour(cutHour).minute(cutMin).second(0);
+    // const { timeZone, trackingEndTime, flexibleHours } = user.data.data;
+    // const currentTime = moment().tz(timeZone);
+    // const [cutHour, cutMin] = trackingEndTime.split(":").map(Number);
+    // const cutoff = flexibleHours
+    //   ? currentTime.clone().endOf("day").seconds(0)
+    //   : currentTime.clone().hour(cutHour).minute(cutMin).second(0);
 
-    if (currentTime.isAfter(cutoff)) {
-      console.log(
-        `[Tracking] Screenshot skipped for user ${userId} - after cutoff`
-      );
-      return;
-    }
+    // if (currentTime.isAfter(cutoff)) {
+    //   console.log(
+    //     `[Tracking] Screenshot skipped for user ${userId} - after cutoff`
+    //   );
+    //   return;
+    // }
 
     const win = await activeWin();
     const appName = win ? win.owner.name : "unknown";
