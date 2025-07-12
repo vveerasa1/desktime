@@ -67,7 +67,7 @@ const generateToken = async (req, res) => {
     return res.status(401).json({ message: "Refresh token required" });
   try {
     const decoded = jwt.verify(refreshToken, config.auth.REFRESH_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.userId);
     const payload = {
       id: user._id,
       mobile: user?.mobile,
