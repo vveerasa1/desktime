@@ -81,7 +81,7 @@ async function refreshToken(userId) {
   }
 
   try {
-    const res = await axios.post("http://localhost:8080/auth/refresh", {
+    const res = await axios.post("http://44.211.37.68:8080/auth/refresh", {
       refreshToken,
     });
 
@@ -113,7 +113,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on http://localhost:${API_PORT}`
+    `🚀 Express API server in Electron listening on http://44.211.37.68:${API_PORT}`
   );
 });
 
@@ -172,7 +172,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://localhost:3000");
+  mainWindow.loadURL("http://44.211.37.68:3000");
 
   mainWindow.on("close", (e) => {
     e.preventDefault();
@@ -194,7 +194,7 @@ function createWindow() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    shell.openExternal("http://localhost:3000"); // Opens React app in default browser
+    shell.openExternal("http://44.211.37.68:3000"); // Opens React app in default browser
   });
 }
 
@@ -298,12 +298,12 @@ async function initializeDailyTracking(userId, token) {
   // if (!sessionId || sessionEnded) return;
 
   try {
-    // const res = await axios.get("http://localhost:8080/tracking/sessions", {
+    // const res = await axios.get("http://44.211.37.68:8080/tracking/sessions", {
     //   headers: { Authorization: `Bearer ${token}` },
     // });
     const res = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: "http://localhost:8080/tracking/sessions",
+      url: "http://44.211.37.68:8080/tracking/sessions",
     });
     console.log("[Init Tracking] Existing sessions:", res.data.data);
     if (res.data.data) {
@@ -311,7 +311,7 @@ async function initializeDailyTracking(userId, token) {
     }
 
     // const createRes = await axios.post(
-    //   "http://localhost:8080/tracking/sessions",
+    //   "http://44.211.37.68:8080/tracking/sessions",
     //   {},
     //   {
     //     headers: { Authorization: `Bearer ${token}` },
@@ -319,7 +319,7 @@ async function initializeDailyTracking(userId, token) {
     // );
     const createRes = await makeAuthenticatedRequest(userId, {
       method: "post",
-      url: "http://localhost:8080/tracking/sessions",
+      url: "http://44.211.37.68:8080/tracking/sessions",
       data: {}, // body payload
     });
     console.log(createRes, "CREATE RESSSSSSSSS");
@@ -333,7 +333,7 @@ async function initializeDailyTracking(userId, token) {
 async function endSession(sessionId, token) {
   try {
     await axios.put(
-      "http://localhost:8080/tracking/sessions/end",
+      "http://44.211.37.68:8080/tracking/sessions/end",
       { sessionId },
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -354,12 +354,12 @@ async function captureScreenshot(userId, token) {
     const sessionId = getSessionId(userId);
     if (!sessionId) return;
 
-    // const user = await axios.get(`http://localhost:8080/users/${userId}`, {
+    // const user = await axios.get(`http://44.211.37.68:8080/users/${userId}`, {
     //   headers: { Authorization: `Bearer ${token}` },
     // });
     const user = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `http://localhost:8080/users/${userId}`,
+      url: `http://44.211.37.68:8080/users/${userId}`,
     });
     console.log(user, "USER USER SUERERER");
     const {
@@ -398,7 +398,7 @@ async function captureScreenshot(userId, token) {
     });
 
     // const res = await axios.post(
-    //   "http://localhost:8080/tracking/sessions/screenshots",
+    //   "http://44.211.37.68:8080/tracking/sessions/screenshots",
     //   formData,
     //   {
     //     headers: {
@@ -409,7 +409,7 @@ async function captureScreenshot(userId, token) {
     // );
     const res = await makeAuthenticatedRequest(userId, {
       method: "post",
-      url: "http://localhost:8080/tracking/sessions/screenshots",
+      url: "http://44.211.37.68:8080/tracking/sessions/screenshots",
       data: formData,
       headers: {
         ...formData.getHeaders(), // Includes `Content-Type: multipart/form-data`
@@ -429,7 +429,7 @@ async function sendActivityToServer(data) {
 
   const user = await makeAuthenticatedRequest(userId, {
     method: "get",
-    url: `http://localhost:8080/users/${userId}`,
+    url: `http://44.211.37.68:8080/users/${userId}`,
   });
   if (!user) return;
   console.log("[Send Activity] User:", user.data);
@@ -459,7 +459,7 @@ async function sendActivityToServer(data) {
       //db save
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://localhost:8080/tracking/sessions/idle",
+        url: "http://44.211.37.68:8080/tracking/sessions/idle",
         data: {
           sessionId,
           duration,
@@ -477,7 +477,7 @@ async function sendActivityToServer(data) {
       //db save
       // await axios
       //   .put(
-      //     "http://localhost:8080/tracking/sessions/active",
+      //     "http://44.211.37.68:8080/tracking/sessions/active",
       //     {
       //       sessionId,
       //       startTime: activeStartMap[userId],
@@ -492,7 +492,7 @@ async function sendActivityToServer(data) {
 
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://localhost:8080/tracking/sessions/active",
+        url: "http://44.211.37.68:8080/tracking/sessions/active",
         data: {
           sessionId,
           startTime: activeStartMap[userId],
@@ -533,7 +533,7 @@ async function sendActivityToServer(data) {
 
           await makeAuthenticatedRequest(userId, {
             method: "put",
-            url: "http://localhost:8080/tracking/sessions/active",
+            url: "http://44.211.37.68:8080/tracking/sessions/active",
             data: {
               sessionId,
               duration,
@@ -562,7 +562,7 @@ async function sendActivityToServer(data) {
 
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://localhost:8080/tracking/sessions/idle",
+        url: "http://44.211.37.68:8080/tracking/sessions/idle",
         data: {
           sessionId,
           startTime: idleStartMap[userId],
@@ -585,7 +585,7 @@ async function sendActivityToServer(data) {
 
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://localhost:8080/tracking/sessions/active",
+        url: "http://44.211.37.68:8080/tracking/sessions/active",
         data: {
           sessionId,
           duration,
