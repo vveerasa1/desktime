@@ -40,7 +40,9 @@ apiServer.post("/store-token", (req, res) => {
   console.log("✅ Token received in Electron:", token);
   console.log("✅ User ID received in Electron:", userId);
   console.log("RefreshToken received in Electron:", refreshToken);
-  // getStoredToken(token);
+  console.log(token);
+
+  //getStoredToken(token);
   setToken(userId, token);
   store.set(`refreshToken_${userId}`, refreshToken);
 
@@ -87,6 +89,8 @@ async function refreshToken(userId) {
 
     const newToken = res.data.accessToken;
     const newRefreshToken = res.data.refreshToken;
+    console.log(newToken);
+    console.log(newRefreshToken);
 
     setToken(userId, newToken);
     store.set(`refreshToken_${userId}`, newRefreshToken);

@@ -2,7 +2,11 @@ const config = require("../config");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} = require("../utils/jwt");
 
 const login = async (req, res) => {
   try {
@@ -31,6 +35,7 @@ const login = async (req, res) => {
     // Token payload
     const payload = {
       userId: user._id,
+      ownerId: user.ownerId,
       role: user.role,
       email: user.email,
       timeZone: user.timeZone,
@@ -38,8 +43,8 @@ const login = async (req, res) => {
 
     // Generate tokens
     const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload); // Optional if you plan to use it
-console.log("Successfully logen in" );
+    const refreshToken = generateRefreshToken(payload);
+
     // Send response
     res.status(200).json({
       code: 200,
@@ -63,13 +68,19 @@ console.log("Successfully logen in" );
 const generateToken = async (req, res) => {
   const { refreshToken } = req.body;
   console.log(refreshToken);
+  console.log(config.auth.REFRESH_SECRET);
   if (!refreshToken)
     return res.status(401).json({ message: "Refresh token required" });
   try {
-    const decoded =  jwt.verify(refreshToken, config.auth.REFRESH_SECRET);
+    // const decoded = await verifyRefreshToken(refreshToken);
+    const decoded = jwt.verify(refreshToken, config.auth.REFRESH_SECRET);
+    console.log(decoded);
+    // req.user = decoded;
+
     const user = await User.findById(decoded.userId);
     const payload = {
       id: user._id,
+      ownerId: user.ownerId,
       mobile: user?.mobile,
       email: user?.email,
       role: user?.role,
