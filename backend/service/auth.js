@@ -39,7 +39,7 @@ const login = async (req, res) => {
     // Generate tokens
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload); // Optional if you plan to use it
-
+console.log("Successfully logen in" );
     // Send response
     res.status(200).json({
       code: 200,
@@ -66,8 +66,8 @@ const generateToken = async (req, res) => {
   if (!refreshToken)
     return res.status(401).json({ message: "Refresh token required" });
   try {
-    const decoded = jwt.verify(refreshToken, config.auth.REFRESH_SECRET);
-    const user = await User.findById(decoded.id);
+    const decoded =  jwt.verify(refreshToken, config.auth.REFRESH_SECRET);
+    const user = await User.findById(decoded.userId);
     const payload = {
       id: user._id,
       mobile: user?.mobile,
@@ -84,6 +84,7 @@ const generateToken = async (req, res) => {
       data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
     });
   } catch (err) {
+    console.log("refresh token getting error expired");
     res.status(403).json({ message: "Refresh token expired or invalid" });
   }
 };

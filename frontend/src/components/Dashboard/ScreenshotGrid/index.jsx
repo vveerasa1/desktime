@@ -15,7 +15,7 @@ const ScreenshotGrid = ({ filters }) => {
   }
   const date = dayjs().format("YYYY-MM-DD");
   const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
-    useGetScreenshotQuery({ id:userId, date: filters.date });
+    useGetScreenshotQuery({ id:userId, date: filters.date,userId });
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const handleImageClick = (index) => {

@@ -9,32 +9,37 @@ export const Dashboard = createApi({
   tagTypes: ['Dashboard'],
   endpoints: (builder) => ({
     getScreenshot: builder.query({
-      query: ({ id, date }) => ({
+      query: ({ id, date, userId }) => ({
         url: `${URL_CONSTANTS.USER}/${id}/${URL_CONSTANTS.SCREENSHOT}`,
         method: 'GET',
-        params: { date },
+        params: { date,userId }
+        
       }),
     }),
 
     getDashboardData: builder.query({
-      query: ({ day, date }) => ({
+      query: ({ day, date, userId }) => ({
         url: `${URL_CONSTANTS.DASHBOARD}`,
         method: 'GET',
         params: {
           type: day,
           date: date,
-        },
+          userId:userId
+        }
+       
       }),
     }),
 
     getProductivityData: builder.query({
-      query: ({ day, date }) => ({
+      query: ({ day, date, userId }) => ({
         url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.PRODUCTIVITY}`,
         method: 'GET',
         params: {
           type: day,
           date: date,
-        },
+          userId: userId
+
+        }
       }),
     }),
   }),
