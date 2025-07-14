@@ -95,6 +95,7 @@ const generateToken = async (req, res) => {
       data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
     });
   } catch (err) {
+    console.log("refresh token getting error expired");
     res.status(403).json({ message: "Refresh token expired or invalid" });
   }
 };

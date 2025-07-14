@@ -14,10 +14,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { useSearchParams } from "react-router-dom";
 import styles from './index.module.css'
+import { jwtDecode } from "jwt-decode";
 const Dashboard = () => {
 
   const [searchParams] = useSearchParams();
-
+  const token = localStorage.getItem('token')
+  let userId = null
+  if(token){
+    const decoded = jwtDecode(token)
+    userId = decoded.userId
+  }
   const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
   const [filters, setFilters] = useState({
     date: date,
@@ -39,10 +45,11 @@ const Dashboard = () => {
   const { data: getDashboardData, isLoading } = useGetDashboardDataQuery({
     day: filters.viewMode,
     date: filters.date,
+    userId:userId
   });
 
   const { data: getProductiviyData, isLoading: isProductivityLoading } =
-    useGetProductivityDataQuery({ day: filters.viewMode, date: filters.date });
+    useGetProductivityDataQuery({ day: filters.viewMode, date: filters.date, userId:userId });
 
   return (
     <Box className={styles.dashboardContainer}>
@@ -76,7 +83,7 @@ const Dashboard = () => {
       {filters.viewMode === "week" || filters.viewMode === "month" ? (
         ""
       ) : (
-        <ScreenshotGrid filters={filters} />
+        <ScreenshotGrid userId={userId} filters={filters} />
       )}
     </Box>
   );

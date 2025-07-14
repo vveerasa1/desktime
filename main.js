@@ -176,7 +176,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://localhost:3000");
+  mainWindow.loadURL("http://localhost:5173");
 
   mainWindow.on("close", (e) => {
     e.preventDefault();
@@ -198,7 +198,7 @@ function createWindow() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    shell.openExternal("http://localhost:3000"); // Opens React app in default browser
+    shell.openExternal("http://localhost:5173"); // Opens React app in default browser
   });
 }
 
