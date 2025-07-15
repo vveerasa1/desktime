@@ -51,10 +51,11 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
         <LoadingComponent />
       ) : (
         <Grid container spacing={3}>
-          {colleaguesData?.length > 0 &&
-            colleaguesData.map((colleague, index) => (
+          {colleaguesData?.users?.length > 0 &&
+            colleaguesData?.users.map((colleague, index) => (
               <Grid item key={index} size={3} className={styles.gridItem}>
                 <Paper className={styles.card} elevation={1}>
+
                   {userRole === "Admin" && (
                     <IconButton
                       size="small"
@@ -69,6 +70,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                     to={`/dashboard/employee=${colleague._id}`}
                   >
                     <Box className={styles.profileBox}>
+                      
                       <Avatar
                         alt={colleague.username}
                         src={colleague.photo}

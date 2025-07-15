@@ -17,16 +17,16 @@ import CustomButton from "../../components/CustomButton";
 import MuiToaster from "../../components/MuiToaster";
 import { SignalCellularNullOutlined } from "@mui/icons-material";
 const Colleagues = () => {
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   let userId = null;
   let role = null;
-  let ownerId = null
+  let ownerId = null;
   if (token) {
     try {
       const decoded = jwtDecode(token);
       userId = decoded?.userId || decoded?.sub;
       role = decoded?.role;
-      ownerId = decoded?.ownerId
+      ownerId = decoded?.ownerId;
     } catch (err) {
       console.error("Invalid token", err);
     }
@@ -35,9 +35,14 @@ const Colleagues = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [open, setOpen] = useState(false);
-  const { data: getProfile, isLoading } = useGetAllProfileQuery({id:ownerId});
-  const [colleaguesData, setColleaguesData] = useState([]);
-
+  const { data: getProfile, isLoading } = useGetAllProfileQuery({
+    id: ownerId,
+  });
+  const [colleaguesData, setColleaguesData] = useState({
+    users: [],
+    activeCount: 0,
+    inactiveCount: 0,
+  });
 
   const { data: currentUserProfile, isError } = useGetSingleProfileQuery(
     userId,
@@ -47,8 +52,12 @@ const Colleagues = () => {
   );
 
   useEffect(() => {
-    if (getProfile) {
-      setColleaguesData(getProfile.data);
+    if (getProfile?.data) {
+      setColleaguesData({
+        users: getProfile.data.users,
+        activeCount: getProfile.data.activeCount,
+        inactiveCount: getProfile.data.inactiveCount,
+      });
     }
   }, [getProfile]);
 
@@ -79,6 +88,8 @@ const Colleagues = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  console.log(colleaguesData, "COLLEAGURE");
   return (
     <>
       <Box className={styles.pageContainer}>
@@ -104,13 +115,13 @@ const Colleagues = () => {
               <Button variant="contained" className={styles.activeBtn}>
                 ACTIVE&nbsp;
                 <Box component="span" className={styles.activeCount}>
-                  10
+                  {colleaguesData.activeCount}
                 </Box>
               </Button>
               <Button variant="contained" className={styles.inactiveBtn}>
                 IN-ACTIVE&nbsp;
                 <Box component="span" className={styles.inactiveCount}>
-                  10
+                  {colleaguesData.inactiveCount}
                 </Box>
               </Button>
             </Box>
