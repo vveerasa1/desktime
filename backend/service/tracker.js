@@ -193,7 +193,6 @@ const endSession = async (req, res) => {
 
 cron.schedule("55 23 * * *", async () => {
   console.log("[CRON] Running sessionStop at 11:59 PM");
-w
   try {
     const sessions = await TrackingSession.find({ leftTime: null });
 

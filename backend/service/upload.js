@@ -50,5 +50,4 @@ const uploadFileToS3 = async (file, folderPath) => {
 module.exports = {
   uploadFile,
   uploadFileToS3,
-  s3
 };
