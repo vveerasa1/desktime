@@ -92,8 +92,9 @@ export const routes = [
         path: "/",
         element: <AppLayout />, // ✅ Only render if authenticated
         children: [
-          { path: "dashboard/:type?", element: <Dashboard /> },
+          { path: "dashboard/:employee?/:type?", element: <Dashboard /> },
           { path: "colleagues/edit/:_id", element: <Profile /> },
+          { path: "colleagues/view/:employee", element: <Dashboard /> },
           { path: "colleagues", element: <Colleagues /> },
           { path: "settings", element: <Profile /> },
           { path: "absence-calendar", element: <AbsenceCalender /> },

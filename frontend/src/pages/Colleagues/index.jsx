@@ -15,25 +15,29 @@ import AddEmployeeModal from "../../components/Colleagues/AddEmployeeModal";
 import styles from "./index.module.css";
 import CustomButton from "../../components/CustomButton";
 import MuiToaster from "../../components/MuiToaster";
+import { SignalCellularNullOutlined } from "@mui/icons-material";
 const Colleagues = () => {
-  const navigate = useNavigate();
-  const [searchText, setSearchText] = useState("");
-  const [open, setOpen] = useState(false);
-  const { data: getProfile, isLoading } = useGetAllProfileQuery();
-  const [colleaguesData, setColleaguesData] = useState([]);
-
-  const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
   let userId = null;
   let role = null;
+  let ownerId = null
   if (token) {
     try {
       const decoded = jwtDecode(token);
       userId = decoded?.userId || decoded?.sub;
       role = decoded?.role;
+      ownerId = decoded?.ownerId
     } catch (err) {
       console.error("Invalid token", err);
     }
   }
+
+  const navigate = useNavigate();
+  const [searchText, setSearchText] = useState("");
+  const [open, setOpen] = useState(false);
+  const { data: getProfile, isLoading } = useGetAllProfileQuery({id:ownerId});
+  const [colleaguesData, setColleaguesData] = useState([]);
+
 
   const { data: currentUserProfile, isError } = useGetSingleProfileQuery(
     userId,
@@ -93,7 +97,6 @@ const Colleagues = () => {
           </IconButton>
         </Box>
       </Box>
-
       <Box className={styles.colleaguesWrapper}>
         <Paper className={styles.paperWrapper}>
           <Box className={styles.actionButtons}>

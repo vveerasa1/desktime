@@ -9,10 +9,10 @@ export const Dashboard = createApi({
   tagTypes: ['Dashboard'],
   endpoints: (builder) => ({
     getScreenshot: builder.query({
-      query: ({ id, date, userId }) => ({
+      query: ({ id, date }) => ({
         url: `${URL_CONSTANTS.USER}/${id}/${URL_CONSTANTS.SCREENSHOT}`,
         method: 'GET',
-        params: { date,userId }
+        params: { date,id:id }
         
       }),
     }),

@@ -79,7 +79,7 @@ const generateToken = async (req, res) => {
 
     const user = await User.findById(decoded.userId);
     const payload = {
-      id: user._id,
+      userId: user._id,
       ownerId: user.ownerId,
       mobile: user?.mobile,
       email: user?.email,

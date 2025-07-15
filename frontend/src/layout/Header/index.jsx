@@ -15,6 +15,7 @@ import { useGetSingleProfileQuery } from '../../redux/services/user';
 
 const Header = () => {
   const token = localStorage.getItem('token');
+  console.log(token,"CHECKING FOR TOKEN")
   let userId = null;
 
   if (token) {
@@ -24,8 +25,9 @@ const Header = () => {
     } catch (err) {
       console.error("Invalid token", err);
     }
-  }
+  } 
 
+  console.log(userId,"CHECKING FOR USER ID")
   const { data: currentUserProfile, isLoading, isError } =
     useGetSingleProfileQuery(userId, {
       skip: !userId
