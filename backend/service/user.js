@@ -27,6 +27,7 @@ const addUser = async (req, res) => {
       trackingEndTime,
       timeZone,
       teamId,
+      ownerId,
     } = req.body;
 
     const password = await generateRandomPassword(); // plain text password
@@ -68,6 +69,8 @@ const addUser = async (req, res) => {
           .split(" ")
           .join("+")}&background=0D8ABC&color=fff`,
         workDuration: durationSeconds,
+        teamId,
+        ownerId,
       });
     } else {
       user = new User({
@@ -92,6 +95,8 @@ const addUser = async (req, res) => {
           .split(" ")
           .join("+")}&background=0D8ABC&color=fff`,
         workDuration: durationSeconds,
+        teamId,
+        ownerId,
       });
     }
 
@@ -227,17 +232,23 @@ const deleteUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const ownerId = req.params;
+    const { ownerId } = req.params;
 
     const users = await User.find({
       isDeleted: false,
       $or: [{ _id: ownerId }, { ownerId: ownerId }],
     });
+    const activeCount = users.filter((user) => user.active === true).length;
+    const inactiveCount = users.filter((user) => user.active === false).length;
     res.status(200).json({
       code: 200,
       status: "Success",
       message: "Users info fetched successfully",
-      data: users,
+      data: {
+        users,
+        activeCount,
+        inactiveCount,
+      },
     });
   } catch (error) {
     console.error("Error fetching users:", error);

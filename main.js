@@ -89,9 +89,9 @@ async function refreshToken(userId) {
 
     const newToken = res.data.accessToken;
     const newRefreshToken = res.data.refreshToken;
-    console.log(newToken);
-    console.log(newRefreshToken);
-
+    console.log("newtoken", newToken);
+    console.log("refresh", newRefreshToken);
+    store.clear();
     setToken(userId, newToken);
     store.set(`refreshToken_${userId}`, newRefreshToken);
     console.log(`[Token Refresh] Refreshed token for user ${userId}`);
@@ -292,7 +292,7 @@ async function startTrackingForUser(userId) {
       } else {
         console.log(`[Sleep Mode] Skipping screenshot for ${userId}`);
       }
-    }, 5 * 60 * 1000),
+    }, 1 * 60 * 1000),
   };
 }
 
