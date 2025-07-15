@@ -5,9 +5,9 @@ const mongoose = require("mongoose");
 // Create a team
 const addTeam = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, ownerId } = req.body;
 
-    const team = new Team({ name });
+    const team = new Team({ name, ownerId });
     await team.save();
 
     res.status(201).json({
@@ -30,11 +30,11 @@ const addTeam = async (req, res) => {
 const updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, teamMembersCount } = req.body;
+    const { name, teamMembersCount, ownerId } = req.body;
 
     const team = await Team.findByIdAndUpdate(
       id,
-      { name, teamMembersCount },
+      { name, teamMembersCount, ownerId },
       { new: true }
     );
 
@@ -96,7 +96,8 @@ const deleteTeam = async (req, res) => {
 // Get all teams
 const getAllTeams = async (req, res) => {
   try {
-    const teams = await Team.find();
+    const { ownerId } = req.params;
+    const teams = await Team.find({ ownerId });
     res.status(200).json({
       code: 200,
       status: "Success",
