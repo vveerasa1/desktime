@@ -5,8 +5,9 @@ const User = require("../models/user");
 const dashboardCard = async (req, res) => {
   try {
     const { type, date } = req.query; // expects type=day|week|month
-    // const user = req.user;
-const {userId} = req.query;
+    const user = req.user;
+    const { userId } = req.query;
+    console.log(user);
     // let userId = user.userId;
 
     const user = await User.findById(userId);

@@ -6,6 +6,7 @@ const config = require("../config");
 const crypto = require("crypto");
 const ScreenshotLog = require("../models/screenshot");
 const trackingSession = require("../models/trackingSession");
+const Team = require("../models/team");
 
 const addUser = async (req, res) => {
   try {
@@ -27,12 +28,15 @@ const addUser = async (req, res) => {
       trackingEndTime,
       timeZone,
       teamId,
+      ownerId,
     } = req.body;
 
     const password = await generateRandomPassword(); // plain text password
     const hashedPassword = await bcrypt.hash(password, 10);
     let durationSeconds = 0;
-    const admin = await User.findById(`${config.adminId.id}`);
+    const admin = await User.findOne({ _id: ownerId });
+    console.log("printing");
+    console.log(admin);
     if (workStartTime && workEndTime) {
       const start = moment(workStartTime, "HH:mm:ss");
       const end = moment(workEndTime, "HH:mm:ss");
@@ -68,6 +72,8 @@ const addUser = async (req, res) => {
           .split(" ")
           .join("+")}&background=0D8ABC&color=fff`,
         workDuration: durationSeconds,
+        teamId,
+        ownerId,
       });
     } else {
       user = new User({
@@ -92,10 +98,14 @@ const addUser = async (req, res) => {
           .split(" ")
           .join("+")}&background=0D8ABC&color=fff`,
         workDuration: durationSeconds,
+        teamId,
       });
     }
 
     await user.save();
+    if (teamId) {
+      await Team.findByIdAndUpdate(teamId, { $inc: { teamMembersCount: 1 } });
+    }
     const transporter = nodemailer.createTransport({
       service: config.smtp?.service,
       auth: {
@@ -181,13 +191,33 @@ const updateUser = async (req, res) => {
     const start = moment(req.body.workStartTime, "HH:mm:ss");
     const end = moment(req.body.workEndTime, "HH:mm:ss");
     let durationSeconds = end.diff(start, "seconds");
+
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({
+        code: 404,
+        status: "Error",
+        message: "User not found",
+      });
+    }
+    const oldTeamId = existingUser.teamId?.toString();
+    const newTeamId = req.body.teamId?.toString();
     const updateData = {
       ...req.body,
       workDuration: durationSeconds,
     };
-    const updatedUser = await User.findOneAndUpdate({ _id: id }, updateData, {
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
       new: true,
     });
+
+    if (newTeamId && oldTeamId && newTeamId !== oldTeamId) {
+      await Team.findByIdAndUpdate(oldTeamId, {
+        $inc: { teamMembersCount: -1 },
+      });
+      await Team.findByIdAndUpdate(newTeamId, {
+        $inc: { teamMembersCount: 1 },
+      });
+    }
     res.status(200).json({
       code: 200,
       status: "Success",
@@ -227,18 +257,23 @@ const deleteUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const {ownerId} = req.params;
+    const { ownerId } = req.params;
 
     const users = await User.find({
       isDeleted: false,
       $or: [{ _id: ownerId }, { ownerId: ownerId }],
     });
-
+    const activeCount = users.filter((user) => user.active === true).length;
+    const inactiveCount = users.filter((user) => user.active === false).length;
     res.status(200).json({
       code: 200,
       status: "Success",
       message: "Users info fetched successfully",
-      data: users,
+      data: {
+        users,
+        activeCount,
+        inactiveCount,
+      },
     });
   } catch (error) {
     console.error("Error fetching users:", error);
