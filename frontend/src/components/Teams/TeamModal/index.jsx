@@ -16,7 +16,6 @@ import {
   useGetSingleTeamQuery,
   useCreateTeamMutation,
   useUpdateTeamMutation,
-  useDeleteTeamMutation,
 } from "../../../redux/services/team";
 import { useEffect } from "react";
 
