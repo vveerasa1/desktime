@@ -1,110 +1,190 @@
-import React from 'react';
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    TextField,
-    Typography,
-    Box
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Typography,
+  Box,
+} from "@mui/material";
+import React, { useState } from "react";
 
-const AddTeamModal = ({ open, handleClose }) => {
-    const [teamName, setTeamName] = React.useState('');
+import { Close as CloseIcon } from "@mui/icons-material";
+import CustomTextField from "../../CustomTextField";
+import {
+  useGetSingleTeamQuery,
+  useCreateTeamMutation,
+  useUpdateTeamMutation,
+  useDeleteTeamMutation,
+} from "../../../redux/services/team";
+import { useEffect } from "react";
 
-    const handleCreate = () => {
-        // Add your team creation logic here
-        console.log('Creating team:', teamName);
-        handleClose(); // Close modal after creation
-    };
+const TeamModal = ({ open, handleClose, teamId, ownerId,openToaster }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    ownerId: ownerId,
+    errors: {
+      name: "",
+    },
+  });
+  const { data: singleTeamsData, isLoading: singleTeamDataIsLoading } =
+    useGetSingleTeamQuery({ id: teamId }, { skip: !teamId });
+  const [createTeam, isLoading] = useCreateTeamMutation();
+  const [updateTeam] = useUpdateTeamMutation();
 
-    // The "Create" button is disabled if there's no team name
-    const isCreateDisabled = teamName.trim() === '';
+  const handleChange = (event, name) => {
+    const { value } = event.target;
 
-    return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            fullWidth
-            maxWidth="sm"
-            PaperProps={{
-                sx: {
-                    borderRadius: 2, // Rounded corners for the dialog
-                },
-            }}
+    let error = "";
+    if (name === "name") {
+      if (!value.trim()) {
+        error = "Team Name is required";
+      } else if (!/^[A-Za-z\s]*$/.test(value)) {
+        error = "Only letters and spaces allowed";
+      }
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        errors: {
+          ...prev.errors,
+          [name]: "",
+        },
+      }));
+    }
+  };
+  const handleSubmit = async () => {
+    try {
+      let hasError = false;
+      const errors = {
+        username: "",
+        email: "",
+      };
+
+      if (!formData.name.trim()) {
+        errors.name = "User Name is required";
+        hasError = true;
+      } else if (!/^[A-Za-z]+(?:\s[A-Za-z]+)*$/.test(formData.name)) {
+        errors.name =
+          "Only letters and spaces allowed, and no leading or trailing spaces";
+        hasError = true;
+      }
+
+      if (hasError) {
+        setFormData((prev) => ({ ...prev, errors }));
+        return;
+      }
+      const payload = {
+        name: formData.name,
+        ownerId: ownerId,
+      };
+      if (teamId) {
+        await updateTeam({ id: teamId, payload: payload });
+        openToaster("Team Updated Successfully!", "success");
+      } else {
+        await createTeam(payload);
+        openToaster("Team Added Successfully!", "success");
+        setFormData({
+          name: "",
+        });
+      }
+
+      handleClose();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        name: "",
+      });
+    }
+  }, [open]);
+  useEffect(() => {
+    if (teamId && singleTeamsData?.data) {
+      setFormData({
+        name: singleTeamsData?.data?.name || "",
+      });
+    }
+  }, [singleTeamsData]);
+
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{
+        sx: {
+          borderRadius: 2, // Rounded corners for the dialog
+        },
+      }}
+    >
+      {/* Custom Title Bar */}
+      <DialogTitle
+        sx={{
+          bgcolor: "#4caf50", // A standard green color
+          color: "common.white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          py: 1.5,
+          px: 2,
+        }}
+      >
+        <Typography variant="h6" component="div" fontWeight="bold">
+          {teamId ? "Edit Team" : "  Add new team"}
+        </Typography>
+        <IconButton onClick={handleClose} sx={{ color: "common.white" }}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      {/* Content */}
+      <DialogContent sx={{ pt: "20px !important", pb: 1 }}>
+        <CustomTextField
+          label="Team Name"
+          name="name"
+          value={formData?.name}
+          handleChange={(e) => handleChange(e, "name")}
+          isRequired
+          error={Boolean(formData.errors?.name)}
+          helperText={formData.errors?.name}
+        />
+      </DialogContent>
+
+      {/* Actions */}
+      <DialogActions sx={{ p: 2 }}>
+        <Button
+          onClick={handleClose}
+          variant="outlined"
+          sx={{
+            textTransform: "none",
+            borderColor: "grey.400",
+            color: "text.primary",
+            mr: 1,
+          }}
         >
-            {/* Custom Title Bar */}
-            <DialogTitle
-                sx={{
-                    bgcolor: '#4caf50', // A standard green color
-                    color: 'common.white',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    py: 1.5,
-                    px: 2,
-                }}
-            >
-                <Typography variant="h6" component="div" fontWeight="bold">
-                    Add new team
-                </Typography>
-                <IconButton onClick={handleClose} sx={{ color: 'common.white' }}>
-                    <CloseIcon />
-                </IconButton>
-            </DialogTitle>
-
-            {/* Content */}
-            <DialogContent sx={{ pt: '20px !important', pb: 1 }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                    Type team name
-                </Typography>
-                <TextField
-                    autoFocus
-                    margin="dense"
-                    id="team-name"
-                    fullWidth
-                    variant="outlined"
-                    placeholder="Team"
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                />
-            </DialogContent>
-
-            {/* Actions */}
-            <DialogActions sx={{ p: 2 }}>
-                <Button
-                    onClick={handleClose}
-                    variant="outlined"
-                    sx={{
-                        textTransform: 'none',
-                        borderColor: 'grey.400',
-                        color: 'text.primary',
-                        mr: 1,
-                    }}
-                >
-                    Close
-                </Button>
-                <Button
-                    onClick={handleCreate}
-                    variant="contained"
-                    disabled={isCreateDisabled}
-                    sx={{
-                        textTransform: 'none',
-                        // Style for the disabled state to match the image
-                        '&.Mui-disabled': {
-                            backgroundColor: 'grey.300',
-                            color: 'grey.500',
-                        },
-                    }}
-                >
-                    Create
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
+          Close
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          sx={{
+            textTransform: "none",
+            // Style for the disabled state to match the image
+            "&.Mui-disabled": {
+              backgroundColor: "grey.300",
+              color: "grey.500",
+            },
+          }}
+        >
+          {teamId ? "Update" : "Create"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 };
 
-export default AddTeamModal;
+export default TeamModal;

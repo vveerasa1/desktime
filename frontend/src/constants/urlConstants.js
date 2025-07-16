@@ -11,5 +11,6 @@ export const URL_CONSTANTS = {
   STORE_TOKEN: "store-token",
   LOGOUT: "logout",
   REFRESH_TOKEN:"auth/refresh",
-  OWNER:'owner'
+  OWNER:'owner',
+  TEAMS:"teams"
 };

@@ -1,125 +1,162 @@
 import React, { useState } from "react";
 import TeamsTable from "../../components/Teams/TeamsTable";
-import {
-  Box,
-  Button,
-  Stack,
-  TextField,
-  Typography,
-  InputAdornment,
-  IconButton,
-} from "@mui/material";
-import { Add, Search as SearchIcon, Sort as SortIcon } from "@mui/icons-material";
+import { Box, Button, Stack, Typography, IconButton } from "@mui/material";
+
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import AddTeamModal from "../../components/Teams/TeamModal";
-// --- Mock Data (replace with your actual API call) ---
-const teamsData = [
-  { id: "t1", name: "CipherBizz Team", teamMembers: 0, created: "2023-10-14" },
-  { id: "t2", name: "Edumpus", teamMembers: 0, created: "2024-06-18" },
-  { id: "t3", name: "Edumpus - QA", teamMembers: 1, created: "2024-09-10" },
-  { id: "t4", name: "Edumpus Portal", teamMembers: 3, created: "2024-09-10" },
-  { id: "t5", name: "HR - Digispoc", teamMembers: 1, created: "2022-11-14" },
-  { id: "t6", name: "IT", teamMembers: 12, created: "2016-06-30" },
-  { id: "t7", name: "IT Pentabay", teamMembers: 11, created: "2021-10-05" },
-  { id: "t8", name: "Management", teamMembers: 1, created: "2016-06-30" },
-];
-
+import TeamModal from "../../components/Teams/TeamModal";
+import { useGetAllTeamQuery } from "../../redux/services/team";
+import { jwtDecode } from "jwt-decode";
+import { useEffect } from "react";
+import LoadingComponent from "../../components/ComponentLoader";
+import MuiToaster from "../../components/MuiToaster";
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 const Teams = () => {
+  const token = localStorage.getItem("token");
+  let ownerId = null;
+  if (token) {
+    let decoded = jwtDecode(token);
+    ownerId = decoded.ownerId;
+  }
   const [selected, setSelected] = useState([]);
-    const [open,setOpen] = useState(false)
+
+  const { data: teamsData, isLoading: teamDataIsLoading } =
+    useGetAllTeamQuery(ownerId);
+  const [getTeamData, setGetTeamData] = useState([]);
+  const [teamId, setTeamId] = useState();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (teamsData?.data) {
+      setGetTeamData(teamsData.data);
+    }
+  }, [teamsData]);
+
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      const newSelected = teamsData.map((n) => n.id);
-      setSelected(newSelected);
-      return;
+      const allIds = getTeamData.map((row) => row._id);
+      setSelected(allIds);
+    } else {
+      setSelected([]);
     }
-    setSelected([]);
   };
 
-  const handleOpen = () =>{
-    setOpen(true)
-  }
-
-  const handleClose = () =>{
-    setOpen(false)
-  }
   const handleSelectOne = (event, id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
+      newSelected = [...selected, id];
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
+      newSelected = selected.slice(1);
     } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
+      newSelected = selected.slice(0, -1);
     } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
+      newSelected = [
+        ...selected.slice(0, selectedIndex),
+        ...selected.slice(selectedIndex + 1),
+      ];
     }
+
     setSelected(newSelected);
   };
 
+  const handleOpen = (id) => {
+    setOpen(true);
+    setTeamId(id);
+    console.log(teamId);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [toaster, setToaster] = useState({
+    open: false,
+    message: "",
+    severity: "success", // or "error"
+  });
+
+  const handleOpenToaster = (message, severity = "success") => {
+    setToaster({ open: true, message, severity });
+  };
+
+  const handleCloseToaster = () => {
+    setToaster({ ...toaster, open: false });
+  };
   return (
-    <Box sx={{ p: 3, margin: "auto" }}>
+    <Box sx={{ p: 2, margin: "auto" }}>
       <Stack spacing={3}>
-        {/* Header */}
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap", 
+            mb: 2, 
           }}
         >
-          <Typography variant="h4" component="h1" fontWeight="bold">
+          {/* Left-aligned Title */}
+          <Typography variant="h5" component="h1" fontWeight="bold">
             Teams
           </Typography>
-          <Button
-            variant="contained"
-            color="success"
-            sx={{ textTransform: "none" }}
-            onClick={()=>{
-                handleOpen()
-            }}
-          >
-            Add new team
-          </Button>
-        </Box>
 
-        {/* Search and Sort Controls */}
-        <Box py={2} display={"flex"} justifyContent={"start"} gap={3}>
-          <Box>
+          {/* Right-aligned controls */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <CustomSearchInput />
-          </Box>
-          <Box>
+
             <IconButton size="small">
               <FilterListIcon fontSize="medium" />
             </IconButton>
+            <Button
+              variant="contained"
+              color="success"
+              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, }}
+              onClick={handleOpen}
+            >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                     <GroupAddIcon  />
+                Add Team
+                </Box>
+               
+            </Button>
           </Box>
         </Box>
 
+        {/* Header */}
+
+        {/* Search and Sort Controls */}
+
         {/* Table */}
-        <TeamsTable
-          teams={teamsData}
-          selected={selected}
-          onSelectAll={handleSelectAll}
-          onSelectOne={handleSelectOne}
+        {teamDataIsLoading ? (
+          <LoadingComponent />
+        ) : (
+          <TeamsTable
+            openToaster={handleOpenToaster}
+            getTeamData={getTeamData}
+            selected={selected}
+            onSelectAll={handleSelectAll}
+            onSelectOne={handleSelectOne}
+            setTeamId={setTeamId}
+            handleOpen={handleOpen}
+            teamId={teamId}
+          />
+        )}
+
+        <TeamModal
+          teamId={teamId}
+          openToaster={handleOpenToaster}
+          ownerId={ownerId}
+          open={open}
+          handleClose={handleClose}
         />
-        <AddTeamModal open={open} handleClose={handleClose}/>
+        <MuiToaster
+          open={toaster.open}
+          message={toaster.message}
+          severity={toaster.severity}
+          handleClose={handleCloseToaster}
+        />
       </Stack>
-      {/* Support Button - using FAB as an example */}
-      <Box sx={{ position: "fixed", bottom: 24, right: 24 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ borderRadius: "50px", p: "10px 20px" }}
-        >
-          Support
-        </Button>
-      </Box>
     </Box>
   );
 };

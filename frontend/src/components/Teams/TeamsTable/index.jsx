@@ -1,148 +1,189 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-    Box,
-    Checkbox,
-    IconButton,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Toolbar,
-    Tooltip,
-    Typography,
-    Menu,
-    MenuItem
-} from '@mui/material';
-import { Delete as DeleteIcon, MoreVert as MoreVertIcon } from '@mui/icons-material';
+  Box,
+  Checkbox,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Button,
+  Popover,
+} from "@mui/material";
+import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
+import { useDeleteTeamMutation } from "../../../redux/services/team";
 
-// Toolbar that appears when items are selected
-const TableToolbar = ({ numSelected }) => (
-    <Toolbar
-        sx={{
-            pl: { sm: 2 },
-            pr: { xs: 1, sm: 1 },
-            bgcolor: 'primary.darker',
-            color: 'common.white',
-            borderRadius: 1,
-            ...(numSelected <= 0 && {
-                display: 'none',
-            }),
-        }}
+const TeamsTable = ({
+  getTeamData,
+  selected,
+  onSelectAll,
+  onSelectOne,
+  handleOpen,
+  openToaster
+}) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [deleteTeamId, setDeleteTeamId] = useState(null);
+  const [deleteTeam] = useDeleteTeamMutation();
+
+  const handleDeleteClick = (event, teamId) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setDeleteTeamId(teamId);
+  };
+
+  const handleClosePopover = () => {
+    setAnchorEl(null);
+    setDeleteTeamId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteTeamId) {
+      try {
+        await deleteTeam(deleteTeamId).unwrap();
+        openToaster("Team Deleted Successfully!", "success");
+
+      } catch (error) {
+        console.error("Failed to delete team:", error);
+      }
+    }
+    handleClosePopover();
+  };
+
+  const open = Boolean(anchorEl);
+
+  return (
+    <Paper
+      sx={{
+        border: "1px solid #e0e0e0",
+        boxShadow: "none",
+      }}
     >
-        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle1" component="div">
-            {numSelected} Teams selected
-        </Typography>
-        <Tooltip title="Delete">
-            <IconButton>
-                <DeleteIcon sx={{ color: 'common.white' }} />
-            </IconButton>
-        </Tooltip>
-    </Toolbar>
-);
 
-const TeamsTable = ({ teams, selected, onSelectAll, onSelectOne }) => {
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [currentItemId, setCurrentItemId] = useState(null);
-
-    const handleMenuClick = (event, id) => {
-        setAnchorEl(event.currentTarget);
-        setCurrentItemId(id);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-        setCurrentItemId(null);
-    };
-
-    return (
-        <Paper sx={{ width: '100%', mb: 2, border: '1px solid #e0e0e0', boxShadow: 'none' }}>
-            <TableToolbar numSelected={selected.length} />
-            {/* The "Select All" bar is custom to match the screenshot */}
-            <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', borderBottom: '1px solid #e0e0e0' }}>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell padding="checkbox">
                 <Checkbox
-                    color="primary"
-                    indeterminate={selected.length > 0 && selected.length < teams.length}
-                    checked={teams.length > 0 && selected.length === teams.length}
-                    onChange={onSelectAll}
-                    inputProps={{ 'aria-label': 'select all teams' }}
+                  color="primary"
+                  indeterminate={
+                    selected.length > 0 &&
+                    selected.length < getTeamData.length
+                  }
+                  checked={
+                    getTeamData.length > 0 &&
+                    selected.length === getTeamData.length
+                  }
+                  onChange={onSelectAll}
+                  inputProps={{ "aria-label": "select all teams" }}
                 />
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Select all</Typography>
-            </Box>
-            <TableContainer>
-                <Table sx={{ minWidth: 750 }}>
-                    <TableHead>
-                        <TableRow>
-                            {/* Empty cell for checkbox padding */}
-                            <TableCell padding="checkbox" /> 
-                            <TableCell>Name</TableCell>
-                            <TableCell>Team members</TableCell>
-                            <TableCell>Created</TableCell>
-                            <TableCell>Edit</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {teams.map((row) => {
-                            const isItemSelected = selected.indexOf(row.id) !== -1;
-                            return (
-                                <TableRow
-                                    hover
-                                    onClick={(event) => onSelectOne(event, row.id)}
-                                    role="checkbox"
-                                    aria-checked={isItemSelected}
-                                    tabIndex={-1}
-                                    key={row.id}
-                                    selected={isItemSelected}
-                                    sx={{ cursor: 'pointer' }}
-                                >
-                                    <TableCell padding="checkbox">
-                                        <Checkbox
-                                            color="primary"
-                                            checked={isItemSelected}
-                                            inputProps={{ 'aria-labelledby': `team-table-checkbox-${row.id}` }}
-                                        />
-                                    </TableCell>
-                                    <TableCell component="th" id={`team-table-checkbox-${row.id}`} scope="row">
-                                        {row.name}
-                                    </TableCell>
-                                    <TableCell>{row.teamMembers}</TableCell>
-                                    <TableCell>
-                                        {new Date(row.created).toLocaleDateString('en-US', {
-                                            month: 'short', day: 'numeric', year: 'numeric'
-                                        })}
-                                    </TableCell>
-                                    <TableCell>
-                                        <IconButton
-                                            aria-label="edit team"
-                                            onClick={(event) => {
-                                                event.stopPropagation(); // Prevent row selection
-                                                handleMenuClick(event, row.id);
-                                            }}
-                                        >
-                                            <MoreVertIcon />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+              </TableCell>
+              <TableCell align="left" sx={{ fontWeight: "bold" }}>
+                Name
+              </TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                Team members
+              </TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                Created
+              </TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                Actions
+              </TableCell>
+            </TableRow>
+          </TableHead>
 
-            {/* Menu for Edit Actions */}
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
+          <TableBody>
+            {getTeamData?.map((row) => {
+              const isItemSelected = selected.indexOf(row._id) !== -1;
+              return (
+                <TableRow
+                  hover
+                  onClick={(event) => onSelectOne(event, row._id)}
+                  role="checkbox"
+                  aria-checked={isItemSelected}
+                  tabIndex={-1}
+                  key={row._id}
+                  selected={isItemSelected}
+                  sx={{ cursor: "pointer" }}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      color="primary"
+                      checked={isItemSelected}
+                      inputProps={{
+                        "aria-labelledby": `team-table-checkbox-${row._id}`,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell align="left">{row.name}</TableCell>
+                  <TableCell align="center">{row.teamMembersCount}</TableCell>
+                  <TableCell align="center">
+                    {new Date(row.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Box display="flex" justifyContent="center" gap={1}>
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpen(row._id);
+                        }}
+                      >
+                        <EditIcon color="primary" />
+                      </IconButton>
+                      <IconButton
+                        onClick={(e) => handleDeleteClick(e, row._id)}
+                      >
+                        <DeleteIcon sx={{ color: "red" }} />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Delete confirmation popover */}
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClosePopover}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <Box sx={{ p: 2, maxWidth: 200 }}>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            Are you sure you want to delete this team?
+          </Typography>
+          <Box display="flex" justifyContent="flex-end" gap={1}>
+            <Button size="small" onClick={handleClosePopover}>
+              Cancel
+            </Button>
+            <Button
+              size="small"
+              color="error"
+              variant="contained"
+              onClick={handleConfirmDelete}
             >
-                <MenuItem onClick={handleMenuClose}>Edit Name</MenuItem>
-                <MenuItem onClick={handleMenuClose}>Manage Members</MenuItem>
-                <MenuItem onClick={handleMenuClose} sx={{ color: 'error.main' }}>Delete Team</MenuItem>
-            </Menu>
-        </Paper>
-    );
+              Delete
+            </Button>
+          </Box>
+        </Box>
+      </Popover>
+    </Paper>
+  );
 };
 
 export default TeamsTable;

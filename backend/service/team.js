@@ -30,11 +30,11 @@ const addTeam = async (req, res) => {
 const updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, teamMembersCount, ownerId } = req.body;
+    const { name, ownerId } = req.body;
 
     const team = await Team.findByIdAndUpdate(
       id,
-      { name, teamMembersCount, ownerId },
+      { name, ownerId },
       { new: true }
     );
 
@@ -114,9 +114,30 @@ const getAllTeams = async (req, res) => {
   }
 };
 
+const getTeamById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const team = await Team.findById(id);
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Team fetched successfully",
+      data: team,
+    });
+  } catch (err) {
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Failed to fetch team",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   addTeam,
   getAllTeams,
   deleteTeam,
   updateTeam,
+  getTeamById
 };
