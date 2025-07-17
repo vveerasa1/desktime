@@ -4,7 +4,7 @@ const {
   getAllTeams,
   deleteTeam,
   updateTeam,
-  getTeamById
+  getTeamById,
 } = require("../service/team");
 // const { authenticate } = require("../utils/middleware");
 const router = express.Router();
