@@ -7,7 +7,7 @@ const moment = require("moment-timezone");
 const tracking = async (req, res) => {
   try {
     const user = req.user;
-    console.log(user);
+    console.log("user :" + user);
     let userId = user.userId;
     let timeZone = user.timeZone;
     const now = moment().tz(timeZone).toDate();
@@ -94,6 +94,50 @@ const idleTimeTracker = async (req, res) => {
     }
     let userId = session.userId;
     const user = await User.findById(userId);
+
+    const endTimeIST = moment(endTime).tz("Asia/Kolkata");
+    const endHour = endTimeIST.hour();
+    const endMin = endTimeIST.minute();
+
+    const [trackingEndHour, trackingEndMin] = user.trackingEndTime
+      .split(":")
+      .map(Number);
+
+    let leftTimeSet = false;
+    if (endHour === trackingEndHour && endMin === trackingEndMin) {
+      const lastActivePeriod =
+        session.activePeriods && session.activePeriods.length > 0
+          ? session.activePeriods[session.activePeriods.length - 1].end
+          : null;
+
+      if (lastActivePeriod) {
+        const lastEndIST = moment(lastActivePeriod).tz("Asia/Kolkata");
+        const lastEndHour = lastEndIST.hour();
+        const lastEndMin = lastEndIST.minute();
+
+        await TrackingSession.findByIdAndUpdate(sessionId, {
+          leftTime: `${lastEndHour}:${
+            lastEndMin < 10 ? "0" + lastEndMin : lastEndMin
+          }`,
+        });
+        leftTimeSet = true;
+        const arrivalIST = moment(session.arrivalTime).tz("Asia/Kolkata");
+
+        const leftIST = arrivalIST
+          .clone()
+          .hour(lastEndHour)
+          .minute(lastEndMin)
+          .second(0);
+
+        // Calculate difference in seconds
+        const timeAtWork = leftIST.diff(arrivalIST, "seconds");
+
+        // Store in session
+        await TrackingSession.findByIdAndUpdate(sessionId, {
+          timeAtWork,
+        });
+      }
+    }
     const canTrack = isWithinTrackingHours(user);
 
     if (!canTrack) {
@@ -140,23 +184,40 @@ const activeTimeTracker = async (req, res) => {
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
     }
-    // if (session.leftTime) {
-    //   return res.status(200).json({ message: "Session already ended" });
-    // }
+
     let userId = session.userId;
-    // const user = await User.findById(userId);
-    // const canTrack = isWithinTrackingHours(user);
-    // if (!canTrack) {
-    //   console.log(
-    //     `User ${user.username} is outside tracking hours or day. Skipping.`
-    //   );
-    //   return;
-    // }
-    // Calculate productivity %
+    const user = await User.findById(userId);
+
+    const endTimeIST = moment(endTime).tz("Asia/Kolkata");
+    const endHour = endTimeIST.hour();
+    const endMin = endTimeIST.minute();
+
+    const [trackingEndHour, trackingEndMin] = user.trackingEndTime
+      .split(":")
+      .map(Number);
+
+    let leftTimeSet = false;
+    if (endHour === trackingEndHour && endMin === trackingEndMin) {
+      // Save leftTime as endTimeIST
+      await TrackingSession.findByIdAndUpdate(sessionId, {
+        leftTime: `${endHour}:${endMin < 10 ? "0" + endMin : endMin}`,
+      });
+      leftTimeSet = true;
+      const arrivalIST = moment(session.arrivalTime).tz("Asia/Kolkata");
+      const leftIST = arrivalIST
+        .clone()
+        .hour(trackingEndHour)
+        .minute(trackingEndMin)
+        .second(0);
+      const timeAtWork = leftIST.diff(arrivalIST, "seconds");
+      await TrackingSession.findByIdAndUpdate(sessionId, {
+        timeAtWork,
+      });
+    }
+
     const fullBlock = 300; // 5 minutes = 300 seconds
     let productivity = (duration / fullBlock) * 100;
     productivity = Math.min(100, Math.round(productivity)); // clamp to 100%
-    console.log("Productivity:", productivity, "%");
     let neutral = 100 - productivity;
     await TrackingSession.findByIdAndUpdate(sessionId, {
       $inc: { totalTrackedTime: duration },
@@ -357,12 +418,9 @@ const getTodaySessionByUserId = async (req, res) => {
       createdAt: { $gte: todayStart, $lte: todayEnd },
     });
 
-    if (!session) {
-      return res.status(404).json({ message: "No session found for today" });
-    }
-
     res.json({ data: session });
   } catch (error) {
+    console.log("Error fetching today's session:", error);
     res.status(500).json({ message: "Failed to fetch today's session", error });
   }
 };

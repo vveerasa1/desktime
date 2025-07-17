@@ -140,19 +140,23 @@ async function makeAuthenticatedRequest(userId, config) {
     return await axios(config);
   } catch (err) {
     if (err.response && err.response.status === 401) {
-      console.warn(`[Auth] Token expired for user ${userId}. Attempting refresh.`);
+      console.warn(
+        `[Auth] Token expired for user ${userId}. Attempting refresh.`
+      );
       const refreshed = await refreshToken(userId);
       if (refreshed) {
         token = getUserState(userId).token; // Get the newly refreshed token
         config.headers.Authorization = `Bearer ${token}`;
         return axios(config); // Retry request with new token
       } else {
-        console.error(`[Auth] Failed to refresh token for user ${userId}. Logging out.`);
+        console.error(
+          `[Auth] Failed to refresh token for user ${userId}. Logging out.`
+        );
         // Optionally, trigger a re-login flow or notify the user
         await stopTrackingForUser(userId); // Stop tracking on persistent auth failure
         // You might want to send an IPC message to the renderer to show a login screen
         if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.webContents.send('auth-failed-relogin', userId);
+          mainWindow.webContents.send("auth-failed-relogin", userId);
         }
         throw new Error(`[Auth Error] Token refresh failed for user ${userId}`);
       }
@@ -170,7 +174,9 @@ async function refreshToken(userId) {
   const userState = getUserState(userId);
   const refreshToken = userState.refreshToken;
   if (!refreshToken) {
-    console.error(`[Token Refresh] No refresh token available for user ${userId}`);
+    console.error(
+      `[Token Refresh] No refresh token available for user ${userId}`
+    );
     return false;
   }
 
@@ -182,10 +188,15 @@ async function refreshToken(userId) {
     const newToken = res.data.accessToken;
     const newRefreshToken = res.data.refreshToken;
     setTokens(userId, newToken, newRefreshToken); // Store new tokens
-    console.log(`[Token Refresh] Successfully refreshed token for user ${userId}`);
+    console.log(
+      `[Token Refresh] Successfully refreshed token for user ${userId}`
+    );
     return true;
   } catch (err) {
-    console.error(`[Token Refresh Failed] for user ${userId}:`, err.response?.data || err.message);
+    console.error(
+      `[Token Refresh Failed] for user ${userId}:`,
+      err.response?.data || err.message
+    );
     return false;
   }
 }
@@ -194,6 +205,7 @@ async function refreshToken(userId) {
 
 apiServer.post("/store-token", async (req, res) => {
   const { token, userId, refreshToken } = req.body;
+
   console.log(`✅ Token received in Electron for user: ${userId}`);
 
   // Set tokens immediately
@@ -201,7 +213,9 @@ apiServer.post("/store-token", async (req, res) => {
 
   try {
     await startTrackingForUser(userId);
-    res.status(200).json({ message: "Token and User ID received, tracking started." });
+    res
+      .status(200)
+      .json({ message: "Token and User ID received, tracking started." });
   } catch (error) {
     console.error(`❌ Error starting tracking for user ${userId}:`, error);
     res.status(500).json({ error: "Failed to start tracking." });
@@ -276,18 +290,26 @@ function createWindow() {
 // --- IPC Main Listener (if you choose to use this for token delivery from renderer) ---
 // Currently, your Express endpoint is the primary method.
 // If you send token via IPC from React: window.electronAPI.sendToken(userId, token, refreshToken);
-ipcMain.on("send-token-from-renderer", async (event, { userId, token, refreshToken }) => {
-  console.log(`[Auth] Received token via IPC for user ${userId}`);
-  setTokens(userId, token, refreshToken);
-  try {
-    await startTrackingForUser(userId);
-    event.sender.send("token-response", "Token received and tracking started.");
-  } catch (error) {
-    console.error(`❌ Error starting tracking via IPC for user ${userId}:`, error);
-    event.sender.send("token-response", `Error: ${error.message}`);
+ipcMain.on(
+  "send-token-from-renderer",
+  async (event, { userId, token, refreshToken }) => {
+    console.log(`[Auth] Received token via IPC for user ${userId}`);
+    setTokens(userId, token, refreshToken);
+    try {
+      await startTrackingForUser(userId);
+      event.sender.send(
+        "token-response",
+        "Token received and tracking started."
+      );
+    } catch (error) {
+      console.error(
+        `❌ Error starting tracking via IPC for user ${userId}:`,
+        error
+      );
+      event.sender.send("token-response", `Error: ${error.message}`);
+    }
   }
-});
-
+);
 
 // --- Core Tracking Logic ---
 
@@ -302,16 +324,20 @@ async function initializeDailyTracking(userId) {
   const today = moment().format("YYYY-MM-DD");
 
   try {
+    console.log("inside get today session api");
     // Check for existing session for today
     const checkRes = await makeAuthenticatedRequest(userId, {
       method: "get",
       url: `http://localhost:8080/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
     });
+    console.log("checkRes :" + checkRes);
 
     if (checkRes.data && checkRes.data.data && checkRes.data.data._id) {
       const existingSessionId = checkRes.data.data._id;
       setSessionDetails(userId, existingSessionId);
-      console.log(`[Session] Continued existing session ${existingSessionId} for user ${userId} on ${today}`);
+      console.log(
+        `[Session] Continued existing session ${existingSessionId} for user ${userId} on ${today}`
+      );
 
       // Check if cutoff has already passed for an existing session
       const user = await fetchUserConfig(userId);
@@ -323,24 +349,28 @@ async function initializeDailyTracking(userId) {
 
       if (currentTime.isAfter(cutoff)) {
         userState.isSessionEndedForDay = true;
-        console.log(`[Tracking] Session for user ${userId} already past cutoff for today.`);
+        console.log(
+          `[Tracking] Session for user ${userId} already past cutoff for today.`
+        );
         // Stop tracking if already past cutoff for the day
         await stopTrackingForUser(userId);
         return null; // Don't proceed with starting timers if already past cutoff
       } else {
         userState.isSessionEndedForDay = false; // Reset if it was set to true previously
         // If it's the same day and within tracking hours, ensure arrival time is set if not already
-        if (!checkRes.data.data.arrivalTime) { // Assuming your session object has arrivalTime
-            await makeAuthenticatedRequest(userId, {
-                method: "put",
-                url: `http://localhost:8080/tracking/sessions/${existingSessionId}/arrival`,
-                data: { arrivalTime: new Date() }
-            }).catch(e => console.error("[Arrival Time Update Error]", e));
+        if (!checkRes.data.data.arrivalTime) {
+          // Assuming your session object has arrivalTime
+          await makeAuthenticatedRequest(userId, {
+            method: "put",
+            url: `http://localhost:8080/tracking/sessions/${existingSessionId}/arrival`,
+            data: { arrivalTime: new Date() },
+          }).catch((e) => console.error("[Arrival Time Update Error]", e));
         }
       }
 
       return existingSessionId;
     } else {
+      console.log("creating session");
       // No existing session for today, create a new one
       const createRes = await makeAuthenticatedRequest(userId, {
         method: "post",
@@ -350,7 +380,9 @@ async function initializeDailyTracking(userId) {
 
       if (createRes.data && createRes.data.sessionId) {
         setSessionDetails(userId, createRes.data.sessionId);
-        console.log(`[Session] Created new session ${createRes.data.sessionId} for user ${userId} on ${today}`);
+        console.log(
+          `[Session] Created new session ${createRes.data.sessionId} for user ${userId} on ${today}`
+        );
         userState.isSessionEndedForDay = false; // New session, so not ended
         return createRes.data.sessionId;
       } else {
@@ -359,7 +391,10 @@ async function initializeDailyTracking(userId) {
       }
     }
   } catch (err) {
-    console.error(`[Session Initialization Error] for user ${userId}:`, err.response?.data || err.message);
+    console.error(
+      `[Session Initialization Error] for user ${userId}:`,
+      err.response?.data || err.message
+    );
     // If initialization fails, prevent tracking from starting
     return null;
   }
@@ -378,7 +413,10 @@ async function fetchUserConfig(userId) {
     });
     return userRes.data.data;
   } catch (error) {
-    console.error(`[User Config Error] Failed to fetch config for user ${userId}:`, error.response?.data || error.message);
+    console.error(
+      `[User Config Error] Failed to fetch config for user ${userId}:`,
+      error.response?.data || error.message
+    );
     throw error; // Re-throw to indicate failure
   }
 }
@@ -390,13 +428,20 @@ async function fetchUserConfig(userId) {
  * @param {string} [app] Application name (for active)
  * @param {string} [title] Window title (for active)
  */
-async function sendActivityToServer(userId, type, appName = null, title = null) {
+async function sendActivityToServer(
+  userId,
+  type,
+  appName = null,
+  title = null
+) {
   const userState = getUserState(userId);
   const now = new Date();
   const sessionId = userState.sessionId;
 
   if (userState.isSessionEndedForDay || !sessionId || !userState.token) {
-    console.log(`[Activity] Skipping send for ${userId}: session ended, no session, or no token.`);
+    console.log(
+      `[Activity] Skipping send for ${userId}: session ended, no session, or no token.`
+    );
     return;
   }
 
@@ -404,7 +449,10 @@ async function sendActivityToServer(userId, type, appName = null, title = null) 
   try {
     userConfig = await fetchUserConfig(userId);
   } catch (error) {
-    console.error(`[Activity] Could not fetch user config for ${userId}, skipping activity send.`, error);
+    console.error(
+      `[Activity] Could not fetch user config for ${userId}, skipping activity send.`,
+      error
+    );
     return;
   }
 
@@ -417,12 +465,16 @@ async function sendActivityToServer(userId, type, appName = null, title = null) 
 
   // If current time is past cutoff, finalize segment and stop tracking
   if (currentTime.isAfter(trackingCutoffMoment)) {
-    console.log(`[Tracking] Cutoff reached for user ${userId}: ${currentTime.format()} > ${trackingCutoffMoment.format()}`);
+    console.log(
+      `[Tracking] Cutoff reached for user ${userId}: ${currentTime.format()} > ${trackingCutoffMoment.format()}`
+    );
     userState.isSessionEndedForDay = true; // Mark session as ended for the day
 
     // Save the final active/idle segment, capped at trackingCutoffMoment
     if (type === "idle" && userState.idleStart) {
-      const duration = Math.floor((trackingCutoffMoment.valueOf() - userState.idleStart.valueOf()) / 1000);
+      const duration = Math.floor(
+        (trackingCutoffMoment.valueOf() - userState.idleStart.valueOf()) / 1000
+      );
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
@@ -437,7 +489,10 @@ async function sendActivityToServer(userId, type, appName = null, title = null) 
       }
       userState.idleStart = null; // Clear state after sending
     } else if (type === "active" && userState.activeStart) {
-      const duration = Math.floor((trackingCutoffMoment.valueOf() - userState.activeStart.valueOf()) / 1000);
+      const duration = Math.floor(
+        (trackingCutoffMoment.valueOf() - userState.activeStart.valueOf()) /
+          1000
+      );
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
@@ -464,7 +519,9 @@ async function sendActivityToServer(userId, type, appName = null, title = null) 
   if (type === "idle") {
     // If user was previously active, close the active segment
     if (userState.activeStart) {
-      const duration = Math.floor((now.valueOf() - userState.activeStart.valueOf()) / 1000);
+      const duration = Math.floor(
+        (now.valueOf() - userState.activeStart.valueOf()) / 1000
+      );
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
@@ -485,14 +542,20 @@ async function sendActivityToServer(userId, type, appName = null, title = null) 
     // Start or continue idle tracking
     if (!userState.idleStart) {
       userState.idleStart = now;
-      console.log(`[Activity] User ${userId} became idle at ${moment(now).format('HH:mm:ss')}`);
+      console.log(
+        `[Activity] User ${userId} became idle at ${moment(now).format(
+          "HH:mm:ss"
+        )}`
+      );
     }
     // Optional: Update idle log periodically if needed, similar to active.
     // For now, it will only log when changing from active to idle.
   } else if (type === "active") {
     // If user was previously idle, close the idle segment
     if (userState.idleStart) {
-      const duration = Math.floor((now.valueOf() - userState.idleStart.valueOf()) / 1000);
+      const duration = Math.floor(
+        (now.valueOf() - userState.idleStart.valueOf()) / 1000
+      );
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
@@ -506,7 +569,11 @@ async function sendActivityToServer(userId, type, appName = null, title = null) 
         }).catch(console.error);
       }
       userState.idleStart = null;
-      console.log(`[Activity] User ${userId} became active at ${moment(now).format('HH:mm:ss')}`);
+      console.log(
+        `[Activity] User ${userId} became active at ${moment(now).format(
+          "HH:mm:ss"
+        )}`
+      );
     }
 
     // Start or continue active tracking
@@ -522,8 +589,13 @@ async function sendActivityToServer(userId, type, appName = null, title = null) 
     userState.lastActiveTitle = title;
 
     // Send active log every ACTIVE_LOG_INTERVAL
-    if (now.valueOf() - userState.lastActiveSentTimestamp.valueOf() >= ACTIVE_LOG_INTERVAL) {
-      const duration = Math.floor((now.valueOf() - userState.activeStart.valueOf()) / 1000);
+    if (
+      now.valueOf() - userState.lastActiveSentTimestamp.valueOf() >=
+      ACTIVE_LOG_INTERVAL
+    ) {
+      const duration = Math.floor(
+        (now.valueOf() - userState.activeStart.valueOf()) / 1000
+      );
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
@@ -554,8 +626,15 @@ async function captureScreenshot(userId) {
   const userState = getUserState(userId);
   const sessionId = userState.sessionId;
 
-  if (userState.isSessionEndedForDay || userState.isSleeping || !sessionId || !userState.token) {
-    console.log(`[Screenshot] Skipping for ${userId}: session ended, sleeping, no session, or no token.`);
+  if (
+    userState.isSessionEndedForDay ||
+    userState.isSleeping ||
+    !sessionId ||
+    !userState.token
+  ) {
+    console.log(
+      `[Screenshot] Skipping for ${userId}: session ended, sleeping, no session, or no token.`
+    );
     return;
   }
 
@@ -563,7 +642,10 @@ async function captureScreenshot(userId) {
   try {
     userConfig = await fetchUserConfig(userId);
   } catch (error) {
-    console.error(`[Screenshot] Could not fetch user config for ${userId}, skipping screenshot.`, error);
+    console.error(
+      `[Screenshot] Could not fetch user config for ${userId}, skipping screenshot.`,
+      error
+    );
     return;
   }
 
@@ -587,7 +669,9 @@ async function captureScreenshot(userId) {
 
     // Skip if screen is locked, or no active window (e.g., desktop)
     if (!win || win.owner.name.toLowerCase().includes("lock") || !win.title) {
-      console.log(`[Screenshot] Skipped: locked screen or no active window for user ${userId}`);
+      console.log(
+        `[Screenshot] Skipped: locked screen or no active window for user ${userId}`
+      );
       return;
     }
 
@@ -616,8 +700,8 @@ async function captureScreenshot(userId) {
   } catch (err) {
     console.error(`[Screenshot Error] for user ${userId}:`, err.message);
     if (err.response) {
-        console.error('Response data:', err.response.data);
-        console.error('Response status:', err.response.status);
+      console.error("Response data:", err.response.data);
+      console.error("Response status:", err.response.status);
     }
   }
 }
@@ -635,7 +719,9 @@ async function startTrackingForUser(userId) {
 
   // Ensure intervals are cleared if they somehow remained from a previous run
   if (Object.keys(userState.intervals).length > 0) {
-    console.log(`[Start Tracking] Clearing existing intervals for user ${userId} before restarting.`);
+    console.log(
+      `[Start Tracking] Clearing existing intervals for user ${userId} before restarting.`
+    );
     Object.values(userState.intervals).forEach(clearInterval);
     userState.intervals = {}; // Reset intervals object
   }
@@ -643,20 +729,26 @@ async function startTrackingForUser(userId) {
   // Initialize daily session (get existing or create new)
   const sessionId = await initializeDailyTracking(userId);
   if (!sessionId) {
-    console.error(`[Start Tracking] Failed to get/create session for user ${userId}. Aborting tracking start.`);
+    console.error(
+      `[Start Tracking] Failed to get/create session for user ${userId}. Aborting tracking start.`
+    );
     return; // Don't start timers if session init failed or cutoff already passed
   }
 
   userState.sessionId = sessionId; // Ensure userState has the current sessionId
   userState.isSessionEndedForDay = false; // Reset for a new valid session
 
-  console.log(`[Start Tracking] Starting timers for user ${userId} with session ${sessionId}`);
+  console.log(
+    `[Start Tracking] Starting timers for user ${userId} with session ${sessionId}`
+  );
 
   // Date Check (once per minute) - to roll over session on new day
   userState.intervals.dateCheck = setInterval(async () => {
     const today = moment().format("YYYY-MM-DD");
     if (today !== userState.sessionDate) {
-      console.log(`[⏰ New Day Detected] for user ${userId}. Rolling over session.`);
+      console.log(
+        `[⏰ New Day Detected] for user ${userId}. Rolling over session.`
+      );
       // Optionally, send a final 'end' for the previous day's session here if desired
       // await endSession(userState.sessionId, userState.token); // If you decide to explicitly end sessions daily
 
@@ -678,7 +770,7 @@ async function startTrackingForUser(userId) {
     if (idleTimeMs >= IDLE_THRESHOLD) {
       await sendActivityToServer(userId, "idle");
     } else {
-      const win = await activeWin().catch(err => {
+      const win = await activeWin().catch((err) => {
         console.error(`[ActiveWin Error] for ${userId}:`, err.message);
         return null;
       });
@@ -686,7 +778,12 @@ async function startTrackingForUser(userId) {
       if (win) {
         // Only send active if the window is truly active and not a lock screen
         if (!win.owner.name.toLowerCase().includes("lock") && win.title) {
-          await sendActivityToServer(userId, "active", win.owner.name, win.title);
+          await sendActivityToServer(
+            userId,
+            "active",
+            win.owner.name,
+            win.title
+          );
         } else {
           // If a lock screen or no title, treat as semi-idle or un-trackable
           await sendActivityToServer(userId, "idle"); // Consider it idle if locked/no valid window
@@ -700,11 +797,14 @@ async function startTrackingForUser(userId) {
 
   // Mouse Poll (every 2 seconds) - to update lastActivityTimestamp, if needed for other logic
   userState.intervals.mousePoll = setInterval(() => {
-    mouse.getPosition().then(() => {
-      userState.lastActivityTimestamp = Date.now();
-    }).catch((err) => {
-      // console.error("[Mouse Error]", err.message); // Too verbose for frequent logging
-    });
+    mouse
+      .getPosition()
+      .then(() => {
+        userState.lastActivityTimestamp = Date.now();
+      })
+      .catch((err) => {
+        // console.error("[Mouse Error]", err.message); // Too verbose for frequent logging
+      });
   }, 2000);
 
   // Screenshot Capture (every SCREENSHOT_INTERVAL)
@@ -743,39 +843,42 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   // But if logout happens mid-segment, ensure it's saved.
   const now = new Date();
   if (userState.sessionId && userState.token) {
-      if (userState.activeStart) {
-          const duration = Math.floor((now.valueOf() - userState.activeStart.valueOf()) / 1000);
-          if (duration > 0) {
-              await makeAuthenticatedRequest(userId, {
-                  method: "put",
-                  url: "http://localhost:8080/tracking/sessions/active",
-                  data: {
-                      sessionId: userState.sessionId,
-                      duration,
-                      startTime: userState.activeStart,
-                      endTime: now,
-                      appName: userState.lastActiveApp,
-                      title: userState.lastActiveTitle,
-                  },
-              }).catch(console.error);
-          }
-      } else if (userState.idleStart) {
-          const duration = Math.floor((now.valueOf() - userState.idleStart.valueOf()) / 1000);
-          if (duration > 0) {
-              await makeAuthenticatedRequest(userId, {
-                  method: "put",
-                  url: "http://localhost:8080/tracking/sessions/idle",
-                  data: {
-                      sessionId: userState.sessionId,
-                      duration,
-                      startTime: userState.idleStart,
-                      endTime: now,
-                  },
-              }).catch(console.error);
-          }
+    if (userState.activeStart) {
+      const duration = Math.floor(
+        (now.valueOf() - userState.activeStart.valueOf()) / 1000
+      );
+      if (duration > 0) {
+        await makeAuthenticatedRequest(userId, {
+          method: "put",
+          url: "http://localhost:8080/tracking/sessions/active",
+          data: {
+            sessionId: userState.sessionId,
+            duration,
+            startTime: userState.activeStart,
+            endTime: now,
+            appName: userState.lastActiveApp,
+            title: userState.lastActiveTitle,
+          },
+        }).catch(console.error);
       }
+    } else if (userState.idleStart) {
+      const duration = Math.floor(
+        (now.valueOf() - userState.idleStart.valueOf()) / 1000
+      );
+      if (duration > 0) {
+        await makeAuthenticatedRequest(userId, {
+          method: "put",
+          url: "http://localhost:8080/tracking/sessions/idle",
+          data: {
+            sessionId: userState.sessionId,
+            duration,
+            startTime: userState.idleStart,
+            endTime: now,
+          },
+        }).catch(console.error);
+      }
+    }
   }
-
 
   // 4. Optionally send end session signal to backend (only on explicit logout or daily rollover end)
   if (endSessionOnBackend && userState.sessionId && userState.token) {
@@ -785,9 +888,14 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
         url: "http://localhost:8080/tracking/sessions/end",
         data: { sessionId: userState.sessionId },
       });
-      console.log(`[Session] Backend session ${userState.sessionId} ended for user ${userId}`);
+      console.log(
+        `[Session] Backend session ${userState.sessionId} ended for user ${userId}`
+      );
     } catch (err) {
-      console.error(`[End Session Error] for user ${userId}:`, err.response?.data || err.message);
+      console.error(
+        `[End Session Error] for user ${userId}:`,
+        err.response?.data || err.message
+      );
     }
   }
 
@@ -805,7 +913,9 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     // but keep tokens for potential auto-resume tomorrow
     store.delete(`session_id_${userId}`);
     store.delete(`session_date_${userId}`);
-    console.log(`[Store] Cleared session data for user ${userId}, kept tokens.`);
+    console.log(
+      `[Store] Cleared session data for user ${userId}, kept tokens.`
+    );
   }
 }
 
@@ -820,15 +930,19 @@ app.whenReady().then(async () => {
     path: app.getPath("exe"),
   });
 
-  deskTimeAutoLauncher.isEnabled().then((isEnabled) => {
-    if (!isEnabled) {
-      deskTimeAutoLauncher.enable().catch(err => console.error("Failed to enable auto-launch:", err));
-      console.log("Auto-launch enabled.");
-    } else {
-      console.log("Auto-launch already enabled.");
-    }
-  }).catch(err => console.error("Error checking auto-launch status:", err));
-
+  deskTimeAutoLauncher
+    .isEnabled()
+    .then((isEnabled) => {
+      if (!isEnabled) {
+        deskTimeAutoLauncher
+          .enable()
+          .catch((err) => console.error("Failed to enable auto-launch:", err));
+        console.log("Auto-launch enabled.");
+      } else {
+        console.log("Auto-launch already enabled.");
+      }
+    })
+    .catch((err) => console.error("Error checking auto-launch status:", err));
 
   // Auto-resume tracking for any stored users on app restart
   const allStoredKeys = store.store;
@@ -843,11 +957,16 @@ app.whenReady().then(async () => {
     userState.refreshToken = store.get(`refreshToken_${userId}`);
 
     if (userState.token) {
-      console.log(`[Auto Resume] Found stored token for user ${userId}. Attempting to resume tracking...`);
+      console.log(
+        `[Auto Resume] Found stored token for user ${userId}. Attempting to resume tracking...`
+      );
       try {
         await startTrackingForUser(userId);
       } catch (error) {
-        console.error(`[Auto Resume Error] Failed to resume tracking for user ${userId}:`, error.message);
+        console.error(
+          `[Auto Resume Error] Failed to resume tracking for user ${userId}:`,
+          error.message
+        );
         // Consider prompting re-login or stopping fully if auto-resume fails
         await stopTrackingForUser(userId, true); // Treat as an implicit logout if it can't resume
       }
@@ -856,8 +975,8 @@ app.whenReady().then(async () => {
 });
 
 // --- Power Monitoring (System Sleep/Resume) ---
-powerMonitor.on('suspend', () => {
-  console.log('[System] Going to sleep...');
+powerMonitor.on("suspend", () => {
+  console.log("[System] Going to sleep...");
   // Mark all active users as sleeping and pause their screenshots
   for (const userId in userTrackingStates) {
     const userState = userTrackingStates[userId];
@@ -871,16 +990,22 @@ powerMonitor.on('suspend', () => {
   }
 });
 
-powerMonitor.on('resume', async () => {
-  console.log('[System] Resumed from sleep...');
+powerMonitor.on("resume", async () => {
+  console.log("[System] Resumed from sleep...");
   // Resume tracking for all users
   for (const userId in userTrackingStates) {
     const userState = userTrackingStates[userId];
     userState.isSleeping = false; // System is awake now
 
     // Re-start screenshot interval if it was running before suspend
-    if (userState.token && !userState.intervals.screenshot && !userState.isSessionEndedForDay) {
-      console.log(`[Resume] Restarting screenshot interval for user ${userId}.`);
+    if (
+      userState.token &&
+      !userState.intervals.screenshot &&
+      !userState.isSessionEndedForDay
+    ) {
+      console.log(
+        `[Resume] Restarting screenshot interval for user ${userId}.`
+      );
       userState.intervals.screenshot = setInterval(() => {
         captureScreenshot(userId);
       }, SCREENSHOT_INTERVAL);
@@ -892,25 +1017,32 @@ powerMonitor.on('resume', async () => {
     const idleTimeSeconds = powerMonitor.getSystemIdleTime();
     const idleTimeMs = idleTimeSeconds * 1000;
     if (idleTimeMs >= IDLE_THRESHOLD) {
-        await sendActivityToServer(userId, "idle");
+      await sendActivityToServer(userId, "idle");
     } else {
-        const win = await activeWin().catch(err => {
-            console.error(`[ActiveWin Error on Resume] for ${userId}:`, err.message);
-            return null;
-        });
-        if (win) {
-            if (!win.owner.name.toLowerCase().includes("lock") && win.title) {
-                await sendActivityToServer(userId, "active", win.owner.name, win.title);
-            } else {
-                await sendActivityToServer(userId, "idle"); // Treat as idle if locked/no valid window
-            }
+      const win = await activeWin().catch((err) => {
+        console.error(
+          `[ActiveWin Error on Resume] for ${userId}:`,
+          err.message
+        );
+        return null;
+      });
+      if (win) {
+        if (!win.owner.name.toLowerCase().includes("lock") && win.title) {
+          await sendActivityToServer(
+            userId,
+            "active",
+            win.owner.name,
+            win.title
+          );
         } else {
-            await sendActivityToServer(userId, "idle");
+          await sendActivityToServer(userId, "idle"); // Treat as idle if locked/no valid window
         }
+      } else {
+        await sendActivityToServer(userId, "idle");
+      }
     }
   }
 });
-
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -919,34 +1051,44 @@ app.on("window-all-closed", () => {
       // For graceful shutdown, attempt to save final segments
       const userState = userTrackingStates[userId];
       if (userState.activeStart) {
-        const duration = Math.floor((Date.now() - userState.activeStart.valueOf()) / 1000);
+        const duration = Math.floor(
+          (Date.now() - userState.activeStart.valueOf()) / 1000
+        );
         if (duration > 0 && userState.sessionId && userState.token) {
-          makeAuthenticatedRequest(userId, { // Use makeAuthenticatedRequest
-              method: "put",
-              url: "http://localhost:8080/tracking/sessions/active",
-              data: {
-                  sessionId: userState.sessionId,
-                  duration,
-                  startTime: userState.activeStart,
-                  endTime: new Date(),
-                  appName: userState.lastActiveApp,
-                  title: userState.lastActiveTitle,
-              }
-          }).catch(e => console.error("Failed to save final active segment on quit:", e));
+          makeAuthenticatedRequest(userId, {
+            // Use makeAuthenticatedRequest
+            method: "put",
+            url: "http://localhost:8080/tracking/sessions/active",
+            data: {
+              sessionId: userState.sessionId,
+              duration,
+              startTime: userState.activeStart,
+              endTime: new Date(),
+              appName: userState.lastActiveApp,
+              title: userState.lastActiveTitle,
+            },
+          }).catch((e) =>
+            console.error("Failed to save final active segment on quit:", e)
+          );
         }
       } else if (userState.idleStart) {
-        const duration = Math.floor((Date.now() - userState.idleStart.valueOf()) / 1000);
+        const duration = Math.floor(
+          (Date.now() - userState.idleStart.valueOf()) / 1000
+        );
         if (duration > 0 && userState.sessionId && userState.token) {
-          makeAuthenticatedRequest(userId, { // Use makeAuthenticatedRequest
-              method: "put",
-              url: "http://localhost:8080/tracking/sessions/idle",
-              data: {
-                  sessionId: userState.sessionId,
-                  duration,
-                  startTime: userState.idleStart,
-                  endTime: new Date(),
-              }
-          }).catch(e => console.error("Failed to save final idle segment on quit:", e));
+          makeAuthenticatedRequest(userId, {
+            // Use makeAuthenticatedRequest
+            method: "put",
+            url: "http://localhost:8080/tracking/sessions/idle",
+            data: {
+              sessionId: userState.sessionId,
+              duration,
+              startTime: userState.idleStart,
+              endTime: new Date(),
+            },
+          }).catch((e) =>
+            console.error("Failed to save final idle segment on quit:", e)
+          );
         }
       }
       stopTrackingForUser(userId); // This will clear intervals
