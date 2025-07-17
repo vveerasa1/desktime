@@ -10,46 +10,78 @@ import {
   useGetProductivityDataQuery,
 } from "../../redux/services/dashboard";
 import LoadingComponent from "../../components/ComponentLoader";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { useSearchParams } from "react-router-dom";
-import styles from './index.module.css'
+import styles from "./index.module.css";
 import { jwtDecode } from "jwt-decode";
-const Dashboard = () => {
 
+const Dashboard = () => {
   const [searchParams] = useSearchParams();
-  const token = localStorage.getItem('token')
-  let userId = null
-  if(token){
-    const decoded = jwtDecode(token)
-    userId = decoded.userId
+  const navigate = useNavigate();
+  let { type, employee } = useParams();
+  console.log(employee, "EMPLOYEE ID");
+  employee = employee?.split("=")?.[1];
+  console.log(employee, "EMPLOYEE ID");
+
+  const token = localStorage.getItem("token");
+  let decodedUserId = null;
+  if (token) {
+    const decoded = jwtDecode(token);
+    decodedUserId = decoded.userId;
   }
+
+  const userId = employee || decodedUserId || employee;
+
   const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
+  const viewMode = searchParams.get("view") || "day";
+
   const [filters, setFilters] = useState({
     date: date,
-    viewMode: "day",
+    viewMode: viewMode,
   });
-  const viewMode = searchParams.get("view") || "day";
-  const navigate = useNavigate();
-  const { type } = useParams();
 
   const memoizedSetFilters = useCallback((newFilters) => {
     setFilters(newFilters);
   }, []);
 
+  // Ensure all required searchParams exist
   useEffect(() => {
-    if (!searchParams.get("view") || !searchParams.get("date")) {
-      navigate(`/dashboard?view=${viewMode}&date=${date}`, { replace: true });
+    const currentParams = new URLSearchParams(searchParams);
+    let shouldRedirect = false;
+
+    if (!currentParams.get("view")) {
+      currentParams.set("view", viewMode);
+      shouldRedirect = true;
     }
-  }, [searchParams, viewMode, date, navigate]);
+
+    if (!currentParams.get("date")) {
+      currentParams.set("date", date);
+      shouldRedirect = true;
+    }
+
+    if (employee && !currentParams.get("employee")) {
+      currentParams.set("employee", employee);
+      shouldRedirect = true;
+    }
+
+    // if (shouldRedirect) {
+    //   // http://localhost:5173/dashboard/6874d46ccb3beb5d99f1a344?view=day&date=2025-07-15&employee=6874d46ccb3beb5d99f1a344/
+    //   navigate(`/dashboard/${employee || ""}?${currentParams.toString()}/?view=day&date=${new Date()}`, { replace: true });
+    // }
+  }, [searchParams, viewMode, date, employee, navigate]);
+
   const { data: getDashboardData, isLoading } = useGetDashboardDataQuery({
     day: filters.viewMode,
     date: filters.date,
-    userId:userId
+    userId: userId || employee,
   });
 
   const { data: getProductiviyData, isLoading: isProductivityLoading } =
-    useGetProductivityDataQuery({ day: filters.viewMode, date: filters.date, userId:userId });
+    useGetProductivityDataQuery({
+      day: filters.viewMode,
+      date: filters.date,
+      userId: userId,
+    });
 
   return (
     <Box className={styles.dashboardContainer}>
@@ -71,19 +103,15 @@ const Dashboard = () => {
           <ProductivityBar getProductiviyData={getProductiviyData} />
         ))}
 
-      {filters.viewMode === "month" ? (
+      {filters.viewMode === "month" && (
         <EmployeeCalendar
           getProductiviyData={getProductiviyData}
           filters={filters}
         />
-      ) : (
-        ""
       )}
 
-      {filters.viewMode === "week" || filters.viewMode === "month" ? (
-        ""
-      ) : (
-        <ScreenshotGrid userId={userId} filters={filters} />
+      {filters.viewMode === "day" && (
+        <ScreenshotGrid employee={employee} filters={filters} />
       )}
     </Box>
   );

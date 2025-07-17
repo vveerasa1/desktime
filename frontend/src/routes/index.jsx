@@ -10,7 +10,7 @@ const Colleagues = lazy(() => import("../pages/Colleagues"));
 const ForgotPassword = lazy(() => import("../pages/Auth/ForgotPassword"));
 const OtpVerify = lazy(() => import("../pages/Auth/OtpVerify"));
 const ResetPassword = lazy(() => import("../pages/Auth/ResetPassword"));
-
+const Teams = lazy(() =>import('../pages/Teams'))
 // export const routes = [
 //   {
 //     path: "/", // ✅ Root path shows Login
@@ -92,12 +92,15 @@ export const routes = [
         path: "/",
         element: <AppLayout />, // ✅ Only render if authenticated
         children: [
-          { path: "dashboard/:type?", element: <Dashboard /> },
+          { path: "dashboard/:employee?/:type?", element: <Dashboard /> },
           { path: "colleagues/edit/:_id", element: <Profile /> },
+          { path: "colleagues/view/:employee", element: <Dashboard /> },
           { path: "colleagues", element: <Colleagues /> },
           { path: "settings", element: <Profile /> },
           { path: "absence-calendar", element: <AbsenceCalender /> },
           { path: "projects", element: <Projects /> },
+          { path: "teams", element: <Teams /> },
+
         ],
       },
     ],

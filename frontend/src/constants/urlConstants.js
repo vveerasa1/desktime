@@ -12,5 +12,7 @@ export const URL_CONSTANTS = {
   ELECTRON_BASE_URL: "http://localhost:3100/",
   STORE_TOKEN: "store-token",
   LOGOUT: "logout",
-  REFRESH_TOKEN: "auth/refresh",
+  REFRESH_TOKEN:"auth/refresh",
+  OWNER:'owner',
+  TEAMS:"teams"
 };

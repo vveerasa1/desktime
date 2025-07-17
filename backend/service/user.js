@@ -258,7 +258,6 @@ const deleteUser = async (req, res) => {
 const getAllUser = async (req, res) => {
   try {
     const { ownerId } = req.params;
-
     const users = await User.find({
       isDeleted: false,
       $or: [{ _id: ownerId }, { ownerId: ownerId }],

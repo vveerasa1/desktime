@@ -5,11 +5,13 @@ const User = require("../models/user");
 const dashboardCard = async (req, res) => {
   try {
     const { type, date } = req.query; // expects type=day|week|month
-    const user = req.user;
-    const { userId } = req.query;
-    console.log(user);
+    // const user = req.user;
+const {userId} = req.query;
     // let userId = user.userId;
+
+    const user = await User.findById(userId);
     let timeZone = user.timeZone;
+    console.log(date)
 
     let result = {};
     if (type === "day") {
@@ -58,6 +60,7 @@ const dashboardCard = async (req, res) => {
           (acc, p) => acc + (p.duration || 0),
           0
         );
+        console.log(activeTime)
         deskTime = activeTime ? activeTime : 0;
         // timeAtWork = deskTime - idleTime;
       }
@@ -170,10 +173,12 @@ const formatDuration = (seconds) => {
 
 const dashboardProductivityTime = async (req, res) => {
   try {
-    const { type, date } = req.query;
-    const user = req.user;
-    const userId = user.userId;
-    const timeZone = user.timeZone;
+    const { type, date,userId } = req.query;
+    const user = await User.findById(userId);
+    // const user = req.user;
+    // const userId = user.userId;
+    let timeZone = user.timeZone;
+    console.log("user",user)
 
     if (type === "day") {
       const targetDate = date || moment().tz(timeZone).format("YYYY-MM-DD");
@@ -234,6 +239,7 @@ const dashboardProductivityTime = async (req, res) => {
       const baseMoment = date
         ? moment(date).tz(timeZone) // custom date given
         : moment().tz(timeZone); // default to today
+        console.log("base",baseMoment)
       const startOfWeek = baseMoment.clone().startOf("isoWeek"); // Monday
       const endOfWeek = baseMoment.clone().endOf("isoWeek"); // Sunday
 
