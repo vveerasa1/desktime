@@ -56,7 +56,7 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth, op
           <MenuOpenIcon />
           {   !isMobile && mobileOpen && (
             <Typography variant="h6" className={styles.logoText}>
-              DeskTime
+              TrackMe
             </Typography>
           )}
         </Box>

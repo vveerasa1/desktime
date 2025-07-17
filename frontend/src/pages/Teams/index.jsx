@@ -110,12 +110,11 @@ const Teams = () => {
             </IconButton>
             <Button
               variant="contained"
-              color="success"
-              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, }}
+              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#1564bf"}}
               onClick={handleOpen}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                     <GroupAddIcon  />
+                     <GroupAddIcon   />
                 Add Team
                 </Box>
                

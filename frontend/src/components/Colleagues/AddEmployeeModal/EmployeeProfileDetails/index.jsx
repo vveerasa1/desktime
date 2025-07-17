@@ -1,8 +1,8 @@
 import { Grid, Box } from "@mui/material";
 import CustomTextField from "../../../../components/CustomTextField";
 import styles from './index.module.css';
-
-const EmployeeProfileDetails = ({ formData, handleChange }) => {
+import CustomDropdown from "../../../CustomDropDown";
+const EmployeeProfileDetails = ({ formData, handleChange,handleSelect,getTeamsData }) => {
   return (
     <Grid>
       <Box className={styles.container}>
@@ -18,7 +18,7 @@ const EmployeeProfileDetails = ({ formData, handleChange }) => {
             helperText={formData.errors?.username}
           />
         </Box>
-        <Box mt={2.5}>
+        <Box mt={2}>
           <CustomTextField
             label="Email"
             name="email"
@@ -28,6 +28,18 @@ const EmployeeProfileDetails = ({ formData, handleChange }) => {
             isRequired
             error={Boolean(formData.errors?.email)}
             helperText={formData.errors?.email}
+          />
+        </Box>
+        <Box mt={2}>
+          <CustomDropdown
+            label="Team"
+            name="team"
+            selectedValue={formData?.team}
+            options={getTeamsData}
+            handleSelect={(event) => handleSelect(event, "team")}
+            isRequired
+            error={Boolean(formData.errors?.team)}
+            helperText={formData.errors?.team}
           />
         </Box>
       </Box>
