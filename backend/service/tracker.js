@@ -341,7 +341,31 @@ const getSessionById = async (req, res) => {
       .json({ message: "Error checking session status", error: err.message });
   }
 };
+const getTodaySessionByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required in params" });
+    }
 
+    // Use server timezone or set as needed
+    const todayStart = moment().startOf("day").toDate();
+    const todayEnd = moment().endOf("day").toDate();
+
+    const session = await TrackingSession.findOne({
+      userId,
+      createdAt: { $gte: todayStart, $lte: todayEnd },
+    });
+
+    if (!session) {
+      return res.status(404).json({ message: "No session found for today" });
+    }
+
+    res.json({ data: session });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch today's session", error });
+  }
+};
 module.exports = {
   tracking,
   idleTimeTracker,
@@ -349,4 +373,5 @@ module.exports = {
   endSession,
   getUserTrackingInfo,
   getSessionById,
+  getTodaySessionByUserId,
 };
