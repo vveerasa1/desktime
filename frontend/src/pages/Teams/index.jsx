@@ -65,8 +65,13 @@ const Teams = () => {
 
   const handleOpen = (id) => {
     setOpen(true);
+     if (id) {
     setTeamId(id);
-    console.log(teamId);
+    console.log(id, "EDIT: teamId set");
+  } else {
+    setTeamId(undefined);
+    console.log("ADD: No teamId (creating new team)");
+  }
   };
 
   const handleClose = () => {
@@ -114,7 +119,7 @@ const Teams = () => {
             <Button
               variant="contained"
               sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#1564bf"}}
-              onClick={handleOpen}
+              onClick={()=>handleOpen()}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                      <GroupAddIcon   />
