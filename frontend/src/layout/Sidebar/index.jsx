@@ -18,17 +18,19 @@ import {
   EventBusy as EventBusyIcon,
   Settings as SettingsIcon,
   PowerSettingsNew as PowerSettingsNewIcon,
-  Folder as FolderIcon
+  Folder as FolderIcon,
 } from "@mui/icons-material";
+import GroupsIcon from '@mui/icons-material/Groups';
 
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
 import styles from "./index.module.css";
 
 const navItems = [
-  { label: "My DeskTime", path: "/dashboard", icon: <DashboardIcon /> },
+  { label: "My Tracking", path: "/dashboard", icon: <DashboardIcon /> },
   { label: "Colleagues", path: "/colleagues", icon: <PeopleIcon /> },
   { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
   { label: "Projects", path: "/projects", icon: <FolderIcon /> },
+  { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
   { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   { label: "Logout", icon: <PowerSettingsNewIcon /> },
 ];
@@ -54,7 +56,7 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth, op
           <MenuOpenIcon />
           {   !isMobile && mobileOpen && (
             <Typography variant="h6" className={styles.logoText}>
-              DeskTime
+              TrackMe
             </Typography>
           )}
         </Box>

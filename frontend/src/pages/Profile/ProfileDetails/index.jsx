@@ -1,5 +1,3 @@
-import React from "react";
-import { useState } from "react";
 import { Grid, Paper, Typography, Box, Avatar, Button } from "@mui/material";
 import CustomTextField from "../../../components/CustomTextField";
 import CustomDropdown from "../../../components/CustomDropDown";
@@ -13,7 +11,7 @@ const ProfileDeatils = ({
   genderOptions,
   roleOptions,
   timeZoneOptions,
-  teamOptions,
+  getTeamsOptions,
   handlePhoneChange,
   profileDetails,
   handleBlur,
@@ -112,8 +110,8 @@ const ProfileDeatils = ({
           <CustomDropdown
             label="Team"
             name="team"
-            selectedValue={formData.team}
-            options={teamOptions}
+            selectedValue={formData?.team}
+            options={getTeamsOptions}
             handleSelect={(e) => handleSelect(e, "team")}
             placeholder="Select Team"
              disabled={role !== "Admin"} 

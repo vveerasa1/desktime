@@ -23,8 +23,8 @@ export const User = createApi({
       invalidatesTags:['User']
     }),
     getAllProfile:builder.query({
-        query:()=>({
-            url:URL_CONSTANTS.USER,
+        query:({id})=>({
+            url:`${URL_CONSTANTS.USER}/${URL_CONSTANTS.OWNER}/${id}`,
             method:'GET',
         }),
         providesTags:['User']

@@ -6,16 +6,19 @@ import { useState } from "react";
 import styles from './index.module.css'
 import ImagePreviewModal from "../ImagePreviewModal";
 import { jwtDecode } from "jwt-decode";
-const ScreenshotGrid = ({ filters }) => {
+const ScreenshotGrid = ({ filters,employee }) => {
+  console.log(employee,"ScreeNSHOT EMPLOYEEE")
   const token = localStorage.getItem('token')
   let userId = null
   if(token){
     const decoded = jwtDecode(token)
-    userId = decoded.userId
+    userId = decoded.userId || employee
   }
+
+
   const date = dayjs().format("YYYY-MM-DD");
   const { data: getScreenshots, isLoading: getScreenshotIsLoading } =
-    useGetScreenshotQuery({ id:userId, date: filters.date });
+useGetScreenshotQuery({ id: employee || userId, date: filters.date });
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const handleImageClick = (index) => {

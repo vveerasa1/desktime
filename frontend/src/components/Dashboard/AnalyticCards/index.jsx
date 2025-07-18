@@ -21,7 +21,6 @@ const formatSecondsToHHMM = (seconds) => {
 
 const AnalyticCards = ({ getDashboardData }) => {
   const dashboardData = getDashboardData?.data || {};
-
   const dynamicStatCards = useMemo(() => {
     return statCardsData.map((card) => {
       switch (card.title) {
@@ -36,13 +35,10 @@ const AnalyticCards = ({ getDashboardData }) => {
         case "Left time":
           return {
             ...card,
-            value:
-              dashboardData.leftTime === null
-                ? "ONLINE"
-                : dashboardData.leftTime
-                ? moment(dashboardData.leftTime, "HH:mm:ss").format("HH:mm")
-                : "--",
-            valueColor: dashboardData.leftTime === null ? "#FFA500" : undefined,
+            value: dashboardData.leftTime
+              ? moment(dashboardData.leftTime, "HH:mm:ss").format("HH:mm")
+              : "ONLINE",
+            valueColor: !dashboardData.leftTime ? "#FFA500" : undefined,
           };
 
         case "Desktime time":
@@ -77,7 +73,7 @@ const AnalyticCards = ({ getDashboardData }) => {
   }, [dynamicStatCards]);
 
   return (
-    <Grid container sx={{width:'100%'}}>
+    <Grid container sx={{ width: "100%" }}>
       <Box className={styles.container}>
         <TrackingCard orderedCards={orderedCards} />
         <ProjectCard />

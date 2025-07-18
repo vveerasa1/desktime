@@ -48,3 +48,22 @@
 .emailIcon{
     color: grey;
 }
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+}
+
+.activeDot {
+  background-color: #4caf50; /* Green */
+}
+
+.inactiveDot {
+  background-color: #f44336; /* Red */
+}
+

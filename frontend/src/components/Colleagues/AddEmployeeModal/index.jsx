@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Grid,
   Typography,
@@ -11,18 +11,60 @@ import {
 import { useCreateProfileMutation } from "../../../redux/services/user";
 import EmployeeProfileDetails from "./EmployeeProfileDetails";
 import CustomButton from "../../../components/CustomButton";
+import { useGetAllTeamQuery } from "../../../redux/services/team";
+import { jwtDecode } from "jwt-decode";
 const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
+  const token = localStorage.getItem("token");
+  let ownerId = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      ownerId = decoded?.ownerId;
+    } catch (err) {
+      console.error("Invalid token", err);
+    }
+  }
+const [getTeamsData, setGetTeamsData] = useState([]);
+
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
+const {
+  data: teamsData,
+  isLoading,
+  isError,
+  isSuccess,
+} = useGetAllTeamQuery(ownerId, {
+  skip: !ownerId,
+});
 
+// Memoize formatted team data only when it's available
+const formattedTeams = useMemo(() => {
+  if (isSuccess && Array.isArray(teamsData?.data)) {
+    return teamsData.data.map((team) => ({
+      id: team._id,
+      name: team.name,
+
+    }));
+  }
+  return [];
+}, [isSuccess, teamsData]);
+useEffect(() => {
+  if (formattedTeams.length > 0) {
+    setGetTeamsData(formattedTeams); // this assumes you have a state setter
+  }
+}, [formattedTeams]);
+console.log(formattedTeams, "formatted data")
+  console.log(teamsData?.data, "TEAMS DATA IN ADD EMPLOYEE MODAL");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    team:"",
     errors: {
       username: "",
       email: "",
     },
   });
+
 
   const handleChange = (event, name) => {
     const { value } = event.target;
@@ -66,6 +108,7 @@ const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
     const errors = {
       username: "",
       email: "",
+      team:"",
     };
 
     if (!formData.username.trim()) {
@@ -84,16 +127,21 @@ const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
       errors.email = "Invalid email format";
       hasError = true;
     }
+     if (!formData.team) {
+      errors.team = "Team is required";
+    }
 
     if (hasError) {
       setFormData((prev) => ({ ...prev, errors }));
       return;
     }
-
+    // const
     try {
       const payload = {
         username: formData.username.trim(),
         email: formData.email,
+        team:formData.team,
+        ownerId,
       };
 
       await createProfileApi(payload).unwrap();
@@ -102,16 +150,19 @@ const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
         setFormData({
           username: "",
           email: "",
-          errors: { username: "", email: "" },
+          team:"",
+          errors: { username: "", email: "" ,team:"" },
         });
       }, 2000);
       // Clear form and errors
       setFormData({
         username: "",
         email: "",
+        team:"",
         errors: {
           username: "",
           email: "",
+        team:""
         },
       });
       handleClose();
@@ -119,7 +170,20 @@ const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
       console.error("Error submitting form:", error);
     }
   };
-
+  console.log(formData,"formdata")
+  const handleSelect = (event,name) =>{
+    console.log(event,"EVENT",name,"NAMEM")
+    const { value } = event.target;
+    console.log(value,"VALUE")
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
+  }
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogTitle>Add New Employee</DialogTitle>
@@ -128,6 +192,8 @@ const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
           <EmployeeProfileDetails
             formData={formData}
             handleChange={handleChange}
+            handleSelect={handleSelect}
+            getTeamsData={getTeamsData}
           />
         </Grid>
       </DialogContent>
