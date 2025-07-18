@@ -26,7 +26,7 @@ import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
 import styles from "./index.module.css";
 
 const navItems = [
-  { label: "My DeskTime", path: "/dashboard", icon: <DashboardIcon /> },
+  { label: "My Tracking", path: "/dashboard", icon: <DashboardIcon /> },
   { label: "Colleagues", path: "/colleagues", icon: <PeopleIcon /> },
   { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
   { label: "Projects", path: "/projects", icon: <FolderIcon /> },

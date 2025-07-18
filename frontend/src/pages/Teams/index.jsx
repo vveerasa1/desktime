@@ -14,9 +14,11 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 const Teams = () => {
   const token = localStorage.getItem("token");
   let ownerId = null;
+  let role = null;
   if (token) {
     let decoded = jwtDecode(token);
     ownerId = decoded.ownerId;
+    role = decoded.role;
   }
   const [selected, setSelected] = useState([]);
 
@@ -108,6 +110,7 @@ const Teams = () => {
             <IconButton size="small">
               <FilterListIcon fontSize="medium" />
             </IconButton>
+            
             <Button
               variant="contained"
               sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#1564bf"}}

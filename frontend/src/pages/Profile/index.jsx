@@ -15,6 +15,7 @@ import { jwtDecode } from "jwt-decode";
 import styles from "./index.module.css";
 import { useGetAllTeamQuery } from "../../redux/services/team";
 import { useNavigate } from "react-router-dom";
+import LoadingComponent from "../../components/ComponentLoader";
 const Profile = () => {
   const navigate = useNavigate();
   const { _id: paramId } = useParams();
@@ -428,7 +429,7 @@ useEffect(() => {
   if (getSingleProfileApiIsLoading) {
     return (
       <Box className={styles.loadingBox}>
-        <Typography variant="h6">Loading profile...</Typography>
+        <Typography variant="h6"><LoadingComponent/></Typography>
       </Box>
     );
   }
