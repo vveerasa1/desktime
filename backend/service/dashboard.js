@@ -71,9 +71,9 @@ const dashboardCard = async (req, res) => {
           .tz(timeZone)
           .format("HH:mm:ss"),
         leftTime: session?.leftTime,
-        deskTime, // in seconds
-        idleTime, // in seconds
-        timeAtWork, // in seconds
+        deskTime,
+        idleTime,
+        timeAtWork,
       };
     } else if (type === "week" || type === "month") {
       const baseDate = date
@@ -109,7 +109,6 @@ const dashboardCard = async (req, res) => {
       }
 
       let totalDeskTime = 0;
-      let totalIdleTime = 0;
       let totalTimeAtWork = 0;
       let totalArrivalTime = 0;
       let totalLeftTime = 0;
@@ -118,8 +117,6 @@ const dashboardCard = async (req, res) => {
 
       sessions.forEach((session) => {
         const arrival = moment(session.arrivalTime).tz(timeZone);
-        const left = session.leftTime;
-
         const timeAtWork = session.timeAtWork;
         const activeTime = (session.activePeriods || []).reduce(
           (acc, p) => acc + (p.duration || 0),
@@ -128,11 +125,13 @@ const dashboardCard = async (req, res) => {
         const desktime = activeTime ? activeTime : 0;
 
         totalDeskTime += desktime;
-        // totalIdleTime += idleTime;
         totalTimeAtWork += timeAtWork;
         totalArrivalTime += arrival.valueOf(); // milliseconds
         if (session?.leftTime) {
-          totalLeftTime += left.valueOf();
+          const leftMoment = moment(session.leftTime, "HH:mm");
+          const durationFromStart =
+            leftMoment.hours() * 3600 * 1000 + leftMoment.minutes() * 60 * 1000;
+          totalLeftTime += durationFromStart;
           leftCount++;
         }
         count++;
@@ -142,10 +141,9 @@ const dashboardCard = async (req, res) => {
         type,
         arrivalTime: moment(totalArrivalTime / count).format("HH:mm:ss"),
         leftTime: leftCount
-          ? moment(totalLeftTime / leftCount).format("HH:mm:ss")
+          ? moment.utc(totalLeftTime / leftCount).format("HH:mm")
           : null,
         deskTime: Math.floor(totalDeskTime / count),
-        // idleTime: Math.floor(totalIdleTime / count),
         timeAtWork: Math.floor(totalTimeAtWork / count),
       };
     }
