@@ -14,5 +14,6 @@ export const URL_CONSTANTS = {
   LOGOUT: "logout",
   REFRESH_TOKEN:"auth/refresh",
   OWNER:'owner',
-  TEAMS:"teams"
+  TEAMS:"teams",
+  PROJECTS:"projects"
 };

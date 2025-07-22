@@ -3,7 +3,7 @@ const Project = require("../models/Project");
 // Add or Update Project
 const saveProject = async (req, res) => {
   try {
-    const { id, name, taskName, assignee, userId } = req.body;
+    const { id, ownerId, name, taskName, assignee, userId } = req.body;
 
     if (!name || !taskName || !assignee || !userId) {
       return res.status(400).json({ error: "Missing required fields." });
@@ -19,6 +19,7 @@ const saveProject = async (req, res) => {
           name,
           taskName,
           assignee,
+          ownerId,
           modifiedBy: userId,
         },
         { new: true }
@@ -32,6 +33,7 @@ const saveProject = async (req, res) => {
         name,
         taskName,
         assignee,
+        ownerId,
         createdBy: userId,
       });
       await project.save();
@@ -63,10 +65,11 @@ const saveProject = async (req, res) => {
 // Get all projects
 const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find().populate(
-      "assignee createdBy modifiedBy",
-      "username"
-    );
+    const {ownerId}=req.params;
+   const projects = await Project.find({ ownerId })
+    .populate("assignee", "username")
+    .populate("createdBy", "username")
+    .populate("modifiedBy", "username");
     res.status(200).json({
       code: 200,
       status: "Success",

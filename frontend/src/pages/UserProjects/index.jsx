@@ -1,20 +1,84 @@
 // ProjectTaskTabs.js
-import React, { useState } from "react";
-import { Tabs, Tab, Box, Typography, Paper, IconButton,Button } from "@mui/material";
+import React, { useState, useMemo } from "react";
+import {
+  Tabs,
+  Tab,
+  Box,
+  Typography,
+  Paper,
+  IconButton,
+  Button,
+} from "@mui/material";
 import ProjectTable from "../../components/UserProjects/ProjectTable";
 import { projectData } from "../../components/UserProjects/StaticDatas/";
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import styles from "./index.module.css";
-import AddTaskIcon from '@mui/icons-material/AddTask';const Projects = () => {
-   const [selected, setSelected] = useState([]);
- 
-  const projectColumns = [
-    "Project Name",
+import AddTaskIcon from "@mui/icons-material/AddTask";
+import ProjectModal from "../../components/UserProjects/ProjectModal";
+import MuiToaster from "../../components/MuiToaster";
+import { jwtDecode } from "jwt-decode";
+import { useGetAllProfileQuery } from "../../redux/services/user";
+import { useGetAllProjectsQuery } from "../../redux/services/projects";
+import TaskTable from "../../components/UserProjects/TaskTable";
+
+const Projects = () => {
+  const token = localStorage.getItem("token");
+  let userId = null;
+  let ownerId = null;
+  if (token) {
+    const decoded = jwtDecode(token);
+    userId = decoded?.userId;
+    ownerId = decoded?.ownerId;
+  } else {
+    console.log("ERROR");
+  }
+
+  const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
+    useGetAllProjectsQuery({ id: ownerId });
+
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    isSuccess,
+  } = useGetAllProfileQuery({
+    id: ownerId,
+  });
+
+  const formattedProfile = useMemo(() => {
+    if (isSuccess && Array.isArray(profileData?.data?.users)) {
+      return profileData.data.users.map((profile) => ({
+        id: profile._id,
+        name: profile.username,
+      }));
+    }
+    return [];
+  }, [isSuccess, profileData]);
+
+  const [tabIndex, setTabIndex] = useState(0);
+  const [selected, setSelected] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    projectName: "",
+    taskName: "",
+    assignee: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [toaster, setToaster] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const projectColumns = ["Project Name", "Team Lead", "Status", "Created By"];
+
+  const taskColumn = [
     "Task Name",
+    "Project",
+    "Status",
     "Created By",
-    "Assignee",
-    "Urgency",
+    "assignee",
   ];
 
   const handleSelectAll = (event) => {
@@ -46,54 +110,179 @@ import AddTaskIcon from '@mui/icons-material/AddTask';const Projects = () => {
     setSelected(newSelected);
   };
 
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const handleChange = (event, name) => {
+    setFormData({
+      ...formData,
+      [name]: event.target.value,
+    });
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
+      });
+    }
+  };
+
+  const handleSelect = (event, name) => {
+    const { value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
+  };
+
+  const handleBlur = (event, name) => {
+    if (formData[name].trim() === "") {
+      setErrors({
+        ...errors,
+        [name]: `${labelMap[name]} is required.`,
+      });
+    }
+  };
+
+  const labelMap = {
+    projectName: "Project Name",
+    taskName: "Task Name",
+    assignee: "Assignee",
+  };
+
+  const handleOpenToaster = (message, severity = "success") => {
+    setToaster({ open: true, message, severity });
+  };
+
+  const handleCloseToaster = () => {
+    setToaster({ ...toaster, open: false });
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
+
   return (
     <Box className={styles.container}>
-     <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap", 
-            mb: 2, 
-          }}
-        >
-          {/* Left-aligned Title */}
-          <Typography variant="h5" component="h1" fontWeight="bold">
-            Projects
-          </Typography>
+      {/* Page Heading */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h5" component="h1" fontWeight="bold">
+          Projects
+        </Typography>
 
-          {/* Right-aligned controls */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <CustomSearchInput />
-
-            <IconButton size="small">
-              <FilterListIcon fontSize="medium" />
-            </IconButton>
-            
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <CustomSearchInput />
+          <IconButton size="small">
+            <FilterListIcon fontSize="medium" />
+          </IconButton>
+          {tabIndex === 0 ? (
             <Button
+              onClick={handleOpen}
               variant="contained"
-              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#1564bf"}}
+              sx={{
+                textTransform: "none",
+                whiteSpace: "nowrap",
+                px: 4,
+                backgroundColor: "#1564bf",
+              }}
             >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                     <AddTaskIcon   />
-                Add Task
-                </Box>
-               
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <AddTaskIcon />
+                Add Project
+              </Box>
             </Button>
-          </Box>
+          ) : (
+            <Button
+              onClick={handleOpen}
+              variant="contained"
+              sx={{
+                textTransform: "none",
+                whiteSpace: "nowrap",
+                px: 4,
+                backgroundColor: "#1564bf",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <AddTaskIcon />
+                Add Task
+              </Box>
+            </Button>
+          )}
         </Box>
-      <Paper className={styles.paperContainer}>
-        <Box>
-          <>
-            <ProjectTable  data={projectData} columns={projectColumns} handleSelectAll={handleSelectAll} handleSelectOne={handleSelectOne}
-                        selected={selected}
+      </Box>
 
+      {/* Tabs placed below the heading */}
+      <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 2 }}>
+        <Tab label="Projects" />
+        <Tab label="Tasks" />
+      </Tabs>
+
+      {/* Tab Content */}
+      {tabIndex === 0 ? (
+        <>
+          <Paper className={styles.paperContainer}>
+            <ProjectTable
+              data={projectData}
+              columns={projectColumns}
+              handleSelectAll={handleSelectAll}
+              handleSelectOne={handleSelectOne}
+              selected={selected}
             />
-          </>
-        </Box>
-      </Paper>
+          </Paper>
+
+          <ProjectModal
+            errors={errors}
+            setErrors={setErrors}
+            handleChange={handleChange}
+            handleCloseToaster={handleCloseToaster}
+            handleBlur={handleBlur}
+            formData={formData}
+            setFormData={setFormData}
+            open={open}
+            onClose={onClose}
+            openToaster={handleOpenToaster}
+            userId={userId}
+            ownerId={ownerId}
+            formattedProfile={formattedProfile}
+            handleSelect={handleSelect}
+          />
+        </>
+      ) : (
+        <TaskTable
+          handleSelectAll={handleSelectAll}
+          handleSelectOne={handleSelectOne}
+          selected={selected}
+          data={projectData}
+          columns={taskColumn}
+        />
+      )}
+
+      {/* Toaster */}
+      <MuiToaster
+        open={toaster.open}
+        message={toaster.message}
+        severity={toaster.severity}
+        handleClose={handleCloseToaster}
+      />
     </Box>
   );
 };
+
 
 export default Projects;
