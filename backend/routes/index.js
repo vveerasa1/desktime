@@ -6,11 +6,15 @@ const trackerRoutes = require("./tracker");
 const authRoutes = require("./auth");
 const dashboardRoutes = require("./dashboard");
 const teamRoutes = require("./team");
+const projectRoutes = require("./project");
+
 
 router.use("/users", userRoutes);
 router.use("/tracking", trackerRoutes);
 router.use("/auth", authRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/teams", teamRoutes);
+router.use("/projects", projectRoutes);
+
 
 module.exports = router;
