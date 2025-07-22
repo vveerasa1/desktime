@@ -14,7 +14,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import styles from "./index.module.css";
 import { jwtDecode } from "jwt-decode";
-
+import { useGetSingleProfileQuery } from "../../redux/services/user";
 const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -45,6 +45,9 @@ const Dashboard = () => {
   }, []);
 
   // Ensure all required searchParams exist
+
+  
+
   useEffect(() => {
     const currentParams = new URLSearchParams(searchParams);
     let shouldRedirect = false;
@@ -69,7 +72,7 @@ const Dashboard = () => {
     //   navigate(`/dashboard/${employee || ""}?${currentParams.toString()}/?view=day&date=${new Date()}`, { replace: true });
     // }
   }, [searchParams, viewMode, date, employee, navigate]);
-
+  
   const { data: getDashboardData, isLoading } = useGetDashboardDataQuery({
     day: filters.viewMode,
     date: filters.date,
@@ -83,9 +86,17 @@ const Dashboard = () => {
       userId: userId,
     });
 
+    const { data: getSingleData, isLoading: getSingleLoading } = useGetSingleProfileQuery(
+  { userId },
+  {
+    skip: !userId,
+  }
+);  
+
+console.log(getSingleData,"GET SINGLE DATA")
   return (
     <Box className={styles.dashboardContainer}>
-      <DeskTimeHeader setFilters={memoizedSetFilters} />
+      <DeskTimeHeader  setFilters={memoizedSetFilters} />
 
       {isLoading ? (
         <LoadingComponent />

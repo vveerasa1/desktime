@@ -6,7 +6,6 @@ export const projectData = [
     created_by: "John Doe",
     assignee: "Slack",
     urgency: "80%",
-    edit: "Edit",
   },
   {
     project_name: "Project Beta",
@@ -14,7 +13,6 @@ export const projectData = [
     created_by: "Jane Smith",
     assignee: "GitHub",
     urgency: "65%",
-    edit: "Edit",
   },
 ];
 
@@ -27,7 +25,6 @@ export const taskData = [
     label: "UI",
     progress: "70%",
     urgency: "High",
-    edit: "Edit",
   },
   {
     task_name: "Task B",
@@ -37,7 +34,6 @@ export const taskData = [
     label: "Backend",
     progress: "40%",
     urgency: "Medium",
-    edit: "Edit",
   },
   // Add 8 more dummy tasks
 ];
