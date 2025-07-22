@@ -12,5 +12,5 @@ router.use(express.json());
 router.post("/", saveProject);
 router.get("/:id", getProjectById);
 router.delete("/:id", deleteProjectById);
-router.get("/", getAllProjects);
+router.get("/owner/:ownerId", getAllProjects);
 module.exports = router;
