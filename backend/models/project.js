@@ -6,19 +6,23 @@ const ProjectSchema = new mongoose.Schema(
       type: String,
       required: true, // Project name
     },
-
-    taskName: {
-      type: String,
-      required: true, // Task under this project
-    },
-
-    assignee: {
+    lead: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // The user responsible for the task
       required: true,
     },
-
+    status: {
+      type: String,
+      enum: ["Active", "Completed"],
+      default: "Active",
+    },
     createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
