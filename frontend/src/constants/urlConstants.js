@@ -1,6 +1,6 @@
 export const URL_CONSTANTS = {
-  BASE_URL: "http://44.211.37.68:8080/",
-  // BASE_URL: "http://localhost:8080/",
+  // BASE_URL: "http://44.211.37.68:8080/",
+  BASE_URL: "http://localhost:8080/",
 
   //'http://44.211.37.68:8080/',//
   USER: "users",
@@ -14,5 +14,6 @@ export const URL_CONSTANTS = {
   LOGOUT: "logout",
   REFRESH_TOKEN:"auth/refresh",
   OWNER:'owner',
-  TEAMS:"teams"
+  TEAMS:"teams",
+  PROJECTS:"projects"
 };
