@@ -14,9 +14,11 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 const Teams = () => {
   const token = localStorage.getItem("token");
   let ownerId = null;
+  let role = null;
   if (token) {
     let decoded = jwtDecode(token);
     ownerId = decoded.ownerId;
+    role = decoded.role;
   }
   const [selected, setSelected] = useState([]);
 
@@ -63,8 +65,13 @@ const Teams = () => {
 
   const handleOpen = (id) => {
     setOpen(true);
+     if (id) {
     setTeamId(id);
-    console.log(teamId);
+    console.log(id, "EDIT: teamId set");
+  } else {
+    setTeamId(undefined);
+    console.log("ADD: No teamId (creating new team)");
+  }
   };
 
   const handleClose = () => {
@@ -108,14 +115,14 @@ const Teams = () => {
             <IconButton size="small">
               <FilterListIcon fontSize="medium" />
             </IconButton>
+            
             <Button
               variant="contained"
-              color="success"
-              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, }}
-              onClick={handleOpen}
+              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#1564bf"}}
+              onClick={()=>handleOpen()}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                     <GroupAddIcon  />
+                     <GroupAddIcon   />
                 Add Team
                 </Box>
                

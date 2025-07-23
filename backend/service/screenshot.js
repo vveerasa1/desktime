@@ -7,6 +7,7 @@ const { uploadFileToS3 } = require("./upload");
 const addScreenshot = async (req, res) => {
   try {
     console.log(req.body);
+    console.log("Screenshot process");
     const user = await User.findById(req.body.userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -25,10 +26,7 @@ const addScreenshot = async (req, res) => {
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const folderPath = `${user.employeeId}/${date}`;
-        const uploadedFile = await uploadFileToS3(
-          file,
-          folderPath
-        );
+        const uploadedFile = await uploadFileToS3(file, folderPath);
         screenshotEntries.push({
           screenshotTime: now,
           screenshotApp: req.body.screenshotApp || "",
@@ -66,7 +64,7 @@ const addScreenshot = async (req, res) => {
         },
       });
     }
-
+    console.log("Screenshot processed successfully");
     res.status(200).json({
       code: 200,
       status: "Success",
@@ -78,6 +76,5 @@ const addScreenshot = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 module.exports = { addScreenshot };
