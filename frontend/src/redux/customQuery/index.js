@@ -15,9 +15,9 @@ const baseQuery = fetchBaseQuery({
 const customBaseQuery = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
   if (result?.error?.status === 401) {
-    localStorage.removeItem('token');
+    // localStorage.removeItem('token');
 
-    window.location.href = '/';
+    // window.location.href = '/';
   }
 
   return result;

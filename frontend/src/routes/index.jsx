@@ -1,6 +1,8 @@
 import React, { lazy } from "react";
 import AppLayout from "../layout";
 import Login from "../pages/Auth/Login";
+import CognitoLoginRedirect from "../components/CognitoLoginRedirect";
+import OidcLoginRedirect from "../components/OidcLoginRedirect";
 import AbsenceCalender from "../pages/AbsenceCalendar";
 import Projects from "../pages/UserProjects";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -10,7 +12,7 @@ const Colleagues = lazy(() => import("../pages/Colleagues"));
 const ForgotPassword = lazy(() => import("../pages/Auth/ForgotPassword"));
 const OtpVerify = lazy(() => import("../pages/Auth/OtpVerify"));
 const ResetPassword = lazy(() => import("../pages/Auth/ResetPassword"));
-
+const Callback =lazy(()=>import ("../Callback"))
 // export const routes = [
 //   {
 //     path: "/", // ✅ Root path shows Login
@@ -67,10 +69,15 @@ const ResetPassword = lazy(() => import("../pages/Auth/ResetPassword"));
 // ];
 
 
+
 export const routes = [
   {
     path: "/",
-    element: <Login />,
+    element: <OidcLoginRedirect />,
+  },
+  {
+    path: "/callback",
+    element: <Callback />,
   },
   {
     path: "/forgot-password",

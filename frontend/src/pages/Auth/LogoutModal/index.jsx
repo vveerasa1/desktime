@@ -9,6 +9,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Box } from "@mui/material";
+import { useAuth } from 'react-oidc-context';
+
 import { useLogoutSessionMutation } from "../../../redux/services/electron";
 const theme = createTheme({
   typography: {
@@ -36,10 +38,15 @@ const theme = createTheme({
 const LogoutConfirmationDialog = ({ open, setOpen, handleCloseDialog }) => {
  const userId =  localStorage.getItem('userId')
   const navigate = useNavigate();
+   const auth = useAuth();
+
+ 
+
   const [logoutApi, { isLoading, isError, error }] = useLogoutSessionMutation();
   const handleConfirmLogout = () => {
     logoutApi({userId});
     localStorage.clear();
+    auth.signoutRedirect(); // This will redirect to Cognito's logout and return to your app
     navigate("/", { replace: true });
     setOpen(false);
   };
