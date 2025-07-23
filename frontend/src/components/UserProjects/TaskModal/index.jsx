@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -10,12 +9,8 @@ import {
 import { Person, Work, Assignment } from "@mui/icons-material"; // Icons for adornments
 import CustomTextField from "../../CustomTextField";
 import CustomDropdown from "../../CustomDropDown";
-import {
-  useCreateProjectMutation,
-  useGetSingleProjectQuery,
-  useUpdateProjectMutation,
-} from "../../../redux/services/projects";
-const ProjectModal = ({
+import { useCreateProjectMutation } from "../../../redux/services/projects";
+const TaskModal = ({
   open,
   onClose,
   handleChange,
@@ -28,30 +23,12 @@ const ProjectModal = ({
   userId,
   ownerId,
   formattedProfile,
-  handleSelect,
-  handleCloseToaster,
-  projectId,
+    handleSelect,
+    handleCloseToaster
+
 }) => {
   const [createProject, isLoading] = useCreateProjectMutation();
-  const [updateProject] = useUpdateProjectMutation();
-  const { data: getSingleProjectData, isLoading: getSingleProjectIsLoading } =
-    useGetSingleProjectQuery(
-      { id: projectId },
-      {
-        skip: !projectId,
-      }
-    );
 
-  useEffect(() => {
-    if (projectId && getSingleProjectData) {
-      const data = getSingleProjectData?.data;
-      setFormData({
-        projectName: data?.name,
-        status: data?.status,
-        teamLead: data?.lead?._id,
-      });
-    }
-  }, [projectId, getSingleProjectData]);
   const handleSave = async () => {
     let newErrors = {};
     let isValid = true;
@@ -61,38 +38,33 @@ const ProjectModal = ({
       newErrors.projectName = "Project Name is required.";
       isValid = false;
     }
-    if (formData.status.trim() === "") {
-      newErrors.status = "Status is required.";
+    if (formData.taskName.trim() === "") {
+      newErrors.taskName = "Task Name is required.";
       isValid = false;
     }
-    if (!formData.teamLead) {
-      errors.teamLead = "Team Lead is required";
+    if (!formData.assignee) {
+      errors.assignee = "Assignee is required";
       isValid = false;
     }
 
     setErrors(newErrors);
-    const payload = {
-      name: formData.projectName,
-      status: formData.status,
-      lead: formData.teamLead,
-      userId,
-      ownerId,
-    };
+    const payload ={
+     name:formData.taskName,
+     assignee:formData.assignee,
+     status:formData.status,
+     userId,
+     ownerId
+    }
     if (isValid) {
-      if (projectId) {
-        await updateProject({ id: projectId, payload });
-        openToaster("Project Updated Successfully!", "success");
-      } else {
-        await createProject(payload);
-        openToaster("Project Added Successfully!", "success");
-      }
-
-      onClose();
-      handleCloseToaster();
-      setFormData({
+        await createProject(payload)
+        openToaster("Task Added Successfully!", "success");
+        onClose(); 
+        handleCloseToaster()
+        setFormData({
         projectName: "",
-        teamLead: "",
-        status: "",
+        taskName: "",
+        description:"",
+        assignee: "",
       });
     }
   };
@@ -109,19 +81,36 @@ const ProjectModal = ({
           borderRadius: "8px 8px 0 0",
         }}
       >
-        {projectId ? "Edit Project" : "Add Project"}
+        Add Project
       </DialogTitle>
       <DialogContent sx={{ padding: "24px", marginTop: 4 }}>
-        <Box className="field">
+        <Box>
           <CustomTextField
-            label="Project Name"
-            name="projectName"
+            label="Task Name"
+            name="taskName"
+            value={formData.taskName}
+            handleChange={(e) => {
+              handleChange(e, "taskName");
+            }}
+            handleBlur={(e) => handleBlur(e, "taskName")}
+            placeholder="Enter Task Name"
+            isRequired
+            error={!!errors.taskName}
+            helperText={errors.taskName}
+            startIcon={<Work />}
+          />
+        </Box>
+
+        <Box>
+          <CustomTextField
+            label="Description"
+            name="description"
             value={formData.projectName}
             handleChange={(e) => {
               handleChange(e, "projectName");
             }}
             handleBlur={(e) => handleBlur(e, "projectName")}
-            placeholder="Enter project name"
+            placeholder="Enter Task Name"
             isRequired
             error={!!errors.projectName}
             helperText={errors.projectName}
@@ -132,30 +121,30 @@ const ProjectModal = ({
           <CustomTextField
             label="Status"
             name="status"
-            value={formData.status}
+            value={formData.taskName}
             handleChange={(e) => {
-              handleChange(e, "status");
+              handleChange(e, "taskName");
             }}
             handleBlur={(e) => handleBlur(e, "taskName")}
-            placeholder="Enter Status"
+            placeholder="Enter task name"
             isRequired
-            error={!!errors.status}
-            helperText={errors.status}
+            error={!!errors.taskName}
+            helperText={errors.taskName}
             startIcon={<Assignment />}
           />
         </Box>
         <Box mt={2}>
-          <CustomDropdown
-            label="Team Lead"
-            name="teamLead"
-            selectedValue={formData?.teamLead}
+           <CustomDropdown
+            label="Assignee"
+            name="assignee"
+            selectedValue={formData.assignee}
             options={formattedProfile}
-            handleSelect={(e) => handleSelect(e, "teamLead")}
-            placeholder="Select Team Lead"
+            handleSelect={(e) => handleSelect(e, "assignee")}
+            placeholder="Select Assignee"
             isRequired
-            onBlur={(e) => handleBlur(e, "teamLead")}
-            error={!!errors.teamLead}
-            helperText={errors.teamLead}
+            onBlur={(e) => handleBlur(e, "assignee")}
+            error={Boolean(formData.errors?.assignee)}
+            helperText={formData.errors?.assignee}
           />
         </Box>
       </DialogContent>
@@ -204,4 +193,4 @@ const ProjectModal = ({
   );
 };
 
-export default ProjectModal;
+export default TaskModal;

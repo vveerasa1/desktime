@@ -21,6 +21,7 @@ import { jwtDecode } from "jwt-decode";
 import { useGetAllProfileQuery } from "../../redux/services/user";
 import { useGetAllProjectsQuery } from "../../redux/services/projects";
 import TaskTable from "../../components/UserProjects/TaskTable";
+import TaskModal from "../../components/UserProjects/TaskModal";
 
 const Projects = () => {
   const token = localStorage.getItem("token");
@@ -36,6 +37,18 @@ const Projects = () => {
 
   const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
     useGetAllProjectsQuery({ id: ownerId });
+
+  const mappedProjectData = useMemo(() => {
+    return (
+      getAllProjectsData?.data?.map((item) => ({
+        _id: item._id,
+        project_name: item.name,
+        team_lead: item.lead?.username || "—",
+        status: item.status,
+        created_by: item.createdBy?.username || "—",
+      })) || []
+    );
+  }, [getAllProjectsData]);
 
   const {
     data: profileData,
@@ -59,10 +72,19 @@ const Projects = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [selected, setSelected] = useState([]);
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [openTask, setOpenTask] = useState(false);
+  const [projectId, setProjectId] = useState(null);
+  const [projectFormData, setProjectFormData] = useState({
     projectName: "",
+    teamLead: "",
+    status: "",
+  });
+
+  const [taskFormData, setTaskFormData] = useState({
     taskName: "",
+    description: "",
     assignee: "",
+    status: "",
   });
   const [errors, setErrors] = useState({});
   const [toaster, setToaster] = useState({
@@ -110,19 +132,63 @@ const Projects = () => {
     setSelected(newSelected);
   };
 
-  const handleOpen = () => {
+  const handleOpen = (id) => {
+    if (id) {
+      setProjectId(id);
+    } else {
+      setProjectId(null);
+    }
     setOpen(true);
   };
 
-  const onClose = () => {
-    setOpen(false);
+ // In ProjectTaskTabs.js
+
+const onClose = () => {
+  setOpen(false);
+  setProjectId(null); // Reset the project ID
+  setErrors({});     // Clear any validation errors
+  
+  // Reset the form data to its initial empty state
+  setProjectFormData({
+    projectName: "",
+    teamLead: "",
+    status: "",
+  });
+
+  setTaskFormData({
+      taskName: "",
+    description: "",
+    assignee: "",
+    status: "",
+  })
+};
+  const handleTaskOpen = () => {
+    setOpenTask(true);
+  };
+
+  const onTaskClose = () => {
+    setOpenTask(false);
   };
 
   const handleChange = (event, name) => {
-    setFormData({
-      ...formData,
-      [name]: event.target.value,
-    });
+    const { value } = event.target;
+    setProjectFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
+
+    setTaskFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -133,7 +199,16 @@ const Projects = () => {
 
   const handleSelect = (event, name) => {
     const { value } = event.target;
-    setFormData((prev) => ({
+    setProjectFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
+
+    setTaskFormData((prev) => ({
       ...prev,
       [name]: value,
       errors: {
@@ -144,7 +219,14 @@ const Projects = () => {
   };
 
   const handleBlur = (event, name) => {
-    if (formData[name].trim() === "") {
+    if (projectFormData[name].trim() === "") {
+      setErrors({
+        ...errors,
+        [name]: `${labelMap[name]} is required.`,
+      });
+    }
+
+    if (taskFormData[name].trim() === "") {
       setErrors({
         ...errors,
         [name]: `${labelMap[name]} is required.`,
@@ -193,7 +275,7 @@ const Projects = () => {
           </IconButton>
           {tabIndex === 0 ? (
             <Button
-              onClick={handleOpen}
+              onClick={() => handleOpen()}
               variant="contained"
               sx={{
                 textTransform: "none",
@@ -209,7 +291,7 @@ const Projects = () => {
             </Button>
           ) : (
             <Button
-              onClick={handleOpen}
+              onClick={handleTaskOpen}
               variant="contained"
               sx={{
                 textTransform: "none",
@@ -238,22 +320,24 @@ const Projects = () => {
         <>
           <Paper className={styles.paperContainer}>
             <ProjectTable
-              data={projectData}
+              data={mappedProjectData}
               columns={projectColumns}
               handleSelectAll={handleSelectAll}
               handleSelectOne={handleSelectOne}
               selected={selected}
+              handleOpen={handleOpen}
             />
           </Paper>
 
           <ProjectModal
+            handleOpen={handleOpen}
             errors={errors}
             setErrors={setErrors}
             handleChange={handleChange}
             handleCloseToaster={handleCloseToaster}
             handleBlur={handleBlur}
-            formData={formData}
-            setFormData={setFormData}
+            formData={projectFormData}
+            setFormData={setProjectFormData}
             open={open}
             onClose={onClose}
             openToaster={handleOpenToaster}
@@ -261,18 +345,36 @@ const Projects = () => {
             ownerId={ownerId}
             formattedProfile={formattedProfile}
             handleSelect={handleSelect}
+            projectId={projectId}
           />
         </>
       ) : (
-        <TaskTable
-          handleSelectAll={handleSelectAll}
-          handleSelectOne={handleSelectOne}
-          selected={selected}
-          data={projectData}
-          columns={taskColumn}
-        />
+        <Box>
+          <TaskTable
+            handleSelectAll={handleSelectAll}
+            handleSelectOne={handleSelectOne}
+            selected={selected}
+            data={projectData}
+            columns={taskColumn}
+          />
+          <TaskModal
+            errors={errors}
+            setErrors={setErrors}
+            handleChange={handleChange}
+            handleCloseToaster={handleCloseToaster}
+            handleBlur={handleBlur}
+            formData={taskFormData}
+            setFormData={setTaskFormData}
+            open={openTask}
+            onClose={onTaskClose}
+            openToaster={handleOpenToaster}
+            userId={userId}
+            ownerId={ownerId}
+            formattedProfile={formattedProfile}
+            handleSelect={handleSelect}
+          />
+        </Box>
       )}
-
       {/* Toaster */}
       <MuiToaster
         open={toaster.open}
@@ -283,6 +385,5 @@ const Projects = () => {
     </Box>
   );
 };
-
 
 export default Projects;
