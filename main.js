@@ -1,3 +1,6 @@
+const log = require("electron-log");
+Object.assign(console, log.functions);
+
 const {
   app,
   BrowserWindow,
@@ -181,7 +184,7 @@ async function refreshToken(userId) {
   }
 
   try {
-    const res = await axios.post("http://localhost:8080/auth/refresh", {
+    const res = await axios.post("http://44.211.37.68:8080/auth/refresh", {
       refreshToken,
     });
 
@@ -237,7 +240,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on http://localhost:${API_PORT}`
+    `🚀 Express API server in Electron listening on http://44.211.37.68:${API_PORT}`
   );
 });
 
@@ -256,7 +259,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://localhost:5173");
+  mainWindow.loadURL("http://44.211.37.68:3000");
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -273,7 +276,7 @@ function createWindow() {
   });
 
   // Setup Tray icon
-  const iconPath = path.join(__dirname, "desktime-logo.png"); // Use a .png for better quality
+  const iconPath = path.join(__dirname, "desktime-logo.jpg"); // Use a .png for better quality
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     { label: "Show App", click: () => mainWindow.show() },
@@ -283,7 +286,7 @@ function createWindow() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    mainWindow.show(); // Show app on tray click
+    shell.openExternal("http://44.211.37.68:3000");
   });
 }
 
@@ -328,7 +331,7 @@ async function initializeDailyTracking(userId) {
     // Check for existing session for today
     const checkRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `http://localhost:8080/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
+      url: `http://44.211.37.68:8080/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
     });
     console.log("checkRes :" + checkRes);
 
@@ -364,7 +367,7 @@ async function initializeDailyTracking(userId) {
             method: "put",
             url: `http://localhost:8080/tracking/sessions/${existingSessionId}/arrival`,
             data: { arrivalTime: new Date() },
-          }).catch((e) => console.error("[Arrival Time Update Error]", e));
+          }).catch((e) => console.error("[Arrival Time Update Error]"));
         }
       }
 
@@ -424,9 +427,9 @@ async function fetchUserConfig(userId) {
 /**
  * Sends activity data (idle/active) to the server.
  * @param {string} userId
- * @param {string} type 'idle' or 'active'
- * @param {string} [app] Application name (for active)
- * @param {string} [title] Window title (for active)
+ * @param {string} type
+ * @param {string} [app]
+ * @param {string} [title]
  */
 async function sendActivityToServer(
   userId,
@@ -850,7 +853,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:8080/tracking/sessions/active",
+          url: "http://44.211.37.68:8080/tracking/sessions/active",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -868,7 +871,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:8080/tracking/sessions/idle",
+          url: "http://44.211.37.68:8080/tracking/sessions/idle",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -885,7 +888,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     try {
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://localhost:8080/tracking/sessions/end",
+        url: "http://44.211.37.68:8080/tracking/sessions/end",
         data: { sessionId: userState.sessionId },
       });
       console.log(
@@ -1058,7 +1061,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://localhost:8080/tracking/sessions/active",
+            url: "http://44.211.37.68:8080/tracking/sessions/active",
             data: {
               sessionId: userState.sessionId,
               duration,
@@ -1079,7 +1082,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://localhost:8080/tracking/sessions/idle",
+            url: "http://44.211.37.68:8080/tracking/sessions/idle",
             data: {
               sessionId: userState.sessionId,
               duration,
