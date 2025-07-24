@@ -117,7 +117,7 @@ const dashboardCard = async (req, res) => {
 
       sessions.forEach((session) => {
         const arrival = moment(session.arrivalTime).tz(timeZone);
-        const timeAtWork = session.timeAtWork;
+        const timeAtWork = session.timeAtWork ? session.timeAtWork : 0;
         const activeTime = (session.activePeriods || []).reduce(
           (acc, p) => acc + (p.duration || 0),
           0

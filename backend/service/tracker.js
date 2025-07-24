@@ -94,8 +94,9 @@ const idleTimeTracker = async (req, res) => {
     }
     let userId = session.userId;
     const user = await User.findById(userId);
+    let timeZone = user.timeZone;
 
-    const endTimeIST = moment(endTime).tz("Asia/Kolkata");
+    const endTimeIST = moment(endTime).tz(timeZone);
     const endHour = endTimeIST.hour();
     const endMin = endTimeIST.minute();
 
@@ -111,7 +112,7 @@ const idleTimeTracker = async (req, res) => {
           : null;
 
       if (lastActivePeriod) {
-        const lastEndIST = moment(lastActivePeriod).tz("Asia/Kolkata");
+        const lastEndIST = moment(lastActivePeriod).tz(timeZone);
         const lastEndHour = lastEndIST.hour();
         const lastEndMin = lastEndIST.minute();
 
@@ -121,7 +122,7 @@ const idleTimeTracker = async (req, res) => {
           }`,
         });
         leftTimeSet = true;
-        const arrivalIST = moment(session.arrivalTime).tz("Asia/Kolkata");
+        const arrivalIST = moment(session.arrivalTime).tz(timeZone);
 
         const leftIST = arrivalIST
           .clone()
@@ -187,8 +188,9 @@ const activeTimeTracker = async (req, res) => {
 
     let userId = session.userId;
     const user = await User.findById(userId);
+    let timeZone = user.timeZone;
 
-    const endTimeIST = moment(endTime).tz("Asia/Kolkata");
+    const endTimeIST = moment(endTime).tz(timeZone);
     const endHour = endTimeIST.hour();
     const endMin = endTimeIST.minute();
 
@@ -203,7 +205,7 @@ const activeTimeTracker = async (req, res) => {
         leftTime: `${endHour}:${endMin < 10 ? "0" + endMin : endMin}`,
       });
       leftTimeSet = true;
-      const arrivalIST = moment(session.arrivalTime).tz("Asia/Kolkata");
+      const arrivalIST = moment(session.arrivalTime).tz(timeZone);
       const leftIST = arrivalIST
         .clone()
         .hour(trackingEndHour)
@@ -354,7 +356,7 @@ cron.schedule("55 23 * * *", async () => {
 function isWithinTrackingHours(user) {
   if (user.flexibleHours) return true;
 
-  const now = moment().tz(user.timeZone || "Asia/Kolkata");
+  const now = moment().tz(user.timeZone || user.timeZone);
   const todayName = now.format("dddd"); // e.g., "Monday"
 
   // Check if today is in trackingDays
