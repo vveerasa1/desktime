@@ -19,9 +19,7 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   let { type, employee } = useParams();
-  console.log(employee, "EMPLOYEE ID");
   employee = employee?.split("=")?.[1];
-  console.log(employee, "EMPLOYEE ID");
 
   const token = localStorage.getItem("token");
   let decodedUserId = null;
@@ -87,7 +85,7 @@ const Dashboard = () => {
     });
 
     const { data: getSingleData, isLoading: getSingleLoading } = useGetSingleProfileQuery(
-  { userId },
+   userId ,
   {
     skip: !userId,
   }
@@ -96,7 +94,7 @@ const Dashboard = () => {
 console.log(getSingleData,"GET SINGLE DATA")
   return (
     <Box className={styles.dashboardContainer}>
-      <DeskTimeHeader  setFilters={memoizedSetFilters} />
+      <DeskTimeHeader getSingleData={getSingleData} setFilters={memoizedSetFilters} />
 
       {isLoading ? (
         <LoadingComponent />

@@ -19,11 +19,11 @@ const saveTask = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
-    let Task;
+    let taskDoc;
 
     if (id) {
       // Update
-      Task = await Task.findByIdAndUpdate(
+      taskDoc = await Task.findByIdAndUpdate(
         id,
         {
           name,
@@ -36,12 +36,13 @@ const saveTask = async (req, res) => {
         },
         { new: true }
       );
-      if (!Task) {
+
+      if (!taskDoc) {
         return res.status(404).json({ error: "Task not found." });
       }
+
       if (status === "Done") {
         const tasks = await Task.find({ projectId });
-
         const allDone = tasks.every((t) => t.status === "Done");
 
         if (allDone) {
@@ -52,7 +53,7 @@ const saveTask = async (req, res) => {
       }
     } else {
       // Create
-      Task = new Task({
+      taskDoc = new Task({
         name,
         description,
         projectId,
@@ -60,15 +61,18 @@ const saveTask = async (req, res) => {
         createdBy: userId,
         ownerId,
       });
-      await Task.save();
+
+      await taskDoc.save();
+
       await Project.findByIdAndUpdate(projectId, {
         status: "Active",
       });
-      res.status(200).json({
+
+      return res.status(200).json({
         code: 200,
         status: "Success",
         message: "Task created successfully",
-        data: Task,
+        data: taskDoc,
       });
     }
 
@@ -76,9 +80,10 @@ const saveTask = async (req, res) => {
       code: 200,
       status: "Success",
       message: "Task modified successfully",
-      data: Task,
+      data: taskDoc,
     });
   } catch (err) {
+
     console.error(err);
     res.status(500).json({
       code: 500,
@@ -89,12 +94,13 @@ const saveTask = async (req, res) => {
   }
 };
 
+
 // Get all Tasks
 const getAllTasks = async (req, res) => {
   const { ownerId } = req.params;
   try {
     const Tasks = await Task.find({ ownerId })
-      .populate(" assignee createdBy modifiedBy", "username")
+      .populate("assignee createdBy modifiedBy", "username")
       .populate("projectId", "name");
     res.status(200).json({
       code: 200,
@@ -115,11 +121,11 @@ const getAllTasks = async (req, res) => {
 // Get Task by ID
 const getTaskById = async (req, res) => {
   try {
-    const Task = await Task.findById(req.params.id)
+    const TaskData = await Task.findById(req.params.id)
       .populate("assignee createdBy modifiedBy", "username")
       .populate("projectId", "name");
 
-    if (!Task) {
+    if (!TaskData) {
       return res.status(404).json({ error: "Task not found." });
     }
 
@@ -127,7 +133,7 @@ const getTaskById = async (req, res) => {
       code: 200,
       status: "Success",
       message: "Internal server error.",
-      data: Task,
+      data: TaskData,
     });
   } catch (err) {
     res.status(500).json({

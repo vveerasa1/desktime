@@ -7,6 +7,8 @@ const authRoutes = require("./auth");
 const dashboardRoutes = require("./dashboard");
 const teamRoutes = require("./team");
 const projectRoutes = require("./project");
+const taskRoutes = require("./task");
+
 
 
 router.use("/users", userRoutes);
@@ -15,6 +17,8 @@ router.use("/auth", authRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/teams", teamRoutes);
 router.use("/projects", projectRoutes);
+router.use("/task", taskRoutes);
+
 
 
 module.exports = router;
