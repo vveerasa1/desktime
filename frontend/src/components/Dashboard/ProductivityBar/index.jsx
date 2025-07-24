@@ -71,7 +71,7 @@ const dayTimeLabels = [
 ];
 
 // --- Styling Constants ---
-const TRACKED_COLOR = "#5664e7"; // Blue for tracked
+const TRACKED_COLOR = "#5566fcff"; // Blue for tracked
 const UNTRACKED_COLOR = "white"; // Grey for untracked/idle
 
 
@@ -171,7 +171,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
           sx={{
             position: "relative",
             width: "100%",
-            height: 250,
+            height: 150,
             backgroundColor: "",
             borderRadius: "4px",
           }}
@@ -193,12 +193,12 @@ const ProductivityBar = ({ getProductiviyData }) => {
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="productive" stackId="a" fill="#4caf50" />
-              <Bar dataKey="neutral" stackId="a" fill="#9e9e9e" />
+              <Bar dataKey="neutral" stackId="a" fill="#ffffffff" />
               <Bar dataKey="unproductive" stackId="a" fill="#ffc107" />
             </BarChart>
           </ResponsiveContainer>
         </Box>
-        <ActivityTimelineBar
+        <ActivityTimelineBar 
           currentNormalizedData={dayNormalizedData}
           TRACKED_COLOR={TRACKED_COLOR}
           UNTRACKED_COLOR={UNTRACKED_COLOR}

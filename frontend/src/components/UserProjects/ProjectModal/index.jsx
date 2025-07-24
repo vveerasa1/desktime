@@ -52,21 +52,22 @@ const ProjectModal = ({
       });
     }
   }, [projectId, getSingleProjectData]);
+
   const handleSave = async () => {
     let newErrors = {};
     let isValid = true;
 
     // Perform validation
-    if (formData.projectName.trim() === "") {
+    if (formData.projectName?.trim() === "") {
       newErrors.projectName = "Project Name is required.";
       isValid = false;
     }
-    if (formData.status.trim() === "") {
+    if (projectId && formData.status?.trim() === "") {
       newErrors.status = "Status is required.";
       isValid = false;
     }
     if (!formData.teamLead) {
-      errors.teamLead = "Team Lead is required";
+      newErrors.teamLead = "Team Lead is required";
       isValid = false;
     }
 
@@ -79,21 +80,29 @@ const ProjectModal = ({
       ownerId,
     };
     if (isValid) {
-      if (projectId) {
-        await updateProject({ id: projectId, payload });
-        openToaster("Project Updated Successfully!", "success");
-      } else {
-        await createProject(payload);
-        openToaster("Project Added Successfully!", "success");
-      }
+      try {
+        if (projectId) {
+          await updateProject({ id: projectId, payload }).unwrap();
+          openToaster("Project Updated Successfully!", "success");
+        } else {
+          await createProject(payload).unwrap();
+          openToaster("Project Added Successfully!", "success");
+        }
 
-      onClose();
-      handleCloseToaster();
-      setFormData({
-        projectName: "",
-        teamLead: "",
-        status: "",
-      });
+        onClose();
+        setTimeout(()=>{
+        handleCloseToaster();
+
+        },5000)
+        setFormData({
+          projectName: "",
+          teamLead: "",
+          status: "",
+        });
+      } catch (err) {
+        openToaster("Something went wrong. Please try again.", "error");
+        console.error("Project mutation error:", err);
+      }
     }
   };
 
@@ -128,7 +137,8 @@ const ProjectModal = ({
             startIcon={<Work />}
           />
         </Box>
-        <Box mt={2}>
+        {projectId ? (
+             <Box mt={2}>
           <CustomTextField
             label="Status"
             name="status"
@@ -144,6 +154,8 @@ const ProjectModal = ({
             startIcon={<Assignment />}
           />
         </Box>
+        ):""}
+       
         <Box mt={2}>
           <CustomDropdown
             label="Team Lead"

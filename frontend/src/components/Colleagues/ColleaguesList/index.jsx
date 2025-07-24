@@ -7,7 +7,6 @@ import {
   Button,
   Stack,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
 import EmailIcon from "@mui/icons-material/Email";
 import LoadingComponent from "../../ComponentLoader";
 import IconButton from "@mui/material/IconButton";
@@ -55,7 +54,6 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
             colleaguesData?.users.map((colleague, index) => (
               <Grid item key={index} size={3} className={styles.gridItem}>
                 <Paper className={styles.card} elevation={1}>
-
                   {userRole === "Admin" && (
                     <IconButton
                       size="small"
@@ -65,12 +63,29 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                       <MoreVertIcon fontSize="small" />
                     </IconButton>
                   )}
-                  <Link
-                    style={{ textDecoration: "none", color: "inherit" }}
-                    to={`/dashboard/employee=${colleague._id}`}
-                  >
+                  {userRole === "Admin" ? (
+                    <Link
+                      style={{ textDecoration: "none", color: "inherit" }}
+                      to={`/dashboard/employee=${colleague._id}`}
+                    >
+                      <Box className={styles.profileBox}>
+                        <Avatar
+                          alt={colleague.username}
+                          src={colleague.photo}
+                          className={styles.avatar}
+                        />
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {colleague.username}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {colleague.role}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Link>
+                  ) : (
                     <Box className={styles.profileBox}>
-                      
                       <Avatar
                         alt={colleague.username}
                         src={colleague.photo}
@@ -85,7 +100,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                         </Typography>
                       </Box>
                     </Box>
-                  </Link>
+                  )}
 
                   <Box className={styles.divider}></Box>
 
