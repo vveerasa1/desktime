@@ -20,10 +20,11 @@ const ProjectTable = ({
   data = [],
   columns = [],
   selected,
-  onSelectAll,
-  onSelectOne,
+  handleProjectSelectOne,
+  handleProjectSelectAll,
   onDelete,
-  handleOpen
+  handleOpen,
+  openToaster,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -40,35 +41,42 @@ const ProjectTable = ({
   };
 
   const confirmDelete = async () => {
-  if (deleteId) {
-    try {
-      await deleteProject(deleteId).unwrap(); 
-      if (onDelete) onDelete(deleteId); 
-    } catch (err) {
-      console.error("Delete failed", err);
+    if (deleteId) {
+      try {
+        await deleteProject(deleteId).unwrap();
+        openToaster("Project Deleted Successfully!", "success");
+        if (onDelete) onDelete(deleteId);
+      } catch (err) {
+        console.error("Delete failed", err);
+      }
     }
-  }
-  handleClosePopover();
-};
-
+    handleClosePopover();
+  };
 
   const openPopover = Boolean(anchorEl);
 
-  const selectedCount = selected.length;
-  const rowCount = data.length;
-
+  console.log(selected,"SELECTED")
   return (
     <>
-      <TableContainer component={Paper} sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}>
+      <TableContainer
+        component={Paper}
+        sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}
+      >
         <Table>
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
                   color="primary"
-                  indeterminate={selectedCount > 0 && selectedCount < rowCount}
-                  checked={rowCount > 0 && selectedCount === rowCount}
-                  onChange={onSelectAll}
+                  indeterminate={
+                    selected.length > 0 &&
+                    selected.length < data.length
+                  }
+                  checked={
+                    data.length > 0 &&
+                    selected.length === data.length
+                  }
+                  onChange={handleProjectSelectAll}
                   inputProps={{ "aria-label": "select all items" }}
                 />
               </TableCell>
@@ -91,7 +99,6 @@ const ProjectTable = ({
                 <TableRow
                   key={row._id}
                   hover
-                  onClick={(event) => onSelectOne(event, row._id)}
                   role="checkbox"
                   aria-checked={isItemSelected}
                   tabIndex={-1}
@@ -102,7 +109,9 @@ const ProjectTable = ({
                     <Checkbox
                       color="primary"
                       checked={isItemSelected}
-                      onChange={(event) => onSelectOne(event, row._id)}
+                      onChange={(event) =>
+                        handleProjectSelectOne(event, row._id)
+                      }
                       inputProps={{
                         "aria-labelledby": `table-checkbox-${row._id}`,
                       }}
@@ -157,7 +166,11 @@ const ProjectTable = ({
         <Box p={2} textAlign="center">
           <Typography>Are you sure you want to delete?</Typography>
           <Box mt={2} display="flex" justifyContent="center" gap={1}>
-            <Button variant="outlined" color="primary" onClick={handleClosePopover}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleClosePopover}
+            >
               No
             </Button>
             <Button variant="contained" color="error" onClick={confirmDelete}>

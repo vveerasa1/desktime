@@ -1,49 +1,49 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { URL_CONSTANTS } from '../../constants/urlConstants';
 import customBaseQuery from '../customQuery';
-export const Project = createApi({
-    reducerPath: 'Project',
+export const Task = createApi({
+    reducerPath: 'Task',
     baseQuery: customBaseQuery,
-    tagTypes: ['Project'],
+    tagTypes: ['Task'],
     endpoints: (builder) => ({
-        createProject: builder.mutation({
+        createTask: builder.mutation({
             query: (payload) => ({
-                url: URL_CONSTANTS.PROJECTS,
+                url: URL_CONSTANTS.TASK,
                 method: 'POST',
                 body: payload,
             }),
-            invalidatesTags: ['Project']
+            invalidatesTags: ['Task']
         }),
-        updateProject: builder.mutation({
+        updateTask: builder.mutation({
             query: ({ id, payload }) => ({
-                url: URL_CONSTANTS.PROJECTS,
+                url: URL_CONSTANTS.TASK,
                 method: 'POST',
                 body: { id, ...payload },
             }),
-            invalidatesTags: ['Project'],
+            invalidatesTags: ['Task'],
         }),
 
-        getAllProjects: builder.query({
+        getAllTasks: builder.query({
             query: ({ id }) => ({
-                url: `${URL_CONSTANTS.PROJECTS}/${URL_CONSTANTS.OWNER}/${id}`,
+                url: `${URL_CONSTANTS.TASK}/${URL_CONSTANTS.OWNER}/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['Project']
+            providesTags: ['Task']
         }),
-        getSingleProject: builder.query({
+        getSingleTask: builder.query({
             query: ({ id }) => ({
-                url: `${URL_CONSTANTS.PROJECTS}/${id}`,
+                url: `${URL_CONSTANTS.TASK}/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['Project']
+            providesTags: ['Task']
 
         }),
-        deleteProject: builder.mutation({
+        deleteTask: builder.mutation({
             query: (id) => ({
-                url: `${URL_CONSTANTS.PROJECTS}/${id}`,
+                url: `${URL_CONSTANTS.TASK}/${id}`,
                 method:'DELETE'
             }),
-            invalidatesTags: ['Project'],
+            invalidatesTags: ['Task'],
 
         })
     }),
@@ -51,9 +51,9 @@ export const Project = createApi({
 
 // ✅ Export only the hooks you defined
 export const {
-    useCreateProjectMutation,
-    useUpdateProjectMutation,
-    useDeleteProjectMutation,
-    useGetAllProjectsQuery,
-    useGetSingleProjectQuery,
-} = Project;
+    useCreateTaskMutation,
+    useUpdateTaskMutation,
+    useDeleteTaskMutation,
+    useGetAllTasksQuery,
+    useGetSingleTaskQuery,
+} = Task;

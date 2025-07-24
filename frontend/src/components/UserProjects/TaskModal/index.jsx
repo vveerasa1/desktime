@@ -6,10 +6,15 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import { Person, Work, Assignment } from "@mui/icons-material"; // Icons for adornments
+import { useEffect } from "react";
+import { Work, Assignment } from "@mui/icons-material";
 import CustomTextField from "../../CustomTextField";
 import CustomDropdown from "../../CustomDropDown";
-import { useCreateProjectMutation } from "../../../redux/services/projects";
+import {
+  useCreateTaskMutation,
+  useGetSingleTaskQuery,
+  useUpdateTaskMutation,
+} from "../../../redux/services/task";
 const TaskModal = ({
   open,
   onClose,
@@ -23,48 +28,93 @@ const TaskModal = ({
   userId,
   ownerId,
   formattedProfile,
-    handleSelect,
-    handleCloseToaster
-
+  handleSelect,
+  handleCloseToaster,
+  mappedProjectOptions,
+  taskId,
 }) => {
-  const [createProject, isLoading] = useCreateProjectMutation();
+  const [createTask, isLoading] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
+  const { data: getSingleTaskData, isLoading: getSingleTaskIsLoading } =
+    useGetSingleTaskQuery(
+      { id: taskId },
+      {
+        skip: !taskId,
+      }
+    );
+
+  useEffect(() => {
+    if (taskId && getSingleTaskData?.data) {
+      const data = getSingleTaskData.data;
+
+      setFormData({
+        taskName: data.name || "",
+        description: data.description || "",
+        project: data?.projectId?._id || "",
+        assignee: data.assignee?._id || "",
+        status: data.status || "",
+      });
+    }
+  }, [taskId, getSingleTaskData]);
 
   const handleSave = async () => {
     let newErrors = {};
     let isValid = true;
 
     // Perform validation
-    if (formData.projectName.trim() === "") {
-      newErrors.projectName = "Project Name is required.";
-      isValid = false;
-    }
     if (formData.taskName.trim() === "") {
       newErrors.taskName = "Task Name is required.";
       isValid = false;
     }
+
+    if (!formData.description) {
+      newErrors.description = "Description is required";
+      isValid = false;
+    }
+
+    if (!formData.project) {
+      newErrors.project = "Project is required";
+      isValid = false;
+    }
+
     if (!formData.assignee) {
-      errors.assignee = "Assignee is required";
+      newErrors.assignee = "Assignee is required";
+      isValid = false;
+    }
+
+    if (taskId && !formData.status) {
+      newErrors.status = "Status is required";
       isValid = false;
     }
 
     setErrors(newErrors);
-    const payload ={
-     name:formData.taskName,
-     assignee:formData.assignee,
-     status:formData.status,
-     userId,
-     ownerId
-    }
+    const payload = {
+      name: formData.taskName,
+      description: formData.description,
+      projectId: formData.project,
+      assignee: formData.assignee,
+      status: formData.status,
+      userId,
+      ownerId,
+    };
     if (isValid) {
-        await createProject(payload)
+      if (taskId) {
+        await updateTask({ id: taskId, payload });
+        openToaster("Task Updated Successfully!", "success");
+      } else {
+        await createTask(payload);
         openToaster("Task Added Successfully!", "success");
-        onClose(); 
-        handleCloseToaster()
-        setFormData({
-        projectName: "",
+      }
+      onClose();
+      setTimeout(()=>{
+      handleCloseToaster();
+      },5000)
+      setFormData({
         taskName: "",
-        description:"",
+        description: "",
+        project: "",
         assignee: "",
+        status: "",
       });
     }
   };
@@ -81,7 +131,7 @@ const TaskModal = ({
           borderRadius: "8px 8px 0 0",
         }}
       >
-        Add Project
+        {taskId ? "Update Task" : "Add Task"}
       </DialogTitle>
       <DialogContent sx={{ padding: "24px", marginTop: 4 }}>
         <Box>
@@ -101,40 +151,39 @@ const TaskModal = ({
           />
         </Box>
 
-        <Box>
+        <Box mt={2}>
           <CustomTextField
             label="Description"
             name="description"
-            value={formData.projectName}
+            value={formData.description}
             handleChange={(e) => {
-              handleChange(e, "projectName");
+              handleChange(e, "description");
             }}
-            handleBlur={(e) => handleBlur(e, "projectName")}
-            placeholder="Enter Task Name"
+            handleBlur={(e) => handleBlur(e, "description")}
+            placeholder="Enter Description"
             isRequired
-            error={!!errors.projectName}
-            helperText={errors.projectName}
+            error={!!errors.description}
+            helperText={errors.description}
             startIcon={<Work />}
           />
         </Box>
+
         <Box mt={2}>
-          <CustomTextField
-            label="Status"
-            name="status"
-            value={formData.taskName}
-            handleChange={(e) => {
-              handleChange(e, "taskName");
-            }}
-            handleBlur={(e) => handleBlur(e, "taskName")}
-            placeholder="Enter task name"
+          <CustomDropdown
+            label="Project"
+            name="project"
+            selectedValue={formData.project}
+            options={mappedProjectOptions}
+            handleSelect={(e) => handleSelect(e, "project")}
+            placeholder="Select Project"
             isRequired
-            error={!!errors.taskName}
-            helperText={errors.taskName}
-            startIcon={<Assignment />}
+            onBlur={(e) => handleBlur(e, "project")}
+            error={!!errors?.project}
+            helperText={errors?.project}
           />
         </Box>
-        <Box mt={2}>
-           <CustomDropdown
+        <Box mt={taskId ? 4 : 1}>
+          <CustomDropdown
             label="Assignee"
             name="assignee"
             selectedValue={formData.assignee}
@@ -143,10 +192,30 @@ const TaskModal = ({
             placeholder="Select Assignee"
             isRequired
             onBlur={(e) => handleBlur(e, "assignee")}
-            error={Boolean(formData.errors?.assignee)}
-            helperText={formData.errors?.assignee}
+            error={errors?.assignee}
+            helperText={errors?.assignee}
           />
         </Box>
+        {taskId ? (
+          <Box mt={4}>
+            <CustomTextField
+              label="Status"
+              name="status"
+              value={formData.status}
+              handleChange={(e) => {
+                handleChange(e, "status");
+              }}
+              handleBlur={(e) => handleBlur(e, "status")}
+              placeholder="Enter Status "
+              isRequired
+              error={!!errors?.status}
+              helperText={errors?.status}
+              startIcon={<Assignment />}
+            />
+          </Box>
+        ) : (
+          ""
+        )}
       </DialogContent>
       <DialogActions
         sx={{
@@ -159,7 +228,7 @@ const TaskModal = ({
         }}
       >
         <Button
-          onClick={onClose}
+          onClick={() => onClose()}
           variant="outlined"
           sx={{
             textTransform: "none",
