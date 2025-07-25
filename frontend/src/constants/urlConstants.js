@@ -1,6 +1,6 @@
 export const URL_CONSTANTS = {
-  BASE_URL: "http://44.211.37.68:4005/",
-  // BASE_URL: "http://localhost:4005/",
+  // BASE_URL: "http://44.211.37.68:8080/",
+  BASE_URL: "http://localhost:4005/",
 
   // 'http://44.211.37.68:4005/',//
   USER: "users",
@@ -12,10 +12,9 @@ export const URL_CONSTANTS = {
   ELECTRON_BASE_URL: "http://localhost:3100/",
   STORE_TOKEN: "store-token",
   LOGOUT: "logout",
-  REFRESH_TOKEN:"auth/refresh",
-  OWNER:'owner',
-  TEAMS:"teams",
-  PROJECTS:"projects",
-  TASK:"task"
-
+  REFRESH_TOKEN: "auth/refresh",
+  OWNER: "owner",
+  TEAMS: "teams",
+  PROJECTS: "projects",
+  TASK: "task",
 };

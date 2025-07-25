@@ -15,8 +15,10 @@
     "password": "xxbkgytfwlkrgvwv"
   },
   "AWS": {
-    "ACCESS_KEY_ID": "AKIATIVJ4HZQOEEOYSOU",
-    "SECRET_ACCESS_KEY": "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"
+    "ACCESS_KEY_ID": "d598cd96cc304369a3bc06ec99849475",
+    "SECRET_ACCESS_KEY": "bc7902f4ca3d4384abf974211d6eb5b0",
+    "endpoint": "https://s3.bhs.io.cloud.ovh.net/",
+    "publicUrl": "https://trackme.s3.bhs.io.cloud.ovh.net/"
   },
   "adminId": {
     "id": "686662448c9ee97da82d92f0"

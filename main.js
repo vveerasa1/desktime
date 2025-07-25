@@ -184,7 +184,7 @@ async function refreshToken(userId) {
   }
 
   try {
-    const res = await axios.post("http://44.211.37.68:4005/auth/refresh", {
+    const res = await axios.post("http://localhost:4005/auth/refresh", {
       refreshToken,
     });
 
@@ -240,7 +240,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on http://44.211.37.68:${API_PORT}`
+    `🚀 Express API server in Electron listening on http://localhost:${API_PORT}`
   );
 });
 
@@ -259,7 +259,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://44.211.37.68:3000");
+  mainWindow.loadURL("http://localhost:5173");
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -286,7 +286,7 @@ function createWindow() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    shell.openExternal("http://44.211.37.68:3000");
+    shell.openExternal("http://localhost:5173");
   });
 }
 
@@ -331,7 +331,7 @@ async function initializeDailyTracking(userId) {
     // Check for existing session for today
     const checkRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `http://44.211.37.68:4005/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
+      url: `http://localhost:4005/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
     });
     console.log("checkRes :" + checkRes);
 
@@ -853,7 +853,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://44.211.37.68:4005/tracking/sessions/active",
+          url: "http://localhost:4005/tracking/sessions/active",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -871,7 +871,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://44.211.37.68:4005/tracking/sessions/idle",
+          url: "http://localhost:4005/tracking/sessions/idle",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -888,7 +888,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     try {
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://44.211.37.68:4005/tracking/sessions/end",
+        url: "http://localhost:4005/tracking/sessions/end",
         data: { sessionId: userState.sessionId },
       });
       console.log(
@@ -1061,7 +1061,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://44.211.37.68:4005/tracking/sessions/active",
+            url: "http://localhost:4005/tracking/sessions/active",
             data: {
               sessionId: userState.sessionId,
               duration,
@@ -1082,7 +1082,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://44.211.37.68:4005/tracking/sessions/idle",
+            url: "http://localhost:4005/tracking/sessions/idle",
             data: {
               sessionId: userState.sessionId,
               duration,

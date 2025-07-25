@@ -3,6 +3,7 @@ const User = require("../models/user");
 const TrackingSession = require("../models/trackingSession");
 const ScreenshotLog = require("../models/screenshot");
 const { uploadFileToS3 } = require("./upload");
+const config = require("../config");
 
 const addScreenshot = async (req, res) => {
   try {
@@ -27,10 +28,14 @@ const addScreenshot = async (req, res) => {
       for (const file of req.files) {
         const folderPath = `${user.employeeId}/${date}`;
         const uploadedFile = await uploadFileToS3(file, folderPath);
+        const newFileName = uploadedFile.Key.split("/").pop();
+        console.log(newFileName);
+        const screenShotUrl =
+          config.AWS.publicUrl + `${folderPath}/${newFileName}`;
         screenshotEntries.push({
           screenshotTime: now,
           screenshotApp: req.body.screenshotApp || "",
-          screenshotPath: uploadedFile.Location,
+          screenshotPath: screenShotUrl,
         });
       }
     }
