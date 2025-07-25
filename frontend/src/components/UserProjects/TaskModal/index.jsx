@@ -32,6 +32,8 @@ const TaskModal = ({
   handleCloseToaster,
   mappedProjectOptions,
   taskId,
+  statusOptions
+
 }) => {
   const [createTask, isLoading] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
@@ -198,13 +200,14 @@ const TaskModal = ({
         </Box>
         {taskId ? (
           <Box mt={4}>
-            <CustomTextField
+            <CustomDropdown
               label="Status"
               name="status"
-              value={formData.status}
-              handleChange={(e) => {
-                handleChange(e, "status");
+              selectedValue={formData.status}
+              handleSelect={(e) => {
+                handleSelect(e, "status");
               }}
+              options={statusOptions}
               handleBlur={(e) => handleBlur(e, "status")}
               placeholder="Enter Status "
               isRequired

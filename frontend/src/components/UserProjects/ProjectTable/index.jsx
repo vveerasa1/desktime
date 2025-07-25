@@ -65,7 +65,7 @@ const ProjectTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox">
+              <TableCell  padding="checkbox">
                 <Checkbox
                   color="primary"
                   indeterminate={

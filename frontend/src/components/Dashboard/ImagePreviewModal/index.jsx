@@ -18,6 +18,7 @@ const ImagePreviewModal = ({
   screenshots,
   currentIndex,
   setCurrentIndex,
+  employee
 }) => {
 
     const token = localStorage.getItem('token');
@@ -26,7 +27,7 @@ const ImagePreviewModal = ({
       if (token) {
         try {
           const decoded = jwtDecode(token);
-          userId = decoded?.userId || decoded?.sub; 
+          userId = employee || decoded?.userId 
         } catch (err) {
           console.error("Invalid token", err);
         }
@@ -36,9 +37,9 @@ const ImagePreviewModal = ({
         useGetSingleProfileQuery(userId, {
           skip: !userId
         });
-    
+        
       const username = currentUserProfile?.data?.username || "Guest";
-
+        console.log(currentUserProfile,"CURRENT USER DATA INSIDE")
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? screenshots.length - 1 : prev - 1));
   };
