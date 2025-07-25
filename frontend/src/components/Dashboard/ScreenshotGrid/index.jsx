@@ -31,9 +31,9 @@ useGetScreenshotQuery({ id: employee || userId, date: filters.date });
         <Typography variant="h6" gutterBottom>
           Screenshots
         </Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={4}>
           {getScreenshots?.data?.map((shot, idx) => (
-            <Grid item xs={12} sm={6} md={3} key={idx} size={{xs:2,md:3}}>
+            <Grid item size={{xs:2,md:3}}>
               <Box
                 className={styles.screenshotCard}
                 onClick={() => handleImageClick(idx)}
@@ -67,6 +67,7 @@ useGetScreenshotQuery({ id: employee || userId, date: filters.date });
 
       {getScreenshots?.data?.length > 0 && (
         <ImagePreviewModal
+          employee={employee}
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           screenshots={getScreenshots.data}

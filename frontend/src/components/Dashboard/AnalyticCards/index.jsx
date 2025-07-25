@@ -7,9 +7,13 @@ import { useMemo } from "react";
 import TrackingCard from "./Tracking";
 import ProjectCard from "./Projects";
 import styles from "./index.module.css";
-
+import { jwtDecode } from "jwt-decode";
+import { useGetAllProfileQuery } from "../../../redux/services/user";
+import { useGetAllProjectsQuery } from "../../../redux/services/projects";
+import { useGetAllTasksQuery } from "../../../redux/services/task";
+import {useState} from 'react'
 dayjs.extend(duration);
-
+import MuiToaster from "../../MuiToaster";
 // Helper to convert seconds to "Xh Ym"
 const formatSecondsToHHMM = (seconds) => {
   if (typeof seconds !== "number" || isNaN(seconds)) return "--";
@@ -19,8 +23,61 @@ const formatSecondsToHHMM = (seconds) => {
   return `${hours > 0 ? `${hours}h ` : ""}${minutes}m`.trim();
 };
 
-const AnalyticCards = ({ getDashboardData }) => {
+const AnalyticCards = ({ getDashboardData,userId,ownerId }) => {
+    const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
+      useGetAllProjectsQuery({ id: ownerId });
+  
+  
+    const mappedProjectOptions = useMemo(() => {
+      return (
+        getAllProjectsData?.data?.map((item) => ({
+          id: item._id, // or item._id if you meant actual ID
+          name: item.name,
+        })) || []
+      );
+    }, [getAllProjectsData]);
+  
+    const { data: getAllTaskData, isLoading: getAllTaskDataIsLoading } =
+      useGetAllTasksQuery({ id: ownerId });
+  
+    const mappedTaskData = useMemo(() => {
+      return (
+        getAllTaskData?.data?.map((item) => ({
+          _id: item._id,
+          task_name: item.name,
+          description: item.description || "—",
+          project: item.projectId?.name || "—",
+          assignee: item.assignee?.username || "—",
+          status: item.status || "—",
+          barColor:"#0db55b",
+          created_by: item.createdBy?.username || "—",
+          created_at: new Date(item.createdAt).toLocaleString(), // Optional formatting
+        })) || []
+      );
+    }, [getAllTaskData]);
+  
+    console.log(mappedTaskData, "TASK DATA");
+    const {
+      data: profileData,
+      isLoading: isProfileLoading,
+      isError: isProfileError,
+      isSuccess,
+    } = useGetAllProfileQuery({
+      id: ownerId,
+    });
+  
+    const formattedProfile = useMemo(() => {
+      if (isSuccess && Array.isArray(profileData?.data?.users)) {
+        return profileData.data.users.map((profile) => ({
+          id: profile._id,
+          name: profile.username,
+        }));
+      }
+      return [];
+    }, [isSuccess, profileData]);
+  
   const dashboardData = getDashboardData?.data || {};
+
   const dynamicStatCards = useMemo(() => {
     return statCardsData.map((card) => {
       switch (card.title) {
@@ -71,12 +128,110 @@ const AnalyticCards = ({ getDashboardData }) => {
       dynamicStatCards.find((card) => card.title === "Time at work"),
     ].filter(Boolean);
   }, [dynamicStatCards]);
+const [openTask,setOpenTask] = useState(false)
+  const tableHeaders = useMemo(
+    () => [
+      { title: "Task" },
+      { title: "Project" },
+      { title: "Assignee" },
+      { title: "Status" },
+      { title: "Created By" },
+    ],
+    []
+  );
+   const [taskFormData, setTaskFormData] = useState({
+      taskName: "",
+      description: "",
+      project: "",
+      assignee: "",
+      status: "",
+    });
+    const [errors, setErrors] = useState({});
+    const [toaster, setToaster] = useState({
+      open: false,
+      message: "",
+      severity: "success",
+    });
 
+const handleTaskOpen = () => {
+   
+    setOpenTask(true);
+  };
+
+
+  const onTaskClose = () => {
+    setOpenTask(false);
+    setErrors({});
+    setTaskFormData({
+      taskName: "",
+      description: "",
+      project: "",
+      assignee: "",
+      status: "",
+    });
+    console.log("Task closed, taskId reset to:", null);
+  };
+
+  const handleChange = (event, name) => {
+    const { value } = event.target;
+
+    setTaskFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
+      });
+    }
+  };
+
+  const handleSelect = (event, name) => {
+    const { value } = event.target;
+
+    setTaskFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      errors: {
+        ...prev.errors,
+        [name]: "",
+      },
+    }));
+  };
+
+  const handleBlur = (event, name) => {
+
+    if (taskFormData[name].trim() === "") {
+      setErrors({
+        ...errors,
+        [name]: `${[name]} is required.`,
+      });
+    }
+  };
+
+  const handleOpenToaster = (message, severity = "success") => {
+    setToaster({ open: true, message, severity });
+  };
+
+  const handleCloseToaster = () => {
+    setToaster({ ...toaster, open: false });
+  };
   return (
     <Grid container sx={{ width: "100%" }}>
       <Box className={styles.container}>
         <TrackingCard orderedCards={orderedCards} />
-        <ProjectCard />
+        <ProjectCard userId={userId} ownerId={ownerId} taskFormData={taskFormData} setTaskFormData={setTaskFormData} errors={errors} setErrors={setErrors} formattedProfile={formattedProfile} mappedProjectOptions={mappedProjectOptions} handleCloseToaster={handleCloseToaster} handleOpenToaster={handleOpenToaster} mappedTaskData={mappedTaskData} handleBlur={handleBlur} handleSelect={handleSelect} handleChange={handleChange} openTask={openTask} onTaskClose={onTaskClose} handleTaskOpen={handleTaskOpen} tableHeaders={tableHeaders} />
+        <MuiToaster
+        open={toaster.open}
+        message={toaster.message}
+        severity={toaster.severity}
+        handleClose={handleCloseToaster}
+      />
       </Box>
     </Grid>
   );
