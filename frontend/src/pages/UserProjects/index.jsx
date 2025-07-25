@@ -309,6 +309,10 @@ const Projects = () => {
     assignee: "Assignee",
   };
 
+  const statusOptions = [{
+    id:"To-do",name:"To-do"
+  },{id:"In-progress",name:"In-progress"},{id:"Done",name:"Done"}]
+
   const handleOpenToaster = (message, severity = "success") => {
     setToaster({ open: true, message, severity });
   };
@@ -420,6 +424,7 @@ const Projects = () => {
             formattedProfile={formattedProfile}
             handleSelect={handleSelect}
             projectId={projectId}
+            statusOptions={statusOptions}
           />
         </>
       ) : (
@@ -455,6 +460,7 @@ const Projects = () => {
             handleSelect={handleSelect}
             mappedProjectOptions={mappedProjectOptions}
             taskId={taskId}
+            statusOptions={statusOptions}
           />
         </Box>
       )}

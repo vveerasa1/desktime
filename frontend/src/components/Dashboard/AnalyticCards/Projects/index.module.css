@@ -21,7 +21,7 @@
 
 .addButton {
   border: 1px solid !important;
-  background-color: #0cb55b !important;
+  background-color: #143351 !important;
   color: white !important;
   border-radius: 12px !important;
   padding: 6px 12px !important;
@@ -38,7 +38,6 @@
 
 .headerCell {
   font-weight: 600 !important;
-  color: #999 !important;
   white-space: nowrap !important;
   border-bottom: none !important;
 }
@@ -49,10 +48,6 @@
 
 .projectCell {
   position: relative !important;
-  padding-left: 24px !important;
-  padding-top: 16px !important;
-  padding-bottom: 16px !important;
-  color: #333 !important;
   font-weight: 500 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -67,7 +62,7 @@
   left: 0 !important;
   top: 0 !important;
   bottom: 0 !important;
-  width: 5px !important;
+  width: 4px !important;
   background-color: var(--bar-color) !important;
 }
 

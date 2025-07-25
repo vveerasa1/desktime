@@ -31,6 +31,7 @@ const ProjectModal = ({
   handleSelect,
   handleCloseToaster,
   projectId,
+  statusOptions
 }) => {
   const [createProject, isLoading] = useCreateProjectMutation();
   const [updateProject] = useUpdateProjectMutation();
@@ -138,15 +139,14 @@ const ProjectModal = ({
           />
         </Box>
         {projectId ? (
-             <Box mt={2}>
-          <CustomTextField
+          <Box mt={2}>
+          <CustomDropdown
             label="Status"
             name="status"
-            value={formData.status}
-            handleChange={(e) => {
-              handleChange(e, "status");
-            }}
-            handleBlur={(e) => handleBlur(e, "taskName")}
+            selectedValue={formData.status}
+            options={statusOptions}
+            handleSelect={(e)=> handleSelect(e,"status")}
+            handleBlur={(e) => handleBlur(e, "status")}
             placeholder="Enter Status"
             isRequired
             error={!!errors.status}

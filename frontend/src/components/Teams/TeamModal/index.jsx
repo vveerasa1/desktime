@@ -83,30 +83,42 @@ const TeamModal = ({ open, handleClose, teamId, ownerId,openToaster }) => {
       } else {
         await createTeam(payload);
         openToaster("Team Added Successfully!", "success");
-        setFormData({
+        
+      }
+      setFormData({
           name: "",
         });
-      }
-
       handleClose();
     } catch (error) {
       console.log(error);
     }
   };
-  useEffect(() => {
-    if (!open) {
-      setFormData({
+  // Reset formData when modal closes
+useEffect(() => {
+  if (!open) {
+    setFormData({
+      name: "",
+      ownerId: ownerId,
+      errors: {
         name: "",
-      });
-    }
-  }, [open]);
-  useEffect(() => {
-    if (teamId && singleTeamsData?.data) {
-      setFormData({
-        name: singleTeamsData?.data?.name || "",
-      });
-    }
-  }, [singleTeamsData]);
+      },
+    });
+  }
+}, [open, ownerId]);
+
+useEffect(() => {
+  if (open && teamId && singleTeamsData?.data) {
+    setFormData((prev) => ({
+      ...prev,
+      name: singleTeamsData?.data?.name || "",
+      ownerId: ownerId,
+      errors: {
+        name: "",
+      },
+    }));
+  }
+}, [teamId, singleTeamsData, open, ownerId]);
+
 
   return (
     <Dialog

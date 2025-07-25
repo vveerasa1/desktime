@@ -69,7 +69,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
         <Typography variant="h6" className={styles.title}>
           {isOwnProfile
             ? "My Tracking"
-            : `${getSingleData?.data?.username || "User"}'s Tracking`}
+            : `${getSingleData?.data?.username || "User"}`}
         </Typography>
       )}
 
@@ -103,14 +103,27 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
           />
         </Box>
 
-        <Box className={styles.arrowButtons}>
-          <IconButton>
-            <ChevronLeft className={styles.icon} />
-          </IconButton>
-          <IconButton>
-            <ChevronRight className={styles.icon} />
-          </IconButton>
-        </Box>
+        <IconButton
+          onClick={() => {
+            const newDate = dayjs(filtersState.date)
+              .subtract(1, filtersState.viewMode)
+              .format("YYYY-MM-DD");
+            setFiltersState((prev) => ({ ...prev, date: newDate }));
+          }}
+        >
+          <ChevronLeft className={styles.icon} />
+        </IconButton>
+
+        <IconButton
+          onClick={() => {
+            const newDate = dayjs(filtersState.date)
+              .add(1, filtersState.viewMode)
+              .format("YYYY-MM-DD");
+            setFiltersState((prev) => ({ ...prev, date: newDate }));
+          }}
+        >
+          <ChevronRight className={styles.icon} />
+        </IconButton>
       </Box>
     </Box>
   );

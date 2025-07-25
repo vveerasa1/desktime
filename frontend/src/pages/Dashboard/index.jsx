@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import styles from "./index.module.css";
 import { jwtDecode } from "jwt-decode";
 import { useGetSingleProfileQuery } from "../../redux/services/user";
+import ProjectTimeline from "../../components/Dashboard/ProjectTimeLine";
 const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -23,9 +24,11 @@ const Dashboard = () => {
 
   const token = localStorage.getItem("token");
   let decodedUserId = null;
+  let ownerId = null
   if (token) {
     const decoded = jwtDecode(token);
     decodedUserId = decoded.userId;
+    ownerId = decoded.ownerId
   }
 
   const userId = employee || decodedUserId || employee;
@@ -100,6 +103,8 @@ console.log(getSingleData,"GET SINGLE DATA")
         <LoadingComponent />
       ) : (
         <AnalyticCards
+          userId={decodedUserId}
+          ownerId={ownerId}
           setFilters={memoizedSetFilters}
           getDashboardData={getDashboardData}
         />
@@ -111,6 +116,7 @@ console.log(getSingleData,"GET SINGLE DATA")
         ) : (
           <ProductivityBar getProductiviyData={getProductiviyData} />
         ))}
+          <ProjectTimeline/>
 
       {filters.viewMode === "month" && (
         <EmployeeCalendar

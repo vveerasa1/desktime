@@ -26,11 +26,14 @@
 
 .active {
   color: #ffffff !important;
-  background-color: #1565c0 !important;
+  background-color: #143352 !important;
+  transition: 0.3s ease-in-out !important;
 }
 
 .toggleButton:hover {
-  background-color: #d6deef !important;
+  background-color: #1564bf !important;
+  transition: 0.3s ease-in-out !important;
+
 }
 
 .datePicker {

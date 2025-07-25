@@ -23,12 +23,12 @@ const TeamsTable = ({
   onSelectAll,
   onSelectOne,
   handleOpen,
-  openToaster
+  openToaster,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [deleteTeamId, setDeleteTeamId] = useState(null);
   const [deleteTeam] = useDeleteTeamMutation();
-
+  const [loading, setLoading] = useState(false);
   const handleDeleteClick = (event, teamId) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -45,7 +45,6 @@ const TeamsTable = ({
       try {
         await deleteTeam(deleteTeamId).unwrap();
         openToaster("Team Deleted Successfully!", "success");
-
       } catch (error) {
         console.error("Failed to delete team:", error);
       }
@@ -62,7 +61,6 @@ const TeamsTable = ({
         boxShadow: "none",
       }}
     >
-
       <TableContainer>
         <Table>
           <TableHead>
@@ -71,8 +69,7 @@ const TeamsTable = ({
                 <Checkbox
                   color="primary"
                   indeterminate={
-                    selected.length > 0 &&
-                    selected.length < getTeamData.length
+                    selected.length > 0 && selected.length < getTeamData.length
                   }
                   checked={
                     getTeamData.length > 0 &&
@@ -134,11 +131,14 @@ const TeamsTable = ({
                       <IconButton
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleOpen(row._id);
+                          if (!loading) {
+                            handleOpen(row._id);
+                          }
                         }}
                       >
                         <EditIcon color="primary" />
                       </IconButton>
+
                       <IconButton
                         onClick={(e) => handleDeleteClick(e, row._id)}
                       >
