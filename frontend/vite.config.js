@@ -3,7 +3,15 @@ import react from '@vitejs/plugin-react';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 
 export default defineConfig({
+   base: './', 
   plugins: [react()],
+   build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html'
+      }
+    }
+  },
   optimizeDeps: {
     esbuildOptions: {
       define: {

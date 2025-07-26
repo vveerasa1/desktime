@@ -2,7 +2,7 @@ import React, {Suspense} from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import './App.css'
 import CssBaseline from '@mui/material/CssBaseline';
-import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
+import { useRoutes, BrowserRouter, HashRouter } from 'react-router-dom';
 import {routes} from './routes/index'; 
 
 const theme = createTheme(); 
@@ -14,6 +14,7 @@ function AppRoutes() {
 
 function App() {
 
+ const Router = process.env.NODE_ENV === 'development' ? BrowserRouter : HashRouter;
  
   return (
     <ThemeProvider theme={theme}>

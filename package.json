@@ -6,14 +6,20 @@
   "scripts": {
     "start": "npx electron .",
     "dist": "electron-builder",
-    "rebuild": "electron-rebuild"
+    "rebuild": "electron-rebuild",
+     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "appId": "com.vijay.desktime",
     "productName": "DeskTime",
     "files": [
       "**/*",
-      "!node_modules/.cache"
+      "!node_modules/.cache",
+       "main.js",
+      "preload.js",
+      "frontend/dist/**",
+      "node_modules/**",
+      "package.json"
     ],
     "directories": {
       "output": "dist"
@@ -22,9 +28,22 @@
       "target": "nsis",
       "icon": "icon.ico"
     },
+     "mac": {
+      "target": "dmg",
+      "icon": "icon.icns",
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "gatekeeperAssess": false,
+      "identity": "Pentabay Softwares Inc. (HM4B4KL5K6)"
+    },
     "asarUnpack": [
-      "**/node_modules/screenshot-desktop/**"
-    ]
+      "**/node_modules/screenshot-desktop/**",
+       "node_modules/active-win/**",
+    "node_modules/@nut-tree-fork/**"
+    ],
+     "afterSign": "scripts/notarize.js"
   },
   "author": "Vijay Ram",
   "license": "ISC",
