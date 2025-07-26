@@ -26,16 +26,17 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
   const renderedHeader = useMemo(
     () => (
       <TableHead >
-        <TableRow sx={{
-          border:'1px solid gray !important'
-        }}>
+        <TableRow>
           {tableHeaders.map((header, index) => (
             <TableCell
               key={index}
               className={styles.headerCell}
+              sx={{
+                background: 'rgba(244, 240, 240, 0.87)'
+              }}
               style={{
-                paddingLeft: header.title === "Project" ? 10 : 8,
-                padding:'5px 0px'
+                paddingLeft: header.title === "Project"||header.title==='Task' ? 10 : 8,
+                padding: '5px 0px'
               }}
             >
               {header.title}
@@ -51,21 +52,26 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
     if (!mappedTaskData || mappedTaskData.length === 0) {
       return (
         <TableBody>
-          <TableRow>
-            <TableCell colSpan={tableHeaders.length} align="center" >
-              <Box sx={{ width: '100%', height: 105, borderRadius: 2 ,
+          <TableRow
 
-                display:'flex',alignItems:'center',
-                flexDirection:'column',
-                justifyContent:'center'
+          >
+            <TableCell colSpan={tableHeaders.length} align="center" sx={{
+              borderBottom: 'none !important',
+            }}>
+              <Box sx={{
+                width: '100%', height: 105, borderRadius: 2,
+                borderBottom: "none !important", // REMOVE table row bottom border
+                display: 'flex', alignItems: 'center',
+                flexDirection: 'column',
+                justifyContent: 'center'
               }} >
                 <img
                   src={contract}
                   alt="No tasks"
-                  style={{ width: 40, height: 40}}
+                  style={{ width: 40, height: 40 }}
                 />
-                <Typography variant="body2" color="text.secondary" 
-                 sx={{ width: '100%',fontFamily:'sans-serif',fontWeight:'600' }}>
+                <Typography variant="body2" color="text.secondary"
+                  sx={{ width: '100%', fontFamily: 'sans-serif', fontWeight: '600' }}>
                   No tasks
                 </Typography>
               </Box>
@@ -76,7 +82,8 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
       );
     }
     return (
-      <TableBody>
+      <TableBody sx={{
+      }}>
         {mappedTaskData.map((item) => (
           <TableRow
             key={item._id}
@@ -88,6 +95,7 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
             }}
           >
             <TableCell
+              className={styles.bodyCell}
               sx={{
                 position: "relative",
                 padding: "8px 8px 8px 24px", // Reduced padding
@@ -109,20 +117,21 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
                 {item.task_name}
               </Typography>
             </TableCell>
-            <TableCell sx={{ padding: "8px", minWidth: "150px" }}>
+            <TableCell className={styles.bodyCell} sx={{ padding: "8px", minWidth: "150px" }}>
               <Typography variant="body2" noWrap>
                 {item.project}
               </Typography>
             </TableCell>
-            <TableCell sx={{ padding: "8px", minWidth: "120px" }}>
+            <TableCell className={styles.bodyCell} sx={{ padding: "8px", minWidth: "120px" }}>
               <Typography variant="body2" noWrap>
                 {item.assignee}
               </Typography>
             </TableCell>
-            <TableCell sx={{ padding: "8px", minWidth: "100px" }}>
+            <TableCell className={styles.bodyCell} sx={{ padding: "8px", minWidth: "100px" }}>
               <Typography variant="body2">{item.status}</Typography>
             </TableCell>
             <TableCell
+              className={styles.bodyCell}
               sx={{
                 padding: "8px",
                 minWidth: "120px",
