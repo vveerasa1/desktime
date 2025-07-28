@@ -130,3 +130,6 @@
   text-align: center !important;
   /* border-bottom: 1px solod rgb(210, 208, 208) !important; */
 }
+.firstCell td{
+  border-left: 2px solid green !important;
+}

@@ -1,8 +1,10 @@
 .wrapper {
   width: calc(100% - 90px) !important; /* Adjust as needed */
-  margin-left: 68px  !important;
+  margin-left: 68px !important;
   margin-top: 24px !important; /* mt: 3 (3 * 8px) */
   margin-bottom: 8px !important; /* mb: 1 (1 * 8px) */
+  padding-left: 10px !important;
+  padding-right: 7px !important;
 }
 
 .timelineContainer {
