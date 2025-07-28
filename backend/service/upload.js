@@ -1,10 +1,17 @@
 const AWS = require("aws-sdk");
 const config = require("../config");
+// const s3 = new AWS.S3({
+//   accessKeyId: config.AWS.ACCESS_KEY_ID,
+//   secretAccessKey: config.AWS.SECRET_ACCESS_KEY,
+//   region: 'Beauharnois',
+//   ACL: "public-read",
+// });
 const s3 = new AWS.S3({
   accessKeyId: config.AWS.ACCESS_KEY_ID,
   secretAccessKey: config.AWS.SECRET_ACCESS_KEY,
-  region: 'ca-central-1',
-  ACL: "public-read",
+  endpoint: new AWS.Endpoint(config.AWS.endpoint), // example OVH S3 endpoint
+  region: "bhs",
+  s3ForcePathStyle: true, // important for OVH
 });
 
 const uploadFile = async (parameters) => {
@@ -24,20 +31,23 @@ const uploadFile = async (parameters) => {
 
 /**
  * File upload to S3 bucket
- * 
- * @param {*} file 
- * @param {*} bucketName 
- * @returns 
+ *
+ * @param {*} file
+ * @param {*} bucketName
+ * @returns
  */
 const uploadFileToS3 = async (file, folderPath) => {
-  console.log(file,"FILEEEE")
+  console.log(file, "FILEEEE");
   if (!file) return;
-  const fileExtension = file.originalname.split('.').pop();
-  const fileNameWithoutExtension = file.originalname.split('.').slice(0, -1).join('.');
+  const fileExtension = file.originalname.split(".").pop();
+  const fileNameWithoutExtension = file.originalname
+    .split(".")
+    .slice(0, -1)
+    .join(".");
   const newFileName = `${fileNameWithoutExtension}.${fileExtension}`;
 
   const params = {
-    Bucket: "desktime-screenshot",
+    Bucket: "trackme",
     Key: `${folderPath}/${newFileName}`,
     Body: file.buffer,
     ContentType: file.mimetype,
@@ -50,5 +60,4 @@ const uploadFileToS3 = async (file, folderPath) => {
 module.exports = {
   uploadFile,
   uploadFileToS3,
-  s3
 };

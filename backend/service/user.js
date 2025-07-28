@@ -3,9 +3,10 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const config = require("../config");
-const crypto = require('crypto');
+const crypto = require("crypto");
 const ScreenshotLog = require("../models/screenshot");
 const trackingSession = require("../models/trackingSession");
+const Team = require("../models/team");
 
 const addUser = async (req, res) => {
   try {
@@ -26,76 +27,89 @@ const addUser = async (req, res) => {
       trackingStartTime,
       trackingEndTime,
       timeZone,
+      teamId,
+      ownerId,
     } = req.body;
 
-    const password =await generateRandomPassword(); // plain text password
+    const password = await generateRandomPassword(); // plain text password
     const hashedPassword = await bcrypt.hash(password, 10);
-    let durationSeconds=0;
-    const admin = await User.findById(`${config.adminId.id}`);
-    if(workStartTime && workEndTime){
-    const start = moment(workStartTime, "HH:mm:ss");
-    const end = moment(workEndTime, "HH:mm:ss");
+    let durationSeconds = 0;
+    const admin = await User.findOne({ _id: ownerId });
+    console.log("printing");
+    console.log(admin);
+    if (workStartTime && workEndTime) {
+      const start = moment(workStartTime, "HH:mm:ss");
+      const end = moment(workEndTime, "HH:mm:ss");
 
-    durationSeconds = end.diff(start, "seconds");
+      durationSeconds = end.diff(start, "seconds");
     }
     const allUsers = await User.find();
     let user;
-    if(admin) {
+    if (admin) {
       const start = moment(admin.workStartTime, "HH:mm:ss");
-    const end = moment(admin.workEndTime, "HH:mm:ss");
+      const end = moment(admin.workEndTime, "HH:mm:ss");
 
-    durationSeconds = end.diff(start, "seconds");
+      durationSeconds = end.diff(start, "seconds");
       user = new User({
-      username,
-      employeeId:employeeId ? employeeId : allUsers.length + 1,
-      email,
-      password: hashedPassword,
-      team:admin.team,
-      gender,
-      role:"Employee",
-      phone,
-      workingDays:admin.workingDays,
-      workStartTime:admin.workStartTime,
-      workEndTime:admin.workEndTime,
-      minimumHours:admin.minimumHours,
-      flexibleHours:flexibleHours?true:false,
-      trackingDays:admin.trackingDays,
-      trackingStartTime:admin.trackingStartTime,
-      trackingEndTime:admin.trackingEndTime,
-      timeZone:admin.timeZone,
-      photo: `https://ui-avatars.com/api/?name=${username
-        .split(" ")
-        .join("+")}&background=0D8ABC&color=fff`,
-      workDuration: durationSeconds,
-      })
+        username,
+        employeeId: employeeId ? employeeId : allUsers.length + 1,
+        email,
+        password: hashedPassword,
+        team: admin.team,
+        gender,
+        role: "Employee",
+        phone,
+        workingDays: admin.workingDays,
+        workStartTime: admin.workStartTime,
+        workEndTime: admin.workEndTime,
+        minimumHours: admin.minimumHours,
+        flexibleHours: flexibleHours ? true : false,
+        trackingDays: admin.trackingDays,
+        trackingStartTime: admin.trackingStartTime,
+        trackingEndTime: admin.trackingEndTime,
+        timeZone: admin.timeZone,
+        photo: `https://ui-avatars.com/api/?name=${username
+          .split(" ")
+          .join("+")}&background=0D8ABC&color=fff`,
+        workDuration: durationSeconds,
+        teamId,
+        ownerId,
+      });
     } else {
-
-    user = new User({
-      username,
-      employeeId,
-      email,
-      password: hashedPassword,
-      team,
-      gender,
-      role,
-      phone,
-      workingDays,
-      workStartTime,
-      workEndTime,
-      minimumHours,
-      flexibleHours,
-      trackingDays,
-      trackingStartTime,
-      trackingEndTime,
-      timeZone,
-      photo: `https://ui-avatars.com/api/?name=${username
-        .split(" ")
-        .join("+")}&background=0D8ABC&color=fff`,
-      workDuration: durationSeconds,
-    });
-  }
+      user = new User({
+        username,
+        employeeId,
+        email,
+        password: hashedPassword,
+        team,
+        gender,
+        role,
+        phone,
+        workingDays,
+        workStartTime,
+        workEndTime,
+        minimumHours,
+        flexibleHours,
+        trackingDays,
+        trackingStartTime,
+        trackingEndTime,
+        timeZone,
+        photo: `https://ui-avatars.com/api/?name=${username
+          .split(" ")
+          .join("+")}&background=0D8ABC&color=fff`,
+        workDuration: durationSeconds,
+        teamId,
+      });
+    }
 
     await user.save();
+    if (role === "Owner") {
+      user.ownerId = user._id;
+      await user.save();
+    }
+    if (teamId) {
+      await Team.findByIdAndUpdate(teamId, { $inc: { teamMembersCount: 1 } });
+    }
     const transporter = nodemailer.createTransport({
       service: config.smtp?.service,
       auth: {
@@ -148,10 +162,11 @@ Desktime - Pentabay Team`,
 };
 
 function generateRandomPassword(length = 8) {
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
   return Array.from(crypto.randomFillSync(new Uint32Array(length)))
-    .map(x => charset[x % charset.length])
-    .join('');
+    .map((x) => charset[x % charset.length])
+    .join("");
 }
 
 const getUserById = async (req, res) => {
@@ -180,15 +195,33 @@ const updateUser = async (req, res) => {
     const start = moment(req.body.workStartTime, "HH:mm:ss");
     const end = moment(req.body.workEndTime, "HH:mm:ss");
     let durationSeconds = end.diff(start, "seconds");
+
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({
+        code: 404,
+        status: "Error",
+        message: "User not found",
+      });
+    }
+    const oldTeamId = existingUser.teamId?.toString();
+    const newTeamId = req.body.teamId?.toString();
     const updateData = {
       ...req.body,
       workDuration: durationSeconds,
     };
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: id },
-      updateData,
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    if (newTeamId && oldTeamId && newTeamId !== oldTeamId) {
+      await Team.findByIdAndUpdate(oldTeamId, {
+        $inc: { teamMembersCount: -1 },
+      });
+      await Team.findByIdAndUpdate(newTeamId, {
+        $inc: { teamMembersCount: 1 },
+      });
+    }
     res.status(200).json({
       code: 200,
       status: "Success",
@@ -228,12 +261,22 @@ const deleteUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const users = await User.find({ isDeleted: false });
+    const { ownerId } = req.params;
+    const users = await User.find({
+      isDeleted: false,
+      $or: [{ _id: ownerId }, { ownerId: ownerId }],
+    });
+    const activeCount = users.filter((user) => user.active === true).length;
+    const inactiveCount = users.filter((user) => user.active === false).length;
     res.status(200).json({
       code: 200,
       status: "Success",
       message: "Users info fetched successfully",
-      data: users,
+      data: {
+        users,
+        activeCount,
+        inactiveCount,
+      },
     });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -249,7 +292,7 @@ const getAllUser = async (req, res) => {
 const getScreenshotsById = async (req, res) => {
   try {
     const { date } = req.query;
-    const {id} = req.params;
+    const { id } = req.params;
 
     if (!date) {
       return res

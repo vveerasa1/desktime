@@ -7,7 +7,6 @@ import {
   Button,
   Stack,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
 import EmailIcon from "@mui/icons-material/Email";
 import LoadingComponent from "../../ComponentLoader";
 import IconButton from "@mui/material/IconButton";
@@ -17,7 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./index.module.css";
-
+import { Link } from "react-router-dom";
 const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedColleague, setSelectedColleague] = useState(null);
@@ -51,8 +50,8 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
         <LoadingComponent />
       ) : (
         <Grid container spacing={3}>
-          {colleaguesData?.length > 0 &&
-            colleaguesData.map((colleague, index) => (
+          {colleaguesData?.users?.length > 0 &&
+            colleaguesData?.users.map((colleague, index) => (
               <Grid item key={index} size={3} className={styles.gridItem}>
                 <Paper className={styles.card} elevation={1}>
                   {userRole === "Admin" && (
@@ -64,22 +63,44 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                       <MoreVertIcon fontSize="small" />
                     </IconButton>
                   )}
-
-                  <Box className={styles.profileBox}>
-                    <Avatar
-                      alt={colleague.username}
-                      src={colleague.photo}
-                      className={styles.avatar}
-                    />
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {colleague.username}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {colleague.role || "Web Developer"}
-                      </Typography>
+                  {userRole === "Admin" ? (
+                    <Link
+                      style={{ textDecoration: "none", color: "inherit" }}
+                      to={`/dashboard/employee=${colleague._id}`}
+                    >
+                      <Box className={styles.profileBox}>
+                        <Avatar
+                          alt={colleague.username}
+                          src={colleague.photo}
+                          className={styles.avatar}
+                        />
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {colleague.username}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {colleague.role}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Link>
+                  ) : (
+                    <Box className={styles.profileBox}>
+                      <Avatar
+                        alt={colleague.username}
+                        src={colleague.photo}
+                        className={styles.avatar}
+                      />
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {colleague.username}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {colleague.role}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
+                  )}
 
                   <Box className={styles.divider}></Box>
 

@@ -5,10 +5,13 @@ const User = require("../models/user");
 const dashboardCard = async (req, res) => {
   try {
     const { type, date } = req.query; // expects type=day|week|month
-    const user = req.user;
-    console.log(user);
-    let userId = user.userId;
+    // const user = req.user;
+    const { userId } = req.query;
+    // let userId = user.userId;
+
+    const user = await User.findById(userId);
     let timeZone = user.timeZone;
+    console.log(date);
 
     let result = {};
     if (type === "day") {
@@ -34,14 +37,17 @@ const dashboardCard = async (req, res) => {
       let idleTime = 0;
       let timeAtWork = 0;
       if (session.leftTime) {
-        timeAtWork = Math.floor((session.leftTime - arrivalTime) / 1000); // seconds
+        timeAtWork = session.timeAtWork; // seconds
         idleTime = (session.idlePeriods || []).reduce(
           (acc, p) => acc + (p.duration || 0),
           0
         );
-       const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
+        const activeTime = (session.activePeriods || []).reduce(
+          (acc, p) => acc + (p.duration || 0),
+          0
+        );
         //timeAtWork = deskTime - idleTime;
-        deskTime = activeTime?activeTime:0;//desktime
+        deskTime = activeTime ? activeTime : 0; //desktime
       } else {
         const now = new Date();
         timeAtWork = Math.floor((now - arrivalTime) / 1000); // seconds
@@ -50,20 +56,24 @@ const dashboardCard = async (req, res) => {
         //   (acc, p) => acc + (p.duration || 0),
         //   0
         // );
-        const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
-        deskTime = activeTime?activeTime:0;
+        const activeTime = (session.activePeriods || []).reduce(
+          (acc, p) => acc + (p.duration || 0),
+          0
+        );
+        console.log(activeTime);
+        deskTime = activeTime ? activeTime : 0;
         // timeAtWork = deskTime - idleTime;
       }
 
       result = {
         type: "day",
-        arrivalTime: moment(session.arrivalTime).tz(timeZone).format("HH:mm:ss"),
-        leftTime: session?.leftTime
-          ? moment(session.leftTime).tz(timeZone).format("HH:mm:ss")
-          : null,
-        deskTime, // in seconds
-        idleTime, // in seconds
-        timeAtWork, // in seconds
+        arrivalTime: moment(session.arrivalTime)
+          .tz(timeZone)
+          .format("HH:mm:ss"),
+        leftTime: session?.leftTime,
+        deskTime,
+        idleTime,
+        timeAtWork,
       };
     } else if (type === "week" || type === "month") {
       const baseDate = date
@@ -99,7 +109,6 @@ const dashboardCard = async (req, res) => {
       }
 
       let totalDeskTime = 0;
-      let totalIdleTime = 0;
       let totalTimeAtWork = 0;
       let totalArrivalTime = 0;
       let totalLeftTime = 0;
@@ -108,18 +117,21 @@ const dashboardCard = async (req, res) => {
 
       sessions.forEach((session) => {
         const arrival = moment(session.arrivalTime).tz(timeZone);
-        const left = session.leftTime ? moment(session.leftTime).tz(timeZone) : moment();
+        const timeAtWork = session.timeAtWork ? session.timeAtWork : 0;
+        const activeTime = (session.activePeriods || []).reduce(
+          (acc, p) => acc + (p.duration || 0),
+          0
+        );
+        const desktime = activeTime ? activeTime : 0;
 
-        const deskTime = left.diff(arrival, "seconds");
-        const activeTime = (session.activePeriods || []).reduce((acc, p) => acc + (p.duration || 0), 0);
-        const timeAtWork = activeTime?activeTime:0;
-
-        totalDeskTime += deskTime;
-        // totalIdleTime += idleTime;
+        totalDeskTime += desktime;
         totalTimeAtWork += timeAtWork;
         totalArrivalTime += arrival.valueOf(); // milliseconds
         if (session?.leftTime) {
-          totalLeftTime += left.valueOf();
+          const leftMoment = moment(session.leftTime, "HH:mm");
+          const durationFromStart =
+            leftMoment.hours() * 3600 * 1000 + leftMoment.minutes() * 60 * 1000;
+          totalLeftTime += durationFromStart;
           leftCount++;
         }
         count++;
@@ -129,10 +141,9 @@ const dashboardCard = async (req, res) => {
         type,
         arrivalTime: moment(totalArrivalTime / count).format("HH:mm:ss"),
         leftTime: leftCount
-          ? moment(totalLeftTime / leftCount).format("HH:mm:ss")
+          ? moment.utc(totalLeftTime / leftCount).format("HH:mm")
           : null,
         deskTime: Math.floor(totalDeskTime / count),
-        // idleTime: Math.floor(totalIdleTime / count),
         timeAtWork: Math.floor(totalTimeAtWork / count),
       };
     }
@@ -156,10 +167,12 @@ const formatDuration = (seconds) => {
 
 const dashboardProductivityTime = async (req, res) => {
   try {
-    const { type, date } = req.query;
-    const user = req.user;
-    const userId = user.userId;
-    const timeZone = user.timeZone;
+    const { type, date, userId } = req.query;
+    const user = await User.findById(userId);
+    // const user = req.user;
+    // const userId = user.userId;
+    let timeZone = user.timeZone;
+    console.log("user", user);
 
     if (type === "day") {
       const targetDate = date || moment().tz(timeZone).format("YYYY-MM-DD");
@@ -168,7 +181,13 @@ const dashboardProductivityTime = async (req, res) => {
         userId,
         $expr: {
           $eq: [
-            { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime", timezone: timeZone } },
+            {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$arrivalTime",
+                timezone: timeZone,
+              },
+            },
             targetDate,
           ],
         },
@@ -214,6 +233,7 @@ const dashboardProductivityTime = async (req, res) => {
       const baseMoment = date
         ? moment(date).tz(timeZone) // custom date given
         : moment().tz(timeZone); // default to today
+      console.log("base", baseMoment);
       const startOfWeek = baseMoment.clone().startOf("isoWeek"); // Monday
       const endOfWeek = baseMoment.clone().endOf("isoWeek"); // Sunday
 
@@ -228,7 +248,13 @@ const dashboardProductivityTime = async (req, res) => {
           userId,
           $expr: {
             $eq: [
-              { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime", timezone: timeZone } },
+              {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$arrivalTime",
+                  timezone: timeZone,
+                },
+              },
               formattedDate,
             ],
           },

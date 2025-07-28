@@ -1,19 +1,29 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
   IconButton,
   ToggleButton,
   ToggleButtonGroup,
-} from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import dayjs from 'dayjs';
-import { useSearchParams } from 'react-router-dom'; // ✅ React Router
+} from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import dayjs from "dayjs";
+import { useSearchParams } from "react-router-dom"; // ✅ React Router
+import { jwtDecode } from "jwt-decode";
+import CustomCalendar from "../../CustomCalender";
+import styles from "./index.module.css";
+import LoadingComponent from "../../ComponentLoader";
 
-import CustomCalendar from '../../CustomCalender';
-import styles from './index.module.css';
+const DeskTimeHeader = ({ setFilters, getSingleData }) => {
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token");
+  const loggedInUserId = token ? jwtDecode(token).userId : null;
 
-const DeskTimeHeader = ({ setFilters }) => {
+  // Get displayed user ID from the getSingleData response
+  const displayedUserId = getSingleData?.data?._id;
+
+  // Determine if we're viewing own profile or colleague's
+  const isOwnProfile = loggedInUserId === displayedUserId;
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultDate = dayjs().format("YYYY-MM-DD");
@@ -26,8 +36,6 @@ const DeskTimeHeader = ({ setFilters }) => {
   };
 
   const [filtersState, setFiltersState] = useState(initialFilters);
-
-
 
   // ✅ Sync with parent and URL
   useEffect(() => {
@@ -49,13 +57,21 @@ const DeskTimeHeader = ({ setFilters }) => {
     setFiltersState((prev) => ({ ...prev, date: formattedDate }));
   }, []);
 
-  const viewModes = useMemo(() => ['day', 'week', 'month'], []);
+  const viewModes = useMemo(() => ["day", "week", "month"], []);
 
   return (
     <Box className={styles.headerContainer}>
-      <Typography variant="h6" className={styles.title}>
-        My DeskTime
-      </Typography>
+      {loading ? (
+        <Box className={styles.title}>
+          <LoadingComponent />
+        </Box>
+      ) : (
+        <Typography variant="h6" className={styles.title}>
+          {isOwnProfile
+            ? "My Tracking"
+            : `${getSingleData?.data?.username || "User"}`}
+        </Typography>
+      )}
 
       <Box className={styles.controls}>
         <ToggleButtonGroup
@@ -68,7 +84,9 @@ const DeskTimeHeader = ({ setFilters }) => {
             <ToggleButton
               key={val}
               value={val}
-              className={`${styles.toggleButton} ${filtersState.viewMode === val ? styles.active : ''}`}
+              className={`${styles.toggleButton} ${
+                filtersState.viewMode === val ? styles.active : ""
+              }`}
             >
               {val}
             </ToggleButton>
@@ -81,18 +99,31 @@ const DeskTimeHeader = ({ setFilters }) => {
             name="date"
             onChange={(newDate) => handleDateChange(newDate)}
             fontSize="small"
-            maxDate={new Date()} 
+            maxDate={new Date()}
           />
         </Box>
 
-        <Box className={styles.arrowButtons}>
-          <IconButton>
-            <ChevronLeft className={styles.icon} />
-          </IconButton>
-          <IconButton>
-            <ChevronRight className={styles.icon} />
-          </IconButton>
-        </Box>
+        <IconButton
+          onClick={() => {
+            const newDate = dayjs(filtersState.date)
+              .subtract(1, filtersState.viewMode)
+              .format("YYYY-MM-DD");
+            setFiltersState((prev) => ({ ...prev, date: newDate }));
+          }}
+        >
+          <ChevronLeft className={styles.icon} />
+        </IconButton>
+
+        <IconButton
+          onClick={() => {
+            const newDate = dayjs(filtersState.date)
+              .add(1, filtersState.viewMode)
+              .format("YYYY-MM-DD");
+            setFiltersState((prev) => ({ ...prev, date: newDate }));
+          }}
+        >
+          <ChevronRight className={styles.icon} />
+        </IconButton>
       </Box>
     </Box>
   );

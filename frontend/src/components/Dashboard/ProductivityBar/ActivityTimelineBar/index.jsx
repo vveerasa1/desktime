@@ -7,7 +7,7 @@ const ActivityTimelineBar = ({
 }) => {
     
   return (
-   <Box>
+   <Box sx={{marginTop:-3}}>
       {/* --- Activity Timeline Bar Below Chart --- */}
       <Box className={styles.wrapper}>
         <Box className={styles.timelineContainer}>

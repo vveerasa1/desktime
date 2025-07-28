@@ -59,19 +59,18 @@ const generateTimeSlots = (start, end, interval) => {
 
 // --- Time Slot and Label Definitions ---
 const dayTimeSlots = generateTimeSlots("08:00", "22:00", 5);
-const dayTimeLabels = [
-  "08:00",
-  "10:00",
-  "12:00",
-  "14:00",
-  "16:00",
-  "18:00",
-  "20:00",
-  "22:00",
-];
+const dayTimeLabels = [];
+
+for (let hour = 8; hour <= 22; hour++) {
+  const formatted = hour.toString().padStart(2, "0") + ":00";
+  dayTimeLabels.push(formatted);
+}
+
+console.log(dayTimeLabels);
+
 
 // --- Styling Constants ---
-const TRACKED_COLOR = "#5664e7"; // Blue for tracked
+const TRACKED_COLOR = "#3BA5E3"; // Blue for tracked
 const UNTRACKED_COLOR = "white"; // Grey for untracked/idle
 
 
@@ -164,14 +163,14 @@ const ProductivityBar = ({ getProductiviyData }) => {
       }
     });
 
-    chartTitle = "Daily Productivity Timeline";
+    chartTitle = "Productivity Timeline";
     currentChartComponent = (
       <>
         <Box
           sx={{
             position: "relative",
             width: "100%",
-            height: 250,
+            height: 180,
             backgroundColor: "",
             borderRadius: "4px",
           }}
@@ -192,13 +191,13 @@ const ProductivityBar = ({ getProductiviyData }) => {
                 tick={{ fontSize: 10, fill: "#666" }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="productive" stackId="a" fill="#4caf50" />
-              <Bar dataKey="neutral" stackId="a" fill="#9e9e9e" />
+              <Bar dataKey="productive" stackId="a" fill="#5FBA2B" />
+              <Bar dataKey="neutral" stackId="a" fill="#ffffffff" />
               <Bar dataKey="unproductive" stackId="a" fill="#ffc107" />
             </BarChart>
           </ResponsiveContainer>
         </Box>
-        <ActivityTimelineBar
+        <ActivityTimelineBar 
           currentNormalizedData={dayNormalizedData}
           TRACKED_COLOR={TRACKED_COLOR}
           UNTRACKED_COLOR={UNTRACKED_COLOR}
@@ -341,8 +340,8 @@ const ProductivityBar = ({ getProductiviyData }) => {
                   tick={{ fontSize: 9, fill: "#666" }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="productive" stackId="a" fill="#4caf50" />
-                <Bar dataKey="neutral" stackId="a" fill="#9e9e9e" />
+                <Bar dataKey="productive" stackId="a" fill="#5FBA2B" />
+                <Bar dataKey="neutral" stackId="a" fill="#ffffffff" />
                 <Bar dataKey="unproductive" stackId="a" fill="#ffc107" />
               </BarChart>
             </ResponsiveContainer>
@@ -381,7 +380,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px", marginTop: 2 }}>
+    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
       <Box sx={{ p: 2 }}>
         <Typography
           variant="subtitle2"

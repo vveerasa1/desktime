@@ -9,14 +9,15 @@ const authenticate = (req, res, next) => {
 
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.split(" ")[1];
+    console.log("token : "+token)
 
     try {
-      const decoded = jwt.verify(token, config.auth.JWT_SECRET);
+      const decoded =  jwt.verify(token, config.auth.JWT_SECRET);
       req.user = decoded;
       next();
     } catch (err) {
-      // console.log(err);
-      //console.error("JWT Verification Error:", err.message);
+      
+      console.error("JWT Verification Error:", err.message);
       return res.status(401).json({ message: "Invalid or expired token" });
     }
   }
