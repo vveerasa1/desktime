@@ -1,8 +1,8 @@
 export const URL_CONSTANTS = {
   // BASE_URL: "http://44.211.37.68:8080/",
-  BASE_URL: "http://localhost:4005/",
+  // BASE_URL: "http://localhost:4005/",
 
-  // 'http://44.211.37.68:4005/',//
+   BASE_URL:'http://51.79.91.107:4005/',//
   USER: "users",
   AUTH: "auth",
   LOGIN: "login",
