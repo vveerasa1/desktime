@@ -2,6 +2,7 @@
   margin-bottom: 15px !important;
   border-radius: 8px !important;
   width: 100%;
+  /* height: 100%; */
 }
 
 .content {
@@ -12,19 +13,24 @@
   display: flex !important;
   justify-content: space-between !important;
   margin-bottom: 12px !important;
+  align-items: center;
 }
 
 .headingText {
   font-weight: 600 !important;
   color: #333 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
 .addButton {
   border: 1px solid !important;
   background-color: #143351 !important;
   color: white !important;
-  border-radius: 12px !important;
-  padding: 6px 12px !important;
+  border-radius: 14px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  padding: 0px 12px !important;
+  text-transform: none !important;
+  height: 35px;
 }
 
 .icon {
@@ -37,9 +43,13 @@
 }
 
 .headerCell {
-  font-weight: 600 !important;
+  font-weight: 550 !important;
   white-space: nowrap !important;
   border-bottom: none !important;
+  color: #7f7f7f !important;
+  text-align: center !important;
+  /* border:1px solid gray !important */
+ /* background-color:rgb(245 245 245) !important; */
 }
 
 .tableRow {
@@ -67,13 +77,17 @@
 }
 
 .bodyCell {
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
+  /* padding-top: 12px !important; */
+  /* padding-bottom: 12px !important; */
   color: #555 !important;
   /* white-space: nowrap !important; */
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  border-bottom: none !important;
+  /* border-bottom: 1px solid gray !important; */
+  max-height: 48px !important;
+
+  text-align: center !important;
+
 }
 .noWrap{
   white-space: wrap !important;
@@ -107,5 +121,12 @@
 }
 
 .container{
-  width:70% !important
+  width:70% !important;
+  height:100% !important;
+}
+.rowCells{
+  white-space: nowrap !important;
+  border-bottom: none !important;
+  text-align: center !important;
+  /* border-bottom: 1px solod rgb(210, 208, 208) !important; */
 }
