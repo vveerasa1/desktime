@@ -128,16 +128,16 @@ useEffect(() => {
       maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: 2, // Rounded corners for the dialog
+          borderRadius: '13px', // Rounded corners for the dialog
         },
       }}
     >
       {/* Custom Title Bar */}
       <DialogTitle
         sx={{
-          bgcolor: "#4caf50", // A standard green color
-          color: "common.white",
+          color: "black",
           display: "flex",
+          borderBottom: "1px solid #e0e0e0",
           justifyContent: "space-between",
           alignItems: "center",
           py: 1.5,
@@ -170,24 +170,28 @@ useEffect(() => {
         <Button
           onClick={handleClose}
           variant="outlined"
+
+          
           sx={{
             textTransform: "none",
             borderColor: "grey.400",
             color: "text.primary",
             mr: 1,
+            borderRadius: "8px",
+
           }}
         >
           Close
         </Button>
         <Button
           onClick={handleSubmit}
-          variant="contained"
+          variant="outlined"
           sx={{
             textTransform: "none",
-            // Style for the disabled state to match the image
-            "&.Mui-disabled": {
-              backgroundColor: "grey.300",
-              color: "grey.500",
+            borderRadius: "8px",
+            "&:hover": {
+              backgroundColor: "#143BA0",
+              color:"white"
             },
           }}
         >

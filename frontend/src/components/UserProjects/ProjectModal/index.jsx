@@ -108,10 +108,15 @@ const ProjectModal = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog 
+     PaperProps={{
+    sx: {
+      borderRadius: "13px", // Rounded corners for entire modal
+    },
+  }}
+    open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle
         sx={{
-          backgroundColor: "#f5f5f5",
           borderBottom: "1px solid #e0e0e0",
           padding: "16px 24px",
           fontWeight: "bold",
@@ -199,13 +204,13 @@ const ProjectModal = ({
         </Button>
         <Button
           onClick={handleSave}
-          variant="contained"
+          variant="outlined"
           sx={{
             textTransform: "none",
             borderRadius: "8px",
-            backgroundColor: "#194CF0",
             "&:hover": {
               backgroundColor: "#143BA0",
+              color:"white"
             },
           }}
         >
