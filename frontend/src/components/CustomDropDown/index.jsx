@@ -44,7 +44,9 @@ const CustomDropdown = ({
   };
 
   return (
-    <Box>
+    <Box sx={{
+            height:'65px'
+        }}>
       {label && (
         <Typography className={styles.label} variant="subtitle2">
           {label}
