@@ -21,7 +21,16 @@ import {
   teamMembers,
   leaveTypes,
 } from "../../constants/absenceCalenderData";
+import { jwtDecode } from "jwt-decode";
+import { useGetAllProfileQuery } from "../../redux/services/user";
 export default function WeeklyAbsenceCalendar() {
+  const token = localStorage.getItem('token')
+  let ownerId = null
+  if(token){
+    let decoded = jwtDecode(token)
+    ownerId =decoded?.ownerId
+  } 
+   const {data:getAllProfileData,isLoading} = useGetAllProfileQuery({id:ownerId}) 
   const theme = useTheme();
   const [tab, setTab] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
