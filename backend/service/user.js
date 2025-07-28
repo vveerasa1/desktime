@@ -103,6 +103,10 @@ const addUser = async (req, res) => {
     }
 
     await user.save();
+    if (role === "Owner") {
+      user.ownerId = user._id;
+      await user.save();
+    }
     if (teamId) {
       await Team.findByIdAndUpdate(teamId, { $inc: { teamMembersCount: 1 } });
     }

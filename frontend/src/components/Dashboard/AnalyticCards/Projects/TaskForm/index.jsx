@@ -93,7 +93,7 @@ const TaskForm = ({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle
         sx={{
-          backgroundColor: "#f5f5f5",
+          // backgroundColor: "#6856f2ff",
           borderBottom: "1px solid #e0e0e0",
           padding: "16px 24px",
           fontWeight: "bold",
@@ -216,7 +216,7 @@ const TaskForm = ({
           sx={{
             textTransform: "none",
             borderRadius: "8px",
-            backgroundColor: "#194CF0",
+            backgroundColor: "#122d48 !important",
             "&:hover": {
               backgroundColor: "#143BA0",
             },

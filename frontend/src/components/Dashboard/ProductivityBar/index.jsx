@@ -163,7 +163,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
       }
     });
 
-    chartTitle = "Daily Productivity Timeline";
+    chartTitle = "Productivity Timeline";
     currentChartComponent = (
       <>
         <Box
@@ -380,7 +380,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px", marginTop: 2 }}>
+    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
       <Box sx={{ p: 2 }}>
         <Typography
           variant="subtitle2"

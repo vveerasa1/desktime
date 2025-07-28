@@ -24,7 +24,7 @@ const CustomTextField = (
 ) => {
     return (
         <Box sx={{
-            height:'70px'
+            height:'65px'
         }}>
             {label && (
                 <Typography className={styles.label} variant='subtitle2'>
