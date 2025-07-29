@@ -42,27 +42,16 @@ const dashboardCard = async (req, res) => {
           (acc, p) => acc + (p.duration || 0),
           0
         );
-        const activeTime = (session.activePeriods || []).reduce(
-          (acc, p) => acc + (p.duration || 0),
-          0
-        );
-        //timeAtWork = deskTime - idleTime;
-        deskTime = activeTime ? activeTime : 0; //desktime
+        deskTime = session.totalTrackedTime;
+        if (deskTime > timeAtWork) {
+          deskTime = timeAtWork;
+          session.totalTrackedTime = timeAtWork;
+          await session.save();
+        }
       } else {
         const now = new Date();
         timeAtWork = Math.floor((now - arrivalTime) / 1000); // seconds
-
-        // idleTime = (session.idlePeriods || []).reduce(
-        //   (acc, p) => acc + (p.duration || 0),
-        //   0
-        // );
-        const activeTime = (session.activePeriods || []).reduce(
-          (acc, p) => acc + (p.duration || 0),
-          0
-        );
-        console.log(activeTime);
-        deskTime = activeTime ? activeTime : 0;
-        // timeAtWork = deskTime - idleTime;
+        deskTime = session.totalTrackedTime;
       }
 
       result = {

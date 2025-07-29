@@ -1,4 +1,5 @@
 const Project = require("../models/project");
+const Task = require("../models/task");
 
 // Add or Update Project
 const saveProject = async (req, res) => {
@@ -116,25 +117,49 @@ const getProjectById = async (req, res) => {
 // Delete project by ID
 const deleteProjectById = async (req, res) => {
   try {
-    const deleted = await Project.findByIdAndDelete(req.params.id);
-    if (!deleted) {
+    const projectId = req.params.id;
+
+    // Find all tasks linked to the project
+    const tasks = await Task.find({ projectId });
+
+    // Check if all tasks are marked as "Done"
+    const allDone = tasks.every((task) => task.status === "Done");
+
+    if (!allDone) {
+      return res.status(400).json({
+        code: 400,
+        status: "Error",
+        message:
+          "Cannot delete project. All associated tasks must be marked as 'Done'.",
+      });
+    }
+
+    // Delete all tasks related to the project
+    await Task.deleteMany({ projectId });
+
+    // Delete the project itself
+    const deletedProject = await Project.findByIdAndDelete(projectId);
+
+    if (!deletedProject) {
       return res.status(404).json({ error: "Project not found." });
     }
+
     res.status(200).json({
       code: 200,
       status: "Success",
-      message: "Project deleted successfully",
+      message: "Project and associated tasks deleted successfully.",
       data: null,
     });
   } catch (err) {
     res.status(500).json({
       code: 500,
       status: "Error",
-      message: "Failed to delete teams",
+      message: "Failed to delete project and tasks.",
       error: err.message,
     });
   }
 };
+
 module.exports = {
   deleteProjectById,
   getProjectById,

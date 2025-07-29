@@ -344,6 +344,7 @@ async function initializeDailyTracking(userId) {
 
       // Check if cutoff has already passed for an existing session
       const user = await fetchUserConfig(userId);
+      console.log(user);
       const currentTime = moment().tz(user.timeZone);
       const [cutHour, cutMin] = user.trackingEndTime.split(":").map(Number);
       const cutoff = user.flexibleHours
@@ -458,7 +459,7 @@ async function sendActivityToServer(
     );
     return;
   }
-
+  console.log("userConfig :" + userConfig);
   const currentTime = moment().tz(userConfig.timeZone);
   const [cutHour, cutMin] = userConfig.trackingEndTime.split(":").map(Number);
 
@@ -651,7 +652,7 @@ async function captureScreenshot(userId) {
     );
     return;
   }
-
+  console.log(userConfig);
   const currentTime = moment().tz(userConfig.timeZone);
   const [cutHour, cutMin] = userConfig.trackingEndTime.split(":").map(Number);
   const cutoff = userConfig.flexibleHours
