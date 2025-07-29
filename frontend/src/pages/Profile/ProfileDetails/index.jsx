@@ -20,7 +20,7 @@ const ProfileDeatils = ({
   return (
     <Grid item size={{ xs: 12, md: 4 }}>
       {/* Profile Details */}
-      <Paper elevation={12} className={styles.profileDetailsCard}>
+      <Paper elevation={2}  className={styles.profileDetailsCard}>
         <Box className={styles.profileBox}>
           <Box className={styles.avatarRow}>
             <Box>
@@ -129,7 +129,7 @@ const ProfileDeatils = ({
       {/* Geo Settings */}
       <Box mt={2}>
 
-      <Paper elevation={12} className={styles.geoSettingsCard}>
+      <Paper elevation={2}  className={styles.geoSettingsCard}>
         <Typography variant="subtitle1">Geo Settings</Typography>
         <Box  className={styles.profileBox}>
           <CustomDropdown
