@@ -50,7 +50,7 @@ const CustomDropdown = ({
       {label && (
         <Typography className={styles.label} variant="subtitle2">
           {label}
-          {isRequired && <span className={styles.required}>*</span>}
+          {isRequired && <span style={{ color: "red" }}>*</span>}
         </Typography>
       )}
       <Box

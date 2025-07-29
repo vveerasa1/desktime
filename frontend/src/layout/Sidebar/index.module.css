@@ -15,13 +15,13 @@
 }
 
 .sidebar :global(.MuiListItem-root:hover) {
-  background-color: #1565c0;
+  background-color: #456070;
   border-radius: 10px;
 }
 
 .activeItem {
-  background-color: #1565c0 !important;
-  transition: #1565c0 0.1s ease;
+  background-color: #456070 !important;
+  transition: #456070 0.1s ease;
   border-radius: 10px;
 }
 
@@ -52,4 +52,11 @@
   display: flex;
   align-items: center;
   white-space: nowrap;
+  color: #ccc; /* light grey by default */
 }
+
+.activeItem .listItemText {
+  color: #ffffff !important; /* white when active */
+  font-weight: 800 !important; /* bold when active */
+}
+

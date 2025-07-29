@@ -40,17 +40,21 @@ const TeamsTable = ({
     setDeleteTeamId(null);
   };
 
-  const handleConfirmDelete = async () => {
-    if (deleteTeamId) {
-      try {
-        await deleteTeam(deleteTeamId).unwrap();
-        openToaster("Team Deleted Successfully!", "success");
-      } catch (error) {
-        console.error("Failed to delete team:", error);
-      }
+ const handleConfirmDelete = async () => {
+  if (deleteTeamId) {
+    try {
+      await deleteTeam(deleteTeamId).unwrap();
+      openToaster("Team Deleted Successfully!", "success");
+    } catch (error) {
+      const errorMessage =
+        error?.data?.error || "Failed to delete team. Please try again.";
+      openToaster(errorMessage, "error");
+      console.error("Failed to delete team:", error);
     }
-    handleClosePopover();
-  };
+  }
+  handleClosePopover();
+};
+
 
   const open = Boolean(anchorEl);
 

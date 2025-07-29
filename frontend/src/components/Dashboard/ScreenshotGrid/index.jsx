@@ -27,7 +27,7 @@ useGetScreenshotQuery({ id: employee || userId, date: filters.date });
   };
   return (
     <Paper className={styles.container}>
-      <Box>
+      <Box py={2} px={2}>
         <Typography variant="h6" gutterBottom>
           Screenshots
         </Typography>

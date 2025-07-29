@@ -309,9 +309,14 @@ const Projects = () => {
     assignee: "Assignee",
   };
 
-  const statusOptions = [{
-    id:"To-do",name:"To-do"
-  },{id:"In-progress",name:"In-progress"},{id:"Done",name:"Done"}]
+  const statusOptions = [
+    {
+      id: "To-do",
+      name: "To-do",
+    },
+    { id: "In-progress", name: "In-progress" },
+    { id: "Done", name: "Done" },
+  ];
 
   const handleOpenToaster = (message, severity = "success") => {
     setToaster({ open: true, message, severity });
@@ -383,9 +388,36 @@ const Projects = () => {
       </Box>
 
       {/* Tabs placed below the heading */}
-      <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 2 }}>
-        <Tab label="Projects" />
-        <Tab label="Tasks" />
+      <Tabs
+        value={tabIndex}
+        onChange={handleTabChange}
+        sx={{ mb: 2 }}
+        TabIndicatorProps={{ style: { display: "none" } }} // hide the default underline
+      >
+        <Tab
+          label="Projects"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px 8px 0 0",
+            color: "#143351",
+            "&.Mui-selected": {
+              backgroundColor: "#143351",
+              color: "#fff",
+            },
+          }}
+        />
+        <Tab
+          label="Tasks"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px 8px 0 0",
+            color: "#143351",
+            "&.Mui-selected": {
+              backgroundColor: "#143351",
+              color: "#fff",
+            },
+          }}
+        />
       </Tabs>
 
       {/* Tab Content */}

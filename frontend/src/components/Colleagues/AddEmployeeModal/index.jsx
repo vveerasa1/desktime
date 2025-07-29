@@ -13,7 +13,7 @@ import EmployeeProfileDetails from "./EmployeeProfileDetails";
 import CustomButton from "../../../components/CustomButton";
 import { useGetAllTeamQuery } from "../../../redux/services/team";
 import { jwtDecode } from "jwt-decode";
-const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
+const AddEmployeeModal = ({ open, handleClose, openToaster ,handleCloseToaster}) => {
   const token = localStorage.getItem("token");
   let ownerId = null;
   if (token) {
@@ -129,6 +129,7 @@ console.log(formattedTeams, "formatted data")
     }
      if (!formData.team) {
       errors.team = "Team is required";
+      hasError = true; // This was missing - now it will prevent submission
     }
 
     if (hasError) {
@@ -153,6 +154,8 @@ console.log(formattedTeams, "formatted data")
           team:"",
           errors: { username: "", email: "" ,team:"" },
         });
+        handleCloseToaster();
+
       }, 2000);
       // Clear form and errors
       setFormData({
@@ -202,8 +205,6 @@ console.log(formattedTeams, "formatted data")
           Cancel
         </Button>
         <CustomButton
-          variant="contained"
-          color="success"
           onClick={handleSubmit}
           disabled={createProfileApiIsLoading}
           loading={createProfileApiIsLoading}

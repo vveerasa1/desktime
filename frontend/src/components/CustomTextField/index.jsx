@@ -28,7 +28,7 @@ const CustomTextField = (
         }}>
             {label && (
                 <Typography className={styles.label} variant='subtitle2'>
-                    {label}{isRequired && <span className={styles.required}>*</span>}
+                    {label}{isRequired && <span style={{ color: "red" }}>*</span>}
                 </Typography>
             )}
             <TextField

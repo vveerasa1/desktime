@@ -1,8 +1,9 @@
-import { Button ,Box,CircularProgress  } from '@mui/material';
+import { Button, Box, CircularProgress } from '@mui/material';
+
 const CustomButton = ({
     label,
-    color = 'white !important',
-    variant = 'contained',
+    color = 'primary',
+    variant = 'outlined', // Changed default to outlined
     size = 'medium',
     onClick,
     disabled = false,
@@ -11,57 +12,43 @@ const CustomButton = ({
     backgroundColor = '#1565c0',
     sx = {},
     fullWidth = false,
-    loading=false,
+    loading = false,
     type = 'button',
 }) => {
     return (
         <Button
-            //   color={color}
-            //   variant={variant}
+            color={color}
+            variant={variant}
             size={size}
-
             onClick={onClick}
             disabled={disabled}
             startIcon={startIcon}
             endIcon={endIcon}
             sx={{
-                backgroundColor: backgroundColor,
-                color:'white'
+                textTransform: "none",
+                borderRadius: "8px",
+                "&:hover": {
+                    backgroundColor: "#143BA0",
+                    color: "white"
+                },
+                ...(variant === 'contained' && {
+                    backgroundColor: backgroundColor,
+                    color: 'white'
+                }),
+                ...sx
             }}
             fullWidth={fullWidth}
             type={type}
         >
-             {loading ? (
-        <Box display="flex" alignItems="center" gap={1}>
-          <CircularProgress color="inherit"/>
-        </Box>
-      ) : (
-        label
-      )}
-            {/* {label} */}
+            {loading ? (
+                <Box display="flex" alignItems="center" gap={1}>
+                    <CircularProgress size={24} color="inherit" />
+                </Box>
+            ) : (
+                label
+            )}
         </Button>
     );
 };
-
-// CustomButton.propTypes = {
-//   label: PropTypes.string.isRequired,
-//   color: PropTypes.oneOf([
-//     'primary',
-//     'secondary',
-//     'error',
-//     'info',
-//     'success',
-//     'warning',
-//   ]),
-//   variant: PropTypes.oneOf(['contained', 'outlined', 'text']),
-//   size: PropTypes.oneOf(['small', 'medium', 'large']),
-//   onClick: PropTypes.func,
-//   disabled: PropTypes.bool,
-//   startIcon: PropTypes.node,
-//   endIcon: PropTypes.node,
-//   sx: PropTypes.object,
-//   fullWidth: PropTypes.bool,
-//   type: PropTypes.string,
-// };
 
 export default CustomButton;

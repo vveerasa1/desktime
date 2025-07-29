@@ -144,6 +144,8 @@ const Colleagues = () => {
             handleOpen={handleOpen}
             handleClose={handleClose}
             setOpen={setOpen}
+                      openToaster={handleOpenToaster}
+
           />
         </Paper>
         <AddEmployeeModal

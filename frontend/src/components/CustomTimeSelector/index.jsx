@@ -1,6 +1,7 @@
 import React from "react";
 import { Autocomplete, TextField, Typography, Box } from "@mui/material";
 import styles from "./index.module.css";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 // Generate time slots like 09:00 AM, 09:30 AM, etc.
 const generateTimeOptions = () => {
@@ -71,6 +72,7 @@ const CustomTimeSelector = ({
         boxSizing: "border-box",
       },
     }}
+    
     inputProps={{
       ...params.inputProps,
       style: {

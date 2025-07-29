@@ -21,15 +21,17 @@ const TrackingDetails = ({
   trackingDays,
   minimumHoursOptions,
   handleBlur,
-  role
+  role,
 }) => {
   const [flexibleHours, setFlexibleHours] = useState(false);
 
   return (
-    <Grid item xs={12} sm={12} md={12} lg={4}>
+    <Grid item size={{ xs: 12, md: 4 }}>
       {/* Working Days */}
-      <Paper elevation={12} className={styles.paperCard}>
-        <Typography variant="subtitle1">Working Days</Typography>
+      <Paper elevation={2}  className={styles.paperCard}>
+        <Typography sx={{ fontWeight: 600 }} variant="subtitle1">
+          Working Days
+        </Typography>
         <Typography className={styles.subText}>
           Please note that only admins can change this information
         </Typography>
@@ -38,7 +40,7 @@ const TrackingDetails = ({
           <CustomDays
             label="Select Days"
             selectedDays={workingDays}
-             disabled={role !== "Admin"} 
+            disabled={!(role === "Admin" || role === "Owner")}
             onChange={(days) => handleDaysChange(days, "workingDays")}
             error={Boolean(formData.errors?.workingDays)}
             helperText={formData.errors?.workingDays}
@@ -53,7 +55,9 @@ const TrackingDetails = ({
                 handleChange={(e) => handleChange(e, "workStartTime")}
                 onBlur={(e) => handleBlur(e, "workStartTime")}
                 isRequired
-                disabled={flexibleHours || role !== 'Admin'}
+                disabled={
+                  flexibleHours || !(role === "Admin" || role === "Owner")
+                }
                 placeholder="Work Start Time"
                 error={Boolean(formData.errors?.workStartTime)}
                 helperText={formData.errors?.workStartTime}
@@ -66,7 +70,9 @@ const TrackingDetails = ({
                 value={formData.workEndTime}
                 handleChange={(e) => handleChange(e, "workEndTime")}
                 onBlur={(e) => handleBlur(e, "workEndTime")}
-                disabled={flexibleHours || role !== 'Admin'}
+                disabled={
+                  flexibleHours || !(role === "Admin" || role === "Owner")
+                }
                 placeholder="Work End Time"
                 error={Boolean(formData.errors?.workEndTime)}
                 helperText={formData.errors?.workEndTime}
@@ -84,7 +90,7 @@ const TrackingDetails = ({
               onBlur={(e) => handleBlur(e, "minimumHours")}
               isRequired
               placeholder="Hours"
-              disabled={role !=='Admin'}
+              disabled={!(role === "Admin" || role === "Owner")}
               error={Boolean(formData.errors?.minimumHours)}
               helperText={formData.errors?.minimumHours}
             />
@@ -95,7 +101,7 @@ const TrackingDetails = ({
               <Checkbox
                 checked={flexibleHours}
                 onChange={(e) => setFlexibleHours(e.target.checked)}
-                disabled={role !== 'Admin'}
+                disabled={!(role === "Admin" || role === "Owner")}
               />
             }
             label="Flexible Hours"
@@ -104,8 +110,10 @@ const TrackingDetails = ({
       </Paper>
 
       {/* Tracking Days */}
-      <Paper elevation={12} className={`${styles.paperCard} ${styles.mt2}`}>
-        <Typography variant="subtitle1">Tracking Days</Typography>
+      <Paper elevation={2}  className={`${styles.paperCard} ${styles.mt2}`}>
+        <Typography sx={{ fontWeight: 600 }} variant="subtitle1">
+          Tracking Days
+        </Typography>
         <Typography className={styles.label}>
           Please note that only admins can change this information
         </Typography>
@@ -114,13 +122,11 @@ const TrackingDetails = ({
           <CustomDays
             label="Select Days"
             selectedDays={trackingDays}
-
-             disabled={role !== "Admin"} 
-
+            disabled={!(role === "Admin" || role === "Owner")}
             onChange={(days) => handleDaysChange(days, "trackingDays")}
             error={Boolean(formData.errors?.trackingDays)}
             helperText={formData.errors?.trackingDays}
-         />
+          />
 
           <Box className={styles.rowFlex}>
             <Box className={styles.fullWidth}>
@@ -131,7 +137,9 @@ const TrackingDetails = ({
                 handleChange={(e) => handleChange(e, "trackingStartTime")}
                 onBlur={(e) => handleBlur(e, "trackingStartTime")}
                 isRequired
-                disabled={flexibleHours || role !== 'Admin'}
+                disabled={
+                  flexibleHours || !(role === "Admin" || role === "Owner")
+                }
                 placeholder="Tracking Start Time"
                 error={Boolean(formData.errors?.trackingStartTime)}
                 helperText={formData.errors?.trackingStartTime}
@@ -144,7 +152,9 @@ const TrackingDetails = ({
                 value={formData.trackingEndTime}
                 handleChange={(e) => handleChange(e, "trackingEndTime")}
                 onBlur={(e) => handleBlur(e, "trackingEndTime")}
-                disabled={flexibleHours || role !== 'Admin'}
+                disabled={
+                  flexibleHours || !(role === "Admin" || role === "Owner")
+                }
                 placeholder="Tracking End Time"
                 error={Boolean(formData.errors?.trackingEndTime)}
                 helperText={formData.errors?.trackingEndTime}

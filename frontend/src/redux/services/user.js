@@ -36,7 +36,14 @@ export const User = createApi({
         }),
         providesTags:['User']
 
-    })
+    }),
+   deleteProfile: builder.mutation({
+      query: (id) => ({
+        url: `${URL_CONSTANTS.USER}/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags:['User']
+    }),
   }),
 });
 
@@ -44,6 +51,7 @@ export const User = createApi({
 export const {
   useCreateProfileMutation,
   useUpdateProfileMutation,
+  useDeleteProfileMutation,
   useGetAllProfileQuery,
   useGetSingleProfileQuery
 } = User;
