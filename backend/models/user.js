@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema(
     workStartTime: { type: String },
     workEndTime: { type: String },
     minimumHours: { type: String },
-    flexibleHours: { type: Boolean },
     trackingDays: { type: Array },
     trackingStartTime: { type: String },
     trackingEndTime: { type: String },

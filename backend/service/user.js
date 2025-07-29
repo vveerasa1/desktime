@@ -22,7 +22,6 @@ const addUser = async (req, res) => {
       workStartTime,
       workEndTime,
       minimumHours,
-      flexibleHours,
       trackingDays,
       trackingStartTime,
       trackingEndTime,
@@ -63,7 +62,6 @@ const addUser = async (req, res) => {
         workStartTime: admin.workStartTime,
         workEndTime: admin.workEndTime,
         minimumHours: admin.minimumHours,
-        flexibleHours: flexibleHours ? true : false,
         trackingDays: admin.trackingDays,
         trackingStartTime: admin.trackingStartTime,
         trackingEndTime: admin.trackingEndTime,
@@ -76,6 +74,8 @@ const addUser = async (req, res) => {
         ownerId,
       });
     } else {
+      const existingUser = await User.findOne({ email, ownerId });
+
       user = new User({
         username,
         employeeId,
@@ -89,7 +89,6 @@ const addUser = async (req, res) => {
         workStartTime,
         workEndTime,
         minimumHours,
-        flexibleHours,
         trackingDays,
         trackingStartTime,
         trackingEndTime,

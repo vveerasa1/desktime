@@ -132,10 +132,15 @@ const idleTimeTracker = async (req, res) => {
 
         // Calculate difference in seconds
         const timeAtWork = leftIST.diff(arrivalIST, "seconds");
+        const totalTrackedTime = session.totalTrackedTime;
+        if (totalTrackedTime > timeAtWork) {
+          session.totalTrackedTime = timeAtWork;
+        }
 
         // Store in session
         await TrackingSession.findByIdAndUpdate(sessionId, {
           timeAtWork,
+          totalTrackedTime,
         });
       }
     }
@@ -198,25 +203,6 @@ const activeTimeTracker = async (req, res) => {
       .split(":")
       .map(Number);
 
-    let leftTimeSet = false;
-    if (endHour === trackingEndHour && endMin === trackingEndMin) {
-      // Save leftTime as endTimeIST
-      await TrackingSession.findByIdAndUpdate(sessionId, {
-        leftTime: `${endHour}:${endMin < 10 ? "0" + endMin : endMin}`,
-      });
-      leftTimeSet = true;
-      const arrivalIST = moment(session.arrivalTime).tz(timeZone);
-      const leftIST = arrivalIST
-        .clone()
-        .hour(trackingEndHour)
-        .minute(trackingEndMin)
-        .second(0);
-      const timeAtWork = leftIST.diff(arrivalIST, "seconds");
-      await TrackingSession.findByIdAndUpdate(sessionId, {
-        timeAtWork,
-      });
-    }
-
     const fullBlock = 300; // 5 minutes = 300 seconds
     let productivity = (duration / fullBlock) * 100;
     productivity = Math.min(100, Math.round(productivity)); // clamp to 100%
@@ -233,6 +219,28 @@ const activeTimeTracker = async (req, res) => {
         },
       },
     });
+    if (endHour === trackingEndHour && endMin === trackingEndMin) {
+      // Save leftTime as endTimeIST
+      await TrackingSession.findByIdAndUpdate(sessionId, {
+        leftTime: `${endHour}:${endMin < 10 ? "0" + endMin : endMin}`,
+      });
+      leftTimeSet = true;
+      const arrivalIST = moment(session.arrivalTime).tz(timeZone);
+      const leftIST = arrivalIST
+        .clone()
+        .hour(trackingEndHour)
+        .minute(trackingEndMin)
+        .second(0);
+      const timeAtWork = leftIST.diff(arrivalIST, "seconds");
+      const totalTimeAtWork = session.totalTrackedTime;
+      if (totalTimeAtWork > timeAtWork) {
+        session.totalTrackedTime = timeAtWork;
+      }
+      await TrackingSession.findByIdAndUpdate(sessionId, {
+        timeAtWork,
+        totalTimeAtWork,
+      });
+    }
 
     res.json({ status: "active time updated" });
   } catch (err) {
@@ -254,111 +262,11 @@ const endSession = async (req, res) => {
   }
 };
 
-cron.schedule("55 23 * * *", async () => {
-  console.log("[CRON] Running sessionStop at 11:59 PM");
-  try {
-    const sessions = await TrackingSession.find({ leftTime: null });
-
-    for (const session of sessions) {
-      const user = await User.findById(session.userId);
-
-      let leftTime = null;
-
-      // if (user?.flexibleHours) {
-      //   const lastActive =
-      //     session.activePeriods?.[session.activePeriods.length - 1]?.end;
-      //   const now = moment();
-
-      //   if (lastActive) {
-      //     const lastActiveMoment = moment(lastActive);
-      //     const minutesSinceLastActive = now.diff(lastActiveMoment, "minutes");
-
-      //     // if (minutesSinceLastActive <= 10) {
-      //     //   // User is likely still working — skip setting leftTime
-      //     //   console.log(`Skipping user ${user.username}, still active.`);
-      //     //   continue;
-      //     // } else {
-      //     leftTime = lastActiveMoment.toDate();
-      //     //}
-      //   } else if (session.idlePeriods?.length > 0) {
-      //     leftTime = session.idlePeriods[0].start;
-      //   } else {
-      //     leftTime = new Date();
-      //   }
-      // } else {
-      // Not flexible: fallback to idle or current time
-      // const trackingEnd = user?.trackingEndTime; // e.g., '20:00'
-      // if (trackingEnd) {
-      // const today = moment().format("YYYY-MM-DD");
-      // const trackingEndMoment = moment(
-      //   `${today} ${trackingEnd}`,
-      //   "YYYY-MM-DD HH:mm"
-      // );
-      // const currentTime = moment().tz(timeZone);
-      // const trackingEndTime = currentTime
-      //   .clone()
-      //   .hour(cutHour)
-      //   .minute(cutMin)
-      //   .second(0);
-
-      // We're past tracking end time
-      const activePeriods = session.activePeriods || [];
-
-      // Find the last idle period (assuming sorted chronologically)
-      const activeIdle = activePeriods[activePeriods.length - 1];
-
-      // if (
-      //   activeIdle?.start &&
-      //   !activeIdle?.end &&
-      //   moment(activeIdle.end).isSameOrAfter(trackingEndMoment)
-      // ) {
-      // User went idle after trackingEnd and hasn't come back
-      leftTime = activeIdle.end;
-      //   } else {
-      //     // Use tracking end time or look for any idle after it
-      //     const idleAfterTrackingEnd = idlePeriods.find((p) =>
-      //       moment(p.start).isSameOrAfter(trackingEndMoment)
-      //     );
-
-      //     if (idleAfterTrackingEnd?.start) {
-      //       leftTime = moment(idleAfterTrackingEnd.start).toDate();
-      //     } else {
-      //       leftTime = trackingEndMoment.toDate();
-      //     }
-      //   }
-      // } else {
-      // Still within tracking window
-      //     console.log(`User ${user.username} is still within tracking hours.`);
-      //     continue;
-      //   }
-      // } else {
-      //   // If no trackingEndTime set, fallback
-      //   const lastIdle = session.idlePeriods?.[session.idlePeriods.length - 1];
-      //   leftTime = lastIdle?.start || new Date();
-      // }
-
-      session.leftTime = leftTime;
-      await session.save();
-
-      console.log(
-        `[CRON] Set leftTime for user ${
-          user?.username || session.userId
-        }: ${leftTime}`
-      );
-    }
-
-    console.log("[CRON] sessionStop completed");
-  } catch (error) {
-    console.error("[CRON Error in sessionStop]", error);
-  }
-});
-
 function isWithinTrackingHours(user) {
-  if (user.flexibleHours) return true;
-
   const now = moment().tz(user.timeZone || user.timeZone);
   const todayName = now.format("dddd"); // e.g., "Monday"
 
+  console.log("todayName :" + todayName);
   // Check if today is in trackingDays
   if (!user.trackingDays || !user.trackingDays.includes(todayName)) {
     console.log(
