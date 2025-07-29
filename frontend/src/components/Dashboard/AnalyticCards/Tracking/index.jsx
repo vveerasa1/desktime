@@ -13,6 +13,7 @@ const MetricDisplay = ({ title, value, valueColor }) => {
         variant="h5"
         className={clsx(styles.metricValue, {
           [styles.orange]: valueColor === '#FFA500',
+          [styles.green]: valueColor === '#008000',
         })}
       >
         {value}
@@ -34,7 +35,8 @@ const TrackingCard = ({ orderedCards }) => {
             <MetricDisplay
               title={orderedCards[1]?.title}
               value={orderedCards[1]?.value}
-              valueColor={orderedCards[1]?.valueColor}
+              valueColor={orderedCards[1]?.value === 'ONLINE' ? '#008000' : orderedCards[1]?.valueColor}
+              style={orderedCards[1]?.value === 'ONLINE' ? { color: '#008000' } : undefined}
             />
           </Box>
         </Box>

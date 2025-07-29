@@ -27,10 +27,9 @@ const TaskForm = ({
   handleCloseToaster,
   mappedProjectOptions,
 }) => {
-
-  console.log(userId,"USER USRE SDS")
+  console.log(userId, "USER USRE SDS");
   const [createTask, isLoading] = useCreateTaskMutation();
-  
+
   const handleSave = async () => {
     let newErrors = {};
     let isValid = true;
@@ -72,13 +71,12 @@ const TaskForm = ({
       ownerId,
     };
     if (isValid) {
-      
-        await createTask(payload);
-        openToaster("Task Added Successfully!", "success");
+      await createTask(payload);
+      openToaster("Task Added Successfully!", "success");
       onClose();
-      setTimeout(()=>{
-      handleCloseToaster();
-      },5000)
+      setTimeout(() => {
+        handleCloseToaster();
+      }, 5000);
       setFormData({
         taskName: "",
         description: "",
@@ -90,10 +88,19 @@ const TaskForm = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      PaperProps={{
+        sx: {
+          borderRadius: "13px", 
+        },
+      }}
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+    >
       <DialogTitle
         sx={{
-          backgroundColor: "#f5f5f5",
           borderBottom: "1px solid #e0e0e0",
           padding: "16px 24px",
           fontWeight: "bold",
@@ -152,7 +159,7 @@ const TaskForm = ({
             helperText={errors?.project}
           />
         </Box>
-        <Box mt={ 2}>
+        <Box mt={2}>
           <CustomDropdown
             label="Assignee"
             name="assignee"
@@ -166,23 +173,22 @@ const TaskForm = ({
             helperText={errors?.assignee}
           />
         </Box>
-          <Box mt={2}>
-            <CustomTextField
-              label="Status"
-              name="status"
-              value={formData.status}
-              handleChange={(e) => {
-                handleChange(e, "status");
-              }}
-              handleBlur={(e) => handleBlur(e, "status")}
-              placeholder="Enter Status "
-              isRequired
-              error={!!errors?.status}
-              helperText={errors?.status}
-              startIcon={<Assignment />}
-            />
-          </Box>
-       
+        <Box mt={2}>
+          <CustomTextField
+            label="Status"
+            name="status"
+            value={formData.status}
+            handleChange={(e) => {
+              handleChange(e, "status");
+            }}
+            handleBlur={(e) => handleBlur(e, "status")}
+            placeholder="Enter Status "
+            isRequired
+            error={!!errors?.status}
+            helperText={errors?.status}
+            startIcon={<Assignment />}
+          />
+        </Box>
       </DialogContent>
       <DialogActions
         sx={{
@@ -212,13 +218,13 @@ const TaskForm = ({
         </Button>
         <Button
           onClick={handleSave}
-          variant="contained"
+          variant="outlined"
           sx={{
             textTransform: "none",
             borderRadius: "8px",
-            backgroundColor: "#194CF0",
             "&:hover": {
               backgroundColor: "#143BA0",
+              color: "white",
             },
           }}
         >

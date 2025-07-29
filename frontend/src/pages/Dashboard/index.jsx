@@ -29,6 +29,7 @@ const Dashboard = () => {
     const decoded = jwtDecode(token);
     decodedUserId = decoded.userId;
     ownerId = decoded.ownerId
+    console.log(decoded,decodedUserId, ownerId)
   }
 
   const userId = employee || decodedUserId || employee;
