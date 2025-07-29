@@ -28,7 +28,7 @@ const CustomTextField = (
         }}>
             {label && (
                 <Typography className={styles.label} variant='subtitle2'>
-                    {label}{isRequired && <span className={styles.required}>*</span>}
+                    {label}{isRequired && <span style={{ color: "red" }}>*</span>}
                 </Typography>
             )}
             <TextField
@@ -55,7 +55,7 @@ const CustomTextField = (
                             borderColor: "#E8E8E8",
                         },
                         "&:hover fieldset": {
-                            borderColor: "#A0A0A0",
+                            borderColor: "#706e6eff",
                         },
                         "&.Mui-focused fieldset": {
                             borderColor: "#194CF0",

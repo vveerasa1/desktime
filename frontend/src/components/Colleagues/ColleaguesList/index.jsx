@@ -17,7 +17,9 @@ import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./index.module.css";
 import { Link } from "react-router-dom";
-const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
+import { useDeleteProfileMutation } from "../../../redux/services/user";
+const ColleaguesList = ({ navigate, colleaguesData, isLoading,openToaster }) => {
+  const [deleteProfile] = useDeleteProfileMutation();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedColleague, setSelectedColleague] = useState(null);
   const token = localStorage.getItem("token");
@@ -40,9 +42,14 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
     setMenuAnchorEl(null);
     setSelectedColleague(null);
   };
-  const handleDelete = () => {
-    handleMenuClose();
-    // Add delete logic here
+  const handleDelete = async (id) => {
+    try {
+      await deleteProfile(id);
+      openToaster("Employee Deleted")
+      handleMenuClose();
+    } catch {
+      console.log("Error");
+    }
   };
   return (
     <Box>
@@ -119,7 +126,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading }) => {
                     transformOrigin={{ vertical: "top", horizontal: "right" }}
                   >
                     <MenuItem onClick={handleEdit}>Edit</MenuItem>
-                    <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                    <MenuItem onClick={()=>handleDelete(colleague._id)}>Delete</MenuItem>
                   </Menu>
                 </Paper>
               </Grid>
