@@ -63,7 +63,7 @@ const deleteTeam = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const userExists = await User.exists({ teamId: id, isDeleted: false });
+    const userExists = await User.exists({ team: id, isDeleted: false });
 
     if (userExists) {
       return res

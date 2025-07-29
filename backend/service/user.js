@@ -26,16 +26,18 @@ const addUser = async (req, res) => {
       trackingStartTime,
       trackingEndTime,
       timeZone,
-      teamId,
       ownerId,
     } = req.body;
+    const existingUser = await User.findOne({ email, ownerId });
+    if (existingUser) {
+      return res.status(409).json({ error: "Email already exist" });
+    }
 
     const password = await generateRandomPassword(); // plain text password
     const hashedPassword = await bcrypt.hash(password, 10);
     let durationSeconds = 0;
     const admin = await User.findOne({ _id: ownerId });
     console.log("printing");
-    console.log(admin);
     if (workStartTime && workEndTime) {
       const start = moment(workStartTime, "HH:mm:ss");
       const end = moment(workEndTime, "HH:mm:ss");
@@ -54,7 +56,7 @@ const addUser = async (req, res) => {
         employeeId: employeeId ? employeeId : allUsers.length + 1,
         email,
         password: hashedPassword,
-        team: admin.team,
+        team,
         gender,
         role: "Employee",
         phone,
@@ -70,12 +72,9 @@ const addUser = async (req, res) => {
           .split(" ")
           .join("+")}&background=0D8ABC&color=fff`,
         workDuration: durationSeconds,
-        teamId,
         ownerId,
       });
     } else {
-      const existingUser = await User.findOne({ email, ownerId });
-
       user = new User({
         username,
         employeeId,
@@ -97,7 +96,6 @@ const addUser = async (req, res) => {
           .split(" ")
           .join("+")}&background=0D8ABC&color=fff`,
         workDuration: durationSeconds,
-        teamId,
       });
     }
 
@@ -106,8 +104,8 @@ const addUser = async (req, res) => {
       user.ownerId = user._id;
       await user.save();
     }
-    if (teamId) {
-      await Team.findByIdAndUpdate(teamId, { $inc: { teamMembersCount: 1 } });
+    if (team) {
+      await Team.findByIdAndUpdate(team, { $inc: { teamMembersCount: 1 } });
     }
     const transporter = nodemailer.createTransport({
       service: config.smtp?.service,
@@ -203,8 +201,8 @@ const updateUser = async (req, res) => {
         message: "User not found",
       });
     }
-    const oldTeamId = existingUser.teamId?.toString();
-    const newTeamId = req.body.teamId?.toString();
+    const oldTeamId = existingUser.team?.toString();
+    const newTeamId = req.body.team?.toString();
     const updateData = {
       ...req.body,
       workDuration: durationSeconds,
@@ -247,6 +245,13 @@ const deleteUser = async (req, res) => {
       status: "Success",
       message: "User deleted successfully",
     });
+    const user = await User.findById(id);
+    if (user.team) {
+      const teamId = user.team;
+      await Team.findByIdAndUpdate(teamId, {
+        $inc: { teamMembersCount: -1 },
+      });
+    }
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({

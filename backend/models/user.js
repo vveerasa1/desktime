@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     employeeId: { type: String },
     email: { type: String, required: true },
     password: { type: String },
-    team: { type: String },
+    team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
     role: { type: String },
     phone: { type: String },
     gender: { type: String },
