@@ -24,10 +24,10 @@ const ChangePasswordModal = ({ open, setOpen }) => {
 
   const handleClose = () => {
     setOpen(false);
-   setAuthData({
-    currentPassword: "",
-    newPassword: "",
-   })
+    setAuthData({
+      currentPassword: "",
+      newPassword: "",
+    });
   };
 
   const handleChange = (e, name) => {
@@ -93,9 +93,16 @@ const ChangePasswordModal = ({ open, setOpen }) => {
             </Box>
             <Box>
               <Button
-                variant="contained"
-                color="success"
                 onClick={handleSubmit}
+                variant="outlined"
+                sx={{
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  "&:hover": {
+                    backgroundColor: "#143BA0",
+                    color: "white",
+                  },
+                }}
               >
                 Save
               </Button>

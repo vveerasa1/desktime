@@ -1,4 +1,4 @@
-import React, { useEffect, useState ,useMemo} from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Grid, Paper, Typography, Button, Box } from "@mui/material";
 import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
@@ -24,13 +24,14 @@ const Profile = () => {
   const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
   const [openToaster, setOpenToaster] = useState(false);
-  const [getTeamsOptions,setGetTeamsOptions] = useState([])
+  const [getTeamsOptions, setGetTeamsOptions] = useState([]);
   const [updateProfile, { isLoading: updateProfileIsLoading }] =
     useUpdateProfileMutation();
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
 
   const token = localStorage.getItem("token");
+
   let userId = null;
   let role = null;
   let ownerId = null;
@@ -48,31 +49,33 @@ const Profile = () => {
     error,
   } = useGetSingleProfileQuery(userIdToFetch, { skip: !userIdToFetch });
 
-const {
-  data: teamsData,
-  isLoading: isTeamsLoading,
-  isError: isTeamsError,
-  isSuccess,
-} = useGetAllTeamQuery(ownerId, {
-  skip: !ownerId,
-});
+  const loggedInUserId = token ? jwtDecode(token).userId : null;
+  const displayedUserId = profileDetails?.data?._id;
+  const isOwnProfile = loggedInUserId === displayedUserId;
+  const {
+    data: teamsData,
+    isLoading: isTeamsLoading,
+    isError: isTeamsError,
+    isSuccess,
+  } = useGetAllTeamQuery(ownerId, {
+    skip: !ownerId,
+  });
 
-// Memoize formatted team data only when it's available
-const formattedTeams = useMemo(() => {
-  if (isSuccess && Array.isArray(teamsData?.data)) {
-    return teamsData.data.map((team) => ({
-      id: team._id,
-      name: team.name,
-
-    }));
-  }
-  return [];
-}, [isSuccess, teamsData]);
-useEffect(() => {
-  if (formattedTeams.length > 0) {
-    setGetTeamsOptions(formattedTeams); // this assumes you have a state setter
-  }
-}, [formattedTeams]);
+  // Memoize formatted team data only when it's available
+  const formattedTeams = useMemo(() => {
+    if (isSuccess && Array.isArray(teamsData?.data)) {
+      return teamsData.data.map((team) => ({
+        id: team._id,
+        name: team.name,
+      }));
+    }
+    return [];
+  }, [isSuccess, teamsData]);
+  useEffect(() => {
+    if (formattedTeams.length > 0) {
+      setGetTeamsOptions(formattedTeams); // this assumes you have a state setter
+    }
+  }, [formattedTeams]);
 
   const timeZoneOptions = moment.tz.names().map((tz) => ({ id: tz, name: tz }));
 
@@ -198,7 +201,6 @@ useEffect(() => {
     { id: "10 Hours", name: "10 Hours" },
   ];
 
-
   const handleDaysChange = (days, type) => {
     setFormData((prev) => ({
       ...prev,
@@ -257,9 +259,9 @@ useEffect(() => {
     //   errors.phone = "Phone number is required";
     // }
 
-      if (!formData.phone || formData.phone.length < 10) {
-        errors.phone = "Valid phone number is required";
-      }
+    if (!formData.phone || formData.phone.length < 10) {
+      errors.phone = "Valid phone number is required";
+    }
 
     if (!formData.timeZone) {
       errors.timeZone = "Time zone is required";
@@ -347,7 +349,7 @@ useEffect(() => {
       }
 
       setOpenToaster(true);
-        navigate(`/colleagues`);
+      navigate(`/colleagues`);
 
       setTimeout(() => setOpenToaster(false), 3000);
     } catch (error) {
@@ -377,11 +379,11 @@ useEffect(() => {
           error = "Invalid email";
         break;
 
-       case "phone":
-      if (!formData.phone || formData.phone.length < 10) {
-        error = "Valid phone number is required";
-      }
-      break;
+      case "phone":
+        if (!formData.phone || formData.phone.length < 10) {
+          error = "Valid phone number is required";
+        }
+        break;
 
       case "role":
       case "gender":
@@ -429,7 +431,9 @@ useEffect(() => {
   if (getSingleProfileApiIsLoading) {
     return (
       <Box className={styles.loadingBox}>
-        <Typography variant="h6"><LoadingComponent/></Typography>
+        <Typography variant="h6">
+          <LoadingComponent />
+        </Typography>
       </Box>
     );
   }
@@ -453,24 +457,33 @@ useEffect(() => {
         message={"User Profile Updated"}
         severity="success"
       />
-      <Box className={styles.container}>
-        <Button
-          variant="contained"
-          color="white"
-          className={styles.buttonWhite}
-          onClick={() => setOpen(true)}
-        >
-          <Typography fontSize={14}>Change Password</Typography>
-        </Button>
-        <Button
-          variant="contained"
-          color="success"
-          className={styles.buttonSuccess}
-          onClick={handleSubmit}
-          disabled={createProfileApiIsLoading || updateProfileIsLoading}
-        >
-          <Typography fontSize={14}>Save Changes</Typography>
-        </Button>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box>
+          <Typography variant="h5">
+            {isOwnProfile
+              ? "My Profile"
+              : `${profileDetails?.data?.username || "User"}`}
+          </Typography>
+        </Box>
+        <Box className={styles.container}>
+          <Button
+            variant="contained"
+            color="white"
+            className={styles.buttonWhite}
+            onClick={() => setOpen(true)}
+          >
+            <Typography fontSize={14}>Change Password</Typography>
+          </Button>
+          <Button
+            sx={{ backgroundColor: "#143351" }}
+            variant="contained"
+            className={styles.buttonSuccess}
+            onClick={handleSubmit}
+            disabled={createProfileApiIsLoading || updateProfileIsLoading}
+          >
+            <Typography fontSize={14}>Save Changes</Typography>
+          </Button>
+        </Box>
       </Box>
 
       <Grid container className={styles.gridContainer}>
@@ -502,17 +515,50 @@ useEffect(() => {
           handleBlur={handleBlur}
           role={role}
         />
-
-        <Grid item xs={12} sm={12} md={12} lg={2}>
-          <Paper elevation={12} className={styles.emailPaper}>
-            <Typography variant="p" gutterBottom>
-              Email Subscription
-            </Typography>
-            <Typography variant="body1" fontSize={12}>
-              Stay informed with our latest updates, tips, and feature releases.
-              You can unsubscribe at any time.
-            </Typography>
+        <Grid item size={{ xs: 12, md: 3 }}>
+          <Paper elevation={12} className={styles.twoFactorCard}>
+            <Box p={2}>
+              <Typography variant="subtitle1">
+                Two Factor Authentication
+              </Typography>
+              <Box py={1}>
+                <Typography className={styles.twoFactorText}>
+                  Want to add an extra layer of security to your email and
+                  password? When you enable two-factor authentication, a
+                  security code will be generated on your phone whenever you
+                  sign in
+                </Typography>
+              </Box>
+              <Box>
+                <Typography className={styles.twoFactorText}>
+                  Note: You can't configure two-factor authentication in
+                  DeskTime if you log in with single sign-on. You will need a
+                  DeskTime account password.
+                </Typography>
+              </Box>
+              <Box mt={2}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  className={styles.enableButton}
+                >
+                  Enable
+                </Button>
+              </Box>
+            </Box>
           </Paper>
+
+          <Grid mt={5} item size={{ xs: 12, md: 12 }}>
+            <Paper elevation={12} className={styles.emailPaper}>
+              <Typography variant="p" gutterBottom>
+                Email Subscription
+              </Typography>
+              <Typography variant="body1" fontSize={12}>
+                Stay informed with our latest updates, tips, and feature
+                releases. You can unsubscribe at any time.
+              </Typography>
+            </Paper>
+          </Grid>
         </Grid>
 
         <ChangePasswordModal

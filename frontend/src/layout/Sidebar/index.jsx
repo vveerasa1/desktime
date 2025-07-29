@@ -28,20 +28,15 @@ import styles from "./index.module.css";
 const navItems = [
   { label: "My Tracking", path: "/dashboard", icon: <DashboardIcon /> },
   { label: "Colleagues", path: "/colleagues", icon: <PeopleIcon /> },
-  { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
+  // { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
   { label: "Projects", path: "/projects", icon: <FolderIcon /> },
   { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
   { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
-  { label: "Logout", icon: <PowerSettingsNewIcon /> },
 ];
 
-const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth, open }) => {
+const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleCloseDialog = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
 
   const handleItemClick = useCallback((label, path) => {
     if (path) navigate(path);
@@ -104,11 +99,6 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth, op
       }}
     >
       {drawerContent}
-      <LogoutConfirmationDialog
-        open={open}
-        setOpen={setOpen}
-        handleCloseDialog={handleCloseDialog}
-      />
     </Drawer>
   );
 };
