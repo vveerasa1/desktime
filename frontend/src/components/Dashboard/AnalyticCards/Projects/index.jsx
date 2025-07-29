@@ -39,15 +39,14 @@ const ProjectCard = ({
   const renderedHeader = useMemo(
     () => (
       <TableHead>
-        <TableRow
-        >
+        <TableRow>
           {tableHeaders.map((header, index) => (
             <TableCell
               key={index}
               className={styles.headerCell}
               style={{
-            background: "rgba(244, 240, 240, 0.87)",
-
+                background: "#143351",
+                color: "white !important",
                 paddingLeft:
                   header.title === "Project" || header.title === "Task"
                     ? 10
@@ -111,7 +110,7 @@ const ProjectCard = ({
       );
     }
     return (
-      <TableBody sx={{}}>
+      <TableBody>
         {mappedTaskData.map((item) => (
           <TableRow
             key={item._id}
@@ -130,18 +129,7 @@ const ProjectCard = ({
                 position: "relative",
                 padding: "8px 8px 8px 24px",
                 minWidth: "200px",
-                // "&::before": {
-                //   content: '""',
-                //   position: "absolute",
-                //   left: "12px",
-                //   top: "50%",
-                //   transform: "translateY(-50%)",
-                //   width: "5px",
-                //   height: "40px",
-                //   backgroundColor: item.barColor,
-                //   // borderRadius: "3px", // Increased from 2px to make it more curved
-                // },
-                borderLeft: "6px solid green !important",
+          borderLeft: `4px solid ${item.barColor}`,
                 borderRadius: "12px 0px 0px 12px !important",
               }}
             >
@@ -226,7 +214,7 @@ const ProjectCard = ({
 
           <TableContainer className={styles.tableContainer}>
             <Table
-            stickyHeader
+              stickyHeader
               aria-label="project table"
               sx={{
                 borderSpacing: "0 8px", // vertical horizontal spacing

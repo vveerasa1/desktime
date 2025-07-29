@@ -97,15 +97,19 @@ const Colleagues = () => {
           Colleagues
         </Typography>
         <Box className={styles.searchActions}>
-          <CustomTextField
-            name="password"
-            fullWidth
-            startIcon={<SearchIcon />}
-            placeholder={"search"}
-          />
-          <IconButton size="small" className={styles.iconBtn}>
-            <FilterListIcon fontSize="medium" />
-          </IconButton>
+          <Box>
+            <CustomTextField
+              name="password"
+              fullWidth
+              startIcon={<SearchIcon />}
+              placeholder={"search"}
+            />
+          </Box>
+          <Box>
+            <IconButton size="small" className={styles.iconBtn}>
+              <FilterListIcon fontSize="medium" />
+            </IconButton>
+          </Box>
         </Box>
       </Box>
       <Box className={styles.colleaguesWrapper}>
@@ -113,13 +117,13 @@ const Colleagues = () => {
           <Box className={styles.actionButtons}>
             <Box className={styles.statusButtons}>
               <Button variant="contained" className={styles.activeBtn}>
-                ACTIVE&nbsp;
+                Active
                 <Box component="span" className={styles.activeCount}>
                   {colleaguesData.activeCount}
                 </Box>
               </Button>
               <Button variant="contained" className={styles.inactiveBtn}>
-                IN-ACTIVE&nbsp;
+                In-Active&nbsp;
                 <Box component="span" className={styles.inactiveCount}>
                   {colleaguesData.inactiveCount}
                 </Box>
@@ -144,8 +148,7 @@ const Colleagues = () => {
             handleOpen={handleOpen}
             handleClose={handleClose}
             setOpen={setOpen}
-                      openToaster={handleOpenToaster}
-
+            openToaster={handleOpenToaster}
           />
         </Paper>
         <AddEmployeeModal

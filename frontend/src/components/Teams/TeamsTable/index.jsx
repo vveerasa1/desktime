@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   Box,
-  Checkbox,
+  // Checkbox,
   IconButton,
   Paper,
   Table,
@@ -29,6 +29,7 @@ const TeamsTable = ({
   const [deleteTeamId, setDeleteTeamId] = useState(null);
   const [deleteTeam] = useDeleteTeamMutation();
   const [loading, setLoading] = useState(false);
+
   const handleDeleteClick = (event, teamId) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -40,21 +41,20 @@ const TeamsTable = ({
     setDeleteTeamId(null);
   };
 
- const handleConfirmDelete = async () => {
-  if (deleteTeamId) {
-    try {
-      await deleteTeam(deleteTeamId).unwrap();
-      openToaster("Team Deleted Successfully!", "success");
-    } catch (error) {
-      const errorMessage =
-        error?.data?.error || "Failed to delete team. Please try again.";
-      openToaster(errorMessage, "error");
-      console.error("Failed to delete team:", error);
+  const handleConfirmDelete = async () => {
+    if (deleteTeamId) {
+      try {
+        await deleteTeam(deleteTeamId).unwrap();
+        openToaster("Team Deleted Successfully!", "success");
+      } catch (error) {
+        const errorMessage =
+          error?.data?.error || "Failed to delete team. Please try again.";
+        openToaster(errorMessage, "error");
+        console.error("Failed to delete team:", error);
+      }
     }
-  }
-  handleClosePopover();
-};
-
+    handleClosePopover();
+  };
 
   const open = Boolean(anchorEl);
 
@@ -69,7 +69,8 @@ const TeamsTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox">
+              {/* Commented out checkbox column header */}
+              {/* <TableCell padding="checkbox">
                 <Checkbox
                   color="primary"
                   indeterminate={
@@ -82,7 +83,7 @@ const TeamsTable = ({
                   onChange={onSelectAll}
                   inputProps={{ "aria-label": "select all teams" }}
                 />
-              </TableCell>
+              </TableCell> */}
               <TableCell align="left" sx={{ fontWeight: "bold" }}>
                 Name
               </TableCell>
@@ -104,15 +105,12 @@ const TeamsTable = ({
               return (
                 <TableRow
                   hover
-                  onClick={(event) => onSelectOne(event, row._id)}
-                  role="checkbox"
-                  aria-checked={isItemSelected}
-                  tabIndex={-1}
+                  // Removed onClick handler for selection since checkboxes are commented out
                   key={row._id}
-                  selected={isItemSelected}
                   sx={{ cursor: "pointer" }}
                 >
-                  <TableCell padding="checkbox">
+                  {/* Commented out checkbox cell for each row */}
+                  {/* <TableCell padding="checkbox">
                     <Checkbox
                       color="primary"
                       checked={isItemSelected}
@@ -120,7 +118,7 @@ const TeamsTable = ({
                         "aria-labelledby": `team-table-checkbox-${row._id}`,
                       }}
                     />
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell align="left">{row.name}</TableCell>
                   <TableCell align="center">{row.teamMembersCount}</TableCell>
                   <TableCell align="center">

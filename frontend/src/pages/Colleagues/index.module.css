@@ -13,6 +13,10 @@
 .iconBtn {
   padding: 8px !important;
 }
+.iconBtn:hover{
+  background-color: #808080!important;
+  color: whitesmoke;
+}
 
 .colleaguesWrapper {
   padding-top: 8px !important;
@@ -43,6 +47,8 @@
   width: 200px !important;
   display: flex !important;
   justify-content: space-between !important;
+  text-transform: none !important;
+  font-size: 17px !important;
 }
 
 .activeCount {
@@ -52,6 +58,7 @@
   padding-right: 8px !important;
   margin-left: 8px !important;
   border-radius: 8px !important;
+
 }
 
 .inactiveBtn {
@@ -61,6 +68,9 @@
   width: 200px !important;
   display: flex !important;
   justify-content: space-between !important;
+  text-transform: none !important;
+  font-size: 17px !important;
+
 }
 
 .inactiveCount {
