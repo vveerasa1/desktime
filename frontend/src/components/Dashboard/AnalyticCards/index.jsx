@@ -40,10 +40,10 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
     useGetAllTasksQuery({ id: ownerId });
 
     const STATUS_COLORS = {
-  'done': '#16610E',      // Dark green for Done
-  'In-progress': '#F97A00', // Orange for In Progress
-  'to-do': '#FED16A',     // Light yellow for To-do
-  'default': '#F97A00'    // Default gray for unknown statuses
+  'done': '#23b413ff',      // Dark green for Done
+  'In-progress': '#FFF287', // Orange for In Progress
+  'to-do': '#C83F12',     // Light yellow for To-do
+  'default': '#f1e156ff'    // Default gray for unknown statuses
 };
 
   const mappedTaskData = useMemo(() => {
