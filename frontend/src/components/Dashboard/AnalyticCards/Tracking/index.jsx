@@ -31,7 +31,7 @@ const MetricCard = styled(Card)(({ theme }) => ({
     left: 0,
     right: 0,
     height: '4px',
-    background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+    background: `#143351`,
     transform: 'translateX(-100%)',
     transition: 'transform 0.6s ease',
     zIndex: 1,
@@ -40,11 +40,10 @@ const MetricCard = styled(Card)(({ theme }) => ({
 
 const MetricDisplay = ({ title, value, valueColor }) => {
   return (
-    <Box sx={{ textAlign: 'center' }}>
+    <Box sx={{ textAlign: 'center'}}>
       <Typography 
-        variant="subtitle2" 
+        variant="h6" 
         color="text.secondary"
-        gutterBottom
       >
         {title}
       </Typography>
@@ -96,7 +95,7 @@ const TrackingCard = ({ orderedCards }) => {
       {cards.map((card, index) => (
         <Grid item size={{xs:12,md:3}}key={index} sx={{flex: 1 }}>
           <MetricCard>
-            <CardContent sx={{ py: 3 }}>
+            <CardContent sx={{ py: 2}}>
               <MetricDisplay 
                 title={card.title} 
                 value={card.value} 
