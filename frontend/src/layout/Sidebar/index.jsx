@@ -21,13 +21,15 @@ import {
   Folder as FolderIcon,
 } from "@mui/icons-material";
 import GroupsIcon from '@mui/icons-material/Groups';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
 import styles from "./index.module.css";
 
 const navItems = [
   { label: "My Tracking", path: "/dashboard", icon: <DashboardIcon /> },
-  { label: "Colleagues", path: "/colleagues", icon: <PeopleIcon /> },
+  { label: "Team Members", path: "/team-members", icon: <PeopleIcon /> },
+  { label: "Colleagues", path: "/colleagues", icon: <AccountCircleIcon /> },
   // { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
   { label: "Projects", path: "/projects", icon: <FolderIcon /> },
   { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
