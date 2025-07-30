@@ -210,6 +210,7 @@ apiServer.post("/store-token", async (req, res) => {
   const { token, userId, refreshToken } = req.body;
 
   console.log(`✅ Token received in Electron for user: ${userId}`);
+  console.log("in store token");
 
   // Set tokens immediately
   setTokens(userId, token, refreshToken);
@@ -833,7 +834,8 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     userState.intervals = {}; // Clear the object
   }
 
-  // 2. Clear in-memory state
+  console.log("userState: " + userState);
+
   userState.idleStart = null;
   userState.activeStart = null;
   userState.lastActivityTimestamp = null;
@@ -846,6 +848,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   // This is a safeguard, primarily the cutoff logic in sendActivityToServer should handle it
   // But if logout happens mid-segment, ensure it's saved.
   const now = new Date();
+  console.log("Saving while stopping");
   if (userState.sessionId && userState.token) {
     if (userState.activeStart) {
       const duration = Math.floor(
@@ -864,6 +867,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
             title: userState.lastActiveTitle,
           },
         }).catch(console.error);
+        console.log("Saving active time while stopping");
       }
     } else if (userState.idleStart) {
       const duration = Math.floor(
@@ -880,6 +884,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
             endTime: now,
           },
         }).catch(console.error);
+        console.log("Saving idle time while stopping");
       }
     }
   }
@@ -907,8 +912,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   if (endSessionOnBackend) {
     store.delete(`session_id_${userId}`);
     store.delete(`session_date_${userId}`);
-    store.delete(`token_${userId}`);
-    store.delete(`refreshToken_${userId}`);
+
     // Also remove the user's state from the in-memory map
     delete userTrackingStates[userId];
     console.log(`[Store] Cleared all stored data for user ${userId}.`);
@@ -984,6 +988,8 @@ powerMonitor.on("suspend", () => {
   // Mark all active users as sleeping and pause their screenshots
   for (const userId in userTrackingStates) {
     const userState = userTrackingStates[userId];
+    console.log("userState: " + userState);
+
     userState.isSleeping = true;
     if (userState.intervals.screenshot) {
       clearInterval(userState.intervals.screenshot);
@@ -999,6 +1005,8 @@ powerMonitor.on("resume", async () => {
   // Resume tracking for all users
   for (const userId in userTrackingStates) {
     const userState = userTrackingStates[userId];
+    console.log("userState: " + userState);
+
     userState.isSleeping = false; // System is awake now
 
     // Re-start screenshot interval if it was running before suspend

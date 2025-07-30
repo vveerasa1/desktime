@@ -70,7 +70,7 @@ const addUser = async (req, res) => {
         timeZone: admin.timeZone,
         photo: `https://ui-avatars.com/api/?name=${username
           .split(" ")
-          .join("+")}&background=0D8ABC&color=fff`,
+          .join("+")}&background=143351&color=fff`,
         workDuration: durationSeconds,
         ownerId,
       });
