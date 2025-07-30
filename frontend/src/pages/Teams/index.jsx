@@ -118,7 +118,7 @@ const Teams = () => {
             
             <Button
               variant="contained"
-              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#1564bf"}}
+              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#143351"}}
               onClick={()=>handleOpen()}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

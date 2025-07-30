@@ -189,7 +189,7 @@ console.log(formattedTeams, "formatted data")
   }
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <DialogTitle>Add New Employee</DialogTitle>
+      <DialogTitle>Add Employee</DialogTitle>
       <DialogContent dividers>
         <Grid>
           <EmployeeProfileDetails
@@ -201,14 +201,35 @@ console.log(formattedTeams, "formatted data")
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button sx={{textTransform:"none"}} onClick={handleClose} color="error" variant="outlined">
+        <Button  onClick={handleClose}            variant="outlined"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px",
+            borderColor: "#ccc",
+            color: "#666",
+            "&:hover": {
+              borderColor: "#999",
+              backgroundColor: "#f0f0f0",
+            },
+          }}>
           Cancel
         </Button>
         <CustomButton
+        variant="outlined"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px",
+            borderColor:"#143351",
+            color:"#143351",
+            "&:hover": {
+              backgroundColor: "#143351",
+              color: "white",
+            },
+          }}
           onClick={handleSubmit}
           disabled={createProfileApiIsLoading}
           loading={createProfileApiIsLoading}
-          label="Add Employee"
+          label="Create"
         />
       </DialogActions>
     </Dialog>

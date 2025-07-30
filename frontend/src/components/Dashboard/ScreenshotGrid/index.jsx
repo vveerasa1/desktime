@@ -28,7 +28,8 @@ useGetScreenshotQuery({ id: employee || userId, date: filters.date });
   return (
     <Paper className={styles.container}>
       <Box py={2} px={2}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6"
+          sx={{ fontWeight: 600, color: "#333", mb: 2 }}>
           Screenshots
         </Typography>
         <Grid container spacing={4}>

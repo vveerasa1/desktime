@@ -358,7 +358,7 @@ const Projects = () => {
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 px: 4,
-                backgroundColor: "#1564bf",
+                backgroundColor: "#143351",
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -374,7 +374,7 @@ const Projects = () => {
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 px: 4,
-                backgroundColor: "#1564bf",
+                backgroundColor: "#143351",
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

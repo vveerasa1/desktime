@@ -222,8 +222,10 @@ const TaskForm = ({
           sx={{
             textTransform: "none",
             borderRadius: "8px",
+            borderColor:"#143351",
+            color:"#143351",
             "&:hover": {
-              backgroundColor: "#143BA0",
+              backgroundColor: "#143351",
               color: "white",
             },
           }}

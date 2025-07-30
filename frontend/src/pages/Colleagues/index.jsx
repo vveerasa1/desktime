@@ -131,6 +131,7 @@ const Colleagues = () => {
             </Box>
             {role === "Admin" ? (
               <CustomButton
+              sx={{backgroundColor:"#143351"}}
                 variant="contained"
                 color="success"
                 onClick={handleOpen}

@@ -235,7 +235,7 @@ const TaskModal = ({
       >
         <Button
           onClick={() => onClose()}
-          variant="outlined"
+               variant="outlined"
           sx={{
             textTransform: "none",
             borderRadius: "8px",
@@ -255,9 +255,11 @@ const TaskModal = ({
           sx={{
             textTransform: "none",
             borderRadius: "8px",
+            borderColor:"#143351",
+            color:"#143351",
             "&:hover": {
-              backgroundColor: "#143BA0",
-              color:"white"
+              backgroundColor: "#143351",
+              color: "white",
             },
           }}
         >

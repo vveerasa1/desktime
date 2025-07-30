@@ -18,7 +18,12 @@ import { jwtDecode } from "jwt-decode";
 import styles from "./index.module.css";
 import { Link } from "react-router-dom";
 import { useDeleteProfileMutation } from "../../../redux/services/user";
-const ColleaguesList = ({ navigate, colleaguesData, isLoading,openToaster }) => {
+const ColleaguesList = ({
+  navigate,
+  colleaguesData,
+  isLoading,
+  openToaster,
+}) => {
   const [deleteProfile] = useDeleteProfileMutation();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedColleague, setSelectedColleague] = useState(null);
@@ -45,7 +50,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading,openToaster }) => 
   const handleDelete = async (id) => {
     try {
       await deleteProfile(id);
-      openToaster("Employee Deleted")
+      openToaster("Employee Deleted");
       handleMenuClose();
     } catch {
       console.log("Error");
@@ -56,12 +61,12 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading,openToaster }) => 
       {isLoading ? (
         <LoadingComponent />
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           {colleaguesData?.users?.length > 0 &&
             colleaguesData?.users.map((colleague, index) => (
               <Grid item key={index} size={3} className={styles.gridItem}>
                 <Paper className={styles.card} elevation={1}>
-                  {userRole === "Admin" && (
+                  {(userRole === "Admin" || userRole === "Owner") && (
                     <IconButton
                       size="small"
                       onClick={(e) => handleMenuOpen(e, colleague)}
@@ -70,7 +75,7 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading,openToaster }) => 
                       <MoreVertIcon fontSize="small" />
                     </IconButton>
                   )}
-                  {userRole === "Admin" ? (
+                  {userRole === "Admin" || userRole === "Owner" ? (
                     <Link
                       style={{ textDecoration: "none", color: "inherit" }}
                       to={`/dashboard/employee=${colleague._id}`}
@@ -99,12 +104,16 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading,openToaster }) => 
                         className={styles.avatar}
                       />
                       <Box>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {colleague.username}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {colleague.role}
-                        </Typography>
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {colleague.username}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">
+                            {colleague.role}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Box>
                   )}
@@ -124,9 +133,16 @@ const ColleaguesList = ({ navigate, colleaguesData, isLoading,openToaster }) => 
                     onClose={handleMenuClose}
                     anchorOrigin={{ vertical: "top", horizontal: "right" }}
                     transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    PaperProps={{
+                      sx: {
+                        boxShadow: "0px 0px 2px -1px", // ✅ removes the shadow
+                      },
+                    }}
                   >
                     <MenuItem onClick={handleEdit}>Edit</MenuItem>
-                    <MenuItem onClick={()=>handleDelete(colleague._id)}>Delete</MenuItem>
+                    <MenuItem onClick={() => handleDelete(colleague._id)}>
+                      Delete
+                    </MenuItem>
                   </Menu>
                 </Paper>
               </Grid>

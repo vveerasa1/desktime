@@ -22,7 +22,7 @@ const CustomCalendar = ({
       )}
       <DatePicker
         value={selectedDate ? dayjs(selectedDate) : null}
-        onChange={(newValue) => onChange(newValue, name)} // ✅ pass name back on change
+        onChange={(newValue) => onChange(newValue, name)}
         disableFuture={false}
         minDate={minDate ? dayjs(minDate) : undefined}
         maxDate={maxDate ? dayjs(maxDate) : undefined}
@@ -36,13 +36,34 @@ const CustomCalendar = ({
                 fontSize: "14px",
                 height: "32px", // reduce height
                 padding: "18px 8px", // tighter padding
+                borderColor: "#dddddd",
+                color: "#333c43",
                 backgroundColor: disabled ? "#f5f5f5" : "#fff",
                 "& .MuiInputBase-input": {
                   padding: "6px 8px", // adjust inside padding
+                  borderColor: "#dddddd",
                 },
                 "& .MuiInputAdornment-root": {
                   marginRight: "4px", // tighter icon padding
+                  borderColor: "#dddddd",
                 },
+                "& .MuiPickersOutlinedInput-notchedOutline": {
+                  borderColor: "#dddddd",
+                  borderRadius: "6px"
+                },
+                "& .MuiInputAdornment-root svg": {
+                  fontSize: "14px",
+                  color: "##999da1"
+                },
+              },
+            },
+          },
+          popper: {
+            sx: {
+              "& .MuiDateCalendar-root": {
+                width: "238px",
+                maxHeight: "336px",
+                overflow: "hidden",
               },
             },
           },

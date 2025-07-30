@@ -28,7 +28,9 @@ const CustomButton = ({
                 textTransform: "none",
                 borderRadius: "8px",
                 "&:hover": {
-                    backgroundColor: "#143BA0",
+
+                    border: "1px #143351 !important",
+                    backgroundColor:"#143351 !important",
                     color: "white"
                 },
                 ...(variant === 'contained' && {

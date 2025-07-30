@@ -2,9 +2,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
-  IconButton,
   ToggleButton,
   ToggleButtonGroup,
+  Button,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import dayjs from "dayjs";
@@ -75,6 +75,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
 
       <Box className={styles.controls}>
         <ToggleButtonGroup
+          className={styles.toggleGroup}
           value={filtersState.viewMode}
           exclusive
           onChange={handleViewChange}
@@ -102,8 +103,9 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
             maxDate={new Date()}
           />
         </Box>
-        <Box  mt={1} sx={{display:"flex"}}>
+        <Box className={styles.nextPrevIcons}>
           <Box
+            className={styles.npIcon}
             onClick={() => {
               const newDate = dayjs(filtersState.date)
                 .subtract(1, filtersState.viewMode)
@@ -111,10 +113,11 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
               setFiltersState((prev) => ({ ...prev, date: newDate }));
             }}
           >
-            <ChevronLeft className={styles.icon} />
+            <ChevronLeft sx={{cursor:"pointer"}} className={styles.icon} />
           </Box>
 
           <Box
+            className={styles.npIcon}
             onClick={() => {
               const newDate = dayjs(filtersState.date)
                 .add(1, filtersState.viewMode)
@@ -122,7 +125,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
               setFiltersState((prev) => ({ ...prev, date: newDate }));
             }}
           >
-            <ChevronRight className={styles.icon} />
+            <ChevronRight  sx={{cursor:"pointer"}} className={styles.icon} />
           </Box>
         </Box>
       </Box>
