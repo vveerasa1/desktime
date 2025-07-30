@@ -11,6 +11,7 @@ const ForgotPassword = lazy(() => import("../pages/Auth/ForgotPassword"));
 const OtpVerify = lazy(() => import("../pages/Auth/OtpVerify"));
 const ResetPassword = lazy(() => import("../pages/Auth/ResetPassword"));
 const Teams = lazy(() =>import('../pages/Teams'))
+const TeamMembers = lazy(() =>import('../pages/TeamMembers'))
 // export const routes = [
 //   {
 //     path: "/", // ✅ Root path shows Login
@@ -83,6 +84,10 @@ export const routes = [
   {
     path: "/reset-password",
     element: <ResetPassword />,
+  },
+  {
+    path: "/team-members",
+    element: <TeamMembers />,
   },
   {
     path: "/", // 🔒 Protected Route Shell
