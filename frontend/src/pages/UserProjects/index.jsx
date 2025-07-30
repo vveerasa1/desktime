@@ -341,7 +341,7 @@ const Projects = () => {
           mb: 2,
         }}
       >
-        <Typography variant="h5" component="h1" fontWeight="bold">
+        <Typography sx={{fontSize:"23px"}} fontWeight={600}>
           Projects
         </Typography>
 

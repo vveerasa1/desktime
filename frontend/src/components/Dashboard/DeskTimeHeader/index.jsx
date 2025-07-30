@@ -66,7 +66,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
           <LoadingComponent />
         </Box>
       ) : (
-        <Typography variant="h6" className={styles.title}>
+        <Typography sx={{fontSize:"23px"}} variant="" className={styles.title}>
           {isOwnProfile
             ? "My Tracking"
             : `${getSingleData?.data?.username || "User"}`}

@@ -104,10 +104,12 @@ const TeamsTable = ({
               const isItemSelected = selected.indexOf(row._id) !== -1;
               return (
                 <TableRow
+                
                   hover
                   // Removed onClick handler for selection since checkboxes are commented out
                   key={row._id}
                   sx={{ cursor: "pointer" }}
+                  
                 >
                   {/* Commented out checkbox cell for each row */}
                   {/* <TableCell padding="checkbox">
@@ -119,17 +121,17 @@ const TeamsTable = ({
                       }}
                     />
                   </TableCell> */}
-                  <TableCell align="left">{row.name}</TableCell>
-                  <TableCell align="center">{row.teamMembersCount}</TableCell>
-                  <TableCell align="center">
+                  <TableCell style={{width:"400px"}} align="left">{row.name}</TableCell>
+                  <TableCell style={{width:"400px"}}  align="center">{row.teamMembersCount}</TableCell>
+                  <TableCell style={{width:"400px"}} align="center">
                     {new Date(row.createdAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
                     })}
                   </TableCell>
-                  <TableCell align="center">
-                    <Box display="flex" justifyContent="center" gap={1}>
+                  <TableCell style={{width:"0px"}} align="center">
+                    <Box  display="flex" justifyContent="center" gap={0}>
                       <IconButton
                         onClick={(e) => {
                           e.stopPropagation();

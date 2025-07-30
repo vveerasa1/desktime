@@ -43,6 +43,7 @@ const ProjectCard = ({
           {tableHeaders.map((header, index) => (
             <TableCell
               key={index}
+              
               className={styles.headerCell}
               style={{
                 background: "#143351",
@@ -155,7 +156,7 @@ const ProjectCard = ({
             </TableCell>
             <TableCell
               className={styles.bodyCell}
-              sx={{ padding: "8px", minWidth: "100px" }}
+              sx={{}}
             >
               <Typography variant="body2">{item.status}</Typography>
             </TableCell>
@@ -183,7 +184,7 @@ const ProjectCard = ({
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>
-            <Typography sx={{fontWeight:'600 !important'}} variant="h6" className={styles.headingText}>
+            <Typography sx={{fontSize:"18px",fontWeight:'600 !important'}} className={styles.headingText}>
               Projects
             </Typography>
             <Button

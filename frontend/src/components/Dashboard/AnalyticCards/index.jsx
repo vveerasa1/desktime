@@ -1,4 +1,4 @@
-import { Grid, Box } from "@mui/material";
+import { Grid, Box, Typography } from "@mui/material"; // Added Typography import
 import { statCardsData } from "./constant";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -14,6 +14,7 @@ import { useGetAllTasksQuery } from "../../../redux/services/task";
 import { useState } from "react";
 dayjs.extend(duration);
 import MuiToaster from "../../MuiToaster";
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
 // Helper to convert seconds to "Xh Ym"
 const formatSecondsToHHMM = (seconds) => {
   if (typeof seconds !== "number" || isNaN(seconds)) return "--";
@@ -30,7 +31,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   const mappedProjectOptions = useMemo(() => {
     return (
       getAllProjectsData?.data?.map((item) => ({
-        id: item._id, // or item._id if you meant actual ID
+        id: item._id,
         name: item.name,
       })) || []
     );
@@ -40,10 +41,10 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
     useGetAllTasksQuery({ id: ownerId });
 
   const STATUS_COLORS = {
-    done: "#23b413ff", // Dark green for Done
-    "In-progress": "#FFF287", // Orange for In Progress
-    "to-do": "#C83F12", // Light yellow for To-do
-    default: "#f1e156ff", // Default gray for unknown statuses
+    done: "#23b413ff",
+    "In-progress": "#FFF287",
+    "to-do": "#C83F12",
+    default: "#f1e156ff",
   };
 
   const mappedTaskData = useMemo(() => {
@@ -63,7 +64,6 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
     );
   }, [getAllTaskData]);
 
-  console.log(mappedTaskData, "TASK DATA");
   const {
     data: profileData,
     isLoading: isProfileLoading,
@@ -85,6 +85,16 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
 
   const dashboardData = getDashboardData?.data || {};
 
+  // Check if there's any tracking data
+  const hasTrackingData = useMemo(() => {
+    return (
+      dashboardData?.arrivalTime ||
+      dashboardData?.leftTime ||
+      dashboardData?.deskTime ||
+      dashboardData?.timeAtWork
+    );
+  }, [dashboardData]);
+
   const dynamicStatCards = useMemo(() => {
     return statCardsData.map((card) => {
       switch (card.title) {
@@ -93,7 +103,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
             ...card,
             value: dashboardData?.arrivalTime
               ? moment(dashboardData.arrivalTime, "HH:mm:ss").format("HH:mm")
-              : "--",
+              : "00:00",
           };
 
         case "Left time":
@@ -101,8 +111,13 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
             ...card,
             value: dashboardData.leftTime
               ? moment(dashboardData.leftTime, "HH:mm:ss").format("HH:mm")
-              : "ONLINE",
-            valueColor: !dashboardData.leftTime ? "#FFA500" : undefined,
+              : dashboardData.arrivalTime
+              ? "ONLINE"
+              : "00:00",
+            valueColor:
+              !dashboardData.leftTime && dashboardData.arrivalTime
+                ? "#FFA500"
+                : undefined,
           };
 
         case "Desktime time":
@@ -110,7 +125,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
             ...card,
             value: dashboardData.deskTime
               ? formatSecondsToHHMM(dashboardData.deskTime)
-              : "--",
+              : "00:00",
           };
 
         case "Time at work":
@@ -118,7 +133,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
             ...card,
             value: dashboardData.timeAtWork
               ? formatSecondsToHHMM(dashboardData.timeAtWork)
-              : "--",
+              : "00:00",
           };
 
         default:
@@ -135,6 +150,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
       dynamicStatCards.find((card) => card.title === "Time at work"),
     ].filter(Boolean);
   }, [dynamicStatCards]);
+
   const [openTask, setOpenTask] = useState(false);
   const tableHeaders = useMemo(
     () => [
@@ -174,12 +190,10 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
       assignee: "",
       status: "",
     });
-    console.log("Task closed, taskId reset to:", null);
   };
 
   const handleChange = (event, name) => {
     const { value } = event.target;
-
     setTaskFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -198,7 +212,6 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
 
   const handleSelect = (event, name) => {
     const { value } = event.target;
-
     setTaskFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -225,12 +238,25 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
+
   return (
     <Grid>
       <Box mt={4}>
-        <TrackingCard orderedCards={orderedCards} />
+        {hasTrackingData ? (
+          <TrackingCard orderedCards={orderedCards} />
+        ) : (
+          <Box>
+            <Box sx={{display:"flex" ,justifyContent:"center"}}>
+            <SentimentVeryDissatisfiedIcon sx={{fontSize:50}} />
+
+            </Box>
+            <Typography variant="h5" align="center" sx={{ p: 3 }}>
+              No data has been tracked today. Login to start tracking.
+            </Typography>
+          </Box>
+        )}
       </Box>
-      <Box mt={4} >
+      <Box mt={4}>
         <ProjectCard
           userId={userId}
           ownerId={ownerId}

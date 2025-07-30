@@ -114,7 +114,7 @@ const TaskTable = ({
 
                   {columns.map((col) => {
                     const dataKey = col.toLowerCase().replace(/ /g, "_");
-                    return <TableCell key={col}>{row[dataKey]}</TableCell>;
+                    return <TableCell style={{width:"400px"}} key={col}>{row[dataKey]}</TableCell>;
                   })}
 
                   <TableCell align="center">

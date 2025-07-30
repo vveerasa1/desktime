@@ -16,6 +16,7 @@ import styles from "./index.module.css";
 import CustomButton from "../../components/CustomButton";
 import MuiToaster from "../../components/MuiToaster";
 import { SignalCellularNullOutlined } from "@mui/icons-material";
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 const Colleagues = () => {
   const token = localStorage.getItem("token");
   let userId = null;
@@ -93,7 +94,7 @@ const Colleagues = () => {
   return (
     <>
       <Box className={styles.pageContainer}>
-        <Typography variant="h6" fontWeight={600} color="#333333">
+        <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
           Colleagues
         </Typography>
         <Box className={styles.searchActions}>
@@ -130,13 +131,17 @@ const Colleagues = () => {
               </Button>
             </Box>
             {role === "Admin" ? (
-              <CustomButton
-              sx={{backgroundColor:"#143351"}}
-                variant="contained"
-                color="success"
-                onClick={handleOpen}
-                label="Add Employee"
-              />
+                        <Button
+              variant="contained"
+              sx={{ textTransform: "none",whiteSpace:"nowrap", backgroundColor:"#143351"}}
+              onClick={()=>handleOpen()}
+            >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                     <GroupAddIcon   />
+                Add Employee
+                </Box>
+               
+            </Button>
             ) : (
               ""
             )}

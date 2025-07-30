@@ -104,7 +104,7 @@ const Teams = () => {
           }}
         >
           {/* Left-aligned Title */}
-          <Typography variant="h5" component="h1" fontWeight="bold">
+          <Typography sx={{fontSize:"23px"}} fontWeight={600}>
             Teams
           </Typography>
 
