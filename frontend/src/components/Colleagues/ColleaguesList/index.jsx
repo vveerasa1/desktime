@@ -133,6 +133,11 @@ const ColleaguesList = ({
                     onClose={handleMenuClose}
                     anchorOrigin={{ vertical: "top", horizontal: "right" }}
                     transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    PaperProps={{
+                      sx: {
+                        boxShadow: "0px 0px 2px -1px", // ✅ removes the shadow
+                      },
+                    }}
                   >
                     <MenuItem onClick={handleEdit}>Edit</MenuItem>
                     <MenuItem onClick={() => handleDelete(colleague._id)}>

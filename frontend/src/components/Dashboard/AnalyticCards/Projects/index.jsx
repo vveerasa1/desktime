@@ -183,7 +183,7 @@ const ProjectCard = ({
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>
-            <Typography variant="" mt={2} className={styles.headingText}>
+            <Typography sx={{fontWeight:'600 !important'}} variant="h6" className={styles.headingText}>
               Projects
             </Typography>
             <Button
