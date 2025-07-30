@@ -117,7 +117,7 @@ console.log(getSingleData,"GET SINGLE DATA")
         ) : (
           <ProductivityBar getProductiviyData={getProductiviyData} />
         ))}
-          <ProjectTimeline/>
+          {/* <ProjectTimeline/> */}
 
       {filters.viewMode === "month" && (
         <EmployeeCalendar

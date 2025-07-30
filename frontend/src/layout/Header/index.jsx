@@ -94,7 +94,9 @@ const Header = () => {
         </Box>
 
         {/* User Info */}
-        <Box display="flex" alignItems="center" gap={0}>
+        <Box
+        onClick={handleClick}
+        display="flex" alignItems="center" gap={0}>
           <Box textAlign="right">
             {isLoading ? (
               <Typography variant="subtitle2"><LoadingComponent/></Typography>
@@ -112,7 +114,7 @@ const Header = () => {
             </Typography>
           </Box>
           <IconButton onClick={handleClick}>
-            <Avatar sx={{ bgcolor: "grey" }}>{avatarLetter}</Avatar>
+            <Avatar sx={{ bgcolor: "#143351" }}>{avatarLetter}</Avatar>
           </IconButton>
         </Box>
 
@@ -154,14 +156,14 @@ const Header = () => {
           <MenuItem onClick={() => navigate("/settings")}>
             <Typography>Profile</Typography>
           </MenuItem>
-
+{/* 
           <MenuItem onClick={handleClose}>
             <Typography>Contact us</Typography>
-          </MenuItem>
-          <Divider />
+          </MenuItem> */}
+          {/* <Divider />
           <MenuItem onClick={handleClose}>
             <Typography>Launch DeskTime app</Typography>
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem onClick={() => setOpen(true)}>
             <Typography color="error">Log out</Typography>
           </MenuItem>

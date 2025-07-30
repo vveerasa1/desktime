@@ -39,25 +39,28 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   const { data: getAllTaskData, isLoading: getAllTaskDataIsLoading } =
     useGetAllTasksQuery({ id: ownerId });
 
-    const STATUS_COLORS = {
-  'done': '#23b413ff',      // Dark green for Done
-  'In-progress': '#FFF287', // Orange for In Progress
-  'to-do': '#C83F12',     // Light yellow for To-do
-  'default': '#f1e156ff'    // Default gray for unknown statuses
-};
+  const STATUS_COLORS = {
+    done: "#23b413ff", // Dark green for Done
+    "In-progress": "#FFF287", // Orange for In Progress
+    "to-do": "#C83F12", // Light yellow for To-do
+    default: "#f1e156ff", // Default gray for unknown statuses
+  };
 
   const mappedTaskData = useMemo(() => {
-    return getAllTaskData?.data?.map((item) => ({
-      _id: item._id,
-      task_name: item.name,
-      description: item.description || "—",
-      project: item.projectId?.name || "—",
-      assignee: item.assignee?.username || "—",
-      status: item.status || "—",
-      barColor: STATUS_COLORS[item.status?.toLowerCase()] || STATUS_COLORS.default,
-      created_by: item.createdBy?.username || "—",
-      created_at: new Date(item.createdAt).toLocaleString(),
-    })) || [];
+    return (
+      getAllTaskData?.data?.map((item) => ({
+        _id: item._id,
+        task_name: item.name,
+        description: item.description || "—",
+        project: item.projectId?.name || "—",
+        assignee: item.assignee?.username || "—",
+        status: item.status || "—",
+        barColor:
+          STATUS_COLORS[item.status?.toLowerCase()] || STATUS_COLORS.default,
+        created_by: item.createdBy?.username || "—",
+        created_at: new Date(item.createdAt).toLocaleString(),
+      })) || []
+    );
   }, [getAllTaskData]);
 
   console.log(mappedTaskData, "TASK DATA");
@@ -223,9 +226,11 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
     setToaster({ ...toaster, open: false });
   };
   return (
-    <Grid container sx={{ width: "100%" }}>
-      <Box className={styles.container}>
+    <Grid>
+      <Box mt={4}>
         <TrackingCard orderedCards={orderedCards} />
+      </Box>
+      <Box mt={4} >
         <ProjectCard
           userId={userId}
           ownerId={ownerId}
@@ -246,13 +251,14 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
           handleTaskOpen={handleTaskOpen}
           tableHeaders={tableHeaders}
         />
-        <MuiToaster
-          open={toaster.open}
-          message={toaster.message}
-          severity={toaster.severity}
-          handleClose={handleCloseToaster}
-        />
       </Box>
+
+      <MuiToaster
+        open={toaster.open}
+        message={toaster.message}
+        severity={toaster.severity}
+        handleClose={handleCloseToaster}
+      />
     </Grid>
   );
 };

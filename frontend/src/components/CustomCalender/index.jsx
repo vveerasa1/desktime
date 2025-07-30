@@ -22,7 +22,7 @@ const CustomCalendar = ({
       )}
       <DatePicker
         value={selectedDate ? dayjs(selectedDate) : null}
-        onChange={(newValue) => onChange(newValue, name)} // ✅ pass name back on change
+        onChange={(newValue) => onChange(newValue, name)}
         disableFuture={false}
         minDate={minDate ? dayjs(minDate) : undefined}
         maxDate={maxDate ? dayjs(maxDate) : undefined}
@@ -55,6 +55,15 @@ const CustomCalendar = ({
                   fontSize: "14px",
                   color: "##999da1"
                 },
+              },
+            },
+          },
+          popper: {
+            sx: {
+              "& .MuiDateCalendar-root": {
+                width: "238px",
+                maxHeight: "336px",
+                overflow: "hidden",
               },
             },
           },

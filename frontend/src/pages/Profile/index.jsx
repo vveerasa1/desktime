@@ -475,7 +475,7 @@ const Profile = () => {
             className={styles.buttonWhite}
             onClick={() => setOpen(true)}
           >
-            <Typography fontSize={14}>Change Password</Typography>
+            <Typography sx={{textTransform:"none"}} fontSize={14}>Change Password</Typography>
           </Button>
           <Button
             sx={{ backgroundColor: "#143351" }}
@@ -484,7 +484,7 @@ const Profile = () => {
             onClick={handleSubmit}
             disabled={createProfileApiIsLoading || updateProfileIsLoading}
           >
-            <Typography fontSize={14}>Save Changes</Typography>
+            <Typography sx={{textTransform:"none"}} fontSize={14}>Save Changes</Typography>
           </Button>
         </Box>
       </Box>
