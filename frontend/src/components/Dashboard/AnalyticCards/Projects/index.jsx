@@ -38,16 +38,17 @@ const ProjectCard = ({
 }) => {
   const renderedHeader = useMemo(
     () => (
-      <TableHead>
-        <TableRow>
+      <TableHead >
+        <TableRow >
           {tableHeaders.map((header, index) => (
             <TableCell
               key={index}
               
-              className={styles.headerCell}
+              className={`${styles.headerCell} ${index===0?styles.firstHeaderCell:''} ${index===4?styles.lastHeaderCell:''}`}
               style={{
                 background: "#143351",
                 color: "white !important",
+                // borderRadius:"20px",
                 paddingLeft:
                   header.title === "Project" || header.title === "Task"
                     ? 10

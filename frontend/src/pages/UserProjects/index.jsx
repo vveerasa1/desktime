@@ -341,7 +341,7 @@ const Projects = () => {
           mb: 2,
         }}
       >
-        <Typography sx={{fontSize:"23px"}} fontWeight={600}>
+        <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
           Projects
         </Typography>
 

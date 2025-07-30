@@ -462,7 +462,7 @@ const Profile = () => {
       />
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box>
-          <Typography sx={{fontSize:"23px"}} fontWeight={600}>
+          <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
             {isOwnProfile
               ? "My Profile"
               : `${profileDetails?.data?.username || "User"}`}

@@ -14,8 +14,7 @@ import { useGetAllTasksQuery } from "../../../redux/services/task";
 import { useState } from "react";
 dayjs.extend(duration);
 import MuiToaster from "../../MuiToaster";
-import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
-// Helper to convert seconds to "Xh Ym"
+import PhonelinkOffIcon from "@mui/icons-material/PhonelinkOff"; // Helper to convert seconds to "Xh Ym"
 const formatSecondsToHHMM = (seconds) => {
   if (typeof seconds !== "number" || isNaN(seconds)) return "--";
   const dur = dayjs.duration(seconds, "seconds");
@@ -246,12 +245,18 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
           <TrackingCard orderedCards={orderedCards} />
         ) : (
           <Box>
-            <Box sx={{display:"flex" ,justifyContent:"center"}}>
-            <SentimentVeryDissatisfiedIcon sx={{fontSize:50}} />
-
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <PhonelinkOffIcon sx={{ fontSize: 70, color: "grey" }} />
             </Box>
-            <Typography variant="h5" align="center" sx={{ p: 3 }}>
-              No data has been tracked today. Login to start tracking.
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{ p: 3, color: "grey" }}
+            >
+              To track your time, make sure you have downloaded the desktop app
+              and logged in.
+              <br />
+              You can download TrackMe app
             </Typography>
           </Box>
         )}

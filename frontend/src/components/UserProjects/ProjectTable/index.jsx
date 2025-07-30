@@ -7,7 +7,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  // Checkbox,
+  // Checkbox, // Keep commented as per original
   IconButton,
   Box,
   Popover,
@@ -16,13 +16,14 @@ import {
 } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { useDeleteProjectMutation } from "../../../redux/services/projects";
+import contract from "../../../assets/images/gray-pen.png"; // Import the image
 
 const ProjectTable = ({
   data = [],
   columns = [],
   selected,
-  handleProjectSelectOne,
-  handleProjectSelectAll,
+  handleProjectSelectOne, // Not used, consider removing if no checkbox functionality
+  handleProjectSelectAll, // Not used, consider removing if no checkbox functionality
   onDelete,
   handleOpen,
   openToaster,
@@ -50,6 +51,7 @@ const ProjectTable = ({
         if (onDelete) onDelete(deleteId);
       } catch (err) {
         console.error("Delete failed", err);
+        openToaster("Failed to delete project.", "error"); // Add an error toaster
       }
     }
     handleClosePopover();
@@ -57,102 +59,132 @@ const ProjectTable = ({
 
   const openPopover = Boolean(anchorEl);
 
-  console.log(selected, "SELECTED");
+  // console.log(selected, "SELECTED"); // Keep if needed for debugging
 
   return (
     <>
-      <TableContainer
-        component={Paper}
-        sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}
-      >
-        <Table>
-          <TableHead>
-            <TableRow>
-              {/* Commented out checkbox column header */}
-              {/* <TableCell padding="checkbox">
-                <Checkbox
-                  color="primary"
-                  indeterminate={
-                    selected.length > 0 &&
-                    selected.length < data.length
-                  }
-                  checked={
-                    data.length > 0 &&
-                    selected.length === data.length
-                  }
-                  onChange={handleProjectSelectAll}
-                  inputProps={{ "aria-label": "select all items" }}
-                />
-              </TableCell> */}
+      {data.length === 0 ? (
+        <Paper
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '250px', // Adjust height as needed
+            p: 3,
+            textAlign: 'center',
+            color: '#666',
+            border: "1px solid #e0e0e0",
+            boxShadow: "none",
+          }}
+        >
+          <img
+            src={contract}
+            alt="No data icon"
+            style={{ width: '80px', height: '80px', marginBottom: '16px', opacity: 0.6 }} // Adjust size and opacity
+          />
+          <Typography variant="h6" fontWeight="bold" sx={{mb: 1}}>
+            No projects added yet.
+          </Typography>
+          <Typography variant="body1">
+            Start by creating a new project.
+          </Typography>
+        </Paper>
+      ) : (
+        <TableContainer
+          component={Paper}
+          sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow>
+                {/* Commented out checkbox column header */}
+                {/* <TableCell padding="checkbox">
+                  <Checkbox
+                    color="primary"
+                    indeterminate={
+                      selected.length > 0 &&
+                      selected.length < data.length
+                    }
+                    checked={
+                      data.length > 0 &&
+                      selected.length === data.length
+                    }
+                    onChange={handleProjectSelectAll}
+                    inputProps={{ "aria-label": "select all items" }}
+                  />
+                </TableCell> */}
 
-              {columns.map((col) => (
-                <TableCell key={col} sx={{ fontWeight: "bold" }}>
-                  {col}
-                </TableCell>
-              ))}
-
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((row) => {
-              const isItemSelected = selected.indexOf(row._id) !== -1;
-              return (
-                <TableRow
-                  key={row._id}
-                  hover
-                  role="checkbox"
-                  aria-checked={isItemSelected}
-                  tabIndex={-1}
-                  selected={isItemSelected}
-                  sx={{ cursor: "pointer" }}
-                >
-                  {/* Commented out checkbox cell for each row */}
-                  {/* <TableCell padding="checkbox">
-                    <Checkbox
-                      color="primary"
-                      checked={isItemSelected}
-                      onChange={(event) =>
-                        handleProjectSelectOne(event, row._id)
-                      }
-                      inputProps={{
-                        "aria-labelledby": `table-checkbox-${row._id}`,
-                      }}
-                    />
-                  </TableCell> */}
-
-                  {columns.map((col) => {
-                    const dataKey = col.toLowerCase().replace(/ /g, "_");
-                    return <TableCell style={{width:"400px"}} key={col}>{row[dataKey]}</TableCell>;
-                  })}
-
-                  <TableCell align="center">
-                    <Box display="flex" justifyContent="center" gap={0.5}>
-                      <IconButton
-                        aria-label="edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpen(row._id);
-                        }}
-                      >
-                        <EditIcon sx={{color:"#143351"}} />
-                      </IconButton>
-                      <IconButton
-                        aria-label="delete"
-                        onClick={(e) => handleDeleteClick(e, row._id)}
-                      >
-                        <DeleteIcon sx={{ color: "red" }} />
-                      </IconButton>
-                    </Box>
+                {columns.map((col) => (
+                  <TableCell key={col} sx={{ fontWeight: "bold" }}>
+                    {col}
                   </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                ))}
+
+                <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((row) => {
+                const isItemSelected = selected.indexOf(row._id) !== -1;
+                return (
+                  <TableRow
+                    key={row._id}
+                    hover
+                    role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    selected={isItemSelected}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    {/* Commented out checkbox cell for each row */}
+                    {/* <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        onChange={(event) =>
+                          handleProjectSelectOne(event, row._id)
+                        }
+                        inputProps={{
+                          "aria-labelledby": `table-checkbox-${row._id}`,
+                        }}
+                      />
+                    </TableCell> */}
+
+                    {columns.map((col) => {
+                      const dataKey = col.toLowerCase().replace(/ /g, "_");
+                      return <TableCell style={{ width: "400px" }} key={col}>{row[dataKey]}</TableCell>;
+                    })}
+
+                    <TableCell align="center">
+                      <Box display="flex" justifyContent="center" gap={0.5}>
+                        <IconButton
+                          aria-label="edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpen(row._id);
+                          }}
+                        >
+                          <EditIcon sx={{ color: "#143351" }} />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={(e) => handleDeleteClick(e, row._id)}
+                        >
+                          <DeleteIcon sx={{ color: "red" }} />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+
 
       {/* Delete Confirmation Popover */}
       <Popover

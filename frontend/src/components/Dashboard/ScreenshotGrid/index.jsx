@@ -113,7 +113,7 @@ const ScreenshotGrid = ({ filters, employee }) => {
         ) : (
           <Grid container spacing={4}>
             {getScreenshots?.data?.map((shot, idx) => (
-              <Grid item xs={12} sm={6} md={3} key={shot.id || idx}> {/* Use xs, sm, md for responsiveness */}
+              <Grid item size={{xs:12,md:3}} key={shot.id || idx}> {/* Use xs, sm, md for responsiveness */}
                 <Box
                   className={styles.screenshotCard}
                   onClick={() => handleImageClick(idx)}
