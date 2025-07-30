@@ -303,17 +303,27 @@ const getScreenshotsById = async (req, res) => {
         .status(400)
         .json({ message: "Date query parameter is required (YYYY-MM-DD)" });
     }
-    const screenshots = await ScreenshotLog.findOne({
+    const screenshotsDoc = await ScreenshotLog.findOne({
       userId: id,
       "dailyScreenshots.date": date,
     });
-    console.log(screenshots);
+    // console.log(screenshots);
+    if (!screenshotsDoc || screenshotsDoc.dailyScreenshots.date !== date) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "No screenshots found for the provided date",
+      });
+    }
+
+    const reversedScreenshots =
+      screenshotsDoc.dailyScreenshots.screenshots?.slice().reverse() || [];
 
     res.status(200).json({
       code: 200,
       status: "Success",
       message: "Gathered screenshots successfully",
-      data: screenshots?.dailyScreenshots?.screenshots,
+      data: reversedScreenshots,
     });
   } catch (error) {
     console.error("Error fetching screenshots:", error);
