@@ -86,10 +86,6 @@ export const routes = [
     element: <ResetPassword />,
   },
   {
-    path: "/team-members",
-    element: <TeamMembers />,
-  },
-  {
     path: "/", // 🔒 Protected Route Shell
     element: <ProtectedRoute />, // ✅ Auth check happens here
     children: [
@@ -105,7 +101,7 @@ export const routes = [
           { path: "absence-calendar", element: <AbsenceCalender /> },
           { path: "projects", element: <Projects /> },
           { path: "teams", element: <Teams /> },
-
+          {path: "/team-members",element: <TeamMembers />,},
         ],
       },
     ],

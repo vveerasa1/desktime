@@ -1,5 +1,138 @@
+body .pageHeading{
+    font-size: 20px;
+    color: #333c43;
+    font-weight: 500;
+}
+
 .tabsContainer{
     width: 100%;
     position: relative;
     display: inline-block;
+    margin-top: 20px;
+}
+
+.tabButtons{
+    display: flex;
+    column-gap: .25rem;
+    width: 100%;
+    overflow-x: unset;
+    overflow-y: unset;
+    white-space: unset;
+}
+
+body .tabButton{
+    transition: all .2s ease-in-out;
+    outline: none !important;
+    background: #fafafa;
+    border: none;
+    border-radius: 4px 4px 0 0;
+    min-width: unset;
+    padding: .75rem 1rem 1rem;
+    flex: 1;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 58px;
+    color: #70777b;
+    border-top: 4px solid #fafafa;
+}
+
+body .tabButton.active{
+    background: #fff;
+    border-top: 4px solid #4ea819;
+    color: #333c43;
+}
+
+body .tabButtons button h4{
+    font-size: 16px;
+    text-transform: capitalize;
+}
+
+body .tabContentWrapper{
+    width: 100%;
+    position: relative;
+    display: inline-block;
+    background-color: #ffffff;
+    overflow: auto;
+    padding-bottom: 1.25rem;
+    box-shadow: none;
+}
+
+body .tHeadSell{
+    font-size: 14px;
+    color: #171c22;
+    padding: 0px 10px;
+    white-space: nowrap;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+.tHeadRow{
+    height: 50px;
+    padding: 10px 0px;
+    display: table-row;
+    width: 100%;
+}
+
+.tBodyRow{
+    height: 60px;
+    padding: 10px 0px;
+    display: table-row;
+    width: 100%;
+}
+
+body .tBodyCell{
+    font-size: 14px;
+    color: #171c22;
+    padding: 0px 10px;
+    white-space: nowrap;
+    font-weight: normal;
+    border-bottom: none;
+}
+
+.tPersonInfo{
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+}
+
+body .tPersonAvatar{
+    height: 32px;
+    width: 32px;
+}
+
+body .tPersonName{
+    font-size: 14px;
+    font-weight: 600;
+    color: #333c43;
+    transition: ease-in 0.3s;
+}
+
+body .tPersonDept{
+    font-size: 12px;
+}
+
+body .tPersonName:hover{
+    color: #171c22;
+    transition: ease-in 0.3s;
+}
+
+.noMenbersBox{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px 0px 20px;
+    text-align: center;
+}
+
+body .noMenbersBox h3{
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333c43;
+}
+
+body .noMenbersBox p{
+    margin-bottom: 0px;
+    color: #333c43;
 }

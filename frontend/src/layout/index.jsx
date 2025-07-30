@@ -44,7 +44,7 @@ const AppLayout = () => {
             px: 3,
             py: 10,
             flex: 1,
-            backgroundColor: "#f9f9f9",
+            backgroundColor: "#ebecec",
           }}
         >
           <Outlet />
