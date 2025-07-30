@@ -138,7 +138,7 @@ const TeamsTable = ({
                           }
                         }}
                       >
-                        <EditIcon color="primary" />
+                        <EditIcon sx={{color:"#143351"}} color="primary" />
                       </IconButton>
 
                       <IconButton

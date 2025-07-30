@@ -137,7 +137,7 @@ const ProjectTable = ({
                           handleOpen(row._id);
                         }}
                       >
-                        <EditIcon color="primary" />
+                        <EditIcon sx={{color:"#143351"}} />
                       </IconButton>
                       <IconButton
                         aria-label="delete"

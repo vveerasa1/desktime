@@ -2,9 +2,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
-  IconButton,
   ToggleButton,
   ToggleButtonGroup,
+  Button,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import dayjs from "dayjs";
@@ -111,7 +111,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
               setFiltersState((prev) => ({ ...prev, date: newDate }));
             }}
           >
-            <ChevronLeft className={styles.icon} />
+            <ChevronLeft sx={{cursor:"pointer"}} className={styles.icon} />
           </Box>
 
           <Box
@@ -122,7 +122,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
               setFiltersState((prev) => ({ ...prev, date: newDate }));
             }}
           >
-            <ChevronRight className={styles.icon} />
+            <ChevronRight  sx={{cursor:"pointer"}} className={styles.icon} />
           </Box>
         </Box>
       </Box>

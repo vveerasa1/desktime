@@ -179,7 +179,7 @@ const ProjectCard = ({
   }, [mappedTaskData, tableHeaders]);
 
   return (
-    <Grid item xs={12} md={9} className={styles.container}>
+    <Grid item size={{xs:12,md:12}}>
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>

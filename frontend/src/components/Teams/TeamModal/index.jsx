@@ -145,7 +145,7 @@ useEffect(() => {
         }}
       >
         <Typography variant="h6" component="div" fontWeight="bold">
-          {teamId ? "Edit Team" : "  Add new team"}
+          {teamId ? "Edit Team" : "  Add team"}
         </Typography>
         <IconButton onClick={handleClose} sx={{ color: "common.white" }}>
           <CloseIcon />
@@ -169,29 +169,31 @@ useEffect(() => {
       <DialogActions sx={{ p: 2 }}>
         <Button
           onClick={handleClose}
-          variant="outlined"
-
-          
+         variant="outlined"
           sx={{
             textTransform: "none",
-            borderColor: "grey.400",
-            color: "text.primary",
-            mr: 1,
             borderRadius: "8px",
-
+            borderColor: "#ccc",
+            color: "#666",
+            "&:hover": {
+              borderColor: "#999",
+              backgroundColor: "#f0f0f0",
+            },
           }}
         >
           Close
         </Button>
         <Button
           onClick={handleSubmit}
-          variant="outlined"
+         variant="outlined"
           sx={{
             textTransform: "none",
             borderRadius: "8px",
+            borderColor:"#143351",
+            color:"#143351",
             "&:hover": {
-              backgroundColor: "#143BA0",
-              color:"white"
+              backgroundColor: "#143351",
+              color: "white",
             },
           }}
         >

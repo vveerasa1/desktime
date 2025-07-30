@@ -94,7 +94,9 @@ const Header = () => {
         </Box>
 
         {/* User Info */}
-        <Box display="flex" alignItems="center" gap={0}>
+        <Box
+        onClick={handleClick}
+        display="flex" alignItems="center" gap={0}>
           <Box textAlign="right">
             {isLoading ? (
               <Typography variant="subtitle2"><LoadingComponent/></Typography>
