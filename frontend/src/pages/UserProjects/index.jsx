@@ -10,7 +10,6 @@ import {
   Button,
 } from "@mui/material";
 import ProjectTable from "../../components/UserProjects/ProjectTable";
-import { projectData } from "../../components/UserProjects/StaticDatas/";
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import styles from "./index.module.css";

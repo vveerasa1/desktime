@@ -67,7 +67,7 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
               className={`${styles.listItem} ${isActive ? styles.activeItem : ""}`}
               onClick={() => handleItemClick(label, path)}
             >
-              <Box className={styles.iconWrapper}>{icon}</Box>
+              <Box mt={0.5} className={styles.iconWrapper}>{icon}</Box>
               {!isMobile && mobileOpen && <ListItemText className={styles.listItemText} primary={label} />}
             </ListItem>
           );
@@ -95,6 +95,9 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
           transition: "width 0.3s ease-in-out",
           overflowX: "hidden",
           top: 0,
+          cursor:"pointer",
+        
+
         },
       }}
     >

@@ -102,28 +102,29 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
             maxDate={new Date()}
           />
         </Box>
+        <Box  mt={1} sx={{display:"flex"}}>
+          <Box
+            onClick={() => {
+              const newDate = dayjs(filtersState.date)
+                .subtract(1, filtersState.viewMode)
+                .format("YYYY-MM-DD");
+              setFiltersState((prev) => ({ ...prev, date: newDate }));
+            }}
+          >
+            <ChevronLeft className={styles.icon} />
+          </Box>
 
-        <IconButton
-          onClick={() => {
-            const newDate = dayjs(filtersState.date)
-              .subtract(1, filtersState.viewMode)
-              .format("YYYY-MM-DD");
-            setFiltersState((prev) => ({ ...prev, date: newDate }));
-          }}
-        >
-          <ChevronLeft className={styles.icon} />
-        </IconButton>
-
-        <IconButton
-          onClick={() => {
-            const newDate = dayjs(filtersState.date)
-              .add(1, filtersState.viewMode)
-              .format("YYYY-MM-DD");
-            setFiltersState((prev) => ({ ...prev, date: newDate }));
-          }}
-        >
-          <ChevronRight className={styles.icon} />
-        </IconButton>
+          <Box
+            onClick={() => {
+              const newDate = dayjs(filtersState.date)
+                .add(1, filtersState.viewMode)
+                .format("YYYY-MM-DD");
+              setFiltersState((prev) => ({ ...prev, date: newDate }));
+            }}
+          >
+            <ChevronRight className={styles.icon} />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

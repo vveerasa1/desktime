@@ -55,7 +55,7 @@ const CustomTextField = (
                             borderColor: "#E8E8E8",
                         },
                         "&:hover fieldset": {
-                            borderColor: "#A0A0A0",
+                            borderColor: "#706e6eff",
                         },
                         "&.Mui-focused fieldset": {
                             borderColor: "#194CF0",

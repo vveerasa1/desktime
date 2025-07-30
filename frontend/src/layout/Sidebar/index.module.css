@@ -53,10 +53,11 @@
   align-items: center;
   white-space: nowrap;
   color: #ccc; /* light grey by default */
+  font-weight: 800 !important;
+
 }
 
 .activeItem .listItemText {
   color: #ffffff !important; /* white when active */
-  font-weight: 800 !important; /* bold when active */
 }
 

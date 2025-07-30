@@ -7,7 +7,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Checkbox,
+  // Checkbox,
   IconButton,
   Box,
   Popover,
@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { useDeleteProjectMutation } from "../../../redux/services/projects";
+
 const ProjectTable = ({
   data = [],
   columns = [],
@@ -29,6 +30,7 @@ const ProjectTable = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteProject] = useDeleteProjectMutation();
+
   const handleDeleteClick = (event, id) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -55,7 +57,8 @@ const ProjectTable = ({
 
   const openPopover = Boolean(anchorEl);
 
-  console.log(selected,"SELECTED")
+  console.log(selected, "SELECTED");
+
   return (
     <>
       <TableContainer
@@ -65,7 +68,8 @@ const ProjectTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell  padding="checkbox">
+              {/* Commented out checkbox column header */}
+              {/* <TableCell padding="checkbox">
                 <Checkbox
                   color="primary"
                   indeterminate={
@@ -79,7 +83,7 @@ const ProjectTable = ({
                   onChange={handleProjectSelectAll}
                   inputProps={{ "aria-label": "select all items" }}
                 />
-              </TableCell>
+              </TableCell> */}
 
               {columns.map((col) => (
                 <TableCell key={col} sx={{ fontWeight: "bold" }}>
@@ -105,7 +109,8 @@ const ProjectTable = ({
                   selected={isItemSelected}
                   sx={{ cursor: "pointer" }}
                 >
-                  <TableCell padding="checkbox">
+                  {/* Commented out checkbox cell for each row */}
+                  {/* <TableCell padding="checkbox">
                     <Checkbox
                       color="primary"
                       checked={isItemSelected}
@@ -116,7 +121,7 @@ const ProjectTable = ({
                         "aria-labelledby": `table-checkbox-${row._id}`,
                       }}
                     />
-                  </TableCell>
+                  </TableCell> */}
 
                   {columns.map((col) => {
                     const dataKey = col.toLowerCase().replace(/ /g, "_");

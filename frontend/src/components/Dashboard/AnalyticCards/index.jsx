@@ -11,7 +11,7 @@ import { jwtDecode } from "jwt-decode";
 import { useGetAllProfileQuery } from "../../../redux/services/user";
 import { useGetAllProjectsQuery } from "../../../redux/services/projects";
 import { useGetAllTasksQuery } from "../../../redux/services/task";
-import {useState} from 'react'
+import { useState } from "react";
 dayjs.extend(duration);
 import MuiToaster from "../../MuiToaster";
 // Helper to convert seconds to "Xh Ym"
@@ -23,59 +23,63 @@ const formatSecondsToHHMM = (seconds) => {
   return `${hours > 0 ? `${hours}h ` : ""}${minutes}m`.trim();
 };
 
-const AnalyticCards = ({ getDashboardData,userId,ownerId }) => {
-    const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
-      useGetAllProjectsQuery({ id: ownerId });
-  
-  
-    const mappedProjectOptions = useMemo(() => {
-      return (
-        getAllProjectsData?.data?.map((item) => ({
-          id: item._id, // or item._id if you meant actual ID
-          name: item.name,
-        })) || []
-      );
-    }, [getAllProjectsData]);
-  
-    const { data: getAllTaskData, isLoading: getAllTaskDataIsLoading } =
-      useGetAllTasksQuery({ id: ownerId });
-  
-    const mappedTaskData = useMemo(() => {
-      return (
-        getAllTaskData?.data?.map((item) => ({
-          _id: item._id,
-          task_name: item.name,
-          description: item.description || "—",
-          project: item.projectId?.name || "—",
-          assignee: item.assignee?.username || "—",
-          status: item.status || "—",
-          barColor:"#0db55b",
-          created_by: item.createdBy?.username || "—",
-          created_at: new Date(item.createdAt).toLocaleString(), // Optional formatting
-        })) || []
-      );
-    }, [getAllTaskData]);
-  
-    console.log(mappedTaskData, "TASK DATA");
-    const {
-      data: profileData,
-      isLoading: isProfileLoading,
-      isError: isProfileError,
-      isSuccess,
-    } = useGetAllProfileQuery({
-      id: ownerId,
-    });
-  
-    const formattedProfile = useMemo(() => {
-      if (isSuccess && Array.isArray(profileData?.data?.users)) {
-        return profileData.data.users.map((profile) => ({
-          id: profile._id,
-          name: profile.username,
-        }));
-      }
-      return [];
-    }, [isSuccess, profileData]);
-  
+const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
+  const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
+    useGetAllProjectsQuery({ id: ownerId });
+
+  const mappedProjectOptions = useMemo(() => {
+    return (
+      getAllProjectsData?.data?.map((item) => ({
+        id: item._id, // or item._id if you meant actual ID
+        name: item.name,
+      })) || []
+    );
+  }, [getAllProjectsData]);
+
+  const { data: getAllTaskData, isLoading: getAllTaskDataIsLoading } =
+    useGetAllTasksQuery({ id: ownerId });
+
+    const STATUS_COLORS = {
+  'done': '#23b413ff',      // Dark green for Done
+  'In-progress': '#FFF287', // Orange for In Progress
+  'to-do': '#C83F12',     // Light yellow for To-do
+  'default': '#f1e156ff'    // Default gray for unknown statuses
+};
+
+  const mappedTaskData = useMemo(() => {
+    return getAllTaskData?.data?.map((item) => ({
+      _id: item._id,
+      task_name: item.name,
+      description: item.description || "—",
+      project: item.projectId?.name || "—",
+      assignee: item.assignee?.username || "—",
+      status: item.status || "—",
+      barColor: STATUS_COLORS[item.status?.toLowerCase()] || STATUS_COLORS.default,
+      created_by: item.createdBy?.username || "—",
+      created_at: new Date(item.createdAt).toLocaleString(),
+    })) || [];
+  }, [getAllTaskData]);
+
+  console.log(mappedTaskData, "TASK DATA");
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    isSuccess,
+  } = useGetAllProfileQuery({
+    id: ownerId,
+  });
+
+  const formattedProfile = useMemo(() => {
+    if (isSuccess && Array.isArray(profileData?.data?.users)) {
+      return profileData.data.users.map((profile) => ({
+        id: profile._id,
+        name: profile.username,
+      }));
+    }
+    return [];
+  }, [isSuccess, profileData]);
+
   const dashboardData = getDashboardData?.data || {};
 
   const dynamicStatCards = useMemo(() => {
@@ -128,7 +132,7 @@ const AnalyticCards = ({ getDashboardData,userId,ownerId }) => {
       dynamicStatCards.find((card) => card.title === "Time at work"),
     ].filter(Boolean);
   }, [dynamicStatCards]);
-const [openTask,setOpenTask] = useState(false)
+  const [openTask, setOpenTask] = useState(false);
   const tableHeaders = useMemo(
     () => [
       { title: "Task" },
@@ -139,25 +143,23 @@ const [openTask,setOpenTask] = useState(false)
     ],
     []
   );
-   const [taskFormData, setTaskFormData] = useState({
-      taskName: "",
-      description: "",
-      project: "",
-      assignee: "",
-      status: "",
-    });
-    const [errors, setErrors] = useState({});
-    const [toaster, setToaster] = useState({
-      open: false,
-      message: "",
-      severity: "success",
-    });
+  const [taskFormData, setTaskFormData] = useState({
+    taskName: "",
+    description: "",
+    project: "",
+    assignee: "",
+    status: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [toaster, setToaster] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
-const handleTaskOpen = () => {
-   
+  const handleTaskOpen = () => {
     setOpenTask(true);
   };
-
 
   const onTaskClose = () => {
     setOpenTask(false);
@@ -205,7 +207,6 @@ const handleTaskOpen = () => {
   };
 
   const handleBlur = (event, name) => {
-
     if (taskFormData[name].trim() === "") {
       setErrors({
         ...errors,
@@ -225,13 +226,32 @@ const handleTaskOpen = () => {
     <Grid container sx={{ width: "100%" }}>
       <Box className={styles.container}>
         <TrackingCard orderedCards={orderedCards} />
-        <ProjectCard userId={userId} ownerId={ownerId} taskFormData={taskFormData} setTaskFormData={setTaskFormData} errors={errors} setErrors={setErrors} formattedProfile={formattedProfile} mappedProjectOptions={mappedProjectOptions} handleCloseToaster={handleCloseToaster} handleOpenToaster={handleOpenToaster} mappedTaskData={mappedTaskData} handleBlur={handleBlur} handleSelect={handleSelect} handleChange={handleChange} openTask={openTask} onTaskClose={onTaskClose} handleTaskOpen={handleTaskOpen} tableHeaders={tableHeaders} />
+        <ProjectCard
+          userId={userId}
+          ownerId={ownerId}
+          taskFormData={taskFormData}
+          setTaskFormData={setTaskFormData}
+          errors={errors}
+          setErrors={setErrors}
+          formattedProfile={formattedProfile}
+          mappedProjectOptions={mappedProjectOptions}
+          handleCloseToaster={handleCloseToaster}
+          handleOpenToaster={handleOpenToaster}
+          mappedTaskData={mappedTaskData}
+          handleBlur={handleBlur}
+          handleSelect={handleSelect}
+          handleChange={handleChange}
+          openTask={openTask}
+          onTaskClose={onTaskClose}
+          handleTaskOpen={handleTaskOpen}
+          tableHeaders={tableHeaders}
+        />
         <MuiToaster
-        open={toaster.open}
-        message={toaster.message}
-        severity={toaster.severity}
-        handleClose={handleCloseToaster}
-      />
+          open={toaster.open}
+          message={toaster.message}
+          severity={toaster.severity}
+          handleClose={handleCloseToaster}
+        />
       </Box>
     </Grid>
   );

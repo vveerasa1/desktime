@@ -28,7 +28,7 @@ const TrackingDetails = ({
   return (
     <Grid item size={{ xs: 12, md: 4 }}>
       {/* Working Days */}
-      <Paper elevation={12} className={styles.paperCard}>
+      <Paper elevation={2}  className={styles.paperCard}>
         <Typography sx={{ fontWeight: 600 }} variant="subtitle1">
           Working Days
         </Typography>
@@ -110,7 +110,7 @@ const TrackingDetails = ({
       </Paper>
 
       {/* Tracking Days */}
-      <Paper elevation={12} className={`${styles.paperCard} ${styles.mt2}`}>
+      <Paper elevation={2}  className={`${styles.paperCard} ${styles.mt2}`}>
         <Typography sx={{ fontWeight: 600 }} variant="subtitle1">
           Tracking Days
         </Typography>
@@ -163,17 +163,6 @@ const TrackingDetails = ({
           </Box>
         </Box>
       </Paper>
-      <Grid mt={2} item size={{ xs: 12, md: 12 }}>
-        <Paper elevation={12} className={styles.emailPaper}>
-          <Typography variant="p" gutterBottom>
-            Email Subscription
-          </Typography>
-          <Typography variant="body1" fontSize={12}>
-            Stay informed with our latest updates, tips, and feature releases.
-            You can unsubscribe at any time.
-          </Typography>
-        </Paper>
-      </Grid>
     </Grid>
   );
 };

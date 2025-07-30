@@ -1,11 +1,11 @@
-import { Box, Typography } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs from 'dayjs';
-import styles from './index.module.css';
+import { Box, Typography } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+import styles from "./index.module.css";
 
 const CustomCalendar = ({
   label,
-  name, 
+  name,
   selectedDate,
   onChange,
   isRequired,
@@ -29,13 +29,20 @@ const CustomCalendar = ({
         disabled={disabled}
         slotProps={{
           textField: {
-            display:"none",
+            variant: "outlined",
+            size: "small",
             InputProps: {
               sx: {
-                fontSize: '14px',
-                height: '36px',
-                padding: '5px 12px',
-                backgroundColor: disabled ? '#f5f5f5' : '#fff',
+                fontSize: "14px",
+                height: "32px", // reduce height
+                padding: "18px 8px", // tighter padding
+                backgroundColor: disabled ? "#f5f5f5" : "#fff",
+                "& .MuiInputBase-input": {
+                  padding: "6px 8px", // adjust inside padding
+                },
+                "& .MuiInputAdornment-root": {
+                  marginRight: "4px", // tighter icon padding
+                },
               },
             },
           },
@@ -44,6 +51,5 @@ const CustomCalendar = ({
     </Box>
   );
 };
-
 
 export default CustomCalendar;

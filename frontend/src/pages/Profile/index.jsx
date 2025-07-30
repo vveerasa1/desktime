@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Grid, Paper, Typography, Button, Box } from "@mui/material";
 import moment from "moment-timezone";
 import ProfileDeatils from "./ProfileDetails";
@@ -57,6 +57,8 @@ const Profile = () => {
     isLoading: isTeamsLoading,
     isError: isTeamsError,
     isSuccess,
+      refetch: refetchTeams 
+
   } = useGetAllTeamQuery(ownerId, {
     skip: !ownerId,
   });
@@ -321,6 +323,7 @@ const Profile = () => {
           id: userIdToFetch,
           profileData: payload,
         }).unwrap();
+          await refetchTeams();
       } else {
         await createProfileApi(payload).unwrap();
         setFormData({
@@ -516,7 +519,7 @@ const Profile = () => {
           role={role}
         />
         <Grid item size={{ xs: 12, md: 3 }}>
-          <Paper elevation={12} className={styles.twoFactorCard}>
+          <Paper elevation={2} className={styles.twoFactorCard}>
             <Box p={2}>
               <Typography variant="subtitle1">
                 Two Factor Authentication
@@ -539,7 +542,7 @@ const Profile = () => {
               <Box mt={2}>
                 <Button
                   variant="contained"
-                  color="success"
+                  sx={{backgroundColor:"#143352",textTransform:"none"}}
                   className={styles.enableButton}
                 >
                   Enable
@@ -549,7 +552,7 @@ const Profile = () => {
           </Paper>
 
           <Grid mt={5} item size={{ xs: 12, md: 12 }}>
-            <Paper elevation={12} className={styles.emailPaper}>
+            <Paper elevation={2}  className={styles.emailPaper}>
               <Typography variant="p" gutterBottom>
                 Email Subscription
               </Typography>

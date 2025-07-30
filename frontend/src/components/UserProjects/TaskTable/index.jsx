@@ -7,7 +7,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Checkbox,
+  // Checkbox,
   IconButton,
   Box,
   Popover,
@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { useDeleteTaskMutation } from "../../../redux/services/task";
+
 const TaskTable = ({
   data = [],
   columns = [],
@@ -33,6 +34,7 @@ const TaskTable = ({
   const selectedCount = selected.length;
   const rowCount = data.length;
   console.log(selectedCount, "SELECTED COUNT");
+
   const handleDeleteClick = (event, id) => {
     setAnchorEl(event.currentTarget);
     setDeleteTargetId(id);
@@ -65,14 +67,15 @@ const TaskTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox">
+              {/* Commented out checkbox column header */}
+              {/* <TableCell padding="checkbox">
                 <Checkbox
                   color="primary"
                   indeterminate={selectedCount > 0 && selectedCount < rowCount}
                   checked={rowCount > 0 && selectedCount === rowCount}
                   onChange={handleSelectAll}
                 />
-              </TableCell>
+              </TableCell> */}
 
               {columns.map((col) => (
                 <TableCell key={col} sx={{ fontWeight: "bold" }}>
@@ -95,7 +98,8 @@ const TaskTable = ({
                   selected={isItemSelected}
                   sx={{ cursor: "pointer" }}
                 >
-                  <TableCell
+                  {/* Commented out checkbox cell for each row */}
+                  {/* <TableCell
                     padding="checkbox"
                     onClick={(event) => handleSelectOne(event, row._id)}
                   >
@@ -106,7 +110,7 @@ const TaskTable = ({
                         "aria-labelledby": `table-checkbox-${row._id}`,
                       }}
                     />
-                  </TableCell>
+                  </TableCell> */}
 
                   {columns.map((col) => {
                     const dataKey = col.toLowerCase().replace(/ /g, "_");

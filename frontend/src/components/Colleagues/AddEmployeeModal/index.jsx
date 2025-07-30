@@ -116,7 +116,7 @@ console.log(formattedTeams, "formatted data")
       hasError = true;
     } else if (!/^[A-Za-z]+(?:\s[A-Za-z]+)*$/.test(formData.username)) {
       errors.username =
-        "Only letters and spaces allowed, and no leading or trailing spaces";
+        "Only letters and spaces are allowed. Do not use leading or trailing spaces";
       hasError = true;
     }
 
@@ -201,7 +201,7 @@ console.log(formattedTeams, "formatted data")
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="error" variant="outlined">
+        <Button sx={{textTransform:"none"}} onClick={handleClose} color="error" variant="outlined">
           Cancel
         </Button>
         <CustomButton
