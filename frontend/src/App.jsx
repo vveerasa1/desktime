@@ -9,6 +9,8 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Helvetica',
     fontSize: 14,
+    color: '#333c43',
+    fontWeight: 'normal',
   },
   }
 ); 
