@@ -5,7 +5,8 @@ import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { Link } from "react-router-dom";
-
+import { useGetAllProfileQuery } from "../../redux/services/user";
+import { jwtDecode } from "jwt-decode";
 import {
   Table,
   TableBody,
@@ -26,18 +27,31 @@ const rows = [
 
 const columns = [
   "Name",
-  "Status",
+//   "Status",
   "Productive time",
   "Offline time",
   "DeskTime",
   "Arrived at",
   "Left at",
-  "At work",
-  "Active app",
-  "Active project",
+//   "At work",
+//   "Active app",
+//   "Active project",
 ];
 
 const TeamMembers = () => {
+  const token = localStorage.getItem("token");
+  let ownerId = null;
+
+  if (token) {
+    const decoded = jwtDecode(token);
+    ownerId = decoded.ownerId;
+  }
+
+  const { data: getAllProfileData, isLoading } = useGetAllProfileQuery({
+    id: ownerId,
+  });
+  const userData = getAllProfileData?.data?.users;
+  const userCount = userData?.length || 0
   const [activeTab, setActiveTab] = useState("tab1");
   return (
     <Box sx={{ width: "100%" }}>
@@ -52,7 +66,12 @@ const TeamMembers = () => {
           }}
         >
           {/* Left-aligned Title */}
-          <Typography  variant="h6" sx={{fontSize:'23px'}} fontWeight={600} color="#333333">
+          <Typography
+            variant="h6"
+            sx={{ fontSize: "23px" }}
+            fontWeight={600}
+            color="#333333"
+          >
             Team Members
           </Typography>
           {/* Right-aligned controls */}
@@ -94,7 +113,7 @@ const TeamMembers = () => {
                   Employees
                 </Typography>
                 <Typography variant="h4" className={styles.tabHeadingCount}>
-                  34
+                  {userCount}
                 </Typography>
               </Button>
               <Button
@@ -172,7 +191,7 @@ const TeamMembers = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {rows.map((row, idx) => (
+                      {userData?.map((row, idx) => (
                         <TableRow
                           key={idx}
                           className={styles.tBodyRow}
@@ -183,15 +202,19 @@ const TeamMembers = () => {
                         >
                           <TableCell className={styles.tBodyCell}>
                             <Box className={styles.tPersonInfo}>
-                              <Avatar className={styles.tPersonAvatar}>
-                                {row.name.charAt(0)}
-                              </Avatar>
+                              <Box>
+                                <Avatar
+                                  alt="User Profile"
+                                  src={row.photo}
+                                  className={styles.avatarImage}
+                                />
+                              </Box>
                               <Box>
                                 <Link className={styles.tPersonName} to="/">
-                                  {row.name}
+                                  {row.username}
                                 </Link>
                                 <Typography className={styles.tPersonDept}>
-                                  {row.dept}
+                                  {row.role}
                                 </Typography>
                               </Box>
                             </Box>
