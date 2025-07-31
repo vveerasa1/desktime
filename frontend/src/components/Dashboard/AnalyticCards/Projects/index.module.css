@@ -17,7 +17,7 @@
 }
 
 .headingText {
-  font-weight: 600 !important;
+  font-weight: normal !important;
   color: #333 !important;
   font-family: Arial, Helvetica, sans-serif !important;
 }

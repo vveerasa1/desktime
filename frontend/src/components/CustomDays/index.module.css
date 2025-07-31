@@ -20,7 +20,7 @@
   justify-content: center !important;
   align-items: center !important;
   cursor: pointer !important;
-  font-weight: bold !important;
+  font-weight: normal !important;
   font-size: 12px !important;
   transition: all 0.2s ease-in-out !important;
   user-select: none !important;

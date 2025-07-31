@@ -33,7 +33,7 @@
 }
 
 .metricValue {
-  font-weight: 600 !important;
+  font-weight: normal !important;
   line-height: 2 !important;
   color: #333 !important;
   white-space: nowrap !important;

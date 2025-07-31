@@ -5,7 +5,13 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 import {routes} from './routes/index'; 
 
-const theme = createTheme(); 
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Helvetica',
+    fontSize: 14,
+  },
+  }
+); 
 
 function AppRoutes() {
   const element = useRoutes(routes);

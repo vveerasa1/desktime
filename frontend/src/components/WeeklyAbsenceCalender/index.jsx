@@ -124,7 +124,7 @@ export default function WeeklyAbsenceCalendar() {
             <Box className={styles.memberCell}>
               <Avatar>{m.avatar}</Avatar>
               <Box>
-                <Typography fontWeight={600}>{m.name}</Typography>
+                <Typography fontWeight={400}>{m.name}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {m.role}
                 </Typography>

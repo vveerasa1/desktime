@@ -23,7 +23,7 @@ body .toggleGroup{
 
 body .toggleButton {
   text-transform: capitalize;
-  font-weight: 400;
+  font-weight: normal;
   color: #333c43;
   background-color: #ffffff;
   font-family: sans-serif;
