@@ -269,7 +269,7 @@ const getAllUser = async (req, res) => {
     const users = await User.find({
       isDeleted: false,
       $or: [{ _id: ownerId }, { ownerId: ownerId }],
-    });
+    }).populate("team", "name");
     const activeCount = users.filter((user) => user.active === true).length;
     const inactiveCount = users.filter((user) => user.active === false).length;
     res.status(200).json({
