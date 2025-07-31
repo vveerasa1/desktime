@@ -9,8 +9,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { AuthProvider } from "react-oidc-context";
 
 const cognitoAuthConfig = {
-  authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_9wz4Couvt",
-  client_id: "ci9eipuin29bm62r5pcvdc3vr",
+  authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_6IVaAL8X0",
+  client_id: "4o3gl6qqe1i5uapeitu56p3lst",
   redirect_uri: "http://localhost:5173/callback",
   response_type: "code",
   scope: "email openid phone",

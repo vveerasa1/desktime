@@ -12,7 +12,7 @@ export default function Callback() {
     //   auth.signinRedirect(); // Redirect to Cognito Hosted UI
     // }
     if (!auth.isLoading && auth.isAuthenticated) {
-      localStorage.setItem('token', auth.user.access_token)
+      localStorage.setItem('token', auth.user.id_token)
       navigate('/dashboard'); // or your landing page
     }
   }, [auth.isLoading, auth.isAuthenticated]);

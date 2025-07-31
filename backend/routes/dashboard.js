@@ -4,9 +4,11 @@ const {
   dashboardProductivityTime,
 } = require("../service/dashboard");
 const { authenticate } = require("../utils/middleware");
+const { validateToken } = require("../middleware/verifyCognitoJwt");
+
 const router = express.Router();
 router.use(express.json());
 
-router.get("/", authenticate, dashboardCard);
+router.get("/", validateToken, dashboardCard);
 router.get("/productivity", authenticate, dashboardProductivityTime);
 module.exports = router;

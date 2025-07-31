@@ -20,6 +20,11 @@
     "endpoint": "https://s3.bhs.io.cloud.ovh.net/",
     "publicUrl": "https://trackme.s3.bhs.io.cloud.ovh.net/"
   },
+  "cognito":{
+    "userPoolId":"us-east-1_6IVaAL8X0",
+    "clientId":"4o3gl6qqe1i5uapeitu56p3lst",
+    "region":"us-east-1"
+  },
   "adminId": {
     "id": "686662448c9ee97da82d92f0"
   }

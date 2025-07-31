@@ -18,5 +18,4 @@
   flex-shrink: 0 !important;
   height: 100% !important;
   cursor: pointer !important;
-  transition: background-color 0.3s ease, flex-basis 0.3s ease;
 }

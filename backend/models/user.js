@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
     workDuration: { type: String },
     active: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
+    cognitoId: { type: String },  // Added field for Cognito user ID
   },
   { timestamps: true }
 );

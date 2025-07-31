@@ -7,6 +7,14 @@ const crypto = require("crypto");
 const ScreenshotLog = require("../models/screenshot");
 const trackingSession = require("../models/trackingSession");
 const Team = require("../models/team");
+const AWS = require("aws-sdk");
+
+// Configure AWS Cognito
+const cognito = new AWS.CognitoIdentityServiceProvider({
+  region: config.aws.region,
+  accessKeyId: config.aws.accessKeyId,
+  secretAccessKey: config.aws.secretAccessKey,
+});
 
 const addUser = async (req, res) => {
   try {
@@ -30,6 +38,33 @@ const addUser = async (req, res) => {
       teamId,
       ownerId,
     } = req.body;
+
+    // Create user in AWS Cognito first
+    const params = {
+      UserPoolId: config.aws.cognitoUserPoolId,
+      Username: email,
+      TemporaryPassword: await generateRandomPassword(12),
+      UserAttributes: [
+        { Name: "email", Value: email },
+        { Name: "email_verified", Value: "true" },
+        { Name: "name", Value: username },
+      ],
+      MessageAction: "SUPPRESS", // Do not send invitation email from Cognito
+    };
+
+    let cognitoUser;
+    try {
+      const createUserResponse = await cognito.adminCreateUser(params).promise();
+      cognitoUser = createUserResponse.User;
+    } catch (cognitoError) {
+      console.error("Error creating user in Cognito:", cognitoError);
+      return res.status(500).json({
+        code: 500,
+        status: "Error",
+        message: "Error creating user in Cognito",
+        error: cognitoError.message,
+      });
+    }
 
     const password = await generateRandomPassword(); // plain text password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -74,6 +109,7 @@ const addUser = async (req, res) => {
         workDuration: durationSeconds,
         teamId,
         ownerId,
+        cognitoId: cognitoUser.Attributes.find(attr => attr.Name === "sub").Value,
       });
     } else {
       user = new User({
@@ -99,6 +135,7 @@ const addUser = async (req, res) => {
           .join("+")}&background=0D8ABC&color=fff`,
         workDuration: durationSeconds,
         teamId,
+        cognitoId: cognitoUser.Attributes.find(attr => attr.Name === "sub").Value,
       });
     }
 
