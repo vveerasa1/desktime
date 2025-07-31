@@ -94,7 +94,7 @@ const Colleagues = () => {
   return (
     <>
       <Box className={styles.pageContainer}>
-        <Typography sx={{fontSize:"23px"}} fontWeight={400} color="#333333">
+        <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
           Colleagues
         </Typography>
         <Box className={styles.searchActions}>

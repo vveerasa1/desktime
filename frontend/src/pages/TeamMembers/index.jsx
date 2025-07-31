@@ -52,7 +52,7 @@ const TeamMembers = () => {
           }}
         >
           {/* Left-aligned Title */}
-          <Typography  variant="h6" sx={{fontSize:'23px'}} fontWeight={400} color="#333333">
+          <Typography  variant="h6" sx={{fontSize:'23px'}} fontWeight={600} color="#333333">
             Team Members
           </Typography>
           {/* Right-aligned controls */}

@@ -47,7 +47,7 @@
 }
 .dayNumber {
   font-size: 11px !important;
-  font-weight: normal !important;
+  font-weight: 600 !important;
   position: absolute !important;
   top: 4px !important;
   left: 85px !important;

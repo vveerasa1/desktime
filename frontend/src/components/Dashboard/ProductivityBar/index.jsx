@@ -172,7 +172,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
           >
             <Typography
               variant="h6"
-              fontWeight={400}
+              fontWeight={600}
               sx={{
                 color: "#151515",
                 fontSize: "18px",
@@ -505,7 +505,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
     <Paper elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
       <Box sx={{ p: 2 }}>
         <Typography
-          sx={{ fontSize: "18px", fontWeight: "normal", mb: 2 }}
+          sx={{ fontSize: "18px", fontWeight: "600 !important", mb: 2 }}
         >
           {chartTitle}
         </Typography>

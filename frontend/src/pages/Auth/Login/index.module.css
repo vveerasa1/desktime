@@ -33,7 +33,7 @@
 
 .logo {
     font-size: 2rem;
-    font-weight: normal;
+    font-weight: bold;
     margin-bottom: 1.5rem;
     text-align: center;
 }
@@ -59,7 +59,7 @@
 
 .subtitle {
     font-family: Helvetica !important;
-    font-weight: normal !important;
+    font-weight: 400 !important;
     font-style: Regular !important;
     font-size: 13px !important;
     line-height: 100% !important;
@@ -96,7 +96,7 @@
     margin-top: 12px !important;
     background-color: #194CF0 !important;
     color: white !important;
-    font-weight: normal;
+    font-weight: 600;
     font-size: 16px;
     border-radius: 8px !important;
 text-transform: none !important;  
