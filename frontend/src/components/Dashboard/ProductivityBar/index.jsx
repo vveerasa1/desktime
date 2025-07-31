@@ -502,8 +502,8 @@ const ProductivityBar = ({ getProductiviyData }) => {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
-      <Box sx={{ p: 2 }}>
+    <Paper  elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
+      <Box  sx={{ p: 2 }}>
         <Typography
           sx={{ fontSize: "18px", fontWeight: "600 !important", mb: 2 }}
         >
