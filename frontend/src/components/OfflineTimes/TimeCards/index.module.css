@@ -1,0 +1,52 @@
+
+.card {
+  padding: 16px !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  height: 250px !important;
+  /* min-width: 450px; */
+  width: 100%;
+}
+
+.row {
+  display: flex !important;
+  height: 50% !important;
+}
+
+.cell {
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  min-width: 188px !important;
+}
+
+.metricBox {
+  text-align: center !important;
+  /* padding: 16px !important; */
+  /* width: 40% !important; */
+}
+
+.metricTitle {
+  color: #666 !important;
+  margin-bottom: 4px !important;
+  white-space: nowrap !important;
+}
+
+.metricValue {
+  font-weight: 600 !important;
+  line-height: 2 !important;
+  color: #333 !important;
+  white-space: nowrap !important;
+
+}
+
+.orange {
+  color: #FFA500 !important;
+}
+.green {
+  color: #5fba2b !important;
+}
+
+.hDivider {
+  margin: 0 !important;
+}
