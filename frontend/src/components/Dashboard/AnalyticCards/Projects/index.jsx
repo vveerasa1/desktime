@@ -120,7 +120,7 @@ const ProjectCard = ({
               height: "40px", // sets the outer height, but not enough alone
               "& td": {
                 paddingTop: "4px",
-                paddingBottom: "4px",
+                paddingBottom: "2px",
               },
             }}
           >
