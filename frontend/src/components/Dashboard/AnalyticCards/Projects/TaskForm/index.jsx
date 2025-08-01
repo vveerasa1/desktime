@@ -55,10 +55,10 @@ const TaskForm = ({
       isValid = false;
     }
 
-    if (!formData.status) {
-      newErrors.status = "Status is required";
-      isValid = false;
-    }
+    // if (!formData.status) {
+    //   newErrors.status = "Status is required";
+    //   isValid = false;
+    // }
 
     setErrors(newErrors);
     const payload = {
@@ -66,7 +66,6 @@ const TaskForm = ({
       description: formData.description,
       projectId: formData.project,
       assignee: formData.assignee,
-      status: formData.status,
       userId,
       ownerId,
     };
@@ -82,7 +81,6 @@ const TaskForm = ({
         description: "",
         project: "",
         assignee: "",
-        status: "",
       });
     }
   };
@@ -173,7 +171,7 @@ const TaskForm = ({
             helperText={errors?.assignee}
           />
         </Box>
-        <Box mt={2}>
+        {/* <Box mt={2}>
           <CustomTextField
             label="Status"
             name="status"
@@ -188,7 +186,7 @@ const TaskForm = ({
             helperText={errors?.status}
             startIcon={<Assignment />}
           />
-        </Box>
+        </Box> */}
       </DialogContent>
       <DialogActions
         sx={{

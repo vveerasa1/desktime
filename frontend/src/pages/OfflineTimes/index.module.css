@@ -1,0 +1,17 @@
+
+.pageContainer {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.searchActions {
+  display: flex !important;
+  gap: 24px !important;
+}
+.iconBtn {
+  padding: 8px !important;
+}
+.iconBtn:hover{
+  background-color: #808080!important;
+  color: whitesmoke;
+}

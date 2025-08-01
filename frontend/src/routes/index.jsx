@@ -4,6 +4,7 @@ import Login from "../pages/Auth/Login";
 import AbsenceCalender from "../pages/AbsenceCalendar";
 import Projects from "../pages/UserProjects";
 import ProtectedRoute from "../components/ProtectedRoute";
+import OfflineTimes from "../pages/OfflineTimes";
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Profile = lazy(() => import("../pages/Profile"));
 const Colleagues = lazy(() => import("../pages/Colleagues"));
@@ -102,6 +103,7 @@ export const routes = [
           { path: "projects", element: <Projects /> },
           { path: "teams", element: <Teams /> },
           {path: "/team-members",element: <TeamMembers />,},
+          {path: "/offline-times",element: <OfflineTimes />,},
         ],
       },
     ],
