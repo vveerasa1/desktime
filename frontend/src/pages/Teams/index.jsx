@@ -92,7 +92,7 @@ const Teams = () => {
     setToaster({ ...toaster, open: false });
   };
   return (
-    <Box sx={{ p: 2, margin: "auto" }}>
+    <Box sx={{margin: "auto" }}>
       <Stack spacing={3}>
         <Box
           sx={{

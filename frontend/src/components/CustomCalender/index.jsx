@@ -61,7 +61,7 @@ const CustomCalendar = ({
           popper: {
             sx: {
               "& .MuiDateCalendar-root": {
-                width: "238px",
+                width: "228px",
                 maxHeight: "336px",
                 overflow: "hidden",
               },

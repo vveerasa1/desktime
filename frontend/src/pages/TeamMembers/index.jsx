@@ -19,6 +19,7 @@ import {
   Chip,
 } from "@mui/material";
 import Tooltip from '@mui/material/Tooltip';
+import TeamMembersForm from "../../components/TeamMembers/TeamMembersForm";
 
 const rows = [
   { name: "Aakash C", dept: "Edumpus - QA" },
@@ -131,6 +132,14 @@ const TeamMembers = () => {
   const userData = getAllProfileData?.data?.users;
   const userCount = userData?.length || 0
   const [activeTab, setActiveTab] = useState("tab1");
+  const [open,setOpen] = useState()
+  const handleOpen = () =>{
+        setOpen(true)
+  }
+  const handleClose = () =>{
+        setOpen(false)
+
+  }
   return (
     <Box sx={{ width: "100%" }}>
       <Stack spacing={3}>
@@ -161,6 +170,8 @@ const TeamMembers = () => {
             </IconButton>
 
             <Button
+
+                onClick={()=> handleOpen()}
               variant="contained"
               sx={{
                 textTransform: "none",
@@ -461,6 +472,7 @@ const TeamMembers = () => {
           </Box>
         </Box>
       </Stack>
+      <TeamMembersForm open={open} handleClose={handleClose}/>
     </Box>
   );
 };

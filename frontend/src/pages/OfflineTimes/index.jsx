@@ -122,7 +122,7 @@ const OfflineTimes = () => {
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
   return (
-    <Box sx={{ p: 3,  minHeight: "100vh" }}>
+    <Box sx={{   minHeight: "100vh" }}>
       <Typography variant="h5" gutterBottom>
         Offline Times
       </Typography>
@@ -140,13 +140,13 @@ const OfflineTimes = () => {
           borderRadius: 1,
           mb: 2,
           ".MuiTab-root": {
-            color: "#001F5B", // navy blue text for unselected
+            color: "#143351", // navy blue text for unselected
             fontWeight: 600,
             textTransform: "none",
           },
           ".Mui-selected": {
             color: "#f7f7f8ff !important", // navy blue text for selected
-            backgroundColor: "#001F5B !important", // navy blue text for selected
+            backgroundColor: "#143351 !important", // navy blue text for selected
             borderRadius: '6px 6px 0px 0px'
           },
         }}

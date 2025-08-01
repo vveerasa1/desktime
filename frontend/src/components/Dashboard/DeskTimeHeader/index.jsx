@@ -15,7 +15,7 @@ import styles from "./index.module.css";
 import LoadingComponent from "../../ComponentLoader";
 // import TrackingCard from "../AnalyticCards/Tracking";
 
-const DeskTimeHeader = ({ setFilters, getSingleData,TrackingCard ,isDashboad}) => {
+const DeskTimeHeader = ({ setFilters, getSingleData, TrackingCard, isDashboad }) => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const loggedInUserId = token ? jwtDecode(token).userId : null;
@@ -60,6 +60,20 @@ const DeskTimeHeader = ({ setFilters, getSingleData,TrackingCard ,isDashboad}) =
 
   const viewModes = useMemo(() => ["day", "week", "month"], []);
 
+  const handleNextClick = () => {
+    const nextDate = dayjs(filtersState.date).add(1, filtersState.viewMode);
+    if (!nextDate.isAfter(dayjs(), 'day')) {
+      setFiltersState((prev) => ({ ...prev, date: nextDate.format("YYYY-MM-DD") }));
+    }
+  };
+
+  const handlePrevClick = () => {
+    const prevDate = dayjs(filtersState.date).subtract(1, filtersState.viewMode);
+    setFiltersState((prev) => ({ ...prev, date: prevDate.format("YYYY-MM-DD") }));
+  };
+
+  const isNextDisabled = dayjs(filtersState.date).isSame(dayjs(), 'day') || dayjs(filtersState.date).isAfter(dayjs(), 'day');
+  
   return (
     <Box className={styles.headerContainer}>
       {loading ? (
@@ -108,23 +122,19 @@ const DeskTimeHeader = ({ setFilters, getSingleData,TrackingCard ,isDashboad}) =
         <Box className={styles.nextPrevIcons}>
           <Box
             className={styles.npIcon}
-            onClick={() => {
-              const newDate = dayjs(filtersState.date)
-                .subtract(1, filtersState.viewMode)
-                .format("YYYY-MM-DD");
-              setFiltersState((prev) => ({ ...prev, date: newDate }));
-            }}
+            onClick={handlePrevClick}
           >
             <ChevronLeft sx={{ cursor: "pointer" }} className={styles.icon} />
           </Box>
 
           <Box
             className={styles.npIcon}
-            onClick={() => {
-              const newDate = dayjs(filtersState.date)
-                .add(1, filtersState.viewMode)
-                .format("YYYY-MM-DD");
-              setFiltersState((prev) => ({ ...prev, date: newDate }));
+            onClick={handleNextClick}
+            sx={{
+              "& .MuiSvgIcon-root": {
+                cursor: isNextDisabled ? "not-allowed" : "pointer",
+                color: isNextDisabled ? "#ccc" : "inherit"
+              }
             }}
           >
             <ChevronRight sx={{ cursor: "pointer" }} className={styles.icon} />

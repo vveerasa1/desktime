@@ -170,8 +170,16 @@ console.log(formattedTeams, "formatted data")
       });
       handleClose();
     } catch (error) {
-      console.error("Error submitting form:", error);
+    console.error("Error submitting form:", error);
+    // Check if the error has a response and data property
+    if (error.data && error.data.error) {
+      // Display the specific error message from the API in the toaster
+      openToaster(error.data.error, "error");
+    } else {
+      // Display a generic error message if the specific message is not available
+      openToaster("An error occurred while adding the employee.", "error");
     }
+  }
   };
   console.log(formData,"formdata")
   const handleSelect = (event,name) =>{
