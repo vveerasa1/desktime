@@ -4,6 +4,8 @@ import {
   Typography,
   Tabs,
   Tab,
+
+  IconButton,
   Card,
   CardContent,
   Grid,
@@ -16,7 +18,6 @@ import {
   TableCell,
   TableBody,
   Checkbox,
-  IconButton,
   Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -26,6 +27,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import OfflineTimesTable from "../../components/OfflineTimes/OfflineTimesTable";
 import TimeCards from "../../components/OfflineTimes/TimeCards";
+import SmallTimeCards from "../../components/OfflineTimes/SmallTimeCards";
 
 const summaryData = {
   totalOfflineTimes: 2547,
@@ -162,27 +164,6 @@ const OfflineTimes = () => {
         </Grid>
       </Box>
 
-      {/* <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <TextField
-          variant="outlined"
-          size="small"
-          placeholder="Search by description"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mr: 2, width: 300 }}
-        />
-        <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ mr: 1 }}>
-          Filter
-        </Button>
-        <Button variant="outlined" startIcon={<SortIcon />}>
-          Sort
-        </Button>
-      </Box> */}
       <OfflineTimesTable />
     </Box>
   );

@@ -41,6 +41,7 @@
   justify-content: flex-start !important;
   gap: 8px !important; /* optional spacing between icon and text */
   width: 100% !important;
+  position: relative !important;
 }
 .listItem{
   display: flex !important;
@@ -61,3 +62,30 @@
   color: #ffffff !important; /* white when active */
 }
 
+.brandLogo{
+  height: 40px;
+}
+
+.logoImg{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.menuIconButton{
+  position: absolute;
+  right: 0;
+  width: 35px;
+  min-width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #143351;
+}
+
+.logoWrapper .menuIconButton{
+  position: relative;
+  right: 0;
+}
