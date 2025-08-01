@@ -1,0 +1,191 @@
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Card,
+  CardContent,
+  Grid,
+  TextField,
+  InputAdornment,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Checkbox,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import SortIcon from "@mui/icons-material/Sort";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import OfflineTimesTable from "../../components/OfflineTimes/OfflineTimesTable";
+import TimeCards from "../../components/OfflineTimes/TimeCards";
+
+const summaryData = {
+  totalOfflineTimes: 2547,
+  productiveTime: "260h 23m 32s",
+  unproductiveTime: "3h 47m 24s",
+  neutralTime: "457h 22m 11s",
+};
+
+const offlineTimesData = [
+  {
+    id: 1,
+    name: "Harish R",
+    team: "Team Digital",
+    timeRegistered: "18:17 - 18:51\nJuly 1, 2025",
+    splits: 1,
+    duration: "34m 50s",
+    type: "Productive",
+    description: "Discussion with Vipin sir",
+  },
+  {
+    id: 2,
+    name: "Harish R",
+    team: "Team Digital",
+    timeRegistered: "16:48 - 17:47\nJuly 1, 2025",
+    splits: 4,
+    duration: "28m 35s",
+    type: "Productive",
+    description: "discussion with subiksha",
+  },
+  {
+    id: 3,
+    name: "Harish R",
+    team: "Team Digital",
+    timeRegistered: "16:20 - 16:40\nJuly 1, 2025",
+    splits: 1,
+    duration: "19m 56s",
+    type: "Productive",
+    description: "Discussion with hr and rohit",
+  },
+];
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`offline-tabpanel-${index}`}
+      aria-labelledby={`offline-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 2 }}>{children}</Box>}
+    </div>
+  );
+}
+
+const OfflineTimes = () => {
+  const [tabValue, setTabValue] = useState(0);
+  const [selected, setSelected] = useState([]);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+    setSelected([]);
+  };
+
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = offlineTimesData.map((n) => n.id);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
+
+  const isSelected = (id) => selected.indexOf(id) !== -1;
+
+  return (
+    <Box sx={{ p: 3,  minHeight: "100vh" }}>
+      <Typography variant="h5" gutterBottom>
+        Offline Times
+      </Typography>
+
+      {/* <Tabs value={tabValue} onChange={handleTabChange} aria-label="offline times tabs"> */}
+      <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        aria-label="offline times tabs"
+        TabIndicatorProps={{
+          style: { backgroundColor: "#001F5B" }, // Navy blue indicator
+        }}
+        sx={{
+          // backgroundColor: "#e0e0e0", // optional light gray tab background
+          borderRadius: 1,
+          mb: 2,
+          ".MuiTab-root": {
+            color: "#001F5B", // navy blue text for unselected
+            fontWeight: 600,
+            textTransform: "none",
+          },
+          ".Mui-selected": {
+            color: "#f7f7f8ff !important", // navy blue text for selected
+            backgroundColor: "#001F5B !important", // navy blue text for selected
+            borderRadius: '6px 6px 0px 0px'
+          },
+        }}
+      >
+        <Tab label="Pending" />
+        <Tab label="Approved" />
+        <Tab label="Declined" />
+      </Tabs>
+
+      <Box sx={{ mt: 3, mb: 3 }}>
+        <Grid container spacing={3}>
+          <TimeCards />
+        </Grid>
+      </Box>
+
+      {/* <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <TextField
+          variant="outlined"
+          size="small"
+          placeholder="Search by description"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ mr: 2, width: 300 }}
+        />
+        <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ mr: 1 }}>
+          Filter
+        </Button>
+        <Button variant="outlined" startIcon={<SortIcon />}>
+          Sort
+        </Button>
+      </Box> */}
+      <OfflineTimesTable />
+    </Box>
+  );
+};
+
+export default OfflineTimes;
