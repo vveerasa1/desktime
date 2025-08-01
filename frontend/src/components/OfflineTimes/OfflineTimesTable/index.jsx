@@ -174,17 +174,17 @@ const OfflineTimesTable = () => {
                     </Box>
 
                   </TableCell>
-                  <TableCell>
+                  <TableCell className={`${styles.rowcell}`}>
                     <Typography>{row.time}</Typography>
                     <Typography variant="caption" color="textSecondary">{row.date}</Typography>
                   </TableCell>
-                  <TableCell>{row.splits}</TableCell>
-                  <TableCell>{row.duration}</TableCell>
-                  <TableCell>
+                  <TableCell className={`${styles.rowcell}`}>{row.splits}</TableCell>
+                  <TableCell className={`${styles.rowcell}`}>{row.duration}</TableCell>
+                  <TableCell className={`${styles.rowcell}`}>
                     <Box className={styles.productive}>{row.type}</Box>
                   </TableCell>
-                  <TableCell>{row.description}</TableCell>
-                  <TableCell>
+                  <TableCell className={`${styles.rowcell}`}>{row.description}</TableCell>
+                  <TableCell className={`${styles.rowcell}`}>
                     <Button className={styles.approveBtn} size="small">✓</Button>
                     <Button className={styles.declineBtn} size="small">✕</Button>
                   </TableCell>

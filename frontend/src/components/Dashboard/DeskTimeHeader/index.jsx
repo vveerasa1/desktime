@@ -13,8 +13,9 @@ import { jwtDecode } from "jwt-decode";
 import CustomCalendar from "../../CustomCalender";
 import styles from "./index.module.css";
 import LoadingComponent from "../../ComponentLoader";
+// import TrackingCard from "../AnalyticCards/Tracking";
 
-const DeskTimeHeader = ({ setFilters, getSingleData }) => {
+const DeskTimeHeader = ({ setFilters, getSingleData,TrackingCard ,isDashboad}) => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const loggedInUserId = token ? jwtDecode(token).userId : null;
@@ -66,7 +67,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
           <LoadingComponent />
         </Box>
       ) : (
-        <Typography  sx={{fontSize:"23px"}} fontWeight={600} color="#333333" >
+        <Typography sx={{ fontSize: "23px" }} fontWeight={600} color="#333333">
           {isOwnProfile
             ? "My Tracking"
             : `${getSingleData?.data?.username || "User"}`}
@@ -74,6 +75,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
       )}
 
       <Box className={styles.controls}>
+        
         <ToggleButtonGroup
           className={styles.toggleGroup}
           value={filtersState.viewMode}
@@ -113,7 +115,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
               setFiltersState((prev) => ({ ...prev, date: newDate }));
             }}
           >
-            <ChevronLeft sx={{cursor:"pointer"}} className={styles.icon} />
+            <ChevronLeft sx={{ cursor: "pointer" }} className={styles.icon} />
           </Box>
 
           <Box
@@ -125,7 +127,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
               setFiltersState((prev) => ({ ...prev, date: newDate }));
             }}
           >
-            <ChevronRight  sx={{cursor:"pointer"}} className={styles.icon} />
+            <ChevronRight sx={{ cursor: "pointer" }} className={styles.icon} />
           </Box>
         </Box>
       </Box>

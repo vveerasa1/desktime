@@ -179,3 +179,6 @@
   text-underline-offset: 2px; /* Optional: better spacing from baseline */
   cursor: pointer; /* Optional: shows it's clickable */
 }
+.rowcell{
+  padding: 4px !important;
+}

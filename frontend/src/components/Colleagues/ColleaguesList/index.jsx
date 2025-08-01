@@ -69,8 +69,8 @@ const ColleaguesList = ({
         <> {/* Use a React Fragment here to wrap conditional content */}
           {colleaguesData?.users?.length > 0 ? (
             <Grid container spacing={4}>
-              {colleaguesData.users.map((colleague, index) => (
-                <Grid item key={index} xs={12} sm={6} md={4} lg={3} className={styles.gridItem}> {/* Added responsive sizes */}
+              {colleaguesData.users.map((colleague) => (
+                <Grid item size={{xs:12,md:3}}> {/* Added responsive sizes */}
                   <Paper className={styles.card} elevation={1}>
                     {(userRole === "Admin" || userRole === "Owner") && (
                       <IconButton

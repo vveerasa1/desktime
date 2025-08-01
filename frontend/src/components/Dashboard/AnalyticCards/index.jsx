@@ -100,9 +100,10 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
         case "Arrival time":
           return {
             ...card,
-            value: dashboardData?.arrivalTime
-              ? moment(dashboardData.arrivalTime, "HH:mm:ss").format("HH:mm")
-              : "00:00",
+           value: dashboardData?.arrivalTime
+  ? moment(dashboardData.arrivalTime, "HH:mm:ss").format("hh:mm A")
+  : "00:00",
+
           };
 
         case "Left time":
@@ -240,7 +241,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
 
   return (
     <Grid>
-      <Box mt={4}>
+      <Box >
         {hasTrackingData ? (
           <TrackingCard orderedCards={orderedCards} />
         ) : (
@@ -261,7 +262,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
           </Box>
         )}
       </Box>
-      <Box mt={4}>
+      <Box mt={1}>
         <ProjectCard
           userId={userId}
           ownerId={ownerId}

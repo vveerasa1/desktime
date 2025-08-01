@@ -115,19 +115,30 @@ console.log(getSingleData,"GET SINGLE DATA")
         (isProductivityLoading ? (
           <LoadingComponent />
         ) : (
-          <ProductivityBar getProductiviyData={getProductiviyData} />
+          <Box >
+          <ProductivityBar  getProductiviyData={getProductiviyData} />
+
+          </Box>
         ))}
           {/* <ProjectTimeline/> */}
 
       {filters.viewMode === "month" && (
+        <Box >
+
         <EmployeeCalendar
           getProductiviyData={getProductiviyData}
           filters={filters}
         />
+        </Box>
+
       )}
 
       {filters.viewMode === "day" && (
+        <Box >
+
         <ScreenshotGrid employee={employee} filters={filters} />
+      
+        </Box>
       )}
     </Box>
   );

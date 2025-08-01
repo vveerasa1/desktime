@@ -836,13 +836,13 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
 
   console.log("userState: " + userState);
 
-  userState.idleStart = null;
-  userState.activeStart = null;
-  userState.lastActivityTimestamp = null;
-  userState.lastActiveSentTimestamp = null;
-  userState.lastActiveApp = null;
-  userState.lastActiveTitle = null;
-  userState.isSessionEndedForDay = true; // Mark as ended
+  console.log(userState.intervals);
+  console.log(userState.idleStart);
+  console.log(userState.activeStart);
+  console.log(userState.lastActivityTimestamp);
+  console.log(userState.lastActiveSentTimestamp);
+  console.log(userState.isSleeping);
+  console.log(userState.isSessionEndedForDay);
 
   // 3. Save any pending active/idle time before stopping if not already saved by cutoff logic
   // This is a safeguard, primarily the cutoff logic in sendActivityToServer should handle it
@@ -888,6 +888,13 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       }
     }
   }
+  userState.idleStart = null;
+  userState.activeStart = null;
+  userState.lastActivityTimestamp = null;
+  userState.lastActiveSentTimestamp = null;
+  userState.lastActiveApp = null;
+  userState.lastActiveTitle = null;
+  userState.isSessionEndedForDay = true; // Mark as ended
 
   // 4. Optionally send end session signal to backend (only on explicit logout or daily rollover end)
   if (endSessionOnBackend && userState.sessionId && userState.token) {
