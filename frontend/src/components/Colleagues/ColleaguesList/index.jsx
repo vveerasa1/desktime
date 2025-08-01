@@ -51,11 +51,13 @@ const ColleaguesList = ({
     setSelectedColleague(null);
   };
   const handleDelete = async (id) => {
+    console.log(id, "IDIDDIDIDI");
     try {
       await deleteProfile(id);
       openToaster("Employee Deleted");
       handleMenuClose();
-    } catch (error) { // Catch the error to log it
+    } catch (error) {
+      // Catch the error to log it
       console.error("Error deleting profile:", error); // Log the actual error
       // Optionally, show an error toaster
       openToaster("Failed to delete employee", "error");
@@ -66,11 +68,15 @@ const ColleaguesList = ({
       {isLoading ? (
         <LoadingComponent />
       ) : (
-        <> {/* Use a React Fragment here to wrap conditional content */}
+        <>
+          {" "}
+          {/* Use a React Fragment here to wrap conditional content */}
           {colleaguesData?.users?.length > 0 ? (
             <Grid container spacing={4}>
               {colleaguesData.users.map((colleague) => (
-                <Grid item size={{xs:12,md:3}}> {/* Added responsive sizes */}
+                <Grid item size={{ xs: 12, md: 3 }}>
+                  {" "}
+                  {/* Added responsive sizes */}
                   <Paper className={styles.card} elevation={1}>
                     {(userRole === "Admin" || userRole === "Owner") && (
                       <IconButton
@@ -127,7 +133,10 @@ const ColleaguesList = ({
                     <Box className={styles.divider}></Box>
 
                     <Box className={styles.emailBox}>
-                      <EmailIcon fontSize="small" className={styles.emailIcon} />
+                      <EmailIcon
+                        fontSize="small"
+                        className={styles.emailIcon}
+                      />
                       <Typography variant="body2" color="text.secondary">
                         {colleague.email}
                       </Typography>
@@ -141,12 +150,14 @@ const ColleaguesList = ({
                       transformOrigin={{ vertical: "top", horizontal: "right" }}
                       PaperProps={{
                         sx: {
-                          boxShadow: "0px 0px 2px -1px", // ✅ removes the shadow
+                          boxShadow: "0px 0px 2px -1px",
                         },
                       }}
                     >
                       <MenuItem onClick={handleEdit}>Edit</MenuItem>
-                      <MenuItem onClick={() => handleDelete(colleague._id)}>
+                      <MenuItem
+                        onClick={() => handleDelete(selectedColleague?._id)}
+                      >
                         Delete
                       </MenuItem>
                     </Menu>
@@ -157,21 +168,26 @@ const ColleaguesList = ({
           ) : (
             <Box
               sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '200px', // Adjust height as needed
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "200px", // Adjust height as needed
                 p: 3,
-                textAlign: 'center',
-                color: '#666',
+                textAlign: "center",
+                color: "#666",
               }}
             >
               {/* Replaced ControlPointIcon with the image */}
               <img
                 src={contract}
                 alt="No data icon"
-                style={{ width: '80px', height: '80px', marginBottom: '16px', opacity: 0.6 }} // Adjust size and opacity as needed
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  marginBottom: "16px",
+                  opacity: 0.6,
+                }} // Adjust size and opacity as needed
               />
               <Typography variant="h6" fontWeight="bold">
                 No colleagues added yet.
