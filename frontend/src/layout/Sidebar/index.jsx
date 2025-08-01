@@ -31,6 +31,7 @@ const navItems = [
   { label: "Team Members", path: "/team-members", icon: <PeopleIcon /> },
   { label: "Colleagues", path: "/colleagues", icon: <AccountCircleIcon /> },
   // { label: "Absence Calendar", path: "/absence-calendar", icon: <EventBusyIcon /> },
+  { label: "Offline Times", path: "/offline-times", icon: <EventBusyIcon /> },
   { label: "Projects", path: "/projects", icon: <FolderIcon /> },
   { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
   { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
