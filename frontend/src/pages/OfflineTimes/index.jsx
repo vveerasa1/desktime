@@ -4,6 +4,8 @@ import {
   Typography,
   Tabs,
   Tab,
+
+  IconButton,
   Card,
   CardContent,
   Grid,
@@ -16,7 +18,6 @@ import {
   TableCell,
   TableBody,
   Checkbox,
-  IconButton,
   Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -26,6 +27,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import OfflineTimesTable from "../../components/OfflineTimes/OfflineTimesTable";
 import TimeCards from "../../components/OfflineTimes/TimeCards";
+import SmallTimeCards from "../../components/OfflineTimes/SmallTimeCards";
 
 const summaryData = {
   totalOfflineTimes: 2547,
@@ -123,66 +125,70 @@ const OfflineTimes = () => {
 
   return (
     <Box sx={{ p: 3,  minHeight: "100vh" }}>
-      <Typography variant="h5" gutterBottom>
-        Offline Times
-      </Typography>
+        <Box className={styles.pageContainer}>
+        <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
+          Colleagues
+        </Typography>
+        <Box className={styles.searchActions}>
+          <Box>
+            <CustomTextField
+              name="password"
+              fullWidth
+              startIcon={<SearchIcon />}
+              placeholder={"search"}
+            />
+          </Box>
+          <Box>
+            <IconButton size="small" className={styles.iconBtn}>
+              <FilterListIcon fontSize="medium" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Box>
 
       {/* <Tabs value={tabValue} onChange={handleTabChange} aria-label="offline times tabs"> */}
-      <Tabs
-        value={tabValue}
-        onChange={handleTabChange}
-        aria-label="offline times tabs"
-        TabIndicatorProps={{
-          style: { backgroundColor: "#001F5B" }, // Navy blue indicator
-        }}
-        sx={{
-          // backgroundColor: "#e0e0e0", // optional light gray tab background
-          borderRadius: 1,
-          mb: 2,
-          ".MuiTab-root": {
-            color: "#001F5B", // navy blue text for unselected
-            fontWeight: 600,
-            textTransform: "none",
-          },
-          ".Mui-selected": {
-            color: "#f7f7f8ff !important", // navy blue text for selected
-            backgroundColor: "#001F5B !important", // navy blue text for selected
-            borderRadius: '6px 6px 0px 0px'
-          },
-        }}
-      >
-        <Tab label="Pending" />
-        <Tab label="Approved" />
-        <Tab label="Declined" />
-      </Tabs>
+      <Box sx={{ mt: 0, mb: 3, pl: 0, ml: 0, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="offline times tabs"
+          TabIndicatorProps={{
+            style: { backgroundColor: "#001F5B" }, // Navy blue indicator
+          }}
+          sx={{
+            borderRadius: 1,
+            // mb: 2,
+            minHeight: 30,
+            ".MuiTab-root": {
+              color: "#001F5B", // navy blue text for unselected
+              fontWeight: 600,
+              textTransform: "none",
+              minHeight: 30,
+              paddingTop: 0,
+              paddingBottom: 0,
+            },
+            ".Mui-selected": {
+              color: "#f7f7f8ff !important", // navy blue text for selected
+              backgroundColor: "#001F5B !important", // navy blue text for selected
+              borderRadius: '6px 6px 0px 0px',
+              minHeight: 40,
+            },
+          }}
+        >
+          <Tab label="Pending" />
+          <Tab label="Approved" />
+          <Tab label="Declined" />
+        </Tabs>
+        <SmallTimeCards />
+      </Box>
 
+      
       <Box sx={{ mt: 3, mb: 3 }}>
         <Grid container spacing={3}>
           <TimeCards />
         </Grid>
       </Box>
 
-      {/* <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <TextField
-          variant="outlined"
-          size="small"
-          placeholder="Search by description"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mr: 2, width: 300 }}
-        />
-        <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ mr: 1 }}>
-          Filter
-        </Button>
-        <Button variant="outlined" startIcon={<SortIcon />}>
-          Sort
-        </Button>
-      </Box> */}
       <OfflineTimesTable />
     </Box>
   );
