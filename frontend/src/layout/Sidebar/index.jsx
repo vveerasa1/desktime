@@ -22,6 +22,7 @@ import {
 } from "@mui/icons-material";
 import GroupsIcon from '@mui/icons-material/Groups';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Logo from '../../assets/images/logo.png'
 
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
 import styles from "./index.module.css";
@@ -51,11 +52,13 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
     <>
       <Toolbar className={styles.toolbar} onClick={() => setMobileOpen(!mobileOpen)}>
         <Box className={!isMobile && mobileOpen ?styles.logoWrapperWeb:styles.logoWrapper}>
-          <MenuOpenIcon />
+          <Box className={styles.menuIconButton}>
+            <MenuOpenIcon />
+          </Box>
           {   !isMobile && mobileOpen && (
-            <Typography variant="h6" className={styles.logoText}>
-              TrackMe
-            </Typography>
+            <Box className={styles.brandLogo}>
+              <img className={styles.logoImg} src={Logo} alt="TrackMe Logo" />
+            </Box>
           )}
         </Box>
       </Toolbar>
