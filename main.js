@@ -260,7 +260,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://51.79.30.127:3000");
+  mainWindow.loadURL("http://51.79.30.127:5173");
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -287,7 +287,7 @@ function createWindow() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    shell.openExternal("http://51.79.30.127:3000");
+    shell.openExternal("http://51.79.30.127:5173");
   });
 }
 
