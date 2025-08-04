@@ -131,7 +131,7 @@ const ProjectCard = ({
                 position: "relative",
                 padding: "8px 8px 8px 24px",
                 minWidth: "200px",
-          borderLeft: `4px solid ${item.barColor}`,
+                 borderLeft: `4px solid ${item.barColor}`,
                 borderRadius: "12px 0px 0px 12px !important",
               }}
             >
