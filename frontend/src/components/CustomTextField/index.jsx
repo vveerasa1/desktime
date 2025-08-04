@@ -50,6 +50,7 @@ const CustomTextField = (
 
                 sx={{
                     "& .MuiOutlinedInput-root": {
+                        backgroundColor: "white",
                         borderRadius: "8px",
                         "& fieldset": {
                             borderColor: "#E8E8E8",

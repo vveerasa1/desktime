@@ -4,21 +4,8 @@ import {
   Typography,
   Tabs,
   Tab,
-
   IconButton,
-  Card,
-  CardContent,
   Grid,
-  TextField,
-  InputAdornment,
-  Button,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Checkbox,
-  Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -28,6 +15,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import OfflineTimesTable from "../../components/OfflineTimes/OfflineTimesTable";
 import TimeCards from "../../components/OfflineTimes/TimeCards";
 import SmallTimeCards from "../../components/OfflineTimes/SmallTimeCards";
+import styles from './index.module.css'
+import CustomTextField from "../../components/CustomTextField";
 
 const summaryData = {
   totalOfflineTimes: 2547,
@@ -124,10 +113,10 @@ const OfflineTimes = () => {
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
   return (
-    <Box sx={{ p: 3,  minHeight: "100vh" }}>
-        <Box className={styles.pageContainer}>
-        <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
-          Colleagues
+    <Box sx={{ p: 3, minHeight: "100vh" }}>
+      <Box className={styles.pageContainer}>
+        <Typography sx={{ fontSize: "23px" }} fontWeight={600} color="#333333">
+          Offline Times
         </Typography>
         <Box className={styles.searchActions}>
           <Box>
@@ -140,14 +129,16 @@ const OfflineTimes = () => {
           </Box>
           <Box>
             <IconButton size="small" className={styles.iconBtn}>
-              <FilterListIcon fontSize="medium" />
+              <FilterListIcon sx={{
+                borderRadius: 'none !important'
+              }} fontSize="medium" />
             </IconButton>
           </Box>
         </Box>
       </Box>
 
       {/* <Tabs value={tabValue} onChange={handleTabChange} aria-label="offline times tabs"> */}
-      <Box sx={{ mt: 0, mb: 3, pl: 0, ml: 0, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ mt: 0, mb: 0, pl: 0, ml: 0, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
@@ -182,7 +173,6 @@ const OfflineTimes = () => {
         <SmallTimeCards />
       </Box>
 
-      
       <Box sx={{ mt: 3, mb: 3 }}>
         <Grid container spacing={3}>
           <TimeCards />

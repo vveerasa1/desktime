@@ -7,7 +7,7 @@
 
 .searchActions {
   display: flex !important;
-  gap: 24px !important;
+  gap: 10px !important;
 }
 
 .iconBtn {
@@ -80,4 +80,13 @@
   padding-right: 8px !important;
   margin-left: 8px !important;
   border-radius: 8px !important;
+}
+.iconBtn {
+  padding: 8px !important;
+  background-color: #ffffff!important;
+  border-radius: 8px !important;
+}
+.iconBtn:hover{
+  background-color: #808080!important;
+  color: whitesmoke;
 }

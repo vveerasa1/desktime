@@ -140,7 +140,7 @@ const OfflineTimesTable = () => {
         <Table size="small" sx={{ tableLayout: 'fixed', minWidth: 650, border: 'none' }}>
           <TableHead className={styles.tableHead} >
             <TableRow className={`${styles.mainRow} ${styles.stickyHeader}`}>
-              <TableCell colSpan={7}>
+              <TableCell colSpan={5}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                   <Typography
                     className={styles.selectall}
@@ -152,12 +152,59 @@ const OfflineTimesTable = () => {
                     {selectedRows.length === paginatedData.length ? 'Deselect all' : 'Select all'}
                   </Typography>
                 </Box>
+
+              </TableCell>
+              <TableCell colSpan={2}>
+                <Box display="flex" justifyContent="end" alignItems="center">
+                  <Typography
+                    className={styles.selectall}
+                    fontWeight={600}
+                    color={selectedRows.length>0?"white":"gray"}
+                    fontSize={'12px'}
+                    ml={1}
+                    onClick={handleSelectAll}
+                  >
+                    {selectedRows.length}   selected
+                  </Typography>
+                  <Typography
+                    className={styles.selectall}
+                    fontWeight={600}
+                    fontSize={'12px'}
+                    color={selectedRows.length>0?"white":"gray"}
+                    ml={1}
+                    onClick={handleSelectAll}
+                  >
+                    {/* <Button className={styles.approveBtn} size="small">
+                      <CheckCircleOutlineIcon fontSize="small" sx={{
+                        color: 'white',
+
+                      }} />
+                    </Button> */}
+                    Approve
+
+                  </Typography>
+                  <Typography
+                    className={styles.selectall}
+                    fontWeight={600}
+                    fontSize={'12px'}
+                    color={selectedRows.length>0?"white":"gray"}
+                    ml={1}
+                    onClick={handleSelectAll}
+                  >
+                    {/* <Button className={styles.declineBtn} size="small" color="error">
+                      <CancelIcon fontSize="small" />
+                    </Button> */}
+                    Decline
+                  </Typography>
+                </Box>
               </TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell>
-                <div className={`${styles.primaryHeading} ${styles.textAlign}`}>Name</div>
+                <div style={{
+                  marginLeft:'10px'
+                }}>Name</div>
               </TableCell>
               <TableCell>
                 <div className={styles.primaryHeading}>Time Registered</div>

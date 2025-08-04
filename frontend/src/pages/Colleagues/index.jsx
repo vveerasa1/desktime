@@ -106,9 +106,11 @@ const Colleagues = () => {
               placeholder={"search"}
             />
           </Box>
-          <Box>
+            <Box>
             <IconButton size="small" className={styles.iconBtn}>
-              <FilterListIcon fontSize="medium" />
+              <FilterListIcon sx={{
+                borderRadius: 'none !important'
+              }} fontSize="medium" />
             </IconButton>
           </Box>
         </Box>
