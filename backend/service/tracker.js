@@ -415,7 +415,7 @@ const getAllTrackingsForToday = async (req, res) => {
     const sessions = await TrackingSession.find({
       userId: { $in: userIds },
       createdAt: { $gte: startOfDay, $lte: endOfDay },
-    }).populate("userId", "username role");
+    }).populate("userId", "username photo role");
 
     // Step 5: Process sessions
     const data = sessions.map((session) => {
