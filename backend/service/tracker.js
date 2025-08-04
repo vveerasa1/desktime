@@ -193,6 +193,9 @@ const activeTimeTracker = async (req, res) => {
   try {
     const { sessionId, duration, startTime, endTime } = req.body;
     const session = await TrackingSession.findById(sessionId);
+    if (duration > 350) {
+      return idleTimeTracker(req, res);
+    }
 
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
@@ -391,8 +394,10 @@ const getAllTrackingsForToday = async (req, res) => {
     const { ownerId } = req.params;
 
     // Step 1: Get owner user with timezone
-    const owner = await User.findById(ownerId).select("timezone");
-    const timezone = owner?.timezone || "UTC";
+    const owner = await User.findById(ownerId).select("timeZone");
+    console.log(owner);
+    const timezone = owner?.timeZone || "UTC";
+    console.log("timeZone :" + timezone);
 
     // Step 2: Get all users (owner + team)
     const users = await User.find({
@@ -435,6 +440,7 @@ const getAllTrackingsForToday = async (req, res) => {
       let arrivedAtFormatted = null;
       if (arrivalTime) {
         arrivedAtFormatted = moment(arrivalTime).tz(timezone).format("HH:mm");
+        console.log("arrivedAtFormatted :" + arrivedAtFormatted);
       }
 
       // offlineTime
