@@ -5,6 +5,7 @@ import { Dashboard } from "../services/dashboard";
 import { Team } from "../services/team";
 import {Project} from '../services/projects'
 import { Task } from "../services/task";
+import { TeamMembers } from "../services/teamMembers";
 export const store = configureStore({
   reducer: {
     [User.reducerPath]: User.reducer,
@@ -12,7 +13,9 @@ export const store = configureStore({
         [Dashboard.reducerPath]:Dashboard.reducer,
         [Team.reducerPath]:Team.reducer,
         [Project.reducerPath]:Project.reducer,
-        [Task.reducerPath]:Task.reducer
+        [Task.reducerPath]:Task.reducer,
+        [TeamMembers.reducerPath]:TeamMembers.reducer
+
 
         
   },
@@ -20,5 +23,5 @@ export const store = configureStore({
     getDefaultMiddleware().concat(
       User.middleware,
       Login.middleware
-    ,Dashboard.middleware,Team.middleware,Project.middleware,Task.middleware)
+    ,Dashboard.middleware,Team.middleware,Project.middleware,Task.middleware,TeamMembers.middleware)
 })

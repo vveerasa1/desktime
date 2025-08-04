@@ -26,7 +26,6 @@ const formatSecondsToHHMM = (seconds) => {
 const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
     useGetAllProjectsQuery({ id: ownerId });
-  console.log(getDashboardData,"DASH DASH DASH")
   const mappedProjectOptions = useMemo(() => {
     return (
       getAllProjectsData?.data?.map((item) => ({

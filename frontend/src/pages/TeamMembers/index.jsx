@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import styles from "../../pages/TeamMembers/index.module.css";
-import { Box, Button, Stack, Typography, IconButton, Grid } from "@mui/material";
+import { Box, Button, Stack, Typography, IconButton, Paper, Avatar } from "@mui/material";
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { Link } from "react-router-dom";
 import { useGetAllProfileQuery } from "../../redux/services/user";
+import { useGetAllTeamMembersQuery } from "../../redux/services/teamMembers";
 import { jwtDecode } from "jwt-decode";
 import {
   Table,
@@ -14,34 +15,19 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Avatar,
   Chip,
 } from "@mui/material";
 import Tooltip from '@mui/material/Tooltip';
-import exampleProductivityData from "../../../../example-productivity-bar-data";
 import ProductivityBar from "../../components/Dashboard/ProductivityBar";
 import TeamMembersForm from "../../components/TeamMembers/TeamMembersForm";
 
-
-const rows = [
-  { name: "Aakash C", dept: "Edumpus - QA" },
-  { name: "Aarif", dept: "IT" },
-  { name: "Akash Poovan", dept: "IT Pentabay" },
-  { name: "Avinesh", dept: "IT Pentabay" },
-];
-
 const columns = [
   "Name",
-  //   "Status",
   "Productive time",
   "Offline time",
   "DeskTime",
   "Arrived at",
   "Left at",
-  //   "At work",
-  //   "Active app",
-  //   "Active project",
 ];
 
 // snapshot data
@@ -56,7 +42,7 @@ const ssrows = [
     timeline: [
       ...Array(6).fill("off"),
       "inactive", "neutral", "active", "inactive", "neutral", "active",
-      ...Array(156).fill("off") // total 168
+      ...Array(156).fill("off")
     ],
     totalTime: "5h 20m",
     avgActivity: "39%",
@@ -117,8 +103,14 @@ const styletimeblock = {
     height: "100%",
     borderRadius: "1px",
   },
-}
-// snopshot end
+};
+
+const formatTime = (seconds) => {
+  if (seconds === null) return '-';
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+};
 
 const TeamMembers = () => {
   const token = localStorage.getItem("token");
@@ -132,17 +124,24 @@ const TeamMembers = () => {
   const { data: getAllProfileData, isLoading } = useGetAllProfileQuery({
     id: ownerId,
   });
-  const userData = getAllProfileData?.data?.users;
-  const userCount = userData?.length || 0
-  const [activeTab, setActiveTab] = useState("tab1");
-  const [open,setOpen] = useState()
-  const handleOpen = () =>{
-        setOpen(true)
-  }
-  const handleClose = () =>{
-        setOpen(false)
 
-  }
+  const { data: getAllTeamMembersData, isLoading: getAllTeamMembersIsLoading } = useGetAllTeamMembersQuery({
+    id: ownerId,
+  });
+
+  const userData = getAllTeamMembersData?.data || [];
+  const userCount = userData?.length || 0;
+  const [activeTab, setActiveTab] = useState("tab1");
+  const [open, setOpen] = useState(false);
+  
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Box sx={{ width: "100%" }}>
       <Stack spacing={3}>
@@ -173,8 +172,7 @@ const TeamMembers = () => {
             </IconButton>
 
             <Button
-
-                onClick={()=> handleOpen()}
+              onClick={handleOpen}
               variant="contained"
               sx={{
                 textTransform: "none",
@@ -197,8 +195,7 @@ const TeamMembers = () => {
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab1")}
-                className={`${styles.tabButton} ${activeTab === "tab1" ? styles.active : ""
-                  }`}
+                className={`${styles.tabButton} ${activeTab === "tab1" ? styles.active : ""}`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Employees
@@ -210,8 +207,7 @@ const TeamMembers = () => {
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab2")}
-                className={`${styles.tabButton} ${activeTab === "tab2" ? styles.active : ""
-                  }`}
+                className={`${styles.tabButton} ${activeTab === "tab2" ? styles.active : ""}`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Snapshot
@@ -223,8 +219,7 @@ const TeamMembers = () => {
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab3")}
-                className={`${styles.tabButton} ${activeTab === "tab3" ? styles.active : ""
-                  }`}
+                className={`${styles.tabButton} ${activeTab === "tab3" ? styles.active : ""}`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Slacking
@@ -236,8 +231,7 @@ const TeamMembers = () => {
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab4")}
-                className={`${styles.tabButton} ${activeTab === "tab4" ? styles.active : ""
-                  }`}
+                className={`${styles.tabButton} ${activeTab === "tab4" ? styles.active : ""}`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Absent
@@ -249,8 +243,7 @@ const TeamMembers = () => {
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab5")}
-                className={`${styles.tabButton} ${activeTab === "tab5" ? styles.active : ""
-                  }`}
+                className={`${styles.tabButton} ${activeTab === "tab5" ? styles.active : ""}`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Late
@@ -292,26 +285,35 @@ const TeamMembers = () => {
                               <Box>
                                 <Avatar
                                   alt="User Profile"
-                                  src={row.photo}
+                                  src={row.user.photo}
                                   className={styles.avatarImage}
                                 />
                               </Box>
                               <Box>
                                 <Link className={styles.tPersonName} to="/">
-                                  {row.username}
+                                  {row.user.username}
                                 </Link>
                                 <Typography className={styles.tPersonDept}>
-                                  {row.role}
+                                  {row.user.role}
                                 </Typography>
                               </Box>
                             </Box>
                           </TableCell>
-                          {/* Empty cells to match "-" look */}
-                          {[...Array(columns.length - 1)].map((_, i) => (
-                            <TableCell className={styles.tBodyCell} key={i}>
-                              -
-                            </TableCell>
-                          ))}
+                          <TableCell className={styles.tBodyCell}>
+                            {formatTime(row.productiveTime)}
+                          </TableCell>
+                          <TableCell className={styles.tBodyCell}>
+                            {formatTime(row.offlineTime)}
+                          </TableCell>
+                          <TableCell className={styles.tBodyCell}>
+                            {formatTime(row.deskTime)}
+                          </TableCell>
+                          <TableCell className={styles.tBodyCell}>
+                            {row.arrivalTime || '-'}
+                          </TableCell>
+                          <TableCell className={styles.tBodyCell}>
+                            {row.leftTime || '-'}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -379,14 +381,14 @@ const TeamMembers = () => {
                                 ]
                                   .slice(0, 168)
                                   .map((block, i) => {
-                                    const totalMinutes = 8 * 60 + i * 5; // Start from 8:00 AM
+                                    const totalMinutes = 8 * 60 + i * 5;
                                     const hour = Math.floor(totalMinutes / 60);
                                     const minute = totalMinutes % 60;
                                     const hour12 = hour % 12 === 0 ? 12 : hour % 12;
                                     const ampm = hour < 12 ? "AM" : "PM";
                                     const timeLabel = `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
 
-                                    const statusLabel = block.charAt(0).toUpperCase() + block.slice(1); // Capitalize
+                                    const statusLabel = block.charAt(0).toUpperCase() + block.slice(1);
 
                                     return (
                                       <Tooltip key={i} title={`${statusLabel} at ${timeLabel}`} arrow>
@@ -448,7 +450,7 @@ const TeamMembers = () => {
               )}
               {activeTab === "tab4" && (
                 <Box className={styles.tabContentWrapper}>
-                  {/* <Box className={styles.noMenbersBox}>
+                  <Box className={styles.noMenbersBox}>
                     <Typography variant="h3">
                       No team members are currently working
                     </Typography>
@@ -456,13 +458,6 @@ const TeamMembers = () => {
                       To see all team members, clear the filters and switch to
                       the Employees tab.
                     </Typography>
-                  </Box> */}
-                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 2, marginTop: "10px" }}>
-                    {["Akash", "avinesh", "Ashraf"]?.map((name, index) => (
-                      <Box>
-                        <ProductivityBar key={index} getProductiviyData={exampleProductivityData} isSnap={true} title={name}/>
-                      </Box>
-                    ))}
                   </Box>
                 </Box>
               )}
@@ -483,7 +478,7 @@ const TeamMembers = () => {
           </Box>
         </Box>
       </Stack>
-      <TeamMembersForm open={open} handleClose={handleClose}/>
+      <TeamMembersForm open={open} handleClose={handleClose} />
     </Box>
   );
 };
