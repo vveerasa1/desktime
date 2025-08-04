@@ -19,7 +19,10 @@ import {
   Chip,
 } from "@mui/material";
 import Tooltip from '@mui/material/Tooltip';
+import exampleProductivityData from "../../../../example-productivity-bar-data";
+import ProductivityBar from "../../components/Dashboard/ProductivityBar";
 import TeamMembersForm from "../../components/TeamMembers/TeamMembersForm";
+
 
 const rows = [
   { name: "Aakash C", dept: "Edumpus - QA" },
@@ -429,6 +432,7 @@ const TeamMembers = () => {
                   </TableContainer>
                 </>
               )}
+
               {activeTab === "tab3" && (
                 <Box className={styles.tabContentWrapper}>
                   <Box className={styles.noMenbersBox}>
@@ -444,7 +448,7 @@ const TeamMembers = () => {
               )}
               {activeTab === "tab4" && (
                 <Box className={styles.tabContentWrapper}>
-                  <Box className={styles.noMenbersBox}>
+                  {/* <Box className={styles.noMenbersBox}>
                     <Typography variant="h3">
                       No team members are currently working
                     </Typography>
@@ -452,6 +456,13 @@ const TeamMembers = () => {
                       To see all team members, clear the filters and switch to
                       the Employees tab.
                     </Typography>
+                  </Box> */}
+                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 2, marginTop: "10px" }}>
+                    {["Akash", "avinesh", "Ashraf"]?.map((name, index) => (
+                      <Box>
+                        <ProductivityBar key={index} getProductiviyData={exampleProductivityData} isSnap={true} title={name}/>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
               )}

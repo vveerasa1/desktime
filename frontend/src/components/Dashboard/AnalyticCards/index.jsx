@@ -120,7 +120,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
                 : undefined,
           };
 
-        case "Desktime time":
+        case "Desktime":
           return {
             ...card,
             value: dashboardData.deskTime
@@ -146,7 +146,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
     return [
       dynamicStatCards.find((card) => card.title === "Arrival time"),
       dynamicStatCards.find((card) => card.title === "Left time"),
-      dynamicStatCards.find((card) => card.title === "Desktime time"),
+      dynamicStatCards.find((card) => card.title === "Desktime"),
       dynamicStatCards.find((card) => card.title === "Time at work"),
     ].filter(Boolean);
   }, [dynamicStatCards]);

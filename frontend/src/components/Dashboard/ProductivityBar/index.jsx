@@ -71,7 +71,7 @@ const TRACKED_COLOR = "#3BA5E3"; // Blue for tracked
 const UNTRACKED_COLOR = "white"; // Grey for untracked/idle
 const NO_DATA_COLOR = "#E0E0E0"; // Light grey for no data bars
 
-const ProductivityBar = ({ getProductiviyData }) => {
+const ProductivityBar = ({ getProductiviyData,isSnap,title  }) => {
   const productivity = getProductiviyData?.data;
 
   let currentViewMode = "day";
@@ -167,7 +167,7 @@ const ProductivityBar = ({ getProductiviyData }) => {
               borderRadius: "4px", // Optional: for rounded corners
               padding: "20px", // Optional: Add some padding around the text
               opacity: "0.5",
-              textAlign:'center'
+              textAlign: 'center'
             }}
           >
             <Typography
@@ -502,14 +502,14 @@ const ProductivityBar = ({ getProductiviyData }) => {
   }
 
   return (
-    <Paper  elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
-      <Box  sx={{ p: 2 }}>
-        <Typography
+    <Paper elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
+      <Box sx={{ p: 2 }}>
+        {<Typography
           sx={{ fontSize: "18px", fontWeight: "600 !important", mb: 2 }}
         >
-          {chartTitle}
+          {title||chartTitle}
         </Typography>
-
+        }
         <Box
           sx={{
             width: "100%",
