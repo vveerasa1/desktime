@@ -10,76 +10,15 @@ const Team = require("../models/team");
 
 const addUser = async (req, res) => {
   try {
-    const {
-      username,
-      employeeId,
-      email,
-      team,
-      gender,
-      role,
-      phone,
-      workingDays,
-      workStartTime,
-      workEndTime,
-      minimumHours,
-      trackingDays,
-      trackingStartTime,
-      trackingEndTime,
-      timeZone,
-      ownerId,
-    } = req.body;
-    const existingUser = await User.findOne({ email, ownerId });
-    if (existingUser) {
-      return res.status(409).json({ error: "Email already exist" });
-    }
+    const usersData = Array.isArray(req.body) ? req.body : [req.body];
+    const results = [];
+    const errors = [];
 
-    const password = await generateRandomPassword(); // plain text password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    let durationSeconds = 0;
-    const admin = await User.findOne({ _id: ownerId });
-    console.log("printing");
-    if (workStartTime && workEndTime) {
-      const start = moment(workStartTime, "HH:mm:ss");
-      const end = moment(workEndTime, "HH:mm:ss");
-
-      durationSeconds = end.diff(start, "seconds");
-    }
-    const allUsers = await User.find();
-    let user;
-    if (admin) {
-      const start = moment(admin.workStartTime, "HH:mm:ss");
-      const end = moment(admin.workEndTime, "HH:mm:ss");
-
-      durationSeconds = end.diff(start, "seconds");
-      user = new User({
-        username,
-        employeeId: employeeId ? employeeId : allUsers.length + 1,
-        email,
-        password: hashedPassword,
-        team,
-        gender,
-        role: "Employee",
-        phone,
-        workingDays: admin.workingDays,
-        workStartTime: admin.workStartTime,
-        workEndTime: admin.workEndTime,
-        minimumHours: admin.minimumHours,
-        trackingDays: admin.trackingDays,
-        trackingStartTime: admin.trackingStartTime,
-        trackingEndTime: admin.trackingEndTime,
-        timeZone: admin.timeZone,
-        photo: `https://ui-avatars.com/api/?name=${username
-          .split(" ")
-          .join("+")}&background=143351&color=fff`,
-        workDuration: durationSeconds,
-        ownerId,
-      });
-    } else {
-      user = new User({
+    for (const data of usersData) {
+      const {
         username,
         employeeId,
         email,
-        password: hashedPassword,
         team,
         gender,
         role,
@@ -92,33 +31,110 @@ const addUser = async (req, res) => {
         trackingStartTime,
         trackingEndTime,
         timeZone,
-        photo: `https://ui-avatars.com/api/?name=${username
-          .split(" ")
-          .join("+")}&background=0D8ABC&color=fff`,
-        workDuration: durationSeconds,
-      });
-    }
+        ownerId,
+      } = data;
 
-    await user.save();
-    if (role === "Owner") {
-      user.ownerId = user._id;
-      await user.save();
-    }
-    if (team) {
-      await Team.findByIdAndUpdate(team, { $inc: { teamMembersCount: 1 } });
-    }
-    const transporter = nodemailer.createTransport({
-      service: config.smtp?.service,
-      auth: {
-        user: config.smtp?.email,
-        pass: config.smtp?.password,
-      },
-    });
-    mailOptions = {
-      from: config.smtp?.email,
-      to: user.email,
-      subject: "Desktime - Invitation",
-      text: `Hi ${user.username},
+      try {
+        const existingUser = await User.findOne({
+          email,
+          ownerId,
+          isDeleted: false,
+        });
+        if (existingUser) {
+          errors.push({ email, error: "Email already exists" });
+          continue;
+        }
+
+        const password = await generateRandomPassword();
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        let durationSeconds = 0;
+        const admin = await User.findById(ownerId);
+        const allUsers = await User.find();
+
+        let user;
+        if (admin) {
+          const start = moment(admin.workStartTime, "HH:mm:ss");
+          const end = moment(admin.workEndTime, "HH:mm:ss");
+          durationSeconds = end.diff(start, "seconds");
+
+          user = new User({
+            username,
+            employeeId: employeeId || allUsers.length + 1,
+            email,
+            password: hashedPassword,
+            team,
+            gender,
+            role,
+            phone,
+            workingDays: admin.workingDays,
+            workStartTime: admin.workStartTime,
+            workEndTime: admin.workEndTime,
+            minimumHours: admin.minimumHours,
+            trackingDays: admin.trackingDays,
+            trackingStartTime: admin.trackingStartTime,
+            trackingEndTime: admin.trackingEndTime,
+            timeZone: admin.timeZone,
+            photo: `https://ui-avatars.com/api/?name=${username
+              .split(" ")
+              .join("+")}&background=143351&color=fff`,
+            workDuration: durationSeconds,
+            ownerId,
+          });
+        } else {
+          const start = moment(workStartTime, "HH:mm:ss");
+          const end = moment(workEndTime, "HH:mm:ss");
+          durationSeconds = end.diff(start, "seconds");
+
+          user = new User({
+            username,
+            employeeId,
+            email,
+            password: hashedPassword,
+            team,
+            gender,
+            role,
+            phone,
+            workingDays,
+            workStartTime,
+            workEndTime,
+            minimumHours,
+            trackingDays,
+            trackingStartTime,
+            trackingEndTime,
+            timeZone,
+            photo: `https://ui-avatars.com/api/?name=${username
+              .split(" ")
+              .join("+")}&background=0D8ABC&color=fff`,
+            workDuration: durationSeconds,
+          });
+        }
+
+        await user.save();
+
+        if (role === "Owner") {
+          user.ownerId = user._id;
+          await user.save();
+        }
+
+        if (team) {
+          await Team.findByIdAndUpdate(team, { $inc: { teamMembersCount: 1 } });
+        }
+
+        // Send Email
+        const transporter = nodemailer.createTransport({
+          service: config.smtp?.service,
+          auth: {
+            user: config.smtp?.email,
+            pass: config.smtp?.password,
+          },
+        });
+
+        const mailOptions = {
+          from: config.smtp?.email,
+          to: user.email,
+          subject: "Desktime - Invitation",
+          text: `Hi ${user.username},
 
 You have been invited to join Desktime.
 
@@ -132,27 +148,36 @@ Please log in to your account to get started.
 
 Best regards,  
 Desktime - Pentabay Team`,
-    };
+        };
 
-    transporter.sendMail(mailOptions, (error) => {
-      if (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Error sending Mail" });
+        transporter.sendMail(mailOptions, (error) => {
+          if (error) {
+            console.error("Email error for", email, ":", error.message);
+          }
+        });
+
+        results.push(user);
+      } catch (err) {
+        console.error(`Error processing user ${email || username}:`, err);
+        errors.push({ email, error: err.message });
       }
-    });
+    }
 
-    res.status(200).json({
+    return res.status(200).json({
       code: 200,
-      status: "Success",
-      message: "User added successfully",
-      data: user,
+      status: "Completed",
+      message: "User(s) processed",
+      successCount: results.length,
+      failureCount: errors.length,
+      users: results,
+      failed: errors,
     });
   } catch (error) {
-    console.error("Error adding user:", error);
-    res.status(500).json({
+    console.error("Error in addUser:", error);
+    return res.status(500).json({
       code: 500,
       status: "Error",
-      message: "Error adding user",
+      message: "Failed to process users",
       error: error.message,
     });
   }
@@ -310,9 +335,10 @@ const getScreenshotsById = async (req, res) => {
     // console.log(screenshots);
     if (!screenshotsDoc || screenshotsDoc.dailyScreenshots.date !== date) {
       return res.status(404).json({
-        code: 404,
+        code: 200,
         status: "Not Found",
         message: "No screenshots found for the provided date",
+        data: [],
       });
     }
 
@@ -367,8 +393,6 @@ const getUser = async (req, res) => {
     });
   }
 };
-
-
 
 module.exports = {
   addUser,
