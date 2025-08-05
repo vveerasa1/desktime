@@ -82,7 +82,6 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   }, [isSuccess, profileData]);
 
   const dashboardData = getDashboardData?.data || {};
-  console.log(dashboardData,"DASHBOARD DATA")
   // Check if there's any tracking data
   const hasTrackingData = useMemo(() => {
     return (

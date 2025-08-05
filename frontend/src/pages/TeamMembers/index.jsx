@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "../../pages/TeamMembers/index.module.css";
 import { Box, Button, Stack, Typography, IconButton, Paper, Avatar } from "@mui/material";
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { Link } from "react-router-dom";
-import { useGetAllProfileQuery } from "../../redux/services/user";
 import { useGetAllTeamMembersQuery } from "../../redux/services/teamMembers";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -15,12 +14,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
 } from "@mui/material";
 import Tooltip from '@mui/material/Tooltip';
 import ProductivityBar from "../../components/Dashboard/ProductivityBar";
 import TeamMembersForm from "../../components/TeamMembers/TeamMembersForm";
-
+import { useGetAllTeamQuery } from "../../redux/services/team";
+import MuiToaster from "../../components/MuiToaster";
 const columns = [
   "Name",
   "Productive time",
@@ -113,27 +112,60 @@ const formatTime = (seconds) => {
 };
 
 const TeamMembers = () => {
+
   const token = localStorage.getItem("token");
   let ownerId = null;
-
+let role = null;
   if (token) {
     const decoded = jwtDecode(token);
     ownerId = decoded.ownerId;
+    role = decoded?.role;
   }
 
-  const { data: getAllProfileData, isLoading } = useGetAllProfileQuery({
-    id: ownerId,
+  const skipQuery = !ownerId;
+const { data: getAllTeamMembersData, isLoading: getAllTeamMembersIsLoading, refetch: refetchTeamMembers } = useGetAllTeamMembersQuery(
+  { id: ownerId },
+  { skip: skipQuery }
+);
+
+const {
+    data: teamsData,
+    isLoading: isTeamsLoading,
+    isError: isTeamsError,
+    isSuccess,
+      refetch: refetchTeams 
+
+  } = useGetAllTeamQuery(ownerId, {
+    skip: !ownerId,
   });
 
-  const { data: getAllTeamMembersData, isLoading: getAllTeamMembersIsLoading } = useGetAllTeamMembersQuery({
-    id: ownerId,
-  });
-
+  const formattedTeamOptions = useMemo(()=>{
+    if(isSuccess &&  Array.isArray(teamsData?.data)){
+        return teamsData?.data?.map((team)=>({
+            id:team._id,
+            name:team.name
+        }))
+    }
+    return []
+   
+  },[isSuccess,teamsData])
   const userData = getAllTeamMembersData?.data || [];
   const userCount = userData?.length || 0;
   const [activeTab, setActiveTab] = useState("tab1");
   const [open, setOpen] = useState(false);
-  
+  const [errors, setErrors] = useState({});
+    const [toaster, setToaster] = useState({
+      open: false,
+      message: "",
+      severity: "success",
+    });
+      const handleOpenToaster = (message, severity = "success") => {
+    setToaster({ open: true, message, severity });
+  };
+
+     const handleCloseToaster = () => {
+    setToaster({ ...toaster, open: false });
+  };
   const handleOpen = () => {
     setOpen(true);
   };
@@ -142,6 +174,7 @@ const TeamMembers = () => {
     setOpen(false);
   };
 
+   
   return (
     <Box sx={{ width: "100%" }}>
       <Stack spacing={3}>
@@ -290,9 +323,16 @@ const TeamMembers = () => {
                                 />
                               </Box>
                               <Box>
-                                <Link className={styles.tPersonName} to="/">
+                                 {role === "Admin" || role === "Owner" ? (
+                                <Link className={styles.tPersonName} to={`/dashboard/employee=${row.user._id}`}>
                                   {row.user.username}
                                 </Link>
+                                 ):(
+                                    <Typography className={styles.tPersonName} to={`/dashboard/employee=${row.user._id}`}>
+                                  {row.user.username}
+                                </Typography> 
+                                 )}
+                               
                                 <Typography className={styles.tPersonDept}>
                                   {row.user.role}
                                 </Typography>
@@ -478,8 +518,13 @@ const TeamMembers = () => {
           </Box>
         </Box>
       </Stack>
-      <TeamMembersForm open={open} handleClose={handleClose} />
-    </Box>
+      <TeamMembersForm openToaster={handleOpenToaster} refetchTeamMembers={refetchTeamMembers} formattedTeamOptions={formattedTeamOptions} ownerId={ownerId} open={open} handleClose={handleClose} />
+  <MuiToaster
+        open={toaster.open}
+        message={toaster.message}
+        severity={toaster.severity}
+        handleClose={handleCloseToaster}
+      />    </Box>
   );
 };
 
