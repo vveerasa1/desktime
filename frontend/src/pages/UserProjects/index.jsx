@@ -78,7 +78,6 @@ const Projects = () => {
     );
   }, [getAllTaskData]);
 
-  console.log(mappedTaskData, "TASK DATA");
   const {
     data: profileData,
     isLoading: isProfileLoading,
@@ -110,7 +109,6 @@ const Projects = () => {
   const [projectFormData, setProjectFormData] = useState({
     projectName: "",
     teamLead: "",
-    status: "",
   });
 
   const [taskFormData, setTaskFormData] = useState({
@@ -140,7 +138,6 @@ const Projects = () => {
   const handleProjectSelectAll = (event) => {
     if (event.target.checked) {
       const allIds = mappedProjectData.map((row) => row._id);
-      console.log(allIds, "ALL IDS");
       setProjectSelected(allIds);
     } else {
       setProjectSelected([]);
@@ -222,7 +219,6 @@ const Projects = () => {
     setOpenTask(true);
   };
 
-  console.log(taskId, "TASK ID");
 
   const onTaskClose = () => {
     setOpenTask(false);
@@ -235,7 +231,6 @@ const Projects = () => {
       assignee: "",
       status: "",
     });
-    console.log("Task closed, taskId reset to:", null);
   };
 
   const handleChange = (event, name) => {

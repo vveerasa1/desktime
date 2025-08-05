@@ -13,9 +13,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { jwtDecode } from "jwt-decode";
 import AddEmployeeModal from "../../components/Colleagues/AddEmployeeModal";
 import styles from "./index.module.css";
-import CustomButton from "../../components/CustomButton";
 import MuiToaster from "../../components/MuiToaster";
-import { SignalCellularNullOutlined } from "@mui/icons-material";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 const Colleagues = () => {
   const token = localStorage.getItem("token");
@@ -90,7 +88,6 @@ const Colleagues = () => {
     setOpen(false);
   };
 
-  console.log(colleaguesData, "COLLEAGURE");
   return (
     <>
       <Box className={styles.pageContainer}>
@@ -106,9 +103,11 @@ const Colleagues = () => {
               placeholder={"search"}
             />
           </Box>
-          <Box>
+            <Box>
             <IconButton size="small" className={styles.iconBtn}>
-              <FilterListIcon fontSize="medium" />
+              <FilterListIcon sx={{
+                borderRadius: 'none !important'
+              }} fontSize="medium" />
             </IconButton>
           </Box>
         </Box>

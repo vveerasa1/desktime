@@ -2,14 +2,17 @@
 .pageContainer {
   display: flex !important;
   justify-content: space-between !important;
+  height: 50px;
 }
 
 .searchActions {
   display: flex !important;
-  gap: 24px !important;
+  gap:10px !important;
 }
 .iconBtn {
   padding: 8px !important;
+  background-color: #ffffff!important;
+  border-radius: 8px !important;
 }
 .iconBtn:hover{
   background-color: #808080!important;

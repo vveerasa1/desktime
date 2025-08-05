@@ -16,4 +16,7 @@ export const URL_CONSTANTS = {
   TEAMS: "teams",
   PROJECTS: "projects",
   TASK: "task",
+  TRACKING:"tracking",
+  SESSION:"sessions",
+  TODAY:"today"
 };

@@ -53,8 +53,6 @@ useEffect(() => {
     setGetTeamsData(formattedTeams); // this assumes you have a state setter
   }
 }, [formattedTeams]);
-console.log(formattedTeams, "formatted data")
-  console.log(teamsData?.data, "TEAMS DATA IN ADD EMPLOYEE MODAL");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -181,11 +179,8 @@ console.log(formattedTeams, "formatted data")
     }
   }
   };
-  console.log(formData,"formdata")
   const handleSelect = (event,name) =>{
-    console.log(event,"EVENT",name,"NAMEM")
     const { value } = event.target;
-    console.log(value,"VALUE")
     setFormData((prev) => ({
       ...prev,
       [name]: value,

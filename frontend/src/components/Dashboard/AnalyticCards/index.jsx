@@ -26,7 +26,6 @@ const formatSecondsToHHMM = (seconds) => {
 const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
     useGetAllProjectsQuery({ id: ownerId });
-
   const mappedProjectOptions = useMemo(() => {
     return (
       getAllProjectsData?.data?.map((item) => ({
@@ -83,7 +82,6 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   }, [isSuccess, profileData]);
 
   const dashboardData = getDashboardData?.data || {};
-
   // Check if there's any tracking data
   const hasTrackingData = useMemo(() => {
     return (
@@ -120,10 +118,10 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
                 : undefined,
           };
 
-        case "Desktime time":
+        case "Desktime":
           return {
             ...card,
-            value: dashboardData.deskTime
+            value: dashboardData?.deskTime
               ? formatSecondsToHHMM(dashboardData.deskTime)
               : "00:00",
           };
@@ -146,7 +144,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
     return [
       dynamicStatCards.find((card) => card.title === "Arrival time"),
       dynamicStatCards.find((card) => card.title === "Left time"),
-      dynamicStatCards.find((card) => card.title === "Desktime time"),
+      dynamicStatCards.find((card) => card.title === "Desktime"),
       dynamicStatCards.find((card) => card.title === "Time at work"),
     ].filter(Boolean);
   }, [dynamicStatCards]);

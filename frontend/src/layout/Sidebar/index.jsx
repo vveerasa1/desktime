@@ -9,7 +9,6 @@ import {
   Toolbar,
   Divider,
   Box,
-  Typography,
 } from "@mui/material";
 import {
   MenuOpen as MenuOpenIcon,
@@ -23,6 +22,7 @@ import {
 import GroupsIcon from '@mui/icons-material/Groups';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Logo from '../../assets/images/logo.png'
+import LogoIcon from '../../assets/images/favicon.png'
 
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
 import styles from "./index.module.css";
@@ -51,15 +51,19 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
   const drawerContent = useMemo(() => (
     <>
       <Toolbar className={styles.toolbar} onClick={() => setMobileOpen(!mobileOpen)}>
-        <Box className={!isMobile && mobileOpen ?styles.logoWrapperWeb:styles.logoWrapper}>
-          <Box className={styles.menuIconButton}>
+        <Box className={!isMobile && mobileOpen ? styles.logoWrapperWeb : styles.logoWrapper}>
+          {/* {   isMobile && !mobileOpen && (  <Box className={styles.menuIconButton}>
             <MenuOpenIcon />
-          </Box>
-          {   !isMobile && mobileOpen && (
+          </Box>)} */}
+          {!isMobile && mobileOpen ? (
             <Box className={styles.brandLogo}>
               <img className={styles.logoImg} src={Logo} alt="TrackMe Logo" />
             </Box>
-          )}
+          ) :
+            <Box className={styles.brandLogo}>
+              <img className={styles.logoIconImg} src={LogoIcon} alt="TrackMe Logo" />
+            </Box>
+          }
         </Box>
       </Toolbar>
       <Divider />
@@ -101,8 +105,8 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
           transition: "width 0.3s ease-in-out",
           overflowX: "hidden",
           top: 0,
-          cursor:"pointer",
-        
+          cursor: "pointer",
+
 
         },
       }}

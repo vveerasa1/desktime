@@ -1,7 +1,7 @@
 export const statCardsData = [
   { title: 'Arrival time', },
   { title: 'Left time', },
-  { title: 'Desktime time', },
+  { title: 'Desktime', },
   { title: 'Time at work', },
 ];
 // ProjectCard/data/staticData.js
