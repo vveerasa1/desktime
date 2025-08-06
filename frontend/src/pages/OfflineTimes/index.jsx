@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -17,7 +17,8 @@ import TimeCards from "../../components/OfflineTimes/TimeCards";
 import SmallTimeCards from "../../components/OfflineTimes/SmallTimeCards";
 import styles from './index.module.css'
 import CustomTextField from "../../components/CustomTextField";
-
+import { useGetAllOfflineRequestQuery } from "../../redux/services/offlineRequests";
+import { jwtDecode } from "jwt-decode";
 const summaryData = {
   totalOfflineTimes: 2547,
   productiveTime: "260h 23m 32s",
@@ -76,11 +77,35 @@ function TabPanel(props) {
 const OfflineTimes = () => {
   const [tabValue, setTabValue] = useState(0);
   const [selected, setSelected] = useState([]);
+  const [status,setStatus] = useState('Pending')
+  const [offlineData, setOfflineData] = useState([]);
+const [totalOfflineTime, setTotalOfflineTime] = useState(0);
+  const token = localStorage.getItem('token')
+  let ownerId = null
+  if(token){
+    const decoded = jwtDecode(token)
+    ownerId = decoded?.ownerId
+  }
+const { data: getOfflineTrackingData, isLoading } = useGetAllOfflineRequestQuery({
+  id: ownerId,
+  status: status, // assuming API expects 'pending', 'approved', etc.
+});
+console.log(getOfflineTrackingData,"DATA")
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-    setSelected([]);
-  };
+
+useEffect(() => {
+  if (getOfflineTrackingData) {
+    setOfflineData(getOfflineTrackingData.formattedRequests || []);
+    setTotalOfflineTime(getOfflineTrackingData?.totalOfflineTimes || 0);
+  }
+}, [getOfflineTrackingData]);
+
+ const handleTabChange = (event, newValue) => {
+  const tabLabels = ["Pending", "Approved", "Declined"];
+  setStatus(tabLabels[newValue]);
+  setSelected([]);
+};
+
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
@@ -140,8 +165,8 @@ const OfflineTimes = () => {
       {/* <Tabs value={tabValue} onChange={handleTabChange} aria-label="offline times tabs"> */}
       <Box sx={{ mt: 0, mb: 0, pl: 0, ml: 0, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
+           value={["Pending", "Approved", "Declined"].indexOf(status)}
+  onChange={handleTabChange}
           aria-label="offline times tabs"
           TabIndicatorProps={{
             style: { backgroundColor: "#001F5B" }, // Navy blue indicator
@@ -175,11 +200,11 @@ const OfflineTimes = () => {
 
       <Box sx={{ mt: 3, mb: 3 }}>
         <Grid container spacing={3}>
-          <TimeCards />
+          <TimeCards totalOfflineTime={totalOfflineTime} />
         </Grid>
       </Box>
 
-      <OfflineTimesTable />
+      <OfflineTimesTable offlineData={offlineData} />
     </Box>
   );
 };

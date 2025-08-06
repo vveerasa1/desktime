@@ -1,13 +1,13 @@
-import { useMemo } from 'react';
-import { 
-  Grid, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Box, 
-  useTheme,
-  styled 
+import React, { useMemo } from 'react';
+import {
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  styled,
 } from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import clsx from 'clsx';
 import styles from './index.module.css';
 
@@ -22,7 +22,7 @@ const MetricCard = styled(Card)(({ theme }) => ({
     boxShadow: theme.shadows[6],
     '&::before': {
       transform: 'translateX(0)',
-    }
+    },
   },
   '&::before': {
     content: '""',
@@ -35,16 +35,36 @@ const MetricCard = styled(Card)(({ theme }) => ({
     transform: 'translateX(-100%)',
     transition: 'transform 0.6s ease',
     zIndex: 1,
-  }
+  },
 }));
 
-const MetricDisplay = ({ title, value, valueColor }) => {
+// Metric display component with conditional design
+const MetricDisplay = ({ title, value, valueColor, isTimeMetric }) => {
+  if (isTimeMetric) {
+    return (
+      <Box className={styles.clockContainer} sx={{ textAlign: 'center' }}>
+        <AccessTimeIcon sx={{ fontSize: 48, color: '#143351' }} />
+        <Typography
+          variant="h6"
+          color="text.secondary"
+          sx={{ mt: 1 }}
+        >
+          {title}
+        </Typography>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 700, color: valueColor || '#143351' }}
+        >
+          {value}
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Original design for non-time metrics
   return (
-    <Box sx={{ textAlign: 'center'}}>
-      <Typography 
-        variant="h6" 
-        color="text.secondary"
-      >
+    <Box sx={{ textAlign: 'center' }}>
+      <Typography variant="h6" color="text.secondary">
         {title}
       </Typography>
       <Typography
@@ -53,9 +73,9 @@ const MetricDisplay = ({ title, value, valueColor }) => {
           [styles.orange]: valueColor === '#FFA500',
           [styles.green]: valueColor === '#008000',
         })}
-        sx={{ 
+        sx={{
           fontWeight: 600,
-          color: valueColor || 'text.primary'
+          color: valueColor || 'text.primary',
         }}
       >
         {value}
@@ -65,41 +85,40 @@ const MetricDisplay = ({ title, value, valueColor }) => {
 };
 
 const TrackingCard = ({ orderedCards }) => {
-  const theme = useTheme();
-
   const cards = useMemo(() => [
     {
       title: orderedCards[0]?.title,
       value: orderedCards[0]?.value,
-      color: orderedCards[0]?.valueColor
+      color: orderedCards[0]?.valueColor,
     },
     {
       title: orderedCards[1]?.title,
       value: orderedCards[1]?.value,
-      color: orderedCards[1]?.value === 'ONLINE' ? '#008000' : orderedCards[1]?.valueColor
+      color: orderedCards[1]?.value === 'ONLINE' ? '#008000' : orderedCards[1]?.valueColor,
     },
     {
       title: orderedCards[2]?.title,
       value: orderedCards[2]?.value,
-      color: orderedCards[2]?.valueColor
+      color: orderedCards[2]?.valueColor,
     },
     {
       title: orderedCards[3]?.title,
       value: orderedCards[3]?.value,
-      color: orderedCards[3]?.valueColor
-    }
+      color: orderedCards[3]?.valueColor,
+    },
   ], [orderedCards]);
 
   return (
     <Grid container spacing={2}>
       {cards.map((card, index) => (
-        <Grid item size={{xs:12,md:3}}key={index} sx={{flex: 1 }}>
+        <Grid item xs={12} md={3} key={index} sx={{ flex: 1 }}>
           <MetricCard>
-            <CardContent sx={{ py: 2}}>
-              <MetricDisplay 
-                title={card.title} 
-                value={card.value} 
+            <CardContent sx={{ py: 2 }}>
+              <MetricDisplay
+                title={card.title}
+                value={card.value}
                 valueColor={card.color}
+                isTimeMetric={['ArrivalTime', 'DeskTime', 'Left Time'].includes(card.title)}
               />
             </CardContent>
           </MetricCard>

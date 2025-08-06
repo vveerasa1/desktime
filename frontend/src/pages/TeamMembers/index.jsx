@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
 import styles from "../../pages/TeamMembers/index.module.css";
-import { Box, Button, Stack, Typography, IconButton, Paper, Avatar } from "@mui/material";
+import {
+  Box,
+  Button,
+  Stack,
+  Typography,
+  IconButton,
+  Paper,
+  Avatar,
+} from "@mui/material";
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
@@ -15,11 +23,13 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import Tooltip from '@mui/material/Tooltip';
-import ProductivityBar from "../../components/Dashboard/ProductivityBar";
+import Tooltip from "@mui/material/Tooltip";
 import TeamMembersForm from "../../components/TeamMembers/TeamMembersForm";
 import { useGetAllTeamQuery } from "../../redux/services/team";
 import MuiToaster from "../../components/MuiToaster";
+import AbsentMembers from "../../components/TeamMembers/AbsentMembers";
+import TeamSnapShot from "../../components/TeamMembers/TeamSnapShots";
+import EmployeeList from "../../components/TeamMembers/EmployeeList";
 const columns = [
   "Name",
   "Productive time",
@@ -40,8 +50,13 @@ const ssrows = [
     status: "online",
     timeline: [
       ...Array(6).fill("off"),
-      "inactive", "neutral", "active", "inactive", "neutral", "active",
-      ...Array(156).fill("off")
+      "inactive",
+      "neutral",
+      "active",
+      "inactive",
+      "neutral",
+      "active",
+      ...Array(156).fill("off"),
     ],
     totalTime: "5h 20m",
     avgActivity: "39%",
@@ -53,8 +68,12 @@ const ssrows = [
     status: "online",
     timeline: [
       ...Array(10).fill("off"),
-      "inactive", "inactive", "active", "active", "active",
-      ...Array(153).fill("off")
+      "inactive",
+      "inactive",
+      "active",
+      "active",
+      "active",
+      ...Array(153).fill("off"),
     ],
     totalTime: "3h 21m",
     avgActivity: "88%",
@@ -66,8 +85,12 @@ const ssrows = [
     status: "offline",
     timeline: [
       ...Array(8).fill("off"),
-      "inactive", "neutral", "neutral", "active", "inactive",
-      ...Array(155).fill("off")
+      "inactive",
+      "neutral",
+      "neutral",
+      "active",
+      "inactive",
+      ...Array(155).fill("off"),
     ],
     totalTime: "2h 35m",
     avgActivity: "25%",
@@ -79,8 +102,12 @@ const ssrows = [
     status: "offline",
     timeline: [
       ...Array(6).fill("off"),
-      "inactive", "active", "neutral", "active", "active",
-      ...Array(157).fill("off")
+      "inactive",
+      "active",
+      "neutral",
+      "active",
+      "active",
+      ...Array(157).fill("off"),
     ],
     totalTime: "7h 55m",
     avgActivity: "75%",
@@ -105,17 +132,16 @@ const styletimeblock = {
 };
 
 const formatTime = (seconds) => {
-  if (seconds === null) return '-';
+  if (seconds === null) return "-";
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   return `${hours}h ${minutes}m`;
 };
 
 const TeamMembers = () => {
-
   const token = localStorage.getItem("token");
   let ownerId = null;
-let role = null;
+  let role = null;
   if (token) {
     const decoded = jwtDecode(token);
     ownerId = decoded.ownerId;
@@ -123,58 +149,62 @@ let role = null;
   }
 
   const skipQuery = !ownerId;
-const { data: getAllTeamMembersData, isLoading: getAllTeamMembersIsLoading, refetch: refetchTeamMembers } = useGetAllTeamMembersQuery(
-  { id: ownerId },
-  { skip: skipQuery }
-);
+  const {
+    data: getAllTeamMembersData,
+    isLoading: getAllTeamMembersIsLoading,
+    refetch: refetchTeamMembers,
+  } = useGetAllTeamMembersQuery({ id: ownerId }, { skip: skipQuery });
 
-const {
+  const {
     data: teamsData,
     isLoading: isTeamsLoading,
     isError: isTeamsError,
     isSuccess,
-      refetch: refetchTeams 
-
+    refetch: refetchTeams,
   } = useGetAllTeamQuery(ownerId, {
     skip: !ownerId,
   });
 
-  const formattedTeamOptions = useMemo(()=>{
-    if(isSuccess &&  Array.isArray(teamsData?.data)){
-        return teamsData?.data?.map((team)=>({
-            id:team._id,
-            name:team.name
-        }))
+  const formattedTeamOptions = useMemo(() => {
+    if (isSuccess && Array.isArray(teamsData?.data)) {
+      return teamsData?.data?.map((team) => ({
+        id: team._id,
+        name: team.name,
+      }));
     }
-    return []
-   
-  },[isSuccess,teamsData])
+    return [];
+  }, [isSuccess, teamsData]);
   const userData = getAllTeamMembersData?.data || [];
   const userCount = userData?.length || 0;
+  const inactiveUserCount = userData.filter(
+    (item) => item.user?.active === false
+  ).length;
+  const inactiveUsers = userData?.filter((item) => item.user?.active === false);
+
+  console.log(inactiveUsers, "IN ACTIVE");
   const [activeTab, setActiveTab] = useState("tab1");
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState({});
-    const [toaster, setToaster] = useState({
-      open: false,
-      message: "",
-      severity: "success",
-    });
-      const handleOpenToaster = (message, severity = "success") => {
+  const [toaster, setToaster] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const handleOpenToaster = (message, severity = "success") => {
     setToaster({ open: true, message, severity });
   };
 
-     const handleCloseToaster = () => {
+  const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
   const handleOpen = () => {
     setOpen(true);
   };
-  
+
   const handleClose = () => {
     setOpen(false);
   };
 
-   
   return (
     <Box sx={{ width: "100%" }}>
       <Stack spacing={3}>
@@ -228,7 +258,9 @@ const {
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab1")}
-                className={`${styles.tabButton} ${activeTab === "tab1" ? styles.active : ""}`}
+                className={`${styles.tabButton} ${
+                  activeTab === "tab1" ? styles.active : ""
+                }`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Employees
@@ -240,7 +272,9 @@ const {
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab2")}
-                className={`${styles.tabButton} ${activeTab === "tab2" ? styles.active : ""}`}
+                className={`${styles.tabButton} ${
+                  activeTab === "tab2" ? styles.active : ""
+                }`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Snapshot
@@ -249,10 +283,12 @@ const {
                   4
                 </Typography>
               </Button>
-              <Button
+              {/* <Button
                 variant=""
                 onClick={() => setActiveTab("tab3")}
-                className={`${styles.tabButton} ${activeTab === "tab3" ? styles.active : ""}`}
+                className={`${styles.tabButton} ${
+                  activeTab === "tab3" ? styles.active : ""
+                }`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Slacking
@@ -260,23 +296,27 @@ const {
                 <Typography variant="h4" className={styles.tabHeadingCount}>
                   0
                 </Typography>
-              </Button>
+              </Button> */}
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab4")}
-                className={`${styles.tabButton} ${activeTab === "tab4" ? styles.active : ""}`}
+                className={`${styles.tabButton} ${
+                  activeTab === "tab4" ? styles.active : ""
+                }`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Absent
                 </Typography>
                 <Typography variant="h4" className={styles.tabHeadingCount}>
-                  34
+                  {inactiveUserCount}
                 </Typography>
               </Button>
-              <Button
+              {/* <Button
                 variant=""
                 onClick={() => setActiveTab("tab5")}
-                className={`${styles.tabButton} ${activeTab === "tab5" ? styles.active : ""}`}
+                className={`${styles.tabButton} ${
+                  activeTab === "tab5" ? styles.active : ""
+                }`}
               >
                 <Typography variant="h4" className={styles.tabHeadingTexts}>
                   Late
@@ -284,198 +324,28 @@ const {
                 <Typography variant="h4" className={styles.tabHeadingCount}>
                   0
                 </Typography>
-              </Button>
+              </Button> */}
             </Box>
 
             <Box className={styles.tabContent}>
               {activeTab === "tab1" && (
-                <TableContainer
-                  className={styles.tabContentWrapper}
-                  component={Paper}
-                >
-                  <Table className={styles.teamTable}>
-                    <TableHead className={styles.tHead}>
-                      <TableRow className={styles.tHeadRow}>
-                        {columns.map((col, index) => (
-                          <TableCell className={styles.tHeadSell} key={index}>
-                            {col}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {userData?.map((row, idx) => (
-                        <TableRow
-                          key={idx}
-                          className={styles.tBodyRow}
-                          sx={{
-                            backgroundColor:
-                              idx % 2 === 0 ? "#f4f4f4" : "#ffffff",
-                          }}
-                        >
-                          <TableCell className={styles.tBodyCell}>
-                            <Box className={styles.tPersonInfo}>
-                              <Box>
-                                <Avatar
-                                  alt="User Profile"
-                                  src={row.user.photo}
-                                  className={styles.avatarImage}
-                                />
-                              </Box>
-                              <Box>
-                                 {role === "Admin" || role === "Owner" ? (
-                                <Link className={styles.tPersonName} to={`/dashboard/employee=${row.user._id}`}>
-                                  {row.user.username}
-                                </Link>
-                                 ):(
-                                    <Typography className={styles.tPersonName} to={`/dashboard/employee=${row.user._id}`}>
-                                  {row.user.username}
-                                </Typography> 
-                                 )}
-                               
-                                <Typography className={styles.tPersonDept}>
-                                  {row.user.role}
-                                </Typography>
-                              </Box>
-                            </Box>
-                          </TableCell>
-                          <TableCell className={styles.tBodyCell}>
-                            {formatTime(row.productiveTime)}
-                          </TableCell>
-                          <TableCell className={styles.tBodyCell}>
-                            {formatTime(row.offlineTime)}
-                          </TableCell>
-                          <TableCell className={styles.tBodyCell}>
-                            {formatTime(row.deskTime)}
-                          </TableCell>
-                          <TableCell className={styles.tBodyCell}>
-                            {row.arrivalTime || '-'}
-                          </TableCell>
-                          <TableCell className={styles.tBodyCell}>
-                            {row.leftTime || '-'}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                <EmployeeList
+                  columns={columns}
+                  userData={userData}
+                  role={role}
+                  formatTime={formatTime}
+                />
               )}
               {activeTab === "tab2" && (
-                <>
-                  <TableContainer className={styles.tabContentWrapper} component={Paper}>
-                    <Table className={styles.teamTable}>
-                      <TableHead className={styles.tHead}>
-                        <TableRow className={styles.tHeadRow}>
-                          {sscolumns.map((col, index) => (
-                            <TableCell key={index} className={styles.tHeadSell}>
-                              {col === "Timeline" ? (
-                                <Box>
-                                  <Box className={styles.timelineLabelsRow}>
-                                    {["8 AM", "10 AM", "12 PM", "2 PM", "4 PM", "6 PM", "8 PM", "10 PM"].map((label, i) => (
-                                      <Typography key={i} variant="caption" className={styles.timelineLabel}>
-                                        {label}
-                                      </Typography>
-                                    ))}
-                                  </Box>
-                                </Box>
-                              ) : (
-                                col
-                              )}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {ssrows.map((row, idx) => (
-                          <TableRow
-                            key={idx}
-                            className={styles.tBodyRow}
-                            sx={{
-                              backgroundColor:
-                                idx % 2 === 0 ? "#f8f8f8" : "#ffffff",
-                            }}
-                          >
-                            {/* Name & Avatar */}
-                            <TableCell className={styles.tBodyCell}>
-                              <Box className={styles.tPersonInfo}>
-                                <Box position="relative">
-                                  <Avatar className={styles.avatarImage}>{row.initials}</Avatar>
-                                </Box>
-                                <Box>
-                                  <Link className={styles.tPersonName} to="/">
-                                    {row.name}
-                                  </Link>
-                                  <Typography className={styles.tPersonDept}>
-                                    {row.role}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            </TableCell>
-
-                            {/* Timeline */}
-                            <TableCell className={styles.tBodyCell}>
-                              <Box className={styles.timelineBar}>
-                                {[
-                                  ...(row.timeline || []),
-                                  ...Array(Math.max(0, 168 - (row.timeline?.length || 0))).fill("off"),
-                                ]
-                                  .slice(0, 168)
-                                  .map((block, i) => {
-                                    const totalMinutes = 8 * 60 + i * 5;
-                                    const hour = Math.floor(totalMinutes / 60);
-                                    const minute = totalMinutes % 60;
-                                    const hour12 = hour % 12 === 0 ? 12 : hour % 12;
-                                    const ampm = hour < 12 ? "AM" : "PM";
-                                    const timeLabel = `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
-
-                                    const statusLabel = block.charAt(0).toUpperCase() + block.slice(1);
-
-                                    return (
-                                      <Tooltip key={i} title={`${statusLabel} at ${timeLabel}`} arrow>
-                                        <Box
-                                          sx={{
-                                            ...styletimeblock.timelineBlock,
-                                            width: `${100 / 168}%`,
-                                            background:
-                                              block === "off"
-                                                ? getStatusColor(block)
-                                                : undefined,
-                                            backgroundColor:
-                                              block !== "off"
-                                                ? getStatusColor(block)
-                                                : undefined,
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    );
-                                  })}
-                              </Box>
-                            </TableCell>
-
-                            {/* Total Time */}
-                            <TableCell className={styles.tBodyCell}>{row.totalTime}</TableCell>
-
-                            {/* Avg Activity */}
-                            <TableCell className={styles.tBodyCell}>
-                              <Typography
-                                sx={{
-                                  fontSize: '14px',
-                                  color: parseInt(row.avgActivity) > 70 ? "#2ecc71" :
-                                    parseInt(row.avgActivity) > 40 ? "#f39c12" : "#e74c3c",
-                                }}
-                              >
-                                {row.avgActivity}
-                              </Typography>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </>
+                <TeamSnapShot
+                  sscolumns={sscolumns}
+                  ssrows={ssrows}
+                  styletimeblock={styletimeblock}
+                  getStatusColor={getStatusColor}
+                />
               )}
 
-              {activeTab === "tab3" && (
+              {/* {activeTab === "tab3" && (
                 <Box className={styles.tabContentWrapper}>
                   <Box className={styles.noMenbersBox}>
                     <Typography variant="h3">
@@ -487,19 +357,15 @@ const {
                     </Typography>
                   </Box>
                 </Box>
-              )}
+              )} */}
+
               {activeTab === "tab4" && (
-                <Box className={styles.tabContentWrapper}>
-                  <Box className={styles.noMenbersBox}>
-                    <Typography variant="h3">
-                      No team members are currently working
-                    </Typography>
-                    <Typography variant="body2">
-                      To see all team members, clear the filters and switch to
-                      the Employees tab.
-                    </Typography>
-                  </Box>
-                </Box>
+                <AbsentMembers
+                  inactiveUsers={inactiveUsers}
+                  columns={columns}
+                  role={role}
+                  formatTime={formatTime}
+                />
               )}
               {activeTab === "tab5" && (
                 <Box className={styles.tabContentWrapper}>
@@ -518,13 +384,21 @@ const {
           </Box>
         </Box>
       </Stack>
-      <TeamMembersForm openToaster={handleOpenToaster} refetchTeamMembers={refetchTeamMembers} formattedTeamOptions={formattedTeamOptions} ownerId={ownerId} open={open} handleClose={handleClose} />
-  <MuiToaster
+      <TeamMembersForm
+        openToaster={handleOpenToaster}
+        refetchTeamMembers={refetchTeamMembers}
+        formattedTeamOptions={formattedTeamOptions}
+        ownerId={ownerId}
+        open={open}
+        handleClose={handleClose}
+      />
+      <MuiToaster
         open={toaster.open}
         message={toaster.message}
         severity={toaster.severity}
         handleClose={handleCloseToaster}
-      />    </Box>
+      />{" "}
+    </Box>
   );
 };
 

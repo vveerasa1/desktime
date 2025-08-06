@@ -18,5 +18,6 @@ export const URL_CONSTANTS = {
   TASK: "task",
   TRACKING:"tracking",
   SESSION:"sessions",
-  TODAY:"today"
+  TODAY:"today",
+  OFFLINE_REQUESTS:"offlineRequest"
 };

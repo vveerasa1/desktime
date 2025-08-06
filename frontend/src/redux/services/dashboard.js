@@ -45,7 +45,7 @@ export const Dashboard = createApi({
     }),
     createOfflineRequest: builder.mutation({
       query: (payload) => ({
-        url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.OFFLINE_REQUESTS}`,
+        url: `${URL_CONSTANTS.OFFLINE_REQUESTS}`,
         method: 'POST',
         body: payload,
       }),

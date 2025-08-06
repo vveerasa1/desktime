@@ -216,7 +216,8 @@ useEffect(() => {
   };
 
   const handleSave = async () => {
-    const finalStartMinutes = timeToMinutes(startTimeText);
+    try{
+const finalStartMinutes = timeToMinutes(startTimeText);
     const finalEndMinutes = timeToMinutes(endTimeText);
 
     if (finalStartMinutes >= finalEndMinutes) {
@@ -274,11 +275,17 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
       taskName: formData.taskName,
       productivity: productivity
     };
+  
     await createOfflineRequest(payload).unwrap();
     openToaster("Offline Request Created")
     console.log("Saving offline data:", offlineData);
     // In a real application, you would send this 'offlineData' to an API or update global state.
     handleClose(); // Close the modal after successful save
+    }catch (error) {
+    const errorMsg = error?.data?.message || "Something went wrong.";
+    openToaster(errorMsg, "error");
+  }
+    
   };
 
   return (

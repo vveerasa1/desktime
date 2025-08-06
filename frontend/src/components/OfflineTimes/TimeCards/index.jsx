@@ -93,12 +93,12 @@ const MetricDisplay = ({ title, value, valueColor }) => {
   );
 };
 
-const TrackingCard = () => {
+const TrackingCard = ({totalOfflineTime}) => {
   const theme = useTheme();
  const cards = useMemo(() => [
     {
       title:'Total offline times',
-      value: 2546,
+      value: totalOfflineTime,
       // color: orderedCards[0]?.valueColor
     },
 
