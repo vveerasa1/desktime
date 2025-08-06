@@ -1,22 +1,45 @@
 const OfflineRequest = require("../models/offlineRequest");
 const moment = require("moment-timezone");
+const User = require("../models/user");
 
 // Create a new offline request
 const createOfflineRequest = async (req, res) => {
   try {
     console.log("createOfflineRequest", req.body);
-    const { startTime, date, endTime, description, projectName, taskName, productivity } = req.body;
+    const {
+      startTime,
+      date,
+      endTime,
+      description,
+      projectName,
+      taskName,
+      productivity,
+    } = req.body;
     const userId = req.user.userId;
     console.log("userId", userId);
-    const user = req.user
-    let timeZone = user.timeZone || "Asia/Kolkata";;
+    const user = req.user;
+    let timeZone = user.timeZone || "Asia/Kolkata";
     const now = moment().tz(timeZone).toDate();
-    const fullStart = moment.tz(`${date} ${startTime}`, 'YYYY-MM-DD HH:mm', timeZone);
-    const fullEnd = moment.tz(`${date} ${endTime}`, 'YYYY-MM-DD HH:mm', timeZone);
-    const fullStartUtc = moment.tz(`${date} ${startTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
-    const fullEndUtc = moment.tz(`${date} ${endTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
-    console.log(fullStart, fullEnd)
-       // const fullStart = moment.tz(`${date} ${startTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
+    const fullStart = moment.tz(
+      `${date} ${startTime}`,
+      "YYYY-MM-DD HH:mm",
+      timeZone
+    );
+    const fullEnd = moment.tz(
+      `${date} ${endTime}`,
+      "YYYY-MM-DD HH:mm",
+      timeZone
+    );
+    const fullStartUtc = moment
+      .tz(`${date} ${startTime}`, "YYYY-MM-DD HH:mm", timeZone)
+      .utc()
+      .toDate();
+    const fullEndUtc = moment
+      .tz(`${date} ${endTime}`, "YYYY-MM-DD HH:mm", timeZone)
+      .utc()
+      .toDate();
+    console.log(fullStart, fullEnd);
+    // const fullStart = moment.tz(`${date} ${startTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
     // const fullEnd = moment.tz(`${date} ${endTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
     if (fullStart.isAfter(now) || fullEnd.isAfter(now)) {
       return res.status(400).json({
@@ -56,7 +79,9 @@ const createOfflineRequest = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating offline request:", error);
-    res.status(500).json({ message: "Failed to create offline request", error });
+    res
+      .status(500)
+      .json({ message: "Failed to create offline request", error });
   }
 };
 
@@ -82,7 +107,9 @@ const getOfflineRequests = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching offline requests:", error);
-    res.status(500).json({ message: "Failed to fetch offline requests", error });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch offline requests", error });
   }
 };
 
@@ -92,7 +119,11 @@ const updateOfflineRequest = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    const updatedRequest = await OfflineRequest.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedRequest = await OfflineRequest.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
 
     if (!updatedRequest) {
       return res.status(404).json({ message: "Offline request not found" });
@@ -106,7 +137,9 @@ const updateOfflineRequest = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating offline request:", error);
-    res.status(500).json({ message: "Failed to update offline request", error });
+    res
+      .status(500)
+      .json({ message: "Failed to update offline request", error });
   }
 };
 const deleteOfflineTimesByUserId = async (req, res) => {
@@ -141,18 +174,83 @@ const deleteOfflineTimesByUserId = async (req, res) => {
       data: {
         deletedCount: result.deletedCount,
         userId,
-        date: date || null
-      }
+        date: date || null,
+      },
     });
   } catch (error) {
     console.error("Error deleting offline times:", error);
     res.status(500).json({ message: "Failed to delete offline times", error });
   }
 };
+
+const getAllOfflineRequestByStatus = async (req, res, next) => {
+  try {
+    const { ownerId } = req.params;
+    const { status } = req.query;
+
+    if (!status) {
+      return res
+        .status(400)
+        .json({ message: "Status query param is required" });
+    }
+
+    // Step 1: Get owner's timezone
+    const owner = await User.findById(ownerId).select("timeZone");
+    const timezone = owner?.timeZone || "UTC";
+
+    // Step 2: Get users (owner + team)
+    const users = await User.find({
+      isDeleted: false,
+      $or: [{ _id: ownerId }, { ownerId }],
+    }).select("firstName lastName username photo role active");
+
+    const userIds = users.map((u) => u._id);
+
+    // Step 3: Fetch offline requests with matching status
+    const requests = await OfflineRequest.find({
+      userId: { $in: userIds },
+      status: status,
+    })
+      .populate({
+        path: "userId",
+        select: "username team",
+        populate: {
+          path: "team",
+          select: "name",
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    // Step 4: Format results with duration
+    const formattedRequests = requests.map((r) => {
+      const durationInSeconds = Math.floor(
+        (new Date(r.endTime) - new Date(r.startTime)) / 1000
+      );
+
+      return {
+        ...r._doc,
+        durationInSeconds,
+        startTime: moment(r.startTime)
+          .tz(timezone)
+          .format("YYYY-MM-DD hh:mm A"),
+        endTime: moment(r.endTime).tz(timezone).format("YYYY-MM-DD hh:mm A"),
+      };
+    });
+
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      totalOfflineTimes: formattedRequests.length,
+      formattedRequests,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports = {
   createOfflineRequest,
   getOfflineRequests,
   updateOfflineRequest,
-  deleteOfflineTimesByUserId
-
+  deleteOfflineTimesByUserId,
+  getAllOfflineRequestByStatus,
 };

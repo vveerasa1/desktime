@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     timeZone: { type: String },
     photo: { type: String },
     workDuration: { type: String },
-    active: { type: Boolean, default: true },
+    active: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }

@@ -393,21 +393,19 @@ const getAllTrackingsForToday = async (req, res) => {
   try {
     const { ownerId } = req.params;
 
-    // Step 1: Get owner user with timezone
+    // Step 1: Get owner's timezone
     const owner = await User.findById(ownerId).select("timeZone");
-    console.log(owner);
     const timezone = owner?.timeZone || "UTC";
-    console.log("timeZone :" + timezone);
 
     // Step 2: Get all users (owner + team)
     const users = await User.find({
       isDeleted: false,
       $or: [{ _id: ownerId }, { ownerId }],
-    });
+    }).select("firstName lastName username photo role active");
 
     const userIds = users.map((u) => u._id);
 
-    // Step 3: Get start and end of today in owner's timezone
+    // Step 3: Define today's start and end time in owner's timezone
     const startOfDay = moment().tz(timezone).startOf("day").toDate();
     const endOfDay = moment().tz(timezone).endOf("day").toDate();
 
@@ -415,59 +413,70 @@ const getAllTrackingsForToday = async (req, res) => {
     const sessions = await TrackingSession.find({
       userId: { $in: userIds },
       createdAt: { $gte: startOfDay, $lte: endOfDay },
-    }).populate("userId", "username photo role");
+    }).populate("userId", "username photo role active");
 
-    // Step 5: Process sessions
-    const data = sessions.map((session) => {
-      const {
-        totalTrackedTime = 0,
-        activePeriods = [],
-        arrivalTime,
-        timeAtWork,
-        leftTime,
-      } = session;
+    // Step 5: Map userId to session data
+    const sessionMap = new Map();
+    sessions.forEach((session) =>
+      sessionMap.set(session.userId._id.toString(), session)
+    );
 
-      // deskTime
-      const deskTime = totalTrackedTime;
+    // Step 6: Process all users
+    const data = users.map((user) => {
+      const session = sessionMap.get(user._id.toString());
 
-      // productiveTime: sum of productivity fields in activePeriods
-      const productiveTime = activePeriods.reduce(
-        (sum, period) => sum + (period.productivity || 0),
-        0
-      );
+      if (session) {
+        const {
+          totalTrackedTime = 0,
+          activePeriods = [],
+          arrivalTime,
+          timeAtWork,
+          leftTime,
+        } = session;
 
-      // arrivedAt converted to HH:mm in owner's timezone
-      let arrivedAtFormatted = null;
-      if (arrivalTime) {
-        arrivedAtFormatted = moment(arrivalTime).tz(timezone).format("HH:mm");
-        console.log("arrivedAtFormatted :" + arrivedAtFormatted);
+        const deskTime = totalTrackedTime;
+
+        const productiveTime = activePeriods.reduce(
+          (sum, period) => sum + (period.productivity || 0),
+          0
+        );
+
+        const arrivedAtFormatted = arrivalTime
+          ? moment(arrivalTime).tz(timezone).format("HH:mm")
+          : null;
+
+        let offlineTime = 0;
+        if (timeAtWork?.seconds != null) {
+          offlineTime = timeAtWork.seconds - deskTime;
+        } else if (arrivalTime) {
+          const now = moment().tz(timezone);
+          const arrivalMoment = moment(arrivalTime).tz(timezone);
+          const secondsSinceArrival = now.diff(arrivalMoment, "seconds");
+          offlineTime = secondsSinceArrival - deskTime;
+        }
+
+        return {
+          user,
+          deskTime,
+          productiveTime,
+          arrivalTime: arrivedAtFormatted,
+          offlineTime: offlineTime > 0 ? offlineTime : 0,
+          leftTime: leftTime || null,
+        };
+      } else {
+        // No session found for this user today
+        return {
+          user,
+          deskTime: null,
+          productiveTime: null,
+          arrivalTime: null,
+          offlineTime: null,
+          leftTime: null,
+        };
       }
-
-      // offlineTime
-      let offlineTime = 0;
-      if (timeAtWork?.seconds != null) {
-        offlineTime = timeAtWork.seconds - deskTime;
-      } else if (arrivalTime) {
-        const now = moment().tz(timezone);
-        const arrivalMoment = moment(arrivalTime).tz(timezone);
-        const secondsSinceArrival = now.diff(arrivalMoment, "seconds");
-        offlineTime = secondsSinceArrival - deskTime;
-      }
-
-      // Left time
-      const finalLeftTime = leftTime || null;
-
-      return {
-        user: session.userId,
-        deskTime,
-        productiveTime,
-        arrivalTime: arrivedAtFormatted,
-        offlineTime: offlineTime > 0 ? offlineTime : 0,
-        leftTime: finalLeftTime,
-      };
     });
 
-    // Send response
+    // Step 7: Send response
     res.status(200).json({
       code: 200,
       status: "Success",

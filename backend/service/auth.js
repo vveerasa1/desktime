@@ -41,6 +41,9 @@ const login = async (req, res) => {
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
+    user.active = true;
+    await user.save();
+
     // Send response
     res.status(200).json({
       code: 200,

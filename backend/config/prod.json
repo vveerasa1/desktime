@@ -1,0 +1,26 @@
+{
+  "port": 4005,
+  "env": "local",
+  "mongoDb": {
+    "url": "mongodb://localhost:27017/",
+    "dbName": "desktime_prod"
+  },
+  "auth": {
+    "JWT_SECRET": "ad83b6c2f1c94b4db3f97911a9be07c9f672cbfc7f9d1e47c6634f3a9a4f2a57a30ccfd30ce420e20b2adf72a058edb4b9e80a77a5c2b12d3c3ebbe145123c9a",
+    "REFRESH_SECRET": "4e10d35c91d32c46092aa02ac92e6bbf20a430c4eab9cf7f4457edce4ecbd3b2f12634bb6b6c389b01e3f64d0f55ecbc658888f6c23982d83e5f1a8eeb045b17"
+  },
+  "smtp": {
+    "email": "vijayholdingsinc@gmail.com",
+    "service": "gmail",
+    "password": "xxbkgytfwlkrgvwv"
+  },
+  "AWS": {
+    "ACCESS_KEY_ID": "d598cd96cc304369a3bc06ec99849475",
+    "SECRET_ACCESS_KEY": "bc7902f4ca3d4384abf974211d6eb5b0",
+    "endpoint": "https://s3.bhs.io.cloud.ovh.net/",
+    "publicUrl": "https://trackme.s3.bhs.io.cloud.ovh.net/"
+  },
+  "adminId": {
+    "id": "686662448c9ee97da82d92f0"
+  }
+}
