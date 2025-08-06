@@ -19,6 +19,7 @@ import styles from './index.module.css'
 import CustomTextField from "../../components/CustomTextField";
 import { useGetAllOfflineRequestQuery } from "../../redux/services/offlineRequests";
 import { jwtDecode } from "jwt-decode";
+import LoadingComponent from "../../components/ComponentLoader";
 const summaryData = {
   totalOfflineTimes: 2547,
   productiveTime: "260h 23m 32s",
@@ -79,7 +80,6 @@ const OfflineTimes = () => {
   const [selected, setSelected] = useState([]);
   const [status,setStatus] = useState('Pending')
   const [offlineData, setOfflineData] = useState([]);
-const [totalOfflineTime, setTotalOfflineTime] = useState(0);
   const token = localStorage.getItem('token')
   let ownerId = null
   if(token){
@@ -96,7 +96,6 @@ console.log(getOfflineTrackingData,"DATA")
 useEffect(() => {
   if (getOfflineTrackingData) {
     setOfflineData(getOfflineTrackingData.formattedRequests || []);
-    setTotalOfflineTime(getOfflineTrackingData?.totalOfflineTimes || 0);
   }
 }, [getOfflineTrackingData]);
 
@@ -197,12 +196,14 @@ useEffect(() => {
         </Tabs>
         <SmallTimeCards />
       </Box>
-
-      <Box sx={{ mt: 3, mb: 3 }}>
+          {isLoading === true ? (<LoadingComponent/>):(
+ <Box sx={{ mt: 3, mb: 3 }}>
         <Grid container spacing={3}>
-          <TimeCards totalOfflineTime={totalOfflineTime} />
+          <TimeCards totalOfflineTime={getOfflineTrackingData.totalOfflineTimes} />
         </Grid>
       </Box>
+          )}
+     
 
       <OfflineTimesTable offlineData={offlineData} />
     </Box>
