@@ -69,7 +69,7 @@ const ImagePreviewModal = ({
 
           {/* Image */}
           <img
-            src={currentShot.screenshotPath}
+            src={currentShot?.screenshotPath}
             alt={currentShot.screenshotApp}
             className={styles.image}
           />
