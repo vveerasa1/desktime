@@ -55,6 +55,7 @@ const OfflineTrackingModal = ({
   handleClose,
   timeSlotStart,
   timeSlotEnd,
+  openToaster
 }) => {
   const [searchParams] = useSearchParams();
   const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
@@ -274,7 +275,7 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
       productivity: productivity
     };
     await createOfflineRequest(payload).unwrap();
-
+    openToaster("Offline Request Created")
     console.log("Saving offline data:", offlineData);
     // In a real application, you would send this 'offlineData' to an API or update global state.
     handleClose(); // Close the modal after successful save

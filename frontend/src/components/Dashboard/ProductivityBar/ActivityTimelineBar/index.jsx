@@ -145,7 +145,7 @@ import { Box, Button, Typography } from "@mui/material";
 import styles from './index.module.css'
 import OfflineTrackingModal from "../OfflineTrackingModal";
 import { useState } from "react";
-
+import MuiToaster from "../../../MuiToaster";
 // Assuming these color constants are defined elsewhere or in the parent component
 const APPROVED_OFFLINE_COLOR = "#e4f0f8ff"; // Light blue for approved
 const PENDING_OFFLINE_COLOR = "#E0E0E0"; // Light gray for pending (background)
@@ -158,7 +158,19 @@ const ActivityTimelineBar = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState({ start: null, end: null });
+ const [toaster, setToaster] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
+   const handleOpenToaster = (message, severity = "success") => {
+    setToaster({ open: true, message, severity });
+  };
+
+  const handleCloseToaster = () => {
+    setToaster({ ...toaster, open: false });
+  };
   const handleOpen = (startTime, endTime) => {
     setSelectedTimeRange({ start: startTime, end: endTime });
     setOpen(true);
@@ -306,11 +318,19 @@ const ActivityTimelineBar = ({
         </Box>
       </Box>
       <OfflineTrackingModal
+        openToaster={handleOpenToaster}
         open={open}
         handleClose={handleClose}
         timeSlotStart={selectedTimeRange.start}
         timeSlotEnd={selectedTimeRange.end}
       />
+
+      <MuiToaster
+              open={toaster.open}
+              message={toaster.message}
+              severity={toaster.severity}
+              handleClose={handleCloseToaster}
+            />
     </Box>
   );
 };
