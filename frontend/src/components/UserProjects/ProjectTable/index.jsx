@@ -59,7 +59,6 @@ const ProjectTable = ({
 
   const openPopover = Boolean(anchorEl);
 
-  // console.log(selected, "SELECTED"); // Keep if needed for debugging
 
   return (
     <>

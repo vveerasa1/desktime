@@ -6,6 +6,7 @@ import { Team } from "../services/team";
 import { Project } from '../services/projects'
 import { Task } from "../services/task";
 import { OfflineRequest } from '../services/offlineRequests'
+import { TeamMembers } from "../services/teamMembers";
 export const store = configureStore({
   reducer: {
     [User.reducerPath]: User.reducer,
@@ -26,6 +27,7 @@ export const store = configureStore({
       Team.middleware,
       Project.middleware,
       Task.middleware,
-      OfflineRequest.middleware
+      OfflineRequest.middleware,
+      TeamMembers.middleware
     )
 })

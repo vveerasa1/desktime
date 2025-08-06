@@ -63,6 +63,86 @@ const dashboardCard = async (req, res) => {
       let deskTime = 0;
       let idleTime = 0;
       let timeAtWork = 0;
+
+      const nowUserTZ = moment().tz(timeZone);
+      console.log("nowUserTz :" + nowUserTZ);
+      const nowDateStr = nowUserTZ.format("YYYY-MM-DD");
+      console.log("nowDateStr :" + nowDateStr);
+      const trackingEndHour = user.trackingEndTime;
+      console.log(trackingEndHour); // e.g. "20:00"
+      const trackingEndTimeStr = `${formattedDate} ${trackingEndHour}`; // e.g. "2025-07-28 20:00"
+      console.log("trackingEndTimeStr :" + trackingEndTimeStr);
+
+      const trackingEndTimeTz = moment.tz(
+        trackingEndTimeStr,
+        "YYYY-MM-DD HH:mm",
+        timeZone
+      );
+      console.log("trackingEndTimeTz :" + trackingEndTimeTz);
+
+      const trackingEndTimeUTC = trackingEndTimeTz.toDate();
+      console.log("trackingEndTimeUTC :" + trackingEndTimeUTC);
+
+      // If date in query ≠ current date or time exceeded
+      if (nowDateStr !== formattedDate || new Date() > trackingEndTimeUTC) {
+        if (!session.leftTime) {
+          const lastActivePeriod =
+            session.activePeriods?.[session.activePeriods.length - 1];
+          let leftTime;
+
+          if (lastActivePeriod?.end) {
+            console.log("here");
+            const lastEndTime = lastActivePeriod?.end;
+            console.log("lastEndTime :" + lastEndTime);
+
+            const endTimeIST = moment(lastEndTime).tz(timeZone);
+            console.log("endTimeIST :" + endTimeIST);
+
+            const endHour = endTimeIST.hour();
+            const endMin = endTimeIST.minute();
+            if (lastEndTime.getTime() <= trackingEndTimeUTC.getTime()) {
+              leftTime = `${endHour}:${endMin < 10 ? "0" + endMin : endMin}`;
+              console.log("here");
+              console.log("leftTime :" + leftTime);
+            } else {
+              leftTime = trackingEndHour;
+              console.log("leftTime :" + leftTime);
+            }
+          } else {
+            leftTime = trackingEndHour;
+            console.log("leftTime :" + leftTime);
+          }
+
+          // Store leftTime in session
+          session.leftTime = leftTime;
+
+          const arrivalIST = moment(session.arrivalTime).tz(timeZone);
+
+          console.log("arrivalIST :" + arrivalIST);
+          const [leftEndHour, leftEndMin] = session.leftTime
+            .split(":")
+            .map(Number);
+
+          const leftIST = arrivalIST
+            .clone()
+            .hour(leftEndHour)
+            .minute(leftEndMin)
+            .second(0);
+          console.log("leftIST :" + leftIST);
+
+          // Recalculate timeAtWork (in seconds)
+          const newTimeAtWork = leftIST.diff(arrivalIST, "seconds");
+          session.timeAtWork = newTimeAtWork;
+
+          // Adjust totalTrackedTime if needed
+          if (session.totalTrackedTime > newTimeAtWork) {
+            session.totalTrackedTime = newTimeAtWork;
+          }
+
+          await session.save();
+        }
+      }
+
       if (session.leftTime) {
         timeAtWork = session.timeAtWork; // seconds
         idleTime = (session.idlePeriods || []).reduce(
