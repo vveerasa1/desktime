@@ -43,16 +43,6 @@ const validateToken = async (req, res, next) => {
         console.log(error);
         res.status(401).json({ code: 401, status: 'Failed', message: 'Invalid Token.' });
     }
-};
+};  
 
 module.exports = { validateToken, provider };
-
-// {
-//     "userId": "6883781e7bb05bf9fa256dfb",
-//     "ownerId": "6883781e7bb05bf9fa256dfb",
-//     "role": "Owner",
-//     "email": "mohamed.a@pentabay.com",
-//     "timeZone": "Asia/Kolkata",
-//     "iat": 1753676717,
-//     "exp": 1753763117
-// }

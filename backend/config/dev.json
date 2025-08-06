@@ -18,7 +18,8 @@
     "ACCESS_KEY_ID": "d598cd96cc304369a3bc06ec99849475",
     "SECRET_ACCESS_KEY": "bc7902f4ca3d4384abf974211d6eb5b0",
     "endpoint": "https://s3.bhs.io.cloud.ovh.net/",
-    "publicUrl": "https://trackme.s3.bhs.io.cloud.ovh.net/"
+    "publicUrl": "https://trackme.s3.bhs.io.cloud.ovh.net/",
+    "region":"us-east-1"
   },
   "cognito":{
     "userPoolId":"us-east-1_6IVaAL8X0",

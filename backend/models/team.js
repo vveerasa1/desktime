@@ -13,8 +13,7 @@ const teamSchema = new mongoose.Schema(
       min: 0,
     },
     ownerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
     },
   },
   {

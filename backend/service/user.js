@@ -11,9 +11,9 @@ const AWS = require("aws-sdk");
 
 // Configure AWS Cognito
 const cognito = new AWS.CognitoIdentityServiceProvider({
-  region: config.aws.region,
-  accessKeyId: config.aws.accessKeyId,
-  secretAccessKey: config.aws.secretAccessKey,
+  region: config.AWS.region,
+  accessKeyId: config.AWS.accessKeyId,
+  secretAccessKey: config.AWS.secretAccessKey,
 });
 
 const addUser = async (req, res) => {
@@ -160,18 +160,18 @@ const addUser = async (req, res) => {
       subject: "Desktime - Invitation",
       text: `Hi ${user.username},
 
-You have been invited to join Desktime.
+        You have been invited to join Desktime.
 
-Here are your login credentials:
-Email: ${user.email}
-Password: ${password}
+        Here are your login credentials:
+        Email: ${user.email}
+        Password: ${password}
 
-Please log in to your account to get started.
+        Please log in to your account to get started.
 
-***** This is an auto-generated email. Please do not reply. *****
+        ***** This is an auto-generated email. Please do not reply. *****
 
-Best regards,  
-Desktime - Pentabay Team`,
+        Best regards,  
+        Desktime - Pentabay Team`,
     };
 
     transporter.sendMail(mailOptions, (error) => {
@@ -226,6 +226,26 @@ const getUserById = async (req, res) => {
   }
 };
 
+
+const getUserByCognitoId = async (req, res) => {
+  try {
+    const users = await User.find({cognitoId:req.params.id});
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Users info fetched successfully",
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error fetching users",
+      error: error.message,
+    });
+  }
+};
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -394,6 +414,7 @@ const getUser = async (req, res) => {
 module.exports = {
   addUser,
   getUserById,
+  getUserByCognitoId,
   updateUser,
   getAllUser,
   getScreenshotsById,

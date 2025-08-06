@@ -6,18 +6,20 @@ const dashboardCard = async (req, res) => {
   try {
     const { type, date } = req.query; // expects type=day|week|month
     // const user = req.user;
-    const { userId } = req.query;
+    // const { userId } = req.query;
     // let userId = user.userId;
-
-    const user = await User.findById(userId);
+    const cognitoUserId=req.user.sub
+    console.log(cognitoUserId,"userrrrrrrrrrrrrrr")
+    const user = await User.findOne({cognitoId:cognitoUserId});
+    console.log(user,"userrrrrrrrrrrrrrr")
     let timeZone = user.timeZone;
-    console.log(date);
+    console.log(timeZone,"timeZone");
 
     let result = {};
     if (type === "day") {
       const formattedDate = date || moment().tz(timeZone).format("YYYY-MM-DD");
       const session = await TrackingSession.findOne({
-        userId,
+        cognitoId:cognitoUserId,
         $expr: {
           $eq: [
             { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },
@@ -95,8 +97,8 @@ const dashboardCard = async (req, res) => {
 
       // Use string field `date` in 'YYYY-MM-DD' format for query
       const sessions = await TrackingSession.find({
-        userId,
-        arrivalTime: {
+ cognitoId:cognitoUserId,
+         arrivalTime: {
           $gte: start.toDate(),
           $lte: end.toDate(),
         },

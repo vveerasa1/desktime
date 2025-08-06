@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const screenshotSchema = new mongoose.Schema({
   sessionId: { type: mongoose.Schema.Types.ObjectId, ref: 'TrackingSession' },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  cognitoId: { type:String},
   // Array of entries per date
   dailyScreenshots: {
     date: { type: String }, // Format: 'YYYY-MM-DD'
