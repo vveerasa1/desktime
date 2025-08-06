@@ -16,6 +16,7 @@ export const store = configureStore({
     [Project.reducerPath]: Project.reducer,
     [Task.reducerPath]: Task.reducer,
     [OfflineRequest.reducerPath]: OfflineRequest.reducer,
+    [TeamMembers.reducerPath]: TeamMembers.reducer,
 
 
   },

@@ -39,6 +39,19 @@ const ActiveDot = styled("div")(({ theme }) => ({
   animation: `${glow} 2s infinite ease-in-out`, // Applying the glowing animation
 }));
 
+const InActiveDot = styled("div")(({ theme }) => ({
+  position: "absolute",
+  top: theme.spacing(1),
+  left: theme.spacing(1),
+  width: 10,
+  height: 10,
+  backgroundColor: '#f81717ff', // Using a lighter green
+  borderRadius: "50%",
+  border: `2px solid ${theme.palette.background.paper}`,
+  boxSizing: "border-box",
+  animation: `${glow} 2s infinite ease-in-out`, // Applying the glowing animation
+}));
+
 const ColleaguesList = ({
   navigate,
   colleaguesData,
@@ -93,7 +106,7 @@ const ColleaguesList = ({
               {colleaguesData.users.map((colleague) => (
                 <Grid item key={colleague._id} size={{xs:"12",md:3}}>
                   <Paper className={styles.card} elevation={1}>
-                    {colleague.active && <ActiveDot />}
+                    {colleague.active === true ?  <ActiveDot /> : <InActiveDot/> }
                     {(userRole === "Admin" || userRole === "Owner") && (
                       <IconButton
                         size="small"

@@ -24,9 +24,10 @@ export const OfflineRequest = createApi({
         }),
 
         getAllOfflineRequest: builder.query({
-            query: ({ id }) => ({
-                url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.OFFLINE_REQUESTS}/${URL_CONSTANTS.OWNER}/${id}`,
+            query: ({ id,status }) => ({
+                url: `${URL_CONSTANTS.OFFLINE_REQUESTS}/${id}?status=${status}`,
                 method: 'GET',
+                
             }),
             providesTags: ['OfflineRequest']
         }),

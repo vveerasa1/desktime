@@ -30,7 +30,7 @@
 
 .actionButtons {
   display: flex !important;
-  justify-content: space-between !important;
+  justify-content: end !important;
   align-items: center !important;
   margin-bottom: 24px !important;
 }

@@ -47,7 +47,6 @@ const Dashboard = () => {
 
   // Ensure all required searchParams exist
 
-  
 
   useEffect(() => {
     const currentParams = new URLSearchParams(searchParams);
