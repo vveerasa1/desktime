@@ -71,7 +71,7 @@ const TRACKED_COLOR = "#3BA5E3"; // Blue for tracked
 const UNTRACKED_COLOR = "white"; // Grey for untracked/idle
 const NO_DATA_COLOR = "#E0E0E0"; // Light grey for no data bars
 
-const ProductivityBar = ({ getProductiviyData,isSnap,title  }) => {
+const ProductivityBar = ({ getProductiviyData, isSnap, title }) => {
   const productivity = getProductiviyData?.data;
 
   let currentViewMode = "day";
@@ -228,7 +228,7 @@ const ProductivityBar = ({ getProductiviyData,isSnap,title  }) => {
     const aggregatedDataMap = new Map(
       dayTimeSlots.map((slot) => [
         slot,
-        { productive: 0, neutral: 0, unproductive: 0, apps: [], total: "" },
+        { productive: 0, neutral: 0, unproductive: 0, apps: [], total: "", status: "" },
       ])
     );
 
@@ -237,24 +237,32 @@ const ProductivityBar = ({ getProductiviyData,isSnap,title  }) => {
       if (!targetDate || item.date === targetDate) {
         const itemMinutes = timeToMinutes(item.time);
         const slotKey = getNearestSlotTime(itemMinutes);
-
+        console.log(item, "item>>>>>>>>>>>>>>")
         if (aggregatedDataMap.has(slotKey)) {
           const currentSlotData = aggregatedDataMap.get(slotKey);
           currentSlotData.productive += item.productive;
           currentSlotData.neutral += item.neutral;
           currentSlotData.unproductive += item.break || 0;
+          // currentSlotData.status += item.break || 0;
+
+
           currentSlotData.apps = [...currentSlotData.apps, ...item.apps];
           if (item.total) {
             currentSlotData.total = item.total;
           }
+          if (item.status) {
+            currentSlotData.status = item.status;
+          }
         }
       }
     });
-
+    console.log(aggregatedDataMap, "aggregatedDataMap")
     const dayNormalizedData = dayTimeSlots.map((slot) => {
+      console.log(slot, "slot")
       const data = aggregatedDataMap.get(slot);
       const total = data.productive + data.neutral + data.unproductive;
       let isTracked = false;
+      console.log(slot, "slot", aggregatedDataMap.get(slot))
 
       if (total > 0) {
         isTracked = true;
@@ -266,6 +274,7 @@ const ProductivityBar = ({ getProductiviyData,isSnap,title  }) => {
           apps: data.apps,
           total: data.total,
           isTracked: isTracked,
+          status: data.status
         };
       } else {
         return {
@@ -276,9 +285,11 @@ const ProductivityBar = ({ getProductiviyData,isSnap,title  }) => {
           apps: [],
           total: "",
           isTracked: isTracked,
+          status: ''
         };
       }
     });
+    console.log(dayNormalizedData,"dayNormalizedData>")
     chartTitle = "Productivity Timeline";
     currentChartComponent = (
       <>
@@ -507,7 +518,7 @@ const ProductivityBar = ({ getProductiviyData,isSnap,title  }) => {
         {<Typography
           sx={{ fontSize: "18px", fontWeight: "600 !important", mb: 2 }}
         >
-          {title||chartTitle}
+          {title || chartTitle}
         </Typography>
         }
         <Box

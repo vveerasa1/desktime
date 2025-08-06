@@ -26,7 +26,6 @@ const formatSecondsToHHMM = (seconds) => {
 const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
     useGetAllProjectsQuery({ id: ownerId });
-  console.log(getDashboardData,"DASH DASH DASH")
   const mappedProjectOptions = useMemo(() => {
     return (
       getAllProjectsData?.data?.map((item) => ({
@@ -83,7 +82,6 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   }, [isSuccess, profileData]);
 
   const dashboardData = getDashboardData?.data || {};
-  console.log(dashboardData,"DASHBOARD DATA")
   // Check if there's any tracking data
   const hasTrackingData = useMemo(() => {
     return (

@@ -6,14 +6,14 @@ import customBaseQuery from '../customQuery';
 export const Dashboard = createApi({
   reducerPath: 'Dashboard',
   baseQuery: customBaseQuery,
-  tagTypes: ['Dashboard'],
+  tagTypes: ['Dashboard', 'productivity'],
   endpoints: (builder) => ({
     getScreenshot: builder.query({
       query: ({ id, date }) => ({
         url: `${URL_CONSTANTS.USER}/${id}/${URL_CONSTANTS.SCREENSHOT}`,
         method: 'GET',
-        params: { date,id:id }
-        
+        params: { date, id: id }
+
       }),
     }),
 
@@ -24,9 +24,9 @@ export const Dashboard = createApi({
         params: {
           type: day,
           date: date,
-          userId:userId
+          userId: userId
         }
-       
+
       }),
     }),
 
@@ -41,11 +41,20 @@ export const Dashboard = createApi({
 
         }
       }),
+      providesTags: ['Dashboard', 'productivity'],
+    }),
+    createOfflineRequest: builder.mutation({
+      query: (payload) => ({
+        url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.OFFLINE_REQUESTS}`,
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: [ 'productivity']
     }),
   }),
 });
 
-export const {
+export const {useCreateOfflineRequestMutation,
   useGetScreenshotQuery,
   useGetDashboardDataQuery,
   useGetProductivityDataQuery,

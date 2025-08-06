@@ -39,7 +39,6 @@ const ImagePreviewModal = ({
         });
         
       const username = currentUserProfile?.data?.username || "Guest";
-        console.log(currentUserProfile,"CURRENT USER DATA INSIDE")
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? screenshots.length - 1 : prev - 1));
   };

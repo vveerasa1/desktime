@@ -25,7 +25,6 @@ const Header = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState();
   const token = localStorage.getItem("token");
-  console.log(token, "CHECKING FOR TOKEN");
   let userId = null;
 
   if (token) {
@@ -37,7 +36,6 @@ const Header = () => {
     }
   }
 
-  console.log(userId, "CHECKING FOR USER ID");
   const {
     data: currentUserProfile,
     isLoading,

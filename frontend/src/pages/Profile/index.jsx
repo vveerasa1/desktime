@@ -23,7 +23,6 @@ const Profile = () => {
   const [trackingDays, setTrackingDays] = useState([]);
   const [flexibleHours] = useState(false);
   const [open, setOpen] = useState(false);
-  const [openToaster, setOpenToaster] = useState(false);
   const [getTeamsOptions, setGetTeamsOptions] = useState([]);
   const [updateProfile, { isLoading: updateProfileIsLoading }] =
     useUpdateProfileMutation();
@@ -75,7 +74,7 @@ const Profile = () => {
   }, [isSuccess, teamsData]);
   useEffect(() => {
     if (formattedTeams.length > 0) {
-      setGetTeamsOptions(formattedTeams); // this assumes you have a state setter
+      setGetTeamsOptions(formattedTeams);
     }
   }, [formattedTeams]);
 
@@ -228,6 +227,18 @@ const Profile = () => {
   };
   const workingDaysFull = workingDays.map((d) => dayNameMap[d]);
   const trackingDaysFull = trackingDays.map((d) => dayNameMap[d]);
+const [toaster, setToaster] = useState({
+      open: false,
+      message: "",
+      severity: "success",
+    });
+   const handleOpenToaster = (message, severity = "success") => {
+    setToaster({ open: true, message, severity });
+  };
+
+     const handleCloseToaster = () => {
+    setToaster({ ...toaster, open: false });
+  };
 
   const handleSubmit = async () => {
     const errors = {};
@@ -324,6 +335,8 @@ const Profile = () => {
           profileData: payload,
         }).unwrap();
           await refetchTeams();
+        handleOpenToaster("Profile Updated successfully!", "success");
+
       } else {
         await createProfileApi(payload).unwrap();
         setFormData({
@@ -351,13 +364,13 @@ const Profile = () => {
         setTrackingDays([]);
       }
 
-      setOpenToaster(true);
+      // setOpenToaster(true);
       navigate(`/colleagues`);
 
-      setTimeout(() => setOpenToaster(false), 3000);
+      // setTimeout(() => setOpenToaster(false), 3000);
     } catch (error) {
       console.error("Error submitting form:", error);
-      setOpenToaster(true);
+      // setOpenToaster(true);
     }
   };
 
@@ -427,9 +440,6 @@ const Profile = () => {
     }));
   };
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") setOpenToaster(false);
-  };
 
   if (getSingleProfileApiIsLoading) {
     return (
@@ -455,10 +465,10 @@ const Profile = () => {
   return (
     <Box>
       <MuiToaster
-        handleClose={() => handleClose(null, "clickaway")}
-        open={openToaster}
-        message={"User Profile Updated"}
-        severity="success"
+        open={toaster.open}
+        message={toaster.message}
+        severity={toaster.severity}
+        handleClose={handleCloseToaster}
       />
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box>

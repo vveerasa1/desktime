@@ -63,10 +63,10 @@ const ProjectModal = ({
       newErrors.projectName = "Project Name is required.";
       isValid = false;
     }
-    if (projectId && formData.status?.trim() === "") {
-      newErrors.status = "Status is required.";
-      isValid = false;
-    }
+    // if (projectId && formData.status?.trim() === "") {
+    //   newErrors.status = "Status is required.";
+    //   isValid = false;
+    // }
     if (!formData.teamLead) {
       newErrors.teamLead = "Team Lead is required";
       isValid = false;
@@ -143,7 +143,7 @@ const ProjectModal = ({
             startIcon={<Work />}
           />
         </Box>
-        {projectId ? (
+        {/* {projectId ? (
           <Box mt={2}>
           <CustomDropdown
             label="Status"
@@ -159,7 +159,7 @@ const ProjectModal = ({
             startIcon={<Assignment />}
           />
         </Box>
-        ):""}
+        ):""} */}
        
         <Box mt={2}>
           <CustomDropdown

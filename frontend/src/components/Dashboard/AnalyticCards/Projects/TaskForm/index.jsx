@@ -27,7 +27,6 @@ const TaskForm = ({
   handleCloseToaster,
   mappedProjectOptions,
 }) => {
-  console.log(userId, "USER USRE SDS");
   const [createTask, isLoading] = useCreateTaskMutation();
 
   const handleSave = async () => {

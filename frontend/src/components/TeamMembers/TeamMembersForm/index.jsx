@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import {
-  Select,
-  MenuItem,
   Typography,
   Box,
-  FormControl,
-  FormHelperText,
-  TextField,
-  InputAdornment,
+  FormControlLabel,
+  Checkbox,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -16,250 +12,381 @@ import {
   IconButton,
   Grid,
   Stack,
-  Checkbox,
-  FormControlLabel,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
 import {
   CheckBoxOutlineBlank,
   CheckBoxOutlined,
-  HelpOutline,
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import CustomDropdown from "../../CustomDropDown";
 import CustomTextField from "../../CustomTextField";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-
-// --- Main App Component ---
-
-const initialTeamMember = {
-  id: 1,
-  fullName: "",
-  email: "",
-  team: "",
-  role: "",
-};
-
-const teamOptions = [
-  { id: "1", name: "Without team" },
-  { id: "2", name: "Engineering" },
-  { id: "3", name: "Marketing" },
-  { id: "4", name: "Sales" },
-];
+import { useCreateProfileMutation } from "../../../redux/services/user";
 
 const roleOptions = [
-  { id: "1", name: "Employee" },
-  { id: "2", name: "Admin" },
-  { id: "3", name: "Manager" },
+  { id: "Employee", name: "Employee" },
+  { id: "Admin", name: "Admin" },
 ];
 
-const TeamMembersForm = ({ open, handleClose }) => {
-  const [teamMembers, setTeamMembers] = useState([initialTeamMember]);
-  const [selectAll, setSelectAll] = useState(false);
-  const [sendInvite, setSendInvite] = useState(false);
+const TeamMembersForm = ({
+  open,
+  handleClose,
+  ownerId,
+  formattedTeamOptions,
+  refetchTeamMembers,
+  openToaster
+}) => {
+  const [formData, setFormData] = useState({
+    teamMembers: [
+      {
+        id: 1,
+        username: "",
+        email: "",
+        team: "",
+        role: "",
+        touched: {},
+        errors: {},
+      },
+    ],
+    selectAll: false,
+    sendInvite: false,
+    submissionError: "",
+  });
+
+  const [createProfile, { isLoading }] = useCreateProfileMutation();
+
+  // Helper to validate a member
+  const validateMember = (member) => {
+    const errors = {};
+
+    if (!member.username.trim()) errors.username = "Name is required";
+    if (!member.email.trim()) errors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(member.email))
+      errors.email = "Invalid email format";
+
+    if (!member.team) errors.team = "Team is required";
+    if (!member.role) errors.role = "Role is required";
+
+    return errors;
+  };
 
   const handleAddMember = () => {
-    const newId = teamMembers.length + 1;
-    setTeamMembers([...teamMembers, { ...initialTeamMember, id: newId }]);
+    const newId =
+      formData.teamMembers.length > 0
+        ? Math.max(...formData.teamMembers.map((m) => m.id)) + 1
+        : 1;
+
+    setFormData((prev) => ({
+      ...prev,
+      teamMembers: [
+        ...prev.teamMembers,
+        {
+          id: newId,
+          username: "",
+          email: "",
+          team: "",
+          role: "",
+          touched: {},
+          errors: {},
+        },
+      ],
+    }));
   };
+
   const removeMember = (id) => {
-    setTeamMembers((prev) => prev.filter((member) => member.id !== id));
-  };
-  const handleInputChange = (event, name, memberId) => {
-    const { value } = event.target;
-    setTeamMembers(
-      teamMembers.map((member) =>
-        member.id === memberId ? { ...member, [name]: value } : member
-      )
-    );
+    setFormData((prev) => ({
+      ...prev,
+      teamMembers: prev.teamMembers.filter((m) => m.id !== id),
+    }));
   };
 
-  const handleSelectChange = (event, name, memberId) => {
-    const { value } = event.target;
-    setTeamMembers(
-      teamMembers.map((member) =>
-        member.id === memberId ? { ...member, [name]: value } : member
-      )
-    );
+  const handleMemberChange = (e, name, memberId) => {
+    const { value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      teamMembers: prev.teamMembers.map((member) => {
+        if (member.id !== memberId) return member;
+
+        const updated = {
+          ...member,
+          [name]: value,
+          touched: { ...member.touched, [name]: true },
+        };
+
+        updated.errors = validateMember(updated);
+
+        return updated;
+      }),
+    }));
   };
 
-  const handleSelectAll = (event) => {
-    setSelectAll(event.target.checked);
+  const handleBlur = (memberId, field) => {
+    setFormData((prev) => ({
+      ...prev,
+      teamMembers: prev.teamMembers.map((member) => {
+        if (member.id !== memberId) return member;
+
+        const updated = {
+          ...member,
+          touched: { ...member.touched, [field]: true },
+        };
+
+        updated.errors = validateMember(updated);
+
+        return updated;
+      }),
+    }));
   };
 
-  const handleSendInvite = (event) => {
-    setSendInvite(event.target.checked);
+  const handleSelectAll = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectAll: e.target.checked,
+    }));
+  };
+
+  const handleSendInvite = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      sendInvite: e.target.checked,
+    }));
+  };
+
+  const handleInvite = async () => {
+    const updatedMembers = formData.teamMembers.map((member) => {
+      const errors = validateMember(member);
+      return {
+        ...member,
+        touched: {
+          username: true,
+          email: true,
+          team: true,
+          role: true,
+        },
+        errors,
+      };
+    });
+
+    const hasErrors = updatedMembers.some((m) => Object.keys(m.errors).length > 0);
+
+    if (hasErrors) {
+      setFormData((prev) => ({
+        ...prev,
+        teamMembers: updatedMembers,
+        submissionError: "Please fix the errors before submitting.",
+      }));
+      return;
+    }
+
+    const payload = updatedMembers.map(({ username, email, team, role }) => ({
+      username,
+      email,
+      team,
+      role,
+      ownerId,
+      sendInvite: formData.sendInvite,
+    }));
+
+    try {
+      await createProfile(payload).unwrap();
+      handleClose();
+      openToaster("Team Members Added Sucessfully")
+      await refetchTeamMembers();
+    } catch (err) {
+      setFormData((prev) => ({
+        ...prev,
+        submissionError: err?.data?.message || "An unexpected error occurred.",
+      }));
+    }
   };
 
   return (
-    <Box sx={{ bgcolor: "#f4f4f4" }}>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        fullWidth
-        // maxWidth="md"
-        PaperProps={{
-          sx: {
-            borderRadius: "16px",
-            maxWidth:"925px !important",
-
-          },
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: "16px",
+          maxWidth: "925px !important",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          backgroundColor: "#143351",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+          borderTopLeftRadius: "16px",
+          borderTopRightRadius: "16px",
         }}
       >
-        <DialogTitle
+        <Typography variant="h6" sx={{ color: "white" }}>
+          Add team members
+        </Typography>
+        <IconButton onClick={handleClose} sx={{ color: "white" }}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={formData.selectAll}
+              onChange={handleSelectAll}
+              icon={<CheckBoxOutlineBlank fontSize="small" />}
+              checkedIcon={<CheckBoxOutlined fontSize="small" />}
+            />
+          }
+          label="Select all"
+          sx={{ padding: 1 }}
+        />
+
+        <Stack>
+          {formData.teamMembers.map((member) => (
+            <Grid container spacing={1} key={member.id} alignItems="flex-end">
+              <Grid item>
+                <Checkbox
+                  checked={false}
+                  icon={<CheckBoxOutlineBlank fontSize="small" />}
+                  checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                />
+              </Grid>
+              <Grid item>
+                <CustomTextField
+                  label="Full name"
+                  name="username"
+                  value={member.username}
+                  handleChange={(e) =>
+                    handleMemberChange(e, "username", member.id)
+                  }
+                  onBlur={() => handleBlur(member.id, "username")}
+                  placeholder="Full name"
+                  isRequired
+                  error={member.touched?.username && member.errors?.username}
+                  helperText={
+                    member.touched?.username ? member.errors?.username : ""
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <CustomTextField
+                  label="Email"
+                  name="email"
+                  value={member.email}
+                  handleChange={(e) =>
+                    handleMemberChange(e, "email", member.id)
+                  }
+                  onBlur={() => handleBlur(member.id, "email")}
+                  placeholder="E-mail"
+                  isRequired
+                  error={member.touched?.email && member.errors?.email}
+                  helperText={
+                    member.touched?.email ? member.errors?.email : ""
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <CustomDropdown
+                  label="Team"
+                  name="team"
+                  selectedValue={member.team}
+                  options={formattedTeamOptions}
+                  handleSelect={(e) => handleMemberChange(e, "team", member.id)}
+                  onBlur={() => handleBlur(member.id, "team")}
+                  placeholder="Team"
+                  error={member.touched?.team && !!member.errors?.team}
+                  helperText={member.touched?.team ? member.errors?.team : ""}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <CustomDropdown
+                  label="Role"
+                  name="role"
+                  selectedValue={member.role}
+                  options={roleOptions}
+                  handleSelect={(e) => handleMemberChange(e, "role", member.id)}
+                  onBlur={() => handleBlur(member.id, "role")}
+                  placeholder="Employee"
+                  error={member.touched?.role && !!member.errors?.role}
+                  helperText={member.touched?.role ? member.errors?.role : ""}
+                />
+              </Grid>
+              {formData.teamMembers.length > 1 && (
+                <Grid item xs={1}>
+                  <IconButton onClick={() => removeMember(member.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Grid>
+              )}
+            </Grid>
+          ))}
+        </Stack>
+
+        <Box mt={3}>
+          <Button
+            variant="text"
+            startIcon={<AddIcon />}
+            onClick={handleAddMember}
+            sx={{ textTransform: "none", color: "#143351" }}
+          >
+            ADD TEAM MEMBER
+          </Button>
+        </Box>
+
+        {formData.submissionError && (
+          <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+            {formData.submissionError}
+          </Typography>
+        )}
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={formData.sendInvite}
+              onChange={handleSendInvite}
+              icon={<CheckBoxOutlineBlank fontSize="small" />}
+              checkedIcon={<CheckBoxOutlined fontSize="small" />}
+            />
+          }
+          label="Send invite email to team members"
+          sx={{ mt: 3 }}
+        />
+      </DialogContent>
+
+      <DialogActions>
+        <Button
+          onClick={handleClose}
+          variant="outlined"
           sx={{
-            backgroundColor: "#143351",
-            color: "white",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            p: 2,
-            borderTopLeftRadius: "16px",
-            borderTopRightRadius: "16px",
+            textTransform: "none",
+            borderRadius: "8px",
+            color: "#6A6A6A",
+            borderColor: "#E8E8E8",
           }}
         >
-          <Typography variant="h6" sx={{ color: "white" }}>
-            Add team members
-          </Typography>
-          <IconButton onClick={handleClose} sx={{ color: "white" }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent  >
-          {/* Form Rows */}
-          <FormControlLabel 
-            control={
-              <Checkbox
-                checked={selectAll}
-                onChange={handleSelectAll}
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBoxOutlined fontSize="small" />}
-              />
-            }
-            label="Select all"
-             sx={{ padding:1 }}
-          />
-
-          <Stack>
-            {teamMembers?.map((member) => (
-              <Grid container spacing={1} key={member.id} alignItems="flex-end">
-                <Grid item sx={{  paddingBottom: '10px !important'}}>
-                  <Checkbox
-                    checked={false}
-                    icon={<CheckBoxOutlineBlank fontSize="small" />}
-                    checkedIcon={<CheckBoxOutlined fontSize="small" />}
-                  />
-                </Grid>
-                <Grid item >
-                  <CustomTextField
-                    label="Full name"
-                    name="fullName"
-                    value={member.fullName}
-                    handleChange={(e) =>
-                      handleInputChange(e, "fullName", member.id)
-                    }
-                    placeholder="Full name"
-                    isRequired={true}
-                  />
-                </Grid>
-                <Grid item >
-                  <CustomTextField
-                    label="Email"
-                    name="email"
-                    value={member.email}
-                    handleChange={(e) =>
-                      handleInputChange(e, "email", member.id)
-                    }
-                    placeholder="E-mail"
-                    isRequired={true}
-                  />
-                </Grid>
-                <Grid item >
-                  <CustomDropdown
-                    label="Team"
-                    name="team"
-                    selectedValue={member.team}
-                    options={teamOptions}
-                    handleSelect={(e) =>
-                      handleSelectChange(e, "team", member.id)
-                    }
-                    placeholder="Without team"
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <CustomDropdown
-                    label="Role"
-                    name="role"
-                    selectedValue={member.role}
-                    options={roleOptions}
-                    handleSelect={(e) =>
-                      handleSelectChange(e, "role", member.id)
-                    }
-                    placeholder="Employee"
-                  />
-                </Grid>
-                {teamMembers.length > 1 && (
-                  <Grid item xs={1}>
-                    <IconButton onClick={() => removeMember(member.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Grid>
-                )}
-              </Grid>
-            ))}
-          </Stack>
-
-          <Box mt={3}>
-            <Button
-              variant="text"
-              startIcon={<AddIcon />}
-              onClick={handleAddMember}
-              sx={{ textTransform: "none", color: "#143351" }}
-            >
-              ADD TEAM MEMBER
-            </Button>
-          </Box>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={sendInvite}
-                onChange={handleSendInvite}
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBoxOutlined fontSize="small" />}
-              />
-            }
-            label="Send invite email to team members"
-            sx={{ mt: 3 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleClose}
-            variant="outlined"
-            sx={{
-              textTransform: "none",
-              borderRadius: "8px",
-              color: "#6A6A6A",
-              borderColor: "#E8E8E8",
-            }}
-          >
-            Close
-          </Button>
-          <Button
-            onClick={handleClose}
-            variant="contained"
-            sx={{
-              textTransform: "none",
-              borderRadius: "8px",
-              backgroundColor: "#143351",
-            }}
-          >
-            Invite
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          Close
+        </Button>
+        <Button
+          onClick={handleInvite}
+          variant="contained"
+          disabled={isLoading}
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px",
+            backgroundColor: "#143351",
+          }}
+        >
+          {isLoading ? "Inviting..." : "Invite"}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

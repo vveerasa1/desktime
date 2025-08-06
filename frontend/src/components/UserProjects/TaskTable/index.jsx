@@ -34,7 +34,6 @@ const TaskTable = ({
   const [deleteTask] = useDeleteTaskMutation();
   const selectedCount = selected.length; // Keep if needed for potential future checkbox functionality
   const rowCount = data.length; // Keep if needed for potential future checkbox functionality
-  // console.log(selectedCount, "SELECTED COUNT"); // Keep if needed for debugging
 
   const handleDeleteClick = (event, id) => {
     setAnchorEl(event.currentTarget);

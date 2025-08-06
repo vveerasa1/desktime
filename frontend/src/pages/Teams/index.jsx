@@ -67,10 +67,8 @@ const Teams = () => {
     setOpen(true);
      if (id) {
     setTeamId(id);
-    console.log(id, "EDIT: teamId set");
   } else {
     setTeamId(undefined);
-    console.log("ADD: No teamId (creating new team)");
   }
   };
 
