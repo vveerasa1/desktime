@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   Box,
@@ -14,6 +14,10 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import styles from "./index.module.css";
 import CustomTextField from "../../../CustomTextField"; // Assuming this path is correct
+import { useCreateOfflineRequestMutation } from "../../../../redux/services/dashboard";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import moment from "moment-timezone"
+import dayjs from "dayjs";
 
 // Helper to format minutes back to HH:MM
 const minutesToTime = (totalMinutes) => {
@@ -51,58 +55,126 @@ const OfflineTrackingModal = ({
   handleClose,
   timeSlotStart,
   timeSlotEnd,
-  handleChange,
-  formData,
-  handleBlur,
-  errors,
-  setFormData, // Passed from parent to update form data and errors
 }) => {
+  const [searchParams] = useSearchParams();
+  const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
   const [productivity, setProductivity] = useState("productive");
   const [timeRange, setTimeRange] = useState([0, 0]);
   const [startTimeText, setStartTimeText] = useState("00:00");
   const [endTimeText, setEndTimeText] = useState("00:00");
+  const [errors, setErrors] = useState({});
+  const [createOfflineRequest, { isLoading, isSuccess, isError, error }] = useCreateOfflineRequestMutation();
+  console.log(date)
+  const [formData, setFormData] = useState({
+    description: "",
+    projectName: "",
+    taskName: "",
+    startTime: "",
+    endTime: ""
+  })
+  const handleChange = (event, name) => {
+    const { value } = event.target
+    setFormData((prev) => ({
+      ...prev, [name]: value
+    }))
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
+      });
+    }
+  }
 
-  useEffect(() => {
-    if (open) { // Only run when the modal is opened
+  const handleBlur = (event, name) => {
+    if (formData[name].trim() === "") {
+      setErrors({
+        ...errors,
+        [name]: `${[name]} is required.`,
+      });
+    }
+  };
+  // useEffect(() => {
+  //   if (open) { // Only run when the modal is opened
+  //     const now = new Date();
+  //     const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  //     let startMinutes = 0;
+  //     let endMinutes = 0;
+
+  //     if (timeSlotStart && timeSlotEnd) {
+  //       startMinutes = timeToMinutes(timeSlotStart);
+  //       endMinutes = timeToMinutes(timeSlotEnd);
+  //     } else {
+  //       // Default to a reasonable range around current time if no slot provided
+  //       startMinutes = Math.max(0, currentMinutes - 30);
+  //       endMinutes = Math.min(23 * 60 + 59, currentMinutes + 30);
+  //     }
+
+  //     setTimeRange([startMinutes, endMinutes]);
+  //     setStartTimeText(minutesToTime(startMinutes));
+  //     setEndTimeText(minutesToTime(endMinutes));
+
+  //     // Reset specific formData fields and productivity when modal opens for a new entry
+  //     // This ensures previous input values aren't carried over unless intended by timeSlotStart/End
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       description: "", // Clear description for new entry
+  //       projectName: "", // Clear project name for new entry
+  //       taskName: "",    // Clear task name for new entry
+  //       // Initialize startTime and endTime in formData with the calculated defaults
+  //       startTime: minutesToTime(startMinutes),
+  //       endTime: minutesToTime(endMinutes),
+  //       errors: { // Also clear previous errors
+  //         description: "",
+  //         projectName: "",
+  //         taskName: "",
+  //       }
+  //     }));
+  //     setProductivity("productive"); // Reset productivity
+  //   }
+  // }, [open, timeSlotStart, timeSlotEnd, setFormData]);
+useEffect(() => {
+  if (open) {
+    let startMinutes, endMinutes;
+
+    // This is the key part. It checks if timeSlotStart and timeSlotEnd
+    // were passed as props.
+    if (timeSlotStart && timeSlotEnd) {
+      startMinutes = timeToMinutes(timeSlotStart);
+      endMinutes = timeToMinutes(timeSlotEnd);
+    } else {
+      // This is the fallback if no time slot was passed.
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      
-      let startMinutes = 0;
-      let endMinutes = 0;
-
-      if (timeSlotStart && timeSlotEnd) {
-        startMinutes = timeToMinutes(timeSlotStart);
-        endMinutes = timeToMinutes(timeSlotEnd);
-      } else {
-        // Default to a reasonable range around current time if no slot provided
-        startMinutes = Math.max(0, currentMinutes - 30);
-        endMinutes = Math.min(23 * 60 + 59, currentMinutes + 30);
-      }
-
-      setTimeRange([startMinutes, endMinutes]);
-      setStartTimeText(minutesToTime(startMinutes));
-      setEndTimeText(minutesToTime(endMinutes));
-
-      // Reset specific formData fields and productivity when modal opens for a new entry
-      // This ensures previous input values aren't carried over unless intended by timeSlotStart/End
-      setFormData(prev => ({
-        ...prev,
-        description: "", // Clear description for new entry
-        projectName: "", // Clear project name for new entry
-        taskName: "",    // Clear task name for new entry
-        // Initialize startTime and endTime in formData with the calculated defaults
-        startTime: minutesToTime(startMinutes),
-        endTime: minutesToTime(endMinutes),
-        errors: { // Also clear previous errors
-          description: "",
-          projectName: "",
-          taskName: "",
-        }
-      }));
-      setProductivity("productive"); // Reset productivity
+      startMinutes = Math.max(0, currentMinutes - 30);
+      endMinutes = Math.min(23 * 60 + 59, currentMinutes + 30);
     }
-  }, [open, timeSlotStart, timeSlotEnd, setFormData]);
 
+    // Set the state of the slider and text fields using the
+    // startMinutes and endMinutes.
+    setTimeRange([startMinutes, endMinutes]);
+    const newStartTimeText = minutesToTime(startMinutes);
+    const newEndTimeText = minutesToTime(endMinutes);
+    setStartTimeText(newStartTimeText);
+    setEndTimeText(newEndTimeText);
+
+    // Also update the form data state.
+    setFormData(prev => ({
+      ...prev,
+      description: "",
+      projectName: "",
+      taskName: "",
+      startTime: newStartTimeText,
+      endTime: newEndTimeText,
+      errors: {
+        description: "",
+        projectName: "",
+        taskName: "",
+      }
+    }));
+    setProductivity("productive");
+  }
+}, [open, timeSlotStart, timeSlotEnd]);
   const handleSliderChange = (event, newValue) => {
     setTimeRange(newValue);
     const newStartTime = minutesToTime(newValue[0]);
@@ -142,7 +214,7 @@ const OfflineTrackingModal = ({
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const finalStartMinutes = timeToMinutes(startTimeText);
     const finalEndMinutes = timeToMinutes(endTimeText);
 
@@ -166,26 +238,8 @@ const OfflineTrackingModal = ({
     }
 
     // Validate project name
-    if (!formData.projectName.trim()) {
-      currentErrors.projectName = "Project Name is required";
-      formHasErrors = true;
-    } else if (!/^[A-Za-z\s]+$/.test(formData.projectName.trim())) {
-      currentErrors.projectName = "Only letters and spaces are allowed.";
-      formHasErrors = true;
-    } else {
-      currentErrors.projectName = ""; // Clear error if valid
-    }
 
     // Validate task name
-    if (!formData.taskName.trim()) {
-      currentErrors.taskName = "Task Name is required";
-      formHasErrors = true;
-    } else if (!/^[A-Za-z\s]+$/.test(formData.taskName.trim())) {
-      currentErrors.taskName = "Only letters and spaces are allowed.";
-      formHasErrors = true;
-    } else {
-      currentErrors.taskName = ""; // Clear error if valid
-    }
 
     // Update parent's errors state
     setFormData((prev) => ({ ...prev, errors: currentErrors }));
@@ -193,7 +247,7 @@ const OfflineTrackingModal = ({
     if (formHasErrors) {
       return; // Stop save if there are validation errors
     }
-
+    console.log(formData)
     // If all validations pass
     const offlineData = {
       description: formData.description,
@@ -203,6 +257,24 @@ const OfflineTrackingModal = ({
       startTime: minutesToTime(finalStartMinutes),
       endTime: minutesToTime(finalEndMinutes),
     };
+      const timeZone = 'Asia/Kolkata'; // or any timezone you work in
+const fullStart = moment.tz(`${date} ${formData.startTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
+const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
+
+
+
+    const payload = {
+      userId: formData.userId,
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      description: formData.description,
+      projectName: formData.projectName,
+      date:date,
+      taskName: formData.taskName,
+      productivity: productivity
+    };
+    await createOfflineRequest(payload).unwrap();
+
     console.log("Saving offline data:", offlineData);
     // In a real application, you would send this 'offlineData' to an API or update global state.
     handleClose(); // Close the modal after successful save
@@ -218,7 +290,7 @@ const OfflineTrackingModal = ({
             borderBottom: "1px solid #e0e0e0",
             backgroundColor: "#143351", // Keep the specific header color
             color: "white",
-            borderRadius:"15px 15px 0px 0px"
+            borderRadius: "15px 15px 0px 0px"
           }}
         >
           <Typography color="white" p={2} mt={1} className={styles.modalTitle} fontWeight={600} variant="h6">
@@ -308,7 +380,7 @@ const OfflineTrackingModal = ({
                 handleChange={(e) => {
                   handleChange(e, "projectName");
                 }}
-                handleBlur={(e) => handleBlur(e, "projectName")}
+                // handleBlur={(e) => handleBlur(e, "projectName")}
                 placeholder="Enter project name"
                 isRequired
                 error={!!errors.projectName}
@@ -323,7 +395,7 @@ const OfflineTrackingModal = ({
                 handleChange={(e) => {
                   handleChange(e, "taskName");
                 }}
-                handleBlur={(e) => handleBlur(e, "taskName")}
+                // handleBlur={(e) => handleBlur(e, "taskName")}
                 placeholder="Enter Task Name"
                 isRequired
                 error={!!errors.taskName}
@@ -343,7 +415,7 @@ const OfflineTrackingModal = ({
             sx={{ mb: 3 }}
           >
             <FormControlLabel
-              value="productive"
+              value="Productive"
               control={
                 <Radio
                   sx={{ "&.Mui-checked": { color: "#4caf50 !important" } }}
@@ -352,7 +424,7 @@ const OfflineTrackingModal = ({
               label="Productive"
             />
             <FormControlLabel
-              value="unproductive"
+              value="Unproductive"
               control={
                 <Radio
                   sx={{ "&.Mui-checked": { color: "#ff7a00 !important" } }}
@@ -361,7 +433,7 @@ const OfflineTrackingModal = ({
               label="Unproductive"
             />
             <FormControlLabel
-              value="neutral"
+              value="Neutral"
               control={
                 <Radio
                   sx={{ "&.Mui-checked": { color: "#9e9e9e !important" } }}
