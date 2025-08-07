@@ -40,6 +40,8 @@ const login = async (req, res) => {
     // Generate tokens
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
+    user.active = true;
+    await user.save();
 
     user.active = true;
     await user.save();
