@@ -19,4 +19,5 @@ router.delete("/:id", authenticate, deleteUser);
 router.get("/owner/:ownerId", getAllUser);
 router.get("/:id/screenshots", authenticate, getScreenshotsById);
 router.get("/sessions", authenticate, getUser);
+
 module.exports = router;

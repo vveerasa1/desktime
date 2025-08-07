@@ -86,6 +86,7 @@ const getUserTrackingInfo = async (req, res) => {
 const idleTimeTracker = async (req, res) => {
   try {
     const { sessionId, startTime, endTime, duration } = req.body;
+    console.log("sessionId :" + sessionId);
 
     const session = await TrackingSession.findById(sessionId);
 
@@ -104,6 +105,12 @@ const idleTimeTracker = async (req, res) => {
       session.activePeriods && session.activePeriods.length > 0
         ? session.activePeriods[session.activePeriods.length - 1].end
         : null;
+
+    if (lastidlePeriod && new Date(lastidlePeriod) > new Date(startTime)) {
+      return res.status(400).json({
+        message: "New idle startTime must be after last idle end time",
+      });
+    }
 
     const endTimeIST = moment(endTime).tz(timeZone);
     const endHour = endTimeIST.hour();
@@ -208,6 +215,11 @@ const activeTimeTracker = async (req, res) => {
       session.activePeriods && session.activePeriods.length > 0
         ? session.activePeriods[session.activePeriods.length - 1].end
         : null;
+    if (lastActivePeriod && new Date(lastActivePeriod) > new Date(startTime)) {
+      return res.status(400).json({
+        message: "New active startTime must be after last idle end time",
+      });
+    }
 
     let userId = session.userId;
     const user = await User.findById(userId);
