@@ -261,7 +261,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                 <div className={styles.primaryHeading}>Splits</div>
               </TableCell>
               <TableCell>
-                <div className={styles.primaryHeading}>Duration</div>
+                <div  className={styles.primaryHeading}>Duration</div>
               </TableCell>
 
               <TableCell>
@@ -290,13 +290,12 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
             {paginatedData.length > 0 ? (
               paginatedData.map((row) => (
                 <TableRow key={row._id} className={`${styles.tableRow}`}>
-                  <TableCell>
+                  <TableCell className={styles.bodyCell}>
                     <Box
                       sx={{
                         display: "flex",
                         justifyContent: "start",
                         width: "160px",
-                        height: "50px !important",
                       }}
                     >
                       <Checkbox
@@ -322,7 +321,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                       </Box>
                     </Box>
                   </TableCell>
-                  <TableCell className={`${styles.rowcell} `}>
+                  <TableCell  className={`${styles.rowcell,styles.bodyCell}  `}>
                     <Box sx={{ width: "160px", height: "50px !important" }}>
                       <Typography>
                         {`${formatTime(row.startTime)} - ${formatTime(
@@ -334,16 +333,16 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                       </Typography>
                     </Box>
                   </TableCell>
-                  <TableCell className={`${styles.rowcell}`}>1</TableCell>
-                  <TableCell className={`${styles.rowcell}`}>
+                  <TableCell className={`${styles.rowcell,styles.bodyCell}`}>1</TableCell>
+                  <TableCell className={`${styles.rowcell, styles.bodyCell}`}>
                     {formatDuration(row.durationInSeconds)}
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
-                    <TableCell className={`${styles.rowcell}`}>
+                    <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
                       <Box className={styles.productive}>{row.status}</Box>
                     </TableCell>
                   ) : (
-                    <TableCell className={`${styles.rowcell}`}>
+                    <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
                       <Box className={styles.productive}>
                         {row.productivity}
                       </Box>
@@ -351,16 +350,16 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                   )}
 
                   <TableCell
-                    className={`${styles.rowcell} ${styles.textAlign}`}
+                    className={`${styles.rowcell,styles.bodyCell} `}
                   >
                     {row.description}
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
-                     <TableCell className={`${styles.rowcell}`}>
+                     <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
                       <Box>{row?.modifiedBy?.username}</Box>
                     </TableCell>
                   ) : (
-                    <TableCell className={`${styles.rowcell}`}>
+                    <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
                       <Box className={styles.lastcell}>
                         <Tooltip title="Approve">
                           <Button

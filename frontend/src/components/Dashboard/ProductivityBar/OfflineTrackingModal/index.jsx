@@ -433,7 +433,7 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
             sx={{ mb: 3 }}
           >
             <FormControlLabel
-              value="Productive"
+              value="productive"
               control={
                 <Radio
                   sx={{ "&.Mui-checked": { color: "#4caf50 !important" } }}

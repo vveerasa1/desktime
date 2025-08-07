@@ -1,25 +1,15 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Box, Typography, Tabs, Tab, IconButton, Grid } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import SortIcon from "@mui/icons-material/Sort";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
 import OfflineTimesTable from "../../components/OfflineTimes/OfflineTimesTable";
 import TimeCards from "../../components/OfflineTimes/TimeCards";
-import SmallTimeCards from "../../components/OfflineTimes/SmallTimeCards";
 import styles from "./index.module.css";
 import CustomTextField from "../../components/CustomTextField";
 import { useGetAllOfflineRequestQuery } from "../../redux/services/dashboard";
 import { jwtDecode } from "jwt-decode";
 import LoadingComponent from "../../components/ComponentLoader";
 import MuiToaster from "../../components/MuiToaster";
-const summaryData = {
-  totalOfflineTimes: 2547,
-  productiveTime: "260h 23m 32s",
-  unproductiveTime: "3h 47m 24s",
-  neutralTime: "457h 22m 11s",
-};
 
 const offlineTimesData = [
   {
