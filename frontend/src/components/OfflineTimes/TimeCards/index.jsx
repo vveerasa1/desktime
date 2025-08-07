@@ -1,16 +1,16 @@
-import { useMemo } from 'react';
-import { 
-  Grid, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Box, 
+import { useMemo } from "react";
+import {
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Box,
   useTheme,
-  styled 
-} from '@mui/material';
-import clsx from 'clsx';
-import styles from './index.module.css';
-import moment from 'moment';
+  styled,
+} from "@mui/material";
+import clsx from "clsx";
+import styles from "./index.module.css";
+import moment from "moment";
 
 // Styled card with hover effect and animated border
 // const MetricCard = styled(Card)(({ theme }) => ({
@@ -39,40 +39,37 @@ import moment from 'moment';
 //   }
 // }));
 const MetricCard = styled(Card, {
-  shouldForwardProp: (prop) => prop !== 'highlightColor',
+  shouldForwardProp: (prop) => prop !== "highlightColor",
 })(({ theme, highlightColor }) => ({
-  transition: 'all 0.3s ease',
-  height: '100%',
-  position: 'relative',
-  overflow: 'hidden',
-  '&:hover': {
-    transform: 'translateY(-4px)',
+  transition: "all 0.3s ease",
+  height: "100%",
+  position: "relative",
+  overflow: "hidden",
+  "&:hover": {
+    transform: "translateY(-4px)",
     boxShadow: theme.shadows[6],
-    '&::before': {
-      transform: 'translateX(0)',
-    }
+    "&::before": {
+      transform: "translateX(0)",
+    },
   },
-  '&::before': {
+  "&::before": {
     content: '""',
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    height: '4px',
-    background: highlightColor || '#143351', // fallback if not provided
-    transform: 'translateX(-100%)',
-    transition: 'transform 0.6s ease',
+    height: "4px",
+    background: highlightColor || "#143351", // fallback if not provided
+    transform: "translateX(-100%)",
+    transition: "transform 0.6s ease",
     zIndex: 1,
-  }
+  },
 }));
 
 const MetricDisplay = ({ title, value, valueColor }) => {
   return (
-    <Box sx={{ textAlign: 'center'}}>
-      <Typography 
-        variant="h6" 
-        color="text.secondary"
-      >
+    <Box sx={{ textAlign: "center" }}>
+      <Typography variant="h6" color="text.secondary">
         {title}
       </Typography>
       <Typography
@@ -81,11 +78,11 @@ const MetricDisplay = ({ title, value, valueColor }) => {
         //   [styles.orange]: valueColor === '#FFA500',
         //   [styles.green]: valueColor === '#008000',
         // })}
-        sx={{ 
+        sx={{
           fontWeight: 500,
-          fontSize:'15px',
-          fontFamily:'sans-serif',
-          color: valueColor || 'text.primary'
+          fontSize: "15px",
+          fontFamily: "sans-serif",
+          color: valueColor || "text.primary",
         }}
       >
         {value}
@@ -94,62 +91,69 @@ const MetricDisplay = ({ title, value, valueColor }) => {
   );
 };
 
-const TrackingCard = ({totalOfflineTime,
-              totalProductiveTime,
-              totalUnProductiveTime,
-              totalNeutralTime
-
+const TrackingCard = ({
+  totalOfflineTime,
+  totalProductiveTime,
+  totalUnProductiveTime,
+  totalNeutralTime,
 }) => {
-const formatSeconds = (totalSeconds) => {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${hours}h ${minutes}m ${seconds}s`;
-};
+  const formatSeconds = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours}h ${minutes}m ${seconds}s`;
+  };
 
-// Example values in seconds
+  // Example values in seconds
 
+  const formattedTotalProductiveTime = formatSeconds(totalProductiveTime);
+  const formattedTotalUnProductiveTime = formatSeconds(totalUnProductiveTime);
+  const formattedTotalNeutralTime = formatSeconds(totalNeutralTime);
 
-const formattedTotalProductiveTime = formatSeconds(totalProductiveTime);
-const formattedTotalUnProductiveTime = formatSeconds(totalUnProductiveTime);
-const formattedTotalNeutralTime = formatSeconds(totalNeutralTime);
+  const cards = useMemo(
+    () => [
+      {
+        title: "Total offline times",
+        value: totalOfflineTime,
+        // color: orderedCards[0]?.valueColor
+      },
 
- const cards = useMemo(() => [
-    {
-      title:'Total offline times',
-      value: totalOfflineTime,
-      // color: orderedCards[0]?.valueColor
-    },
-
-    {
-      title: 'Productive time:',
-      value: formattedTotalProductiveTime,
-      color:'#008000'
-    },
-    {
-      title: 'Unproductive time',
-      value: formattedTotalUnProductiveTime,
-      color:'#591207ff'
-      // color: orderedCards[2]?.valueColor
-    },
-    {
-      title: 'Neutral time:',
-      value: formattedTotalNeutralTime,
-      color:'#008000'
-      // color: orderedCards[3]?.valueColor
-    }
-  ], []);
+      {
+        title: "Productive time:",
+        value: formattedTotalProductiveTime,
+        color: "#008000",
+      },
+      {
+        title: "Unproductive time",
+        value: formattedTotalUnProductiveTime,
+        color: "#591207ff",
+        // color: orderedCards[2]?.valueColor
+      },
+      {
+        title: "Neutral time:",
+        value: formattedTotalNeutralTime,
+        color: "#008000",
+        // color: orderedCards[3]?.valueColor
+      },
+    ],
+    [
+      totalOfflineTime,
+      totalProductiveTime,
+      totalUnProductiveTime,
+      totalNeutralTime,
+    ]
+  );
 
   return (
     // <Grid container spacing={2}>
     <>
-       {cards.map((card, index) => (
-        <Grid item key={index} sx={{flex: 1 }}>
-    <MetricCard highlightColor={card.color}>
-            <CardContent sx={{ py: 1}}>
-              <MetricDisplay 
-                title={card.title} 
-                value={card.value} 
+      {cards.map((card, index) => (
+        <Grid item key={index} sx={{ flex: 1 }}>
+          <MetricCard highlightColor={card.color}>
+            <CardContent sx={{ py: 1 }}>
+              <MetricDisplay
+                title={card.title}
+                value={card.value}
                 valueColor={card.color}
                 // highlightColor={card.color}
               />
@@ -158,7 +162,7 @@ const formattedTotalNeutralTime = formatSeconds(totalNeutralTime);
         </Grid>
       ))}
     </>
-   
+
     // </Grid>
   );
 };
