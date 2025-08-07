@@ -407,7 +407,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box
+      {/* <Box
         display="flex"
         justifyContent="center"
         my={2}
@@ -437,7 +437,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
             },
           }}
         />
-      </Box>
+      </Box> */}
     </Box>
   );
 };
