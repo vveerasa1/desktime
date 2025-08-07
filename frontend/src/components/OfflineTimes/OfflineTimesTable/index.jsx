@@ -395,7 +395,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={7}>
                   <Box className={styles.noDataContainer}>
                     <InboxIcon className={styles.noDataIcon} />
                     <Typography variant="h6" className={styles.noDataText}>
