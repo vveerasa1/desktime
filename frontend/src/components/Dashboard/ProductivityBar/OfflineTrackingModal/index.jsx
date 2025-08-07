@@ -15,6 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import styles from "./index.module.css";
 import CustomTextField from "../../../CustomTextField"; // Assuming this path is correct
 import { useCreateOfflineRequestMutation } from "../../../../redux/services/dashboard";
+import { useGetAllOfflineRequestQuery } from "../../../../redux/services/offlineRequests";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import moment from "moment-timezone"
 import dayjs from "dayjs";
@@ -55,7 +56,8 @@ const OfflineTrackingModal = ({
   handleClose,
   timeSlotStart,
   timeSlotEnd,
-  openToaster
+  openToaster,
+  ownerId
 }) => {
   const [searchParams] = useSearchParams();
   const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
@@ -66,6 +68,14 @@ const OfflineTrackingModal = ({
   const [errors, setErrors] = useState({});
   const [createOfflineRequest, { isLoading, isSuccess, isError, error }] = useCreateOfflineRequestMutation();
   console.log(date)
+  
+  const { data: getOfflineTrackingData } =
+      useGetAllOfflineRequestQuery({
+        id: ownerId,
+        status: status, // assuming API expects 'pending', 'approved', etc.
+      });
+    console.log(getOfflineTrackingData, "DATA");
+  
   const [formData, setFormData] = useState({
     description: "",
     projectName: "",
@@ -423,7 +433,7 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
             sx={{ mb: 3 }}
           >
             <FormControlLabel
-              value="Productive"
+              value="productive"
               control={
                 <Radio
                   sx={{ "&.Mui-checked": { color: "#4caf50 !important" } }}

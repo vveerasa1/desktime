@@ -71,7 +71,7 @@ const TRACKED_COLOR = "#3BA5E3"; // Blue for tracked
 const UNTRACKED_COLOR = "white"; // Grey for untracked/idle
 const NO_DATA_COLOR = "#E0E0E0"; // Light grey for no data bars
 
-const ProductivityBar = ({ getProductiviyData, isSnap, title }) => {
+const ProductivityBar = ({ getProductiviyData, isSnap, title,ownerId }) => {
   const productivity = getProductiviyData?.data;
 
   let currentViewMode = "day";
@@ -325,6 +325,7 @@ const ProductivityBar = ({ getProductiviyData, isSnap, title }) => {
           </ResponsiveContainer>
         </Box>
         <ActivityTimelineBar
+        ownerId={ownerId}
           currentNormalizedData={dayNormalizedData}
           TRACKED_COLOR={TRACKED_COLOR}
           UNTRACKED_COLOR={UNTRACKED_COLOR}

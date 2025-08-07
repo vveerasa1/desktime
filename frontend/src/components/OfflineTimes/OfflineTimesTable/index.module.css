@@ -130,8 +130,6 @@
 }
 
 .noDataContainer {
-  text-align: center;
-  padding: 48px 0;
 }
 
 .noDataImage {
@@ -189,6 +187,8 @@
  display: flex;
   justify-content: center;
   align-items: center;
+      max-height: 48px !important;
+
   
 }
 .approveDeclineCell {
@@ -219,6 +219,7 @@
 .tableRow {
   margin: 0;
   padding: 0;
+  max-height: 50px !important;
 }
 
 .stickyHeader {
@@ -236,6 +237,11 @@
 
 }
 .textAlign{
-  text-align: start !important;
+  text-align: center !important;
   padding-left: 40px !important;
+}
+
+.bodyCell{
+    max-height: 48px !important;
+
 }

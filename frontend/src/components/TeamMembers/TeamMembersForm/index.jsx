@@ -35,24 +35,11 @@ const TeamMembersForm = ({
   ownerId,
   formattedTeamOptions,
   refetchTeamMembers,
-  openToaster
+  openToaster,
+  formData,
+  setFormData
 }) => {
-  const [formData, setFormData] = useState({
-    teamMembers: [
-      {
-        id: 1,
-        username: "",
-        email: "",
-        team: "",
-        role: "",
-        touched: {},
-        errors: {},
-      },
-    ],
-    selectAll: false,
-    sendInvite: false,
-    submissionError: "",
-  });
+  
 
   const [createProfile, { isLoading }] = useCreateProfileMutation();
 
@@ -102,25 +89,51 @@ const TeamMembersForm = ({
   };
 
   const handleMemberChange = (e, name, memberId) => {
-    const { value } = e.target;
+  const { value } = e.target;
 
-    setFormData((prev) => ({
+  setFormData((prev) => {
+    const updatedMembers = prev.teamMembers.map((member) => {
+      if (member.id !== memberId) return member;
+
+      const updated = {
+        ...member,
+        [name]: value,
+        touched: { ...member.touched, [name]: true },
+      };
+
+      return updated;
+    });
+
+    // Check for duplicate emails
+    const emailCounts = {};
+    updatedMembers.forEach((member) => {
+      const email = member.email?.trim().toLowerCase();
+      if (email) {
+        emailCounts[email] = (emailCounts[email] || 0) + 1;
+      }
+    });
+
+    const finalMembers = updatedMembers.map((member) => {
+      const email = member.email?.trim().toLowerCase();
+      const errors = validateMember(member) || {};
+
+      if (email && emailCounts[email] > 1) {
+        errors.email = 'This email is already entered';
+      }
+
+      return {
+        ...member,
+        errors,
+      };
+    });
+
+    return {
       ...prev,
-      teamMembers: prev.teamMembers.map((member) => {
-        if (member.id !== memberId) return member;
+      teamMembers: finalMembers,
+    };
+  });
+};
 
-        const updated = {
-          ...member,
-          [name]: value,
-          touched: { ...member.touched, [name]: true },
-        };
-
-        updated.errors = validateMember(updated);
-
-        return updated;
-      }),
-    }));
-  };
 
   const handleBlur = (memberId, field) => {
     setFormData((prev) => ({
@@ -210,7 +223,7 @@ const TeamMembersForm = ({
       PaperProps={{
         sx: {
           borderRadius: "16px",
-          maxWidth: "925px !important",
+          maxWidth: "1180px !important",
         },
       }}
     >
@@ -245,12 +258,12 @@ const TeamMembersForm = ({
             />
           }
           label="Select all"
-          sx={{ padding: 1 }}
+          sx={{ padding:1 }}
         />
 
-        <Stack>
+        <Stack >
           {formData.teamMembers.map((member) => (
-            <Grid container spacing={1} key={member.id} alignItems="flex-end">
+            <Grid mx={3} container mt={3} spacing={3} key={member.id} alignItems="flex-end">
               <Grid item>
                 <Checkbox
                   checked={false}
@@ -319,7 +332,7 @@ const TeamMembersForm = ({
                 />
               </Grid>
               {formData.teamMembers.length > 1 && (
-                <Grid item xs={1}>
+                <Grid item mb={1} xs={1}>
                   <IconButton onClick={() => removeMember(member.id)}>
                     <DeleteIcon />
                   </IconButton>

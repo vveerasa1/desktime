@@ -49,13 +49,50 @@ export const Dashboard = createApi({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: [ 'productivity']
+      invalidatesTags: ['productivity']
     }),
+    updateOfflineRequest: builder.mutation({
+      query: ({ id, payload }) => ({
+        url: `${URL_CONSTANTS.OFFLINE_REQUESTS}/${id}`,
+        method: 'PUT',
+        body: payload
+      }),
+      invalidatesTags: ['productivity'],
+    }),
+
+    getAllOfflineRequest: builder.query({
+      query: ({ id, status }) => ({
+        url: `${URL_CONSTANTS.OFFLINE_REQUESTS}/${id}?status=${status}`,
+        method: 'GET',
+
+      }),
+      providesTags: ['productivity']
+    }),
+    getSingleOfflineRequest: builder.query({
+      query: ({ id }) => ({
+        url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.OFFLINE_REQUESTS}/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['productivity']
+
+    }),
+    deleteOfflineRequest: builder.mutation({
+      query: (id) => ({
+        url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.OFFLINE_REQUESTS}/${id}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: ['productivity'],
+
+    })
   }),
 });
 
-export const {useCreateOfflineRequestMutation,
+export const { useCreateOfflineRequestMutation,
   useGetScreenshotQuery,
   useGetDashboardDataQuery,
   useGetProductivityDataQuery,
+   useUpdateOfflineRequestMutation,
+    useDeleteOfflineRequestMutation,
+    useGetAllOfflineRequestQuery,
+    useGetSingleOfflineRequestQuery,
 } = Dashboard;

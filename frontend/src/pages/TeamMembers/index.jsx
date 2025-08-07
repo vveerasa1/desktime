@@ -139,6 +139,22 @@ const formatTime = (seconds) => {
 };
 
 const TeamMembers = () => {
+  const [formData, setFormData] = useState({
+      teamMembers: [
+        {
+          id: 1,
+          username: "",
+          email: "",
+          team: "",
+          role: "",
+          touched: {},
+          errors: {},
+        },
+      ],
+      selectAll: false,
+      sendInvite: false,
+      submissionError: "",
+    });
   const token = localStorage.getItem("token");
   let ownerId = null;
   let role = null;
@@ -203,6 +219,23 @@ const TeamMembers = () => {
 
   const handleClose = () => {
     setOpen(false);
+      setFormData({
+    teamMembers: [
+      {
+        id: 1,
+        username: "",
+        email: "",
+        team: "",
+        role: "",
+        touched: {},
+        errors: {},
+      },
+    ],
+    selectAll: false,
+    sendInvite: false,
+    submissionError: "",
+  });
+
   };
 
   return (
@@ -391,6 +424,8 @@ const TeamMembers = () => {
         ownerId={ownerId}
         open={open}
         handleClose={handleClose}
+        formData={formData}
+        setFormData={setFormData}
       />
       <MuiToaster
         open={toaster.open}

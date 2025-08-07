@@ -113,7 +113,7 @@ const Dashboard = () => {
           <LoadingComponent />
         ) : (
           <Box >
-          <ProductivityBar  getProductiviyData={getProductiviyData} />
+          <ProductivityBar ownerId={ownerId}  getProductiviyData={getProductiviyData} />
 
           </Box>
         ))}
