@@ -61,7 +61,7 @@ const OfflineTrackingModal = ({
 }) => {
   const [searchParams] = useSearchParams();
   const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
-  const [productivity, setProductivity] = useState("productive");
+  const [productivity, setProductivity] = useState("Productive");
   const [timeRange, setTimeRange] = useState([0, 0]);
   const [startTimeText, setStartTimeText] = useState("00:00");
   const [endTimeText, setEndTimeText] = useState("00:00");
@@ -183,7 +183,7 @@ useEffect(() => {
         taskName: "",
       }
     }));
-    setProductivity("productive");
+    setProductivity("Productive");
   }
 }, [open, timeSlotStart, timeSlotEnd]);
   const handleSliderChange = (event, newValue) => {
@@ -433,7 +433,7 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
             sx={{ mb: 3 }}
           >
             <FormControlLabel
-              value="productive"
+              value="Productive"
               control={
                 <Radio
                   sx={{ "&.Mui-checked": { color: "#4caf50 !important" } }}
