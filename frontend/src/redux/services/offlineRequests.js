@@ -16,9 +16,9 @@ export const OfflineRequest = createApi({
         }),
         updateOfflineRequest: builder.mutation({
             query: ({ id, payload }) => ({
-                url: `${URL_CONSTANTS.DASHBOARD}/${URL_CONSTANTS.OFFLINE_REQUESTS}`,
-                method: 'POST',
-                body: { id, ...payload },
+                url:`${URL_CONSTANTS.OFFLINE_REQUESTS}/${id}`,
+                method: 'PUT',
+                body: payload 
             }),
             invalidatesTags: ['OfflineRequest'],
         }),

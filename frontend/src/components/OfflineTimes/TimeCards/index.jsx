@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import clsx from 'clsx';
 import styles from './index.module.css';
+import moment from 'moment';
 
 // Styled card with hover effect and animated border
 // const MetricCard = styled(Card)(({ theme }) => ({
@@ -93,8 +94,26 @@ const MetricDisplay = ({ title, value, valueColor }) => {
   );
 };
 
-const TrackingCard = ({totalOfflineTime}) => {
-  const theme = useTheme();
+const TrackingCard = ({totalOfflineTime,
+              totalProductiveTime,
+              totalUnProductiveTime,
+              totalNeutralTime
+
+}) => {
+const formatSeconds = (totalSeconds) => {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}h ${minutes}m ${seconds}s`;
+};
+
+// Example values in seconds
+
+
+const formattedTotalProductiveTime = formatSeconds(totalProductiveTime);
+const formattedTotalUnProductiveTime = formatSeconds(totalUnProductiveTime);
+const formattedTotalNeutralTime = formatSeconds(totalNeutralTime);
+
  const cards = useMemo(() => [
     {
       title:'Total offline times',
@@ -104,18 +123,18 @@ const TrackingCard = ({totalOfflineTime}) => {
 
     {
       title: 'Productive time:',
-      value: '259h 48m 42s',
+      value: formattedTotalProductiveTime,
       color:'#008000'
     },
     {
       title: 'Unproductive time',
-      value: '3h 47m 24s',
+      value: formattedTotalUnProductiveTime,
       color:'#591207ff'
       // color: orderedCards[2]?.valueColor
     },
     {
       title: 'Neutral time:',
-      value: '457h 22m 11s',
+      value: formattedTotalNeutralTime,
       color:'#008000'
       // color: orderedCards[3]?.valueColor
     }
