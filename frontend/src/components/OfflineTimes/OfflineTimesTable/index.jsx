@@ -333,16 +333,16 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                       </Typography>
                     </Box>
                   </TableCell>
-                  <TableCell className={`${styles.rowcell,styles.bodyCell}`}>1</TableCell>
-                  <TableCell className={`${styles.rowcell, styles.bodyCell}`}>
+                  <TableCell className={`${styles.rowcell}`}>1</TableCell>
+                  <TableCell className={`${styles.rowcell}`}>
                     {formatDuration(row.durationInSeconds)}
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
-                    <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
+                    <TableCell className={`${styles.rowcell}`}>
                       <Box className={styles.productive}>{row.status}</Box>
                     </TableCell>
                   ) : (
-                    <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
+                    <TableCell className={`${styles.rowcell}`}>
                       <Box className={styles.productive}>
                         {row.productivity}
                       </Box>
@@ -350,7 +350,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                   )}
 
                   <TableCell
-                    className={`${styles.rowcell,styles.bodyCell} `}
+                    className={`${styles.rowcell} `}
                   >
                     {row.description}
                   </TableCell>
