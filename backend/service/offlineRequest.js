@@ -211,6 +211,7 @@ const getAllOfflineRequestByStatus = async (req, res, next) => {
       userId: { $in: userIds },
       status: status,
     })
+      .populate({ path: "modifiedBy", select: "username" })
       .populate({
         path: "userId",
         select: "username team",
@@ -219,13 +220,24 @@ const getAllOfflineRequestByStatus = async (req, res, next) => {
           select: "name",
         },
       })
+
       .sort({ createdAt: -1 });
+    let productiveTime = 0;
+    let unproductiveTime = 0;
+    let neutralTime = 0;
 
     // Step 4: Format results with duration
     const formattedRequests = requests.map((r) => {
       const durationInSeconds = Math.floor(
         (new Date(r.endTime) - new Date(r.startTime)) / 1000
       );
+      if (r.productivity === "Productive") {
+        productiveTime += durationInSeconds;
+      } else if (r.productivity === "Unproductive") {
+        unproductiveTime += durationInSeconds;
+      } else if (r.productivity === "Neutral") {
+        neutralTime += durationInSeconds;
+      }
 
       return {
         ...r._doc,
@@ -242,6 +254,9 @@ const getAllOfflineRequestByStatus = async (req, res, next) => {
       status: "Success",
       totalOfflineTimes: formattedRequests.length,
       formattedRequests,
+      productiveTime,
+      unproductiveTime,
+      neutralTime,
     });
   } catch (err) {
     next(err);

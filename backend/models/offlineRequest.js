@@ -7,6 +7,10 @@ const OfflineRequestSchema = new mongoose.Schema({
   description: { type: String },
   projectName: { type: String },
   taskName: { type: String },
+  modifiedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   productivity: {
     type: String,
     enum: ["Productive", "Unproductive", "Neutral"],
