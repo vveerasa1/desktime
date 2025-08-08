@@ -12,8 +12,8 @@ const AWS = require("aws-sdk");
 // Configure AWS Cognito
 const cognito = new AWS.CognitoIdentityServiceProvider({
   region: config.AWS.region,
-  accessKeyId: config.AWS.accessKeyId,
-  secretAccessKey: config.AWS.secretAccessKey,
+  accessKeyId:config.AWS.ACCESS_KEY_ID,
+  secretAccessKey: config.AWS.SECRET_ACCESS_KEY,
 });
 
 const addUser = async (req, res) => {
@@ -38,12 +38,14 @@ const addUser = async (req, res) => {
       teamId,
       ownerId,
     } = req.body;
+    const password = await generateRandomPassword(12); // plain text password
 
     // Create user in AWS Cognito first
     const params = {
-      UserPoolId: config.aws.cognitoUserPoolId,
+      UserPoolId: config.cognito.userPoolId,
       Username: email,
-      TemporaryPassword: await generateRandomPassword(12),
+      // email:email,
+      TemporaryPassword: password,
       UserAttributes: [
         { Name: "email", Value: email },
         { Name: "email_verified", Value: "true" },
@@ -66,10 +68,9 @@ const addUser = async (req, res) => {
       });
     }
 
-    const password = await generateRandomPassword(); // plain text password
     const hashedPassword = await bcrypt.hash(password, 10);
     let durationSeconds = 0;
-    const admin = await User.findOne({ _id: ownerId });
+    const admin = await User.findOne({ cognitoId: ownerId });
     console.log("printing");
     console.log(admin);
     if (workStartTime && workEndTime) {
@@ -198,13 +199,34 @@ const addUser = async (req, res) => {
   }
 };
 
-function generateRandomPassword(length = 8) {
-  const charset =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-  return Array.from(crypto.randomFillSync(new Uint32Array(length)))
-    .map((x) => charset[x % charset.length])
-    .join("");
-}
+// function generateRandomPassword(length = 8) {
+//   const charset =
+//     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+//   return Array.from(crypto.randomFillSync(new Uint32Array(length)))
+//     .map((x) => charset[x % charset.length])
+//     .join("");
+// }
+const generateRandomPassword = (length = 12) => {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+  const all = uppercase + lowercase + numbers + symbols;
+
+  // Ensure at least one of each requirement
+  let password = '';
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += symbols[Math.floor(Math.random() * symbols.length)];
+
+  for (let i = 4; i < length; i++) {
+    password += all[Math.floor(Math.random() * all.length)];
+  }
+
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+};
 
 const getUserById = async (req, res) => {
   try {
@@ -229,7 +251,7 @@ const getUserById = async (req, res) => {
 
 const getUserByCognitoId = async (req, res) => {
   try {
-    const users = await User.find({cognitoId:req.params.id});
+    const users = await User.findOne({cognitoId:req.params.id});
     res.status(200).json({
       code: 200,
       status: "Success",
@@ -321,7 +343,9 @@ const getAllUser = async (req, res) => {
     const { ownerId } = req.params;
     const users = await User.find({
       isDeleted: false,
-      $or: [{ _id: ownerId }, { ownerId: ownerId }],
+      $or: [
+        { cognitoId: ownerId }, 
+        { ownerId: ownerId }],
     });
     const activeCount = users.filter((user) => user.active === true).length;
     const inactiveCount = users.filter((user) => user.active === false).length;

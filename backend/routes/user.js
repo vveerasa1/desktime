@@ -10,12 +10,15 @@ const {
   getUserByCognitoId
 } = require("../service/user");
 const { authenticate } = require("../utils/middleware");
+
+const { validateToken } = require("../middleware/verifyCognitoJwt");
+
 const router = express.Router();
 router.use(express.json());
 
 router.post("/", addUser);
 // router.get("/:id", authenticate, getUserById);
-router.get("/:id", authenticate, getUserByCognitoId);
+router.get("/:id", validateToken, getUserByCognitoId);
 router.put("/:id", authenticate, updateUser);
 router.delete("/:id", authenticate, deleteUser);
 router.get("/owner/:ownerId", getAllUser);

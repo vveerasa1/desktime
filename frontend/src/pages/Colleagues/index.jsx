@@ -89,7 +89,7 @@ const Colleagues = () => {
     setOpen(false);
   };
 
-  console.log(colleaguesData, "COLLEAGURE");
+  console.log(role, "COLLEAGURE");
   return (
     <>
       <Box className={styles.pageContainer}>
@@ -125,7 +125,7 @@ const Colleagues = () => {
                 </Box>
               </Button>
             </Box>
-            {role === "Admin" ? (
+            {role === "Admin"||role === "Owner"  ? (
               <CustomButton
                 variant="contained"
                 color="success"
