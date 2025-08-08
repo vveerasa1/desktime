@@ -116,11 +116,11 @@ const staticData = [
 ];
 
 const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem("token");
   let userId = null;
-  if(token){
-    let decoded = jwtDecode(token)
-    userId = decoded.userId
+  if (token) {
+    let decoded = jwtDecode(token);
+    userId = decoded.userId;
   }
   const [selectedRows, setSelectedRows] = useState([]);
   const [page, setPage] = useState(1);
@@ -198,58 +198,66 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
           sx={{ tableLayout: "fixed", minWidth: 650, border: "none" }}
         >
           <TableHead className={styles.tableHead}>
+                {!(status === "Approved" || status === "Declined") && (
+
             <TableRow className={`${styles.mainRow} ${styles.stickyHeader}`}>
-              <TableCell colSpan={6}>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                >
-                  <Typography
-                    className={styles.selectall}
-                    fontWeight={600}
-                    color="white"
-                    ml={1}
-                    onClick={handleSelectAll}
+              <TableCell
+                colSpan={status === "Approved" || status === "Declined" ? 7 : 7}
+              >
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
                   >
-                    {selectedRows.length === paginatedData.length
-                      ? "Deselect all"
-                      : "Select all"}
-                  </Typography>
-                </Box>
-              </TableCell>
-              <TableCell colSpan={1}>
-                <Box display="flex" justifyContent="end" alignItems="center">
-                  <Typography
-                    className={styles.selectall}
-                    fontWeight={600}
-                    color={selectedRows.length > 0 ? "white" : "gray"}
-                    fontSize={"12px"}
-                    ml={1}
-                  >
-                    {selectedRows.length} selected
-                  </Typography>
-                  <Typography
-                    className={styles.selectall}
-                    fontWeight={600}
-                    fontSize={"12px"}
-                    color={selectedRows.length > 0 ? "white" : "gray"}
-                    ml={1}
-                  >
-                    Approve
-                  </Typography>
-                  <Typography
-                    className={styles.selectall}
-                    fontWeight={600}
-                    fontSize={"12px"}
-                    color={selectedRows.length > 0 ? "white" : "gray"}
-                    ml={1}
-                  >
-                    Decline
-                  </Typography>
-                </Box>
+                    <Typography
+                      className={styles.selectall}
+                      fontWeight={600}
+                      color="white"
+                      ml={1}
+                      onClick={handleSelectAll}
+                    >
+                      {selectedRows.length === paginatedData.length
+                        ? "Deselect all"
+                        : "Select all"}
+                    </Typography>
+                    <Box
+                      display="flex"
+                      justifyContent="end"
+                      alignItems="center"
+                    >
+                      <Typography
+                        className={styles.selectall}
+                        fontWeight={600}
+                        color={selectedRows.length > 0 ? "white" : "gray"}
+                        fontSize={"12px"}
+                        ml={1}
+                      >
+                        {selectedRows.length} selected
+                      </Typography>
+                      <Typography
+                        className={styles.selectall}
+                        fontWeight={600}
+                        fontSize={"12px"}
+                        color={selectedRows.length > 0 ? "white" : "gray"}
+                        ml={1}
+                      >
+                        Approve
+                      </Typography>
+                      <Typography
+                        className={styles.selectall}
+                        fontWeight={600}
+                        fontSize={"12px"}
+                        color={selectedRows.length > 0 ? "white" : "gray"}
+                        ml={1}
+                      >
+                        Decline
+                      </Typography>
+                    </Box>
+                  </Box>
               </TableCell>
             </TableRow>
+                )}
+
             <TableRow>
               <TableCell>
                 <div style={{ marginLeft: "50px" }}>Name</div>
@@ -261,12 +269,14 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                 <div className={styles.primaryHeading}>Splits</div>
               </TableCell>
               <TableCell>
-                <div  className={styles.primaryHeading}>Duration</div>
+                <div className={styles.primaryHeading}>Duration</div>
               </TableCell>
 
               <TableCell>
                 <div className={styles.primaryHeading}>
-                  {status === "Approved" || status === "Declined" ? "Status" : "Type"}
+                  {status === "Approved" || status === "Declined"
+                    ? "Status"
+                    : "Type"}
                 </div>
               </TableCell>
               <TableCell>
@@ -274,7 +284,9 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
               </TableCell>
               {status === "Approved" || status === "Declined" ? (
                 <TableCell>
-                  <div className={styles.primaryHeading}>{status === "Approved" ? "ApprovedBy" :"DeclinedBy"}</div>
+                  <div className={styles.primaryHeading}>
+                    {status === "Approved" ? "ApprovedBy" : "DeclinedBy"}
+                  </div>
                 </TableCell>
               ) : (
                 <TableCell>
@@ -285,7 +297,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
           </TableHead>
           <TableBody
             className={styles.scrollableTableBody}
-            sx={{ maxHeight: "200px", overflow: "auto" }}
+            sx={{ height: "100px !important" , overflow: "auto" }}
           >
             {paginatedData.length > 0 ? (
               paginatedData.map((row) => (
@@ -298,12 +310,14 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                         width: "160px",
                       }}
                     >
-                      <Checkbox
-                        color="primary"
-                        checked={selectedRows.includes(row._id)}
-                        onChange={() => handleSelectRow(row._id)}
-                      />
-                      <Box>
+                      {!(status === "Approved" || status === "Declined") && (
+                        <Checkbox
+                          color="primary"
+                          checked={selectedRows.includes(row._id)}
+                          onChange={() => handleSelectRow(row._id)}
+                        />
+                      )}
+                      <Box sx={{mx:status === "Approved" || status === "Declined" ? 5 : 0}}>
                         <Typography
                           variant="body2"
                           sx={{
@@ -321,7 +335,9 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                       </Box>
                     </Box>
                   </TableCell>
-                  <TableCell  className={`${styles.rowcell,styles.bodyCell}  `}>
+                  <TableCell
+                    className={`${(styles.rowcell, styles.bodyCell)}  `}
+                  >
                     <Box sx={{ width: "160px", height: "50px !important" }}>
                       <Typography>
                         {`${formatTime(row.startTime)} - ${formatTime(
@@ -339,7 +355,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
                     <TableCell className={`${styles.rowcell}`}>
-                      <Box className={styles.productive}>{row.status}</Box>
+                      <Box sx={{color:status === "Declined" ? "#e93333ff" :"green"}} className={styles.productive}>{row.status}</Box>
                     </TableCell>
                   ) : (
                     <TableCell className={`${styles.rowcell}`}>
@@ -349,13 +365,11 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                     </TableCell>
                   )}
 
-                  <TableCell
-                    className={`${styles.rowcell} `}
-                  >
+                  <TableCell className={`${styles.rowcell} `}>
                     {row.description}
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
-                     <TableCell className={`${styles.rowcell}`}>
+                    <TableCell className={`${styles.rowcell}`}>
                       <Box>{row?.modifiedBy?.username}</Box>
                     </TableCell>
                   ) : (
@@ -364,7 +378,10 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                         <Tooltip title="Approve">
                           <Button
                             onClick={() => {
-                              handleRequest(row._id, { status: "Approved" ,modifiedBy:userId});
+                              handleRequest(row._id, {
+                                status: "Approved",
+                                modifiedBy: userId,
+                              });
                             }}
                             className={styles.approveBtn}
                             size="small"
@@ -378,7 +395,10 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                         <Tooltip title="Decline">
                           <Button
                             onClick={() => {
-                              handleRequest(row._id, { status: "Declined",modifiedBy:userId });
+                              handleRequest(row._id, {
+                                status: "Declined",
+                                modifiedBy: userId,
+                              });
                             }}
                             className={styles.declineBtn}
                             size="small"

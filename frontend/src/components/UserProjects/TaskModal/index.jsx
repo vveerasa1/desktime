@@ -132,8 +132,9 @@ const TaskModal = ({
           borderBottom: "1px solid #e0e0e0",
           padding: "16px 24px",
           fontWeight: "bold",
-          color: "#333",
+          color: "white",
           borderRadius: "8px 8px 0 0",
+          backgroundColor:"#143352"
         }}
       >
         {taskId ? "Update Task" : "Add Task"}

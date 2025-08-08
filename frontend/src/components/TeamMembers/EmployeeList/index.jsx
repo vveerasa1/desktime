@@ -12,7 +12,10 @@ const EmployeeList = ({columns,userData,role,formatTime}) => {
             <TableRow className={styles.tHeadRow}>
               {columns.map((col, index) => (
                 <TableCell className={styles.tHeadSell} key={index}>
+                  <Box sx={{textAlign: col ==="Name" ? "left" :"center"}}>
                   {col}
+
+                  </Box>
                 </TableCell>
               ))}
             </TableRow>
@@ -26,16 +29,16 @@ const EmployeeList = ({columns,userData,role,formatTime}) => {
                   backgroundColor: idx % 2 === 0 ? "#f4f4f4" : "#ffffff",
                 }}
               >
-                <TableCell className={styles.tBodyCell}>
-                  <Box className={styles.tPersonInfo}>
-                    <Box>
+                <TableCell sx={{width:"380px"}} className={styles.tBodyCell}>
+                  <Box  className={styles.tPersonInfo}>
+                    <Box >
                       <Avatar
                         alt="User Profile"
                         src={row.user.photo}
                         className={styles.avatarImage}
                       />
                     </Box>
-                    <Box>
+                    <Box >
                       {role === "Admin" || role === "Owner" ? (
                         <Link
                           className={styles.tPersonName}
@@ -59,19 +62,34 @@ const EmployeeList = ({columns,userData,role,formatTime}) => {
                   </Box>
                 </TableCell>
                 <TableCell className={styles.tBodyCell}>
+                  <Box sx={{textAlign:"center"}}>
                   {formatTime(row.productiveTime)}
+
+                  </Box>
                 </TableCell>
                 <TableCell className={styles.tBodyCell}>
+                  <Box sx={{textAlign:"center"}}>
                   {formatTime(row.offlineTime)}
+
+                  </Box>
                 </TableCell>
                 <TableCell className={styles.tBodyCell}>
+                  <Box sx={{textAlign:"center"}}>
                   {formatTime(row.deskTime)}
+
+                  </Box>
                 </TableCell>
                 <TableCell className={styles.tBodyCell}>
+                  <Box sx={{textAlign:"center"}}>
                   {row.arrivalTime || "-"}
+
+                  </Box>
                 </TableCell>
-                <TableCell className={styles.tBodyCell}>
+                <TableCell sx={{width:"150px"}}className={styles.tBodyCell}>
+                  <Box sx={{textAlign:"center"}}>
                   {row.leftTime || "-"}
+
+                  </Box>
                 </TableCell>
               </TableRow>
             ))}

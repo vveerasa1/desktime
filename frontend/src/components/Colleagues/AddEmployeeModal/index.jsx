@@ -191,7 +191,7 @@ useEffect(() => {
   }
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <DialogTitle>Add Employee</DialogTitle>
+      <DialogTitle sx={{backgroundColor:"#143352",color:"white"}}>Add Employee</DialogTitle>
       <DialogContent dividers>
         <Grid>
           <EmployeeProfileDetails

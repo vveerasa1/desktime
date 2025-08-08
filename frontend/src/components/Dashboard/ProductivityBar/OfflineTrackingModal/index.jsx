@@ -249,10 +249,6 @@ const finalStartMinutes = timeToMinutes(startTimeText);
       currentErrors.description = ""; // Clear error if valid
     }
 
-    // Validate project name
-
-    // Validate task name
-
     // Update parent's errors state
     setFormData((prev) => ({ ...prev, errors: currentErrors }));
 
@@ -400,9 +396,6 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
                 }}
                 // handleBlur={(e) => handleBlur(e, "projectName")}
                 placeholder="Enter project name"
-                isRequired
-                error={!!errors.projectName}
-                helperText={errors.projectName}
               />
             </Box>
             <Box mt={3} width="100%">
@@ -415,9 +408,6 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
                 }}
                 // handleBlur={(e) => handleBlur(e, "taskName")}
                 placeholder="Enter Task Name"
-                isRequired
-                error={!!errors.taskName}
-                helperText={errors.taskName}
               />
             </Box>
           </Box>
@@ -425,12 +415,14 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
             Productivity
           </Typography>
+          <Box sx={{display:"flex", justifyContent:'center'}}>
+
           <RadioGroup
             row
             value={productivity}
             onChange={(e) => setProductivity(e.target.value)}
             className={styles.radioGroup}
-            sx={{ mb: 3 }}
+            sx={{ mb: 3,gap:3 }}
           >
             <FormControlLabel
               value="Productive"
@@ -460,6 +452,7 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
               label="Neutral"
             />
           </RadioGroup>
+          </Box>
 
           <Box className={styles.actions}>
             <Button

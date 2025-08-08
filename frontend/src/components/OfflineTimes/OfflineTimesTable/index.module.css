@@ -1,3 +1,11 @@
+.dynamicHeight {
+  max-height: calc(56px * 5); /* Default height for 5 rows */
+}
+
+.singleRowHeight {
+  max-height: 56px !important; /* Height for single row */
+}
+
 .container {
   background-color: #ffffff;
   /* padding: 24px; */
@@ -147,7 +155,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
+  padding: 100px 0;
   color: #888;
 }
 
