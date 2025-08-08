@@ -143,7 +143,7 @@ useEffect(() => {
         ownerId,
       };
 
-      await createProfileApi(payload).unwrap();
+      await createProfileApi([payload]).unwrap();
       openToaster("Employee Added Successfully!", "success");
       setTimeout(() => {
         setFormData({
@@ -152,7 +152,6 @@ useEffect(() => {
           team:"",
           errors: { username: "", email: "" ,team:"" },
         });
-        handleCloseToaster();
 
       }, 2000);
       // Clear form and errors

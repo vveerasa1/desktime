@@ -1,5 +1,5 @@
 // export default Sidebar;
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
@@ -9,6 +9,8 @@ import {
   Toolbar,
   Divider,
   Box,
+  Collapse,
+  IconButton,
 } from "@mui/material";
 import {
   MenuOpen as MenuOpenIcon,
@@ -18,12 +20,14 @@ import {
   Settings as SettingsIcon,
   PowerSettingsNew as PowerSettingsNewIcon,
   Folder as FolderIcon,
+  ExpandLess,
+  ExpandMore,
 } from "@mui/icons-material";
 import GroupsIcon from '@mui/icons-material/Groups';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Logo from '../../assets/images/logo.png'
 import LogoIcon from '../../assets/images/favicon.png'
-
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
 import styles from "./index.module.css";
 
@@ -35,12 +39,16 @@ const navItems = [
   { label: "Offline Times", path: "/offline-times", icon: <EventBusyIcon /> },
   { label: "Projects", path: "/projects", icon: <FolderIcon /> },
   { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
-  { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
+];
+
+const settingsItems = [
+  { label: "My Profile", path: "/settings" },
 ];
 
 const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleItemClick = useCallback((label, path) => {
     if (path) navigate(path);
@@ -48,13 +56,19 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
     if (label === "Logout") setOpen(true);
   }, [navigate, isMobile, setMobileOpen, setOpen]);
 
+  const toggleSettings = useCallback(() => {
+    setSettingsOpen(!settingsOpen);
+  }, [settingsOpen]);
+
+  const isSettingsActive = useMemo(() => 
+    location.pathname.startsWith('/settings'), 
+    [location.pathname]
+  );
+
   const drawerContent = useMemo(() => (
     <>
       <Toolbar className={styles.toolbar} onClick={() => setMobileOpen(!mobileOpen)}>
         <Box className={!isMobile && mobileOpen ? styles.logoWrapperWeb : styles.logoWrapper}>
-          {/* {   isMobile && !mobileOpen && (  <Box className={styles.menuIconButton}>
-            <MenuOpenIcon />
-          </Box>)} */}
           {!isMobile && mobileOpen ? (
             <Box className={styles.brandLogo}>
               <img className={styles.logoImg} src={Logo} alt="TrackMe Logo" />
@@ -82,9 +96,50 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
             </ListItem>
           );
         })}
+        
+        {/* Settings Dropdown */}
+        <ListItem
+          button
+          className={`${styles.listItem} ${isSettingsActive ? styles.activeItem : ""}`}
+          onClick={toggleSettings}
+        >
+          <Box mt={0.5}className={styles.iconWrapper}><SettingsIcon /></Box>
+          {!isMobile && mobileOpen && (
+            <>
+              <ListItemText className={styles.listItemText} primary="Settings" />
+              {settingsOpen ? <ExpandLess /> : <ExpandMore />}
+            </>
+          )}
+        </ListItem>
+        <Collapse in={(!isMobile && mobileOpen) && settingsOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            {settingsItems.map(({ label, path }) => {
+              const isActive = path && location.pathname.startsWith(path);
+              return (
+                <ListItem
+                  button
+                  key={label}
+                  className={`${styles.listItem} ${styles.nestedItem} ${isActive ? styles.activeItem : ""}`}
+                  onClick={() => handleItemClick(label, path)}
+                >
+                  <Box mt={0.5} className={styles.iconWrapper}>
+                                {label === "My Profile" ? <PersonOutlineIcon /> : <SettingsIcon />}
+
+                  </Box>
+                  {!isMobile && mobileOpen && (
+                
+                    <ListItemText sx={{width:"160px"}}  className={styles.listItemText} primary={label} />
+    
+                 
+                  )}
+                </ListItem>
+              );
+            })}
+          </List>
+        </Collapse>
       </List>
     </>
-  ), [mobileOpen, isMobile, location.pathname, handleItemClick, setMobileOpen]);
+  ), [mobileOpen, isMobile, location.pathname, handleItemClick, setMobileOpen, settingsOpen, toggleSettings, isSettingsActive]);
 
   return (
     <Drawer
@@ -94,7 +149,9 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
       ModalProps={{ keepMounted: true }}
       sx={{
         width: drawerWidth,
-        flexShrink: 0,
+        flexShrink: 5,
+          transition: "width 0.3s ease-in-out",
+        
         [`& .MuiDrawer-paper`]: {
           width: drawerWidth,
           boxSizing: "border-box",
@@ -106,8 +163,6 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
           overflowX: "hidden",
           top: 0,
           cursor: "pointer",
-
-
         },
       }}
     >
