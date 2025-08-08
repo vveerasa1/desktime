@@ -98,45 +98,51 @@ const Sidebar = ({ setOpen, setMobileOpen, mobileOpen, isMobile, drawerWidth }) 
         })}
         
         {/* Settings Dropdown */}
+       {/* Settings Dropdown */}
+<ListItem
+  button
+  className={`${styles.listItem} ${isSettingsActive ? styles.activeItem : ""}`}
+  onClick={toggleSettings}
+>
+  <Box mt={0.5} className={styles.iconWrapper}><SettingsIcon /></Box>
+  {!isMobile && mobileOpen && (
+    <>
+      <ListItemText className={styles.listItemText} primary="Settings" />
+      {settingsOpen ? <ExpandLess /> : <ExpandMore />}
+    </>
+  )}
+</ListItem>
+<Collapse in={settingsOpen} timeout="auto" unmountOnExit>
+  <List component="div" disablePadding>
+    {settingsItems.map(({ label, path }) => {
+      const isActive = path && location.pathname.startsWith(path);
+      return (
         <ListItem
           button
-          className={`${styles.listItem} ${isSettingsActive ? styles.activeItem : ""}`}
-          onClick={toggleSettings}
+          key={label}
+          className={`${styles.listItem} ${styles.nestedItem} ${isActive ? styles.activeItem : ""}`}
+          onClick={() => handleItemClick(label, path)}
         >
-          <Box mt={0.5}className={styles.iconWrapper}><SettingsIcon /></Box>
+          <Box mt={0.5} className={styles.iconWrapper}>
+            {label === "My Profile" ? <PersonOutlineIcon /> : <SettingsIcon />}
+          </Box>
           {!isMobile && mobileOpen && (
-            <>
-              <ListItemText className={styles.listItemText} primary="Settings" />
-              {settingsOpen ? <ExpandLess /> : <ExpandMore />}
-            </>
+<ListItemText
+  sx={{
+    width: "160px", // Ensures fixed width
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
+  }}
+  className={styles.listItemText}
+  primary={label}
+/>
           )}
         </ListItem>
-        <Collapse in={(!isMobile && mobileOpen) && settingsOpen} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {settingsItems.map(({ label, path }) => {
-              const isActive = path && location.pathname.startsWith(path);
-              return (
-                <ListItem
-                  button
-                  key={label}
-                  className={`${styles.listItem} ${styles.nestedItem} ${isActive ? styles.activeItem : ""}`}
-                  onClick={() => handleItemClick(label, path)}
-                >
-                  <Box mt={0.5} className={styles.iconWrapper}>
-                                {label === "My Profile" ? <PersonOutlineIcon /> : <SettingsIcon />}
-
-                  </Box>
-                  {!isMobile && mobileOpen && (
-                
-                    <ListItemText sx={{width:"160px"}}  className={styles.listItemText} primary={label} />
-    
-                 
-                  )}
-                </ListItem>
-              );
-            })}
-          </List>
-        </Collapse>
+      );
+    })}
+  </List>
+</Collapse>
       </List>
     </>
   ), [mobileOpen, isMobile, location.pathname, handleItemClick, setMobileOpen, settingsOpen, toggleSettings, isSettingsActive]);

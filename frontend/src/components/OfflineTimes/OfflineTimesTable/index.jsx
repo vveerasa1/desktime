@@ -355,11 +355,11 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                     {row.description}
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
-                     <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
+                     <TableCell className={`${styles.rowcell}`}>
                       <Box>{row?.modifiedBy?.username}</Box>
                     </TableCell>
                   ) : (
-                    <TableCell className={`${styles.rowcell,styles.bodyCell}`}>
+                    <TableCell className={`${styles.rowcell}`}>
                       <Box className={styles.lastcell}>
                         <Tooltip title="Approve">
                           <Button
