@@ -164,6 +164,14 @@ const ActivityTimelineBar = ({
     message: "",
     severity: "success",
   });
+   const [formData, setFormData] = useState({
+    description: "",
+    projectName: "",
+    taskName: "",
+    startTime: "",
+    endTime: ""
+  })
+  const [errors, setErrors] = useState({});
 
    const handleOpenToaster = (message, severity = "success") => {
     setToaster({ open: true, message, severity });
@@ -180,6 +188,14 @@ const ActivityTimelineBar = ({
   const handleClose = () => {
     setOpen(false);
     setSelectedTimeRange({ start: null, end: null });
+    setFormData({
+      description: "",
+      projectName: "",
+      taskName: "",
+      startTime: "",
+      endTime: "",
+    })
+    setErrors({})
   };
 
   const processTimelineData = (data) => {
@@ -325,6 +341,10 @@ const ActivityTimelineBar = ({
         handleClose={handleClose}
         timeSlotStart={selectedTimeRange.start}
         timeSlotEnd={selectedTimeRange.end}
+        errors={errors}
+        setErrors={setErrors}
+        formData={formData}
+        setFormData={setFormData}
       />
 
       <MuiToaster

@@ -57,7 +57,11 @@ const OfflineTrackingModal = ({
   timeSlotStart,
   timeSlotEnd,
   openToaster,
-  ownerId
+  ownerId,
+  errors,
+  setErrors,
+  setFormData,
+  formData
 }) => {
   const [searchParams] = useSearchParams();
   const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
@@ -65,7 +69,6 @@ const OfflineTrackingModal = ({
   const [timeRange, setTimeRange] = useState([0, 0]);
   const [startTimeText, setStartTimeText] = useState("00:00");
   const [endTimeText, setEndTimeText] = useState("00:00");
-  const [errors, setErrors] = useState({});
   const [createOfflineRequest, { isLoading, isSuccess, isError, error }] = useCreateOfflineRequestMutation();
   console.log(date)
   
@@ -76,25 +79,35 @@ const OfflineTrackingModal = ({
       });
     console.log(getOfflineTrackingData, "DATA");
   
-  const [formData, setFormData] = useState({
-    description: "",
-    projectName: "",
-    taskName: "",
-    startTime: "",
-    endTime: ""
-  })
+ 
   const handleChange = (event, name) => {
-    const { value } = event.target
-    setFormData((prev) => ({
-      ...prev, [name]: value
-    }))
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: "",
-      });
+  const { value } = event.target;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value
+  }));
+
+  // Live validation for description
+  if (name === "description") {
+    if (!/^[A-Za-z\s]*$/.test(value.trim())) {
+      setErrors((prev) => ({
+        ...prev,
+        description: "Only letters and spaces are allowed."
+      }));
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        description: ""
+      }));
     }
+  } else if (errors[name]) {
+    setErrors((prev) => ({
+      ...prev,
+      [name]: ""
+    }));
   }
+};
+
 
   const handleBlur = (event, name) => {
     if (formData[name].trim() === "") {
@@ -293,7 +306,6 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
   }
     
   };
-
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={{ minWidth: "600px" }} className={styles.modalPaper}>

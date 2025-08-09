@@ -160,25 +160,24 @@ const searchTeams = async (req, res) => {
     const total = await Team.countDocuments(searchQuery);
 
     // Find teams with search criteria
-    const teams = await Team.find(searchQuery)
+   const teams = await Team.find(searchQuery)
       .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
-    res.status(200).json({
-      code: 200,
-      status: 'Success',
-      message: 'Teams fetched successfully',
-      data: {
-        teams,
-        pagination: {
-          total,
-          page: parseInt(page),
-          limit: parseInt(limit),
-          totalPages: Math.ceil(total / limit),
-        },
-      },
-    });
+   res.status(200).json({
+  code: 200,
+  status: 'Success',
+  message: 'Teams fetched successfully',
+  data: teams, // Array directly here
+  pagination: {
+    total,
+    page: parseInt(page),
+    limit: parseInt(limit),
+    totalPages: Math.ceil(total / limit),
+  },
+});
+
   } catch (err) {
     res.status(500).json({
       code: 500,

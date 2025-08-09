@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   useGetAllProfileQuery,
   useGetSingleProfileQuery,
+  useSearchProfileQuery,
 } from "../../redux/services/user";
 import { useNavigate } from "react-router-dom";
 import ColleaguesList from "../../components/Colleagues/ColleaguesList";
@@ -15,6 +16,7 @@ import AddEmployeeModal from "../../components/Colleagues/AddEmployeeModal";
 import styles from "./index.module.css";
 import MuiToaster from "../../components/MuiToaster";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import { useDebounce } from "../../hooks/useDebounce";
 const Colleagues = () => {
   const token = localStorage.getItem("token");
   let userId = null;
@@ -33,10 +35,22 @@ const Colleagues = () => {
 
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
+  const debouncedSearchText = useDebounce(searchText, 500); // Debounce the search input
   const [open, setOpen] = useState(false);
   const { data: getProfile, isLoading } = useGetAllProfileQuery({
     id: ownerId,
   });
+  const {
+    data: searchResults,
+    isLoading: isSearchLoading,
+    isError: isSearchError,
+  } = useSearchProfileQuery(
+    {
+      id: ownerId,
+      searchParams: { username: debouncedSearchText }, // <-- pass as `searchParams`
+    },
+    { skip: !debouncedSearchText }
+  );
   const [colleaguesData, setColleaguesData] = useState({
     users: [],
     activeCount: 0,
@@ -51,14 +65,20 @@ const Colleagues = () => {
   );
 
   useEffect(() => {
-    if (getProfile?.data) {
+    if (debouncedSearchText && searchResults?.data) {
+      setColleaguesData({
+        users: searchResults.data.users,
+        activeCount: searchResults.data.activeCount,
+        inactiveCount: searchResults.data.inactiveCount,
+      });
+    } else if (getProfile?.data) {
       setColleaguesData({
         users: getProfile.data.users,
         activeCount: getProfile.data.activeCount,
         inactiveCount: getProfile.data.inactiveCount,
       });
     }
-  }, [getProfile]);
+  }, [getProfile, searchResults, debouncedSearchText]);
 
   const [toaster, setToaster] = useState({
     open: false,
@@ -73,14 +93,10 @@ const Colleagues = () => {
   const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
-  // const handleSearch = (e) => {
-  //   const value = e.target.value;
-  //   setSearchText(value);
-  //   const result = getProfile.data.filter((item) =>
-  //     item.username.toLowerCase().includes(value.toLowerCase())
-  //   );
-  //   setFilteredData(result);
-  // };
+  const handleSearch = (event) => {
+    setSearchText(event.target.value);
+  };
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -98,10 +114,12 @@ const Colleagues = () => {
           <Box className={styles.searchActions}>
             <Box>
               <CustomTextField
-                name="password"
+                name="search"
                 fullWidth
                 startIcon={<SearchIcon />}
-                placeholder={"search"}
+                placeholder="Search"
+                value={searchText}
+                handleChange={handleSearch}
               />
             </Box>
             <Box>
