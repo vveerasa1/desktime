@@ -64,7 +64,7 @@ const Sidebar = ({
     if (!isMobile) {
       hoverTimeoutRef.current = setTimeout(() => {
         setMobileOpen(false);
-      }, 300); // 300ms delay before closing
+      }, 50); 
     }
   };
 

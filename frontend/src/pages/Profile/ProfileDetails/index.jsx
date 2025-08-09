@@ -130,7 +130,7 @@ const ProfileDeatils = ({
       <Box mt={2}>
 
       <Paper elevation={2}  className={styles.geoSettingsCard}>
-        <Typography variant="subtitle1">Geo Settings</Typography>
+        <Typography fontWeight={600} variant="subtitle1">Geo Settings</Typography>
         <Box  className={styles.profileBox}>
           <CustomDropdown
             label="Time Zone"

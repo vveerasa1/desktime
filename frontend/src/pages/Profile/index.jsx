@@ -531,7 +531,7 @@ const [toaster, setToaster] = useState({
         <Grid item size={{ xs: 12, md: 3 }}>
           <Paper elevation={2} className={styles.twoFactorCard}>
             <Box p={2}>
-              <Typography variant="subtitle1">
+              <Typography fontWeight={600} variant="subtitle1">
                 Two Factor Authentication
               </Typography>
               <Box py={1}>
@@ -563,10 +563,10 @@ const [toaster, setToaster] = useState({
 
           <Grid mt={5} item size={{ xs: 12, md: 12 }}>
             <Paper elevation={2}  className={styles.emailPaper}>
-              <Typography variant="p" gutterBottom>
+              <Typography fontWeight={600} variant="p" gutterBottom>
                 Email Subscription
               </Typography>
-              <Typography variant="body1" fontSize={12}>
+              <Typography  variant="body1" fontSize={12}>
                 Stay informed with our latest updates, tips, and feature
                 releases. You can unsubscribe at any time.
               </Typography>

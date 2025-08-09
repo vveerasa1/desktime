@@ -393,7 +393,91 @@ const getUser = async (req, res) => {
     });
   }
 };
+const searchUsers = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+    const {
+      username,
+      email,
+      employeeId,
+      phone,
+      role,
+      team,
+      active,
+      page = 1,
+      limit = 10,
+      sortBy = 'username',
+      sortOrder = 'asc'
+    } = req.query;
 
+    // Base query to get users for this owner
+    const searchQuery = {
+      isDeleted: false,
+      $or: [{ _id: ownerId }, { ownerId: ownerId }],
+    };
+
+    // Add field-specific searches if provided
+    if (username) {
+      searchQuery.username = { $regex: new RegExp(username, 'i') };
+    }
+    if (email) {
+      searchQuery.email = { $regex: new RegExp(email, 'i') };
+    }
+    if (employeeId) {
+      searchQuery.employeeId = { $regex: new RegExp(employeeId, 'i') };
+    }
+    if (phone) {
+      searchQuery.phone = { $regex: new RegExp(phone, 'i') };
+    }
+
+    // Add filters if provided
+    if (role) {
+      searchQuery.role = role;
+    }
+    if (team) {
+      searchQuery.team = team;
+    }
+    if (active !== undefined) {
+      searchQuery.active = active === 'true';
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await User.countDocuments(searchQuery);
+
+    // Find users with search criteria
+    const users = await User.find(searchQuery)
+      .populate('team', 'name')
+      .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    res.status(200).json({
+      code: 200,
+      status: 'Success',
+      message: 'Users fetched successfully',
+      data: {
+        users,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error searching users:', error);
+    res.status(500).json({
+      code: 500,
+      status: 'Error',
+      message: 'Error searching users',
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   addUser,
   getUserById,
@@ -402,4 +486,5 @@ module.exports = {
   getScreenshotsById,
   getUser,
   deleteUser,
+  searchUsers
 };
