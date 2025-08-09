@@ -36,6 +36,14 @@ export const User = createApi({
         }),
         providesTags:['User']
 
+    }),
+     userExist:builder.query({
+        query:()=>({
+            url:`${URL_CONSTANTS.USER}/exist`,
+            method:'GET',
+        }),
+        providesTags:['User']
+
     })
   }),
 });
@@ -45,5 +53,6 @@ export const {
   useCreateProfileMutation,
   useUpdateProfileMutation,
   useGetAllProfileQuery,
-  useGetSingleProfileQuery
+  useGetSingleProfileQuery,
+  useUserExistQuery
 } = User;

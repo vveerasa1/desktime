@@ -12,9 +12,29 @@ const AWS = require("aws-sdk");
 // Configure AWS Cognito
 const cognito = new AWS.CognitoIdentityServiceProvider({
   region: config.AWS.region,
-  accessKeyId:config.AWS.ACCESS_KEY_ID,
+  accessKeyId: config.AWS.ACCESS_KEY_ID,
   secretAccessKey: config.AWS.SECRET_ACCESS_KEY,
 });
+
+const isUserExist = async (req, res) => {
+
+  try {
+    console.log('user', req.user)
+    let user = await User.findOne({ cognitoId: req.user.sub });
+    let isUpdate = true;
+    if (!user) {
+      user = await User.create({ cognitoId: req.user.sub });
+      isUpdate = false;
+    }
+    res.status(200).json({
+      message: `User ${isUpdate ? "updated" : "created"} successfully`,
+      user
+    } );
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+};
 
 const addUser = async (req, res) => {
   try {
@@ -251,7 +271,7 @@ const getUserById = async (req, res) => {
 
 const getUserByCognitoId = async (req, res) => {
   try {
-    const users = await User.findOne({cognitoId:req.params.id});
+    const users = await User.findOne({ cognitoId: req.params.id });
     res.status(200).json({
       code: 200,
       status: "Success",
@@ -344,7 +364,7 @@ const getAllUser = async (req, res) => {
     const users = await User.find({
       isDeleted: false,
       $or: [
-        { cognitoId: ownerId }, 
+        { cognitoId: ownerId },
         { ownerId: ownerId }],
     });
     const activeCount = users.filter((user) => user.active === true).length;
@@ -444,4 +464,5 @@ module.exports = {
   getScreenshotsById,
   getUser,
   deleteUser,
+  isUserExist
 };

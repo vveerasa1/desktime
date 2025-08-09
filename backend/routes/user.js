@@ -7,7 +7,8 @@ const {
   getScreenshotsById,
   getUser,
   deleteUser,
-  getUserByCognitoId
+  getUserByCognitoId,
+  isUserExist
 } = require("../service/user");
 const { authenticate } = require("../utils/middleware");
 
@@ -15,6 +16,7 @@ const { validateToken } = require("../middleware/verifyCognitoJwt");
 
 const router = express.Router();
 router.use(express.json());
+router.get("/exist", validateToken, isUserExist);
 
 router.post("/", addUser);
 // router.get("/:id", authenticate, getUserById);

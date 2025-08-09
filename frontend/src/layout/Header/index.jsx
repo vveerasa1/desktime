@@ -12,12 +12,16 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import {jwtDecode} from "jwt-decode";
 import { useGetSingleProfileQuery } from '../../redux/services/user'; 
+import { useAuth } from 'react-oidc-context';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const token = localStorage.getItem('token');
   console.log(token,"CHECKING FOR TOKEN")
   let userId = null;
-
+  const auth = useAuth();
+  const navigate=useNavigate()
   if (token) {
     try {
       const decoded = jwtDecode(token);
@@ -35,6 +39,27 @@ const Header = () => {
 
   const username = currentUserProfile?.data?.username || "Guest";
   const avatarLetter = username ? username.charAt(0).toUpperCase() : '?';
+  useEffect(() => {
+    console.log('auth', auth);
+    // auth.signoutPopup();
+
+    if (!auth.isLoading && !auth.isAuthenticated) {
+      console.log('auth', auth);
+      navigate('/')
+    }
+    if (auth.isAuthenticated) {
+      // console.log(auth.user?.profile?.sub);
+      // localStorage.setItem('token', auth.user.access_token);
+      // localStorage.setItem("authUser", auth.user?.profile);
+
+      const groups = auth.user?.profile?.["cognito:groups"] || [];
+      if (groups.includes("hrmsAccess")) {
+        navigate('/dashboard');
+      } else {
+        navigate('/subscribe-trackme');
+      }
+    }
+  }, [auth.isLoading, auth.isAuthenticated]);
   return (
     <AppBar
       elevation={0}

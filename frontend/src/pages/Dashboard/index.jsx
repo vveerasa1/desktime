@@ -23,11 +23,13 @@ const Dashboard = () => {
   employee = employee?.split("=")?.[1];
 
   const token = localStorage.getItem("token");
-  let decodedUserId = null;
+  const decodedUserId = localStorage.getItem("userId");
+
+  // let decodedUserId = null;
   let ownerId = null
   if (token) {
     const decoded = jwtDecode(token);
-    decodedUserId = decoded.userId;
+    // decodedUserId = decoded.userId;
     ownerId = decoded.ownerId
     console.log(decoded,decodedUserId, ownerId)
   }

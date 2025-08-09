@@ -13,7 +13,7 @@ const cognitoAuthConfig = {
   client_id: "4o3gl6qqe1i5uapeitu56p3lst",
   redirect_uri: "http://localhost:5173/callback",
   response_type: "code",
-  scope: "email openid phone",
+  scope: "email openid phone profile aws.cognito.signin.user.admin",
 };
 
 const onSigninCallback = async (user) => {
