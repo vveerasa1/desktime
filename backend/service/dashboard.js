@@ -1,6 +1,43 @@
 const moment = require("moment-timezone");
 const TrackingSession = require("../models/trackingSession");
 const User = require("../models/user");
+const OfflineRequest = require("../models/offlineRequest");
+
+const splitOfflineTimeIntoIntervals = (
+  startTime,
+  endTime,
+  description,
+  projectName,
+  taskName,
+  productivity,
+  userId
+) => {
+  const intervals = [];
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+  const durationMs = end - start;
+
+  const totalMinutes = Math.floor(durationMs / (1000 * 60));
+  // Split into 5-minute intervals
+  for (let i = 0; i < totalMinutes; i += 5) {
+    const intervalStart = new Date(start.getTime() + i * 60 * 1000);
+    const intervalEnd = new Date(
+      Math.min(start.getTime() + (i + 5) * 60 * 1000, end.getTime())
+    );
+
+    intervals.push({
+      userId,
+      startTime: intervalStart,
+      endTime: intervalEnd,
+      description: description || `Offline activity ${i / 5 + 1}`,
+      projectName,
+      taskName,
+      productivity,
+      status: "Pending",
+    });
+  }
+  return intervals;
+};
 
 const dashboardCard = async (req, res) => {
   try {
@@ -38,33 +75,102 @@ const dashboardCard = async (req, res) => {
       let deskTime = 0;
       let idleTime = 0;
       let timeAtWork = 0;
+
+      const nowUserTZ = moment().tz(timeZone);
+      console.log("nowUserTz :" + nowUserTZ);
+      const nowDateStr = nowUserTZ.format("YYYY-MM-DD");
+      console.log("nowDateStr :" + nowDateStr);
+      const trackingEndHour = user.trackingEndTime;
+      console.log(trackingEndHour); // e.g. "20:00"
+      const trackingEndTimeStr = `${formattedDate} ${trackingEndHour}`; // e.g. "2025-07-28 20:00"
+      console.log("trackingEndTimeStr :" + trackingEndTimeStr);
+
+      const trackingEndTimeTz = moment.tz(
+        trackingEndTimeStr,
+        "YYYY-MM-DD HH:mm",
+        timeZone
+      );
+      console.log("trackingEndTimeTz :" + trackingEndTimeTz);
+
+      const trackingEndTimeUTC = trackingEndTimeTz.toDate();
+      console.log("trackingEndTimeUTC :" + trackingEndTimeUTC);
+
+      // If date in query ≠ current date or time exceeded
+      if (nowDateStr !== formattedDate || new Date() > trackingEndTimeUTC) {
+        if (!session.leftTime) {
+          const lastActivePeriod =
+            session.activePeriods?.[session.activePeriods.length - 1];
+          let leftTime;
+
+          if (lastActivePeriod?.end) {
+            console.log("here");
+            const lastEndTime = lastActivePeriod?.end;
+            console.log("lastEndTime :" + lastEndTime);
+
+            const endTimeIST = moment(lastEndTime).tz(timeZone);
+            console.log("endTimeIST :" + endTimeIST);
+
+            const endHour = endTimeIST.hour();
+            const endMin = endTimeIST.minute();
+            if (lastEndTime.getTime() <= trackingEndTimeUTC.getTime()) {
+              leftTime = `${endHour}:${endMin < 10 ? "0" + endMin : endMin}`;
+              console.log("here");
+              console.log("leftTime :" + leftTime);
+            } else {
+              leftTime = trackingEndHour;
+              console.log("leftTime :" + leftTime);
+            }
+          } else {
+            leftTime = trackingEndHour;
+            console.log("leftTime :" + leftTime);
+          }
+
+          // Store leftTime in session
+          session.leftTime = leftTime;
+
+          const arrivalIST = moment(session.arrivalTime).tz(timeZone);
+
+          console.log("arrivalIST :" + arrivalIST);
+          const [leftEndHour, leftEndMin] = session.leftTime
+            .split(":")
+            .map(Number);
+
+          const leftIST = arrivalIST
+            .clone()
+            .hour(leftEndHour)
+            .minute(leftEndMin)
+            .second(0);
+          console.log("leftIST :" + leftIST);
+
+          // Recalculate timeAtWork (in seconds)
+          const newTimeAtWork = leftIST.diff(arrivalIST, "seconds");
+          session.timeAtWork = newTimeAtWork;
+
+          // Adjust totalTrackedTime if needed
+          if (session.totalTrackedTime > newTimeAtWork) {
+            session.totalTrackedTime = newTimeAtWork;
+          }
+
+          await session.save();
+        }
+      }
+
       if (session.leftTime) {
         timeAtWork = session.timeAtWork; // seconds
         idleTime = (session.idlePeriods || []).reduce(
           (acc, p) => acc + (p.duration || 0),
           0
         );
-        const activeTime = (session.activePeriods || []).reduce(
-          (acc, p) => acc + (p.duration || 0),
-          0
-        );
-        //timeAtWork = deskTime - idleTime;
-        deskTime = activeTime ? activeTime : 0; //desktime
+        deskTime = session.totalTrackedTime;
+        if (deskTime > timeAtWork) {
+          deskTime = timeAtWork;
+          session.totalTrackedTime = timeAtWork;
+          await session.save();
+        }
       } else {
         const now = new Date();
         timeAtWork = Math.floor((now - arrivalTime) / 1000); // seconds
-
-        // idleTime = (session.idlePeriods || []).reduce(
-        //   (acc, p) => acc + (p.duration || 0),
-        //   0
-        // );
-        const activeTime = (session.activePeriods || []).reduce(
-          (acc, p) => acc + (p.duration || 0),
-          0
-        );
-        console.log(activeTime);
-        deskTime = activeTime ? activeTime : 0;
-        // timeAtWork = deskTime - idleTime;
+        deskTime = session.totalTrackedTime;
       }
 
       result = {
@@ -78,9 +184,7 @@ const dashboardCard = async (req, res) => {
         timeAtWork,
       };
     } else if (type === "week" || type === "month") {
-      const baseDate = date
-        ? moment(date, "YYYY-MM-DD").tz(timeZone)
-        : moment().tz(timeZone);
+      const baseDate = date ? moment(date).tz(timeZone) : moment().tz(timeZone);
 
       const start =
         type === "week"
@@ -218,6 +322,65 @@ const dashboardProductivityTime = async (req, res) => {
           });
       }
 
+      // Fetch offline requests for the day
+      const offlineRequests = await OfflineRequest.find({
+        userId,
+        startTime: {
+          $gte: moment(targetDate).startOf("day").toDate(),
+          $lte: moment(targetDate).endOf("day").toDate(),
+        },
+      });
+
+      // Process offline requests and split them into intervals
+      const processedOfflineIntervals = [];
+
+      offlineRequests.forEach((request, index) => {
+        const intervals = splitOfflineTimeIntoIntervals(
+          request.startTime,
+          request.endTime,
+          request.description,
+          request.projectName,
+          request.taskName,
+          request.productivity,
+          userId
+        );
+        intervals.forEach((interval) => {
+          const start = moment(interval.startTime).tz(timeZone);
+          const end = moment(interval.endTime).tz(timeZone);
+          const duration = moment.duration(end.diff(start)).asSeconds();
+          const total = formatDuration(duration);
+          const productive = Math.round((duration / 300) * 100);
+          const neutral = 100 - productive;
+          processedOfflineIntervals.push({
+            time: start.format("HH:mm"),
+            productive: productive, //Math.round((duration / 300) * 100),
+            // request.productivity === 'Productive' ? 100 :
+            //  request.productivity === 'Unproductive' ? 0 : 50,
+            neutral: neutral, //Math.round() request.productivity === 'Neutral' ? 50 : 0,
+            break: 0,
+            timeRange: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+            apps: [],
+            total: total, // formatDuration(duration),
+            isOfflineRequest: true,
+            status: request.status,
+            description: request.description,
+            projectName: request.projectName,
+            taskName: request.taskName,
+            originalRequestId: request._id,
+          });
+        });
+      });
+
+      // Add processed offline intervals to formatted data
+      formatted = [...formatted, ...processedOfflineIntervals];
+
+      // Sort by time
+      formatted.sort((a, b) => {
+        const timeA = moment(a.time, "HH:mm");
+        const timeB = moment(b.time, "HH:mm");
+        return timeA - timeB;
+      });
+
       return res.status(200).json({
         code: 200,
         status: "Success",
@@ -281,6 +444,81 @@ const dashboardProductivityTime = async (req, res) => {
             };
           });
         }
+
+        // Fetch offline requests for the day
+        const offlineRequests = await OfflineRequest.find({
+          userId,
+          startTime: {
+            $gte: moment(formattedDate).startOf("day").toDate(),
+            $lte: moment(formattedDate).endOf("day").toDate(),
+          },
+        });
+
+        // Process offline requests and split them into intervals
+        const processedOfflineIntervals = [];
+
+        offlineRequests.forEach((request) => {
+          const intervals = splitOfflineTimeIntoIntervals(
+            request.startTime,
+            request.endTime,
+            request.description,
+            request.projectName,
+            request.taskName,
+            request.productivity,
+            userId
+          );
+
+          intervals.forEach((interval) => {
+            const start = moment(interval.startTime).tz(timeZone);
+            const end = moment(interval.endTime).tz(timeZone);
+            const duration = moment.duration(end.diff(start)).asSeconds();
+
+            // Calculate productivity based on total duration / 5 minutes (300 seconds)
+            const totalDurationSeconds = moment
+              .duration(moment(request.endTime).diff(moment(request.startTime)))
+              .asSeconds();
+            const productivityValue = Math.min(
+              100,
+              Math.round((totalDurationSeconds / 300) * 100)
+            );
+            const total = formatDuration(duration);
+            console.log(
+              Math.round((total / 300) * 100),
+              "Math.round((total / 300) * 100)"
+            );
+            processedOfflineIntervals.push({
+              time: start.format("HH:mm"),
+              productive: Math.round((total / 300) * 100),
+
+              //  request.productivity === 'Productive' ? productivityValue :
+              //            request.productivity === 'Unproductive' ? 0 : Math.min(50, productivityValue),
+              neutral:
+                request.productivity === "Neutral"
+                  ? Math.min(50, productivityValue)
+                  : 0,
+              break: 0,
+              timeRange: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+              apps: [],
+              total: total, // formatDuration(duration),
+              isOfflineRequest: true,
+              status: request.status,
+              description: request.description,
+              projectName: request.projectName,
+              taskName: request.taskName,
+              originalRequestId: request._id,
+            });
+          });
+        });
+
+        // Add processed offline intervals to formatted data
+        formatted = [...formatted, ...processedOfflineIntervals];
+
+        // Sort by time
+        formatted.sort((a, b) => {
+          const timeA = moment(a.time, "HH:mm");
+          const timeB = moment(b.time, "HH:mm");
+          return timeA - timeB;
+        });
 
         sessions.push({
           date: formattedDate,
@@ -389,4 +627,8 @@ const dashboardProductivityTime = async (req, res) => {
   }
 };
 
-module.exports = { dashboardCard, dashboardProductivityTime };
+module.exports = {
+  dashboardCard,
+  dashboardProductivityTime,
+  splitOfflineTimeIntoIntervals,
+};

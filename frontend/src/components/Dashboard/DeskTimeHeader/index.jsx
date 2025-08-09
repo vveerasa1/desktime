@@ -2,9 +2,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
-  IconButton,
   ToggleButton,
   ToggleButtonGroup,
+  Button,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import dayjs from "dayjs";
@@ -13,8 +13,9 @@ import { jwtDecode } from "jwt-decode";
 import CustomCalendar from "../../CustomCalender";
 import styles from "./index.module.css";
 import LoadingComponent from "../../ComponentLoader";
+// import TrackingCard from "../AnalyticCards/Tracking";
 
-const DeskTimeHeader = ({ setFilters, getSingleData }) => {
+const DeskTimeHeader = ({ setFilters, getSingleData, TrackingCard, isDashboad }) => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const loggedInUserId = token ? jwtDecode(token).userId : null;
@@ -59,6 +60,20 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
 
   const viewModes = useMemo(() => ["day", "week", "month"], []);
 
+  const handleNextClick = () => {
+    const nextDate = dayjs(filtersState.date).add(1, filtersState.viewMode);
+    if (!nextDate.isAfter(dayjs(), 'day')) {
+      setFiltersState((prev) => ({ ...prev, date: nextDate.format("YYYY-MM-DD") }));
+    }
+  };
+
+  const handlePrevClick = () => {
+    const prevDate = dayjs(filtersState.date).subtract(1, filtersState.viewMode);
+    setFiltersState((prev) => ({ ...prev, date: prevDate.format("YYYY-MM-DD") }));
+  };
+
+  const isNextDisabled = dayjs(filtersState.date).isSame(dayjs(), 'day') || dayjs(filtersState.date).isAfter(dayjs(), 'day');
+  
   return (
     <Box className={styles.headerContainer}>
       {loading ? (
@@ -66,7 +81,7 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
           <LoadingComponent />
         </Box>
       ) : (
-        <Typography variant="h6" className={styles.title}>
+        <Typography sx={{ fontSize: "23px" }} fontWeight={600} color="#333333">
           {isOwnProfile
             ? "My Tracking"
             : `${getSingleData?.data?.username || "User"}`}
@@ -74,7 +89,9 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
       )}
 
       <Box className={styles.controls}>
+        
         <ToggleButtonGroup
+          className={styles.toggleGroup}
           value={filtersState.viewMode}
           exclusive
           onChange={handleViewChange}
@@ -102,28 +119,27 @@ const DeskTimeHeader = ({ setFilters, getSingleData }) => {
             maxDate={new Date()}
           />
         </Box>
+        <Box className={styles.nextPrevIcons}>
+          <Box
+            className={styles.npIcon}
+            onClick={handlePrevClick}
+          >
+            <ChevronLeft sx={{ cursor: "pointer" }} className={styles.icon} />
+          </Box>
 
-        <IconButton
-          onClick={() => {
-            const newDate = dayjs(filtersState.date)
-              .subtract(1, filtersState.viewMode)
-              .format("YYYY-MM-DD");
-            setFiltersState((prev) => ({ ...prev, date: newDate }));
-          }}
-        >
-          <ChevronLeft className={styles.icon} />
-        </IconButton>
-
-        <IconButton
-          onClick={() => {
-            const newDate = dayjs(filtersState.date)
-              .add(1, filtersState.viewMode)
-              .format("YYYY-MM-DD");
-            setFiltersState((prev) => ({ ...prev, date: newDate }));
-          }}
-        >
-          <ChevronRight className={styles.icon} />
-        </IconButton>
+          <Box
+            className={styles.npIcon}
+            onClick={handleNextClick}
+            sx={{
+              "& .MuiSvgIcon-root": {
+                cursor: isNextDisabled ? "not-allowed" : "pointer",
+                color: isNextDisabled ? "#ccc" : "inherit"
+              }
+            }}
+          >
+            <ChevronRight sx={{ cursor: "pointer" }} className={styles.icon} />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

@@ -15,13 +15,13 @@
 }
 
 .sidebar :global(.MuiListItem-root:hover) {
-  background-color: #1565c0;
+  background-color: #456070;
   border-radius: 10px;
 }
 
 .activeItem {
-  background-color: #1565c0 !important;
-  transition: #1565c0 0.1s ease;
+  background-color: #456070 !important;
+  transition: #456070 0.1s ease;
   border-radius: 10px;
 }
 
@@ -41,6 +41,7 @@
   justify-content: flex-start !important;
   gap: 8px !important; /* optional spacing between icon and text */
   width: 100% !important;
+  position: relative !important;
 }
 .listItem{
   display: flex !important;
@@ -52,4 +53,45 @@
   display: flex;
   align-items: center;
   white-space: nowrap;
+  color: #ccc; /* light grey by default */
+  font-weight: 800 !important;
+
+}
+
+.activeItem .listItemText {
+  color: #ffffff !important; /* white when active */
+}
+
+.brandLogo{
+  height: 40px;
+}
+
+.logoImg{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logoIconImg{
+  width:40px;
+  height: 100%;
+  object-fit: contain;
+}
+
+.menuIconButton{
+  position: absolute;
+  right: 0;
+  width: 35px;
+  min-width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #143351;
+}
+
+.logoWrapper .menuIconButton{
+  position: relative;
+  right: 0;
 }

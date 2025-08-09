@@ -13,9 +13,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { jwtDecode } from "jwt-decode";
 import AddEmployeeModal from "../../components/Colleagues/AddEmployeeModal";
 import styles from "./index.module.css";
-import CustomButton from "../../components/CustomButton";
 import MuiToaster from "../../components/MuiToaster";
-import { SignalCellularNullOutlined } from "@mui/icons-material";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 const Colleagues = () => {
   const token = localStorage.getItem("token");
   let userId = null;
@@ -93,50 +92,55 @@ const Colleagues = () => {
   return (
     <>
       <Box className={styles.pageContainer}>
-        <Typography variant="h6" fontWeight={600} color="#333333">
+        <Typography sx={{ fontSize: "23px" }} fontWeight={600} color="#333333">
           Colleagues
         </Typography>
-        <Box className={styles.searchActions}>
-          <CustomTextField
-            name="password"
-            fullWidth
-            startIcon={<SearchIcon />}
-            placeholder={"search"}
-          />
-          <IconButton size="small" className={styles.iconBtn}>
-            <FilterListIcon fontSize="medium" />
-          </IconButton>
-        </Box>
-      </Box>
-      <Box className={styles.colleaguesWrapper}>
-        <Paper className={styles.paperWrapper}>
-          <Box className={styles.actionButtons}>
-            <Box className={styles.statusButtons}>
-              <Button variant="contained" className={styles.activeBtn}>
-                ACTIVE&nbsp;
-                <Box component="span" className={styles.activeCount}>
-                  {colleaguesData.activeCount}
-                </Box>
-              </Button>
-              <Button variant="contained" className={styles.inactiveBtn}>
-                IN-ACTIVE&nbsp;
-                <Box component="span" className={styles.inactiveCount}>
-                  {colleaguesData.inactiveCount}
-                </Box>
-              </Button>
-            </Box>
-            {role === "Admin"||role === "Owner"  ? (
-              <CustomButton
-                variant="contained"
-                color="success"
-                onClick={handleOpen}
-                label="Add Employee"
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Box className={styles.searchActions}>
+            <Box>
+              <CustomTextField
+                name="password"
+                fullWidth
+                startIcon={<SearchIcon />}
+                placeholder={"search"}
               />
+            </Box>
+            <Box>
+              <IconButton size="small" className={styles.iconBtn}>
+                <FilterListIcon
+                  sx={{
+                    borderRadius: "none !important",
+                  }}
+                  fontSize="medium"
+                />
+              </IconButton>
+            </Box>
+          </Box>
+          <Box className={styles.actionButtons}>
+            {role === "Admin" ? (
+              <Button
+                variant="contained"
+                sx={{
+                  textTransform: "none",
+                  whiteSpace: "nowrap",
+                  backgroundColor: "#143351",
+                }}
+                onClick={() => handleOpen()}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <GroupAddIcon />
+                  Add Employee
+                </Box>
+              </Button>
             ) : (
               ""
             )}
           </Box>
+        </Box>
+      </Box>
 
+      <Box className={styles.colleaguesWrapper}>
+        <Paper className={styles.paperWrapper}>
           <ColleaguesList
             navigate={navigate}
             colleaguesData={colleaguesData}
@@ -144,6 +148,7 @@ const Colleagues = () => {
             handleOpen={handleOpen}
             handleClose={handleClose}
             setOpen={setOpen}
+            openToaster={handleOpenToaster}
           />
         </Paper>
         <AddEmployeeModal

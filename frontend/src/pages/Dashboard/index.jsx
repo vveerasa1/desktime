@@ -31,7 +31,6 @@ const Dashboard = () => {
     const decoded = jwtDecode(token);
     // decodedUserId = decoded.userId;
     ownerId = decoded.ownerId
-    console.log(decoded,decodedUserId, ownerId)
   }
 
   const userId = employee || decodedUserId || employee;
@@ -50,7 +49,6 @@ const Dashboard = () => {
 
   // Ensure all required searchParams exist
 
-  
 
   useEffect(() => {
     const currentParams = new URLSearchParams(searchParams);
@@ -97,7 +95,6 @@ const Dashboard = () => {
   }
 );  
 
-console.log(getSingleData,"GET SINGLE DATA")
   return (
     <Box className={styles.dashboardContainer}>
       <DeskTimeHeader getSingleData={getSingleData} setFilters={memoizedSetFilters} />
@@ -117,19 +114,30 @@ console.log(getSingleData,"GET SINGLE DATA")
         (isProductivityLoading ? (
           <LoadingComponent />
         ) : (
-          <ProductivityBar getProductiviyData={getProductiviyData} />
+          <Box >
+          <ProductivityBar ownerId={ownerId}  getProductiviyData={getProductiviyData} />
+
+          </Box>
         ))}
-          <ProjectTimeline/>
+          {/* <ProjectTimeline/> */}
 
       {filters.viewMode === "month" && (
+        <Box >
+
         <EmployeeCalendar
           getProductiviyData={getProductiviyData}
           filters={filters}
         />
+        </Box>
+
       )}
 
       {filters.viewMode === "day" && (
+        <Box >
+
         <ScreenshotGrid employee={employee} filters={filters} />
+      
+        </Box>
       )}
     </Box>
   );

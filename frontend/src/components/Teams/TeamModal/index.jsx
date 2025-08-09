@@ -128,24 +128,25 @@ useEffect(() => {
       maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: 2, // Rounded corners for the dialog
+          borderRadius: '13px', // Rounded corners for the dialog
         },
       }}
     >
       {/* Custom Title Bar */}
       <DialogTitle
         sx={{
-          bgcolor: "#4caf50", // A standard green color
-          color: "common.white",
           display: "flex",
+          borderBottom: "1px solid #e0e0e0",
           justifyContent: "space-between",
           alignItems: "center",
           py: 1.5,
           px: 2,
+          backgroundColor:"#143352",
+          color:"white"
         }}
       >
         <Typography variant="h6" component="div" fontWeight="bold">
-          {teamId ? "Edit Team" : "  Add new team"}
+          {teamId ? "Edit Team" : "  Add team"}
         </Typography>
         <IconButton onClick={handleClose} sx={{ color: "common.white" }}>
           <CloseIcon />
@@ -169,25 +170,31 @@ useEffect(() => {
       <DialogActions sx={{ p: 2 }}>
         <Button
           onClick={handleClose}
-          variant="outlined"
+         variant="outlined"
           sx={{
             textTransform: "none",
-            borderColor: "grey.400",
-            color: "text.primary",
-            mr: 1,
+            borderRadius: "8px",
+            borderColor: "#ccc",
+            color: "#666",
+            "&:hover": {
+              borderColor: "#999",
+              backgroundColor: "#f0f0f0",
+            },
           }}
         >
           Close
         </Button>
         <Button
           onClick={handleSubmit}
-          variant="contained"
+         variant="outlined"
           sx={{
             textTransform: "none",
-            // Style for the disabled state to match the image
-            "&.Mui-disabled": {
-              backgroundColor: "grey.300",
-              color: "grey.500",
+            borderRadius: "8px",
+            borderColor:"#143351",
+            color:"#143351",
+            "&:hover": {
+              backgroundColor: "#143351",
+              color: "white",
             },
           }}
         >

@@ -7,6 +7,7 @@ const {
   getUserTrackingInfo,
   getSessionById,
   getTodaySessionByUserId,
+  getAllTrackingsForToday,
 } = require("../service/tracker");
 const { addScreenshot } = require("../service/screenshot");
 const multer = require("multer");
@@ -23,5 +24,6 @@ router.put("/sessions/active", activeTimeTracker);
 router.post("/sessions/screenshots", upload.array("screenshot"), addScreenshot);
 router.get("/sessions/:id", getSessionById);
 router.get("/sessions/user/:userId/today", getTodaySessionByUserId);
+router.get("/sessions/:ownerId/today", getAllTrackingsForToday);
 
 module.exports = router;

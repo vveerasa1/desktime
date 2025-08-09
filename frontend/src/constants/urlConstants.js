@@ -1,8 +1,8 @@
 export const URL_CONSTANTS = {
-  // BASE_URL: "http://44.211.37.68:8080/",
   BASE_URL: "http://localhost:4005/",
+// BASE_URL: "https://trackme.pentabay.com/api/",
 
-  // 'http://44.211.37.68:4005/',//
+  // BASE_URL: "http://51.79.30.127:4005/", //
   USER: "users",
   AUTH: "auth",
   LOGIN: "login",
@@ -17,4 +17,8 @@ export const URL_CONSTANTS = {
   TEAMS: "teams",
   PROJECTS: "projects",
   TASK: "task",
+  TRACKING:"tracking",
+  SESSION:"sessions",
+  TODAY:"today",
+  OFFLINE_REQUESTS:"offlineRequest"
 };

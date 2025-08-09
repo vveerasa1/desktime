@@ -1,5 +1,4 @@
-
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Paper,
   Box,
@@ -12,31 +11,55 @@ import {
   TableRow,
   Grid,
   Button,
+  useTheme,
 } from "@mui/material";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
-import InboxIcon from '@mui/icons-material/Inbox';
 import TaskForm from "./TaskForm";
 import styles from "./index.module.css";
-import { Height } from "@mui/icons-material";
-import MoveToInboxIcon from '@mui/icons-material/MoveToInbox';
-import contract from '../../../../assets/images/gray-pen.png'
-const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTaskFormData, formattedProfile, mappedProjectOptions, handleCloseToaster, handleOpenToaster, mappedTaskData, handleBlur, handleSelect, handleChange, openTask, onTaskClose, handleTaskOpen, tableHeaders }) => {
+import contract from "../../../../assets/images/gray-pen.png";
 
-  console.log(mappedTaskData, "TASK DATA")
+const ProjectCard = ({
+  userId,
+  ownerId,
+  errors,
+  setErrors,
+  taskFormData,
+  setTaskFormData,
+  formattedProfile,
+  mappedProjectOptions,
+  handleCloseToaster,
+  handleOpenToaster,
+  mappedTaskData,
+  handleBlur,
+  handleSelect,
+  handleChange,
+  openTask,
+  onTaskClose,
+  handleTaskOpen,
+  tableHeaders,
+}) => {
+  const theme = useTheme();
+
+  // column width distribution (adjust if you want different layout)
+  const colWidths = ["35%", "20%", "15%", "15%", "15%"];
+
   const renderedHeader = useMemo(
     () => (
-      <TableHead >
+      <TableHead>
         <TableRow>
           {tableHeaders.map((header, index) => (
             <TableCell
               key={index}
-              className={styles.headerCell}
+              className={`${styles.headerCell} ${
+                index === 0 ? styles.firstHeaderCell : ""
+              } ${index === 4 ? styles.lastHeaderCell : ""}`}
               sx={{
-                background: 'rgba(244, 240, 240, 0.87)'
-              }}
-              style={{
-                paddingLeft: header.title === "Project"||header.title==='Task' ? 10 : 8,
-                padding: '5px 0px'
+                width: colWidths[index],
+                fontWeight: 600,
+                background: "#143351",
+                color: "#fff",
+                padding: "8px 12px",
+                whiteSpace: "nowrap",
               }}
             >
               {header.title}
@@ -45,116 +68,144 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
         </TableRow>
       </TableHead>
     ),
-    [tableHeaders]
+    [tableHeaders] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const renderedRows = useMemo(() => {
     if (!mappedTaskData || mappedTaskData.length === 0) {
       return (
-        <TableBody>
-          <TableRow
-
-          >
-            <TableCell colSpan={tableHeaders.length} align="center" sx={{
-              borderBottom: 'none !important',
-            }}>
-              <Box sx={{
-                width: '100%', height: 105, borderRadius: 2,
-                borderBottom: "none !important", // REMOVE table row bottom border
-                display: 'flex', alignItems: 'center',
-                flexDirection: 'column',
-                justifyContent: 'center'
-              }} >
-                <img
-                  src={contract}
-                  alt="No tasks"
-                  style={{ width: 40, height: 40 }}
-                />
-                <Typography variant="body2" color="text.secondary"
-                  sx={{ width: '100%', fontFamily: 'sans-serif', fontWeight: '600' }}>
-                  No tasks
-                </Typography>
-              </Box>
-
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      );
-    }
-    return (
-      <TableBody sx={{
-      }}>
-        {mappedTaskData.map((item) => (
-          <TableRow
-            key={item._id}
+        <TableRow>
+          <TableCell
+            colSpan={tableHeaders.length}
+            align="center"
             sx={{
-              height: "48px", // Reduced from default 56px
-              "&:last-child td": {
-                borderBottom: 0, // Remove border for last row
-              },
+              borderBottom: "none !important",
+              padding: 0,
             }}
           >
-            <TableCell
-              className={styles.bodyCell}
+            <Box
               sx={{
-                position: "relative",
-                padding: "8px 8px 8px 24px", // Reduced padding
-                minWidth: "200px",
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  left: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: "3px",
-                  height: "36px", // Smaller bar
-                  backgroundColor: item.barColor,
-                  borderRadius: "2px",
-                },
+                width: "100%",
+                height: 105,
+                borderRadius: 2,
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "column",
+                justifyContent: "center",
               }}
             >
-              <Typography variant="body2" noWrap>
-                {item.task_name}
+              <img src={contract} alt="No tasks" style={{ width: 40, height: 40 }} />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  width: "100%",
+                  fontFamily: "sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                No tasks
               </Typography>
-            </TableCell>
-            <TableCell className={styles.bodyCell} sx={{ padding: "8px", minWidth: "150px" }}>
-              <Typography variant="body2" noWrap>
-                {item.project}
-              </Typography>
-            </TableCell>
-            <TableCell className={styles.bodyCell} sx={{ padding: "8px", minWidth: "120px" }}>
-              <Typography variant="body2" noWrap>
-                {item.assignee}
-              </Typography>
-            </TableCell>
-            <TableCell className={styles.bodyCell} sx={{ padding: "8px", minWidth: "100px" }}>
-              <Typography variant="body2">{item.status}</Typography>
-            </TableCell>
-            <TableCell
-              className={styles.bodyCell}
-              sx={{
-                padding: "8px",
-                minWidth: "120px",
-                color:
-                  item.status === "In-Progress"
-                    ? theme.palette.warning.main
-                    : "inherit",
-              }}
-            >
-              <Typography variant="body2">{item.created_by}</Typography>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    );
-  }, [mappedTaskData, tableHeaders]);
+            </Box>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return mappedTaskData.map((item) => (
+      <TableRow
+        key={item._id}
+        sx={{
+          "& td": {
+            paddingTop: "8px",
+            paddingBottom: "8px",
+            verticalAlign: "middle",
+          },
+        }}
+      >
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[0],
+            paddingLeft: "20px",
+            borderLeft: `4px solid ${item.barColor}`,
+            borderRadius: "12px 0 0 12px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2" noWrap>
+            {item.task_name}
+          </Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[1],
+            padding: "8px 12px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2" noWrap>
+            {item.project}
+          </Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[2],
+            padding: "8px 12px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2" noWrap>
+            {item.assignee}
+          </Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[3],
+            padding: "8px 12px",
+          }}
+        >
+          <Typography variant="body2">{item.status}</Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[4],
+            padding: "8px 12px",
+            color:
+              item.status === "In-Progress"
+                ? theme.palette.warning.main
+                : "inherit",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2">{item.created_by}</Typography>
+        </TableCell>
+      </TableRow>
+    ));
+  }, [mappedTaskData, tableHeaders, theme]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Grid item xs={12} md={9} className={styles.container}>
+    <Grid item xs={12} md={12}>
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>
-            <Typography variant="" mt={2} className={styles.headingText}>
+            <Typography sx={{ fontSize: "18px", fontWeight: 600 }} className={styles.headingText}>
               Projects
             </Typography>
             <Button className={styles.addButton} onClick={() => handleTaskOpen()}>
@@ -162,7 +213,8 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
             </Button>
           </Box>
 
-          <TaskForm errors={errors}
+          <TaskForm
+            errors={errors}
             userId={userId}
             ownerId={ownerId}
             setErrors={setErrors}
@@ -179,10 +231,25 @@ const ProjectCard = ({ userId, ownerId, errors, setErrors, taskFormData, setTask
             mappedProjectOptions={mappedProjectOptions}
           />
 
-          <TableContainer className={styles.tableContainer}>
-            <Table stickyHeader aria-label="project table">
+          {/* === TableContainer with sticky header and scrollable body === */}
+          <TableContainer
+            className={styles.tableContainer}
+            sx={{
+              maxHeight: 320, // adjust scroll area height as needed
+            }}
+          >
+            <Table
+              aria-label="project table"
+              stickyHeader
+              sx={{
+                borderSpacing: "0 8px",
+                borderCollapse: "separate",
+                tableLayout: "fixed", // ensures header and body cell widths align
+                width: "100%",
+              }}
+            >
               {renderedHeader}
-              {renderedRows}
+              <TableBody>{renderedRows}</TableBody>
             </Table>
           </TableContainer>
         </Box>

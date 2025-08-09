@@ -25,14 +25,13 @@
   transition: all 0.2s ease-in-out !important;
   user-select: none !important;
   border: 1px solid #ccc !important;
-  background-color: white !important;
-  color: gray !important;
+  background-color: #ffffff !important;
+  color: rgb(89, 88, 88) !important;
 }
 
 .selected {
-  background-color: #9e9e9e !important;
+  background-color: #143351 !important;
   color: white !important;
-  border-color: #9e9e9e !important;
 }
 .disabled {
   pointer-events: none !important;

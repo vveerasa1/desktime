@@ -9,7 +9,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, isDeleted: false });
     if (!user) {
       return res.status(401).json({
         code: 401,
@@ -40,6 +40,11 @@ const login = async (req, res) => {
     // Generate tokens
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
+    user.active = true;
+    await user.save();
+
+    user.active = true;
+    await user.save();
 
     // Send response
     res.status(200).json({

@@ -7,7 +7,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Checkbox,
   IconButton,
   Box,
   Popover,
@@ -16,6 +15,8 @@ import {
 } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { useDeleteTaskMutation } from "../../../redux/services/task";
+import contract from "../../../assets/images/gray-pen.png"; // Import the image
+
 const TaskTable = ({
   data = [],
   columns = [],
@@ -32,7 +33,7 @@ const TaskTable = ({
   const [deleteTask] = useDeleteTaskMutation();
   const selectedCount = selected.length;
   const rowCount = data.length;
-  console.log(selectedCount, "SELECTED COUNT");
+
   const handleDeleteClick = (event, id) => {
     setAnchorEl(event.currentTarget);
     setDeleteTargetId(id);
@@ -48,99 +49,135 @@ const TaskTable = ({
       try {
         await deleteTask(deleteTargetId).unwrap();
         openToaster("Task Deleted Successfully!", "success");
-        onDelete?.(deleteTargetId); // optional callback to refresh or remove from UI
-      } catch {
+        onDelete?.(deleteTargetId);
+      } catch (err) {
+        console.error("Delete failed", err);
         openToaster("Failed to delete task", "error");
       }
     }
     handleClosePopover();
   };
 
+  const totalColumns = columns.length + 1; // +1 for the Actions column
+
   return (
     <>
-      <TableContainer
-        component={Paper}
-        sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}
-      >
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  color="primary"
-                  indeterminate={selectedCount > 0 && selectedCount < rowCount}
-                  checked={rowCount > 0 && selectedCount === rowCount}
-                  onChange={handleSelectAll}
-                />
-              </TableCell>
-
-              {columns.map((col) => (
-                <TableCell key={col} sx={{ fontWeight: "bold" }}>
-                  {col}
-                </TableCell>
-              ))}
-
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((row) => {
-              const isItemSelected = selected.indexOf(row._id) !== -1;
-              return (
-                <TableRow
-                  key={row._id}
-                  hover
-                  selected={isItemSelected}
-                  sx={{ cursor: "pointer" }}
-                >
+      {data.length === 0 ? (
+        <Paper
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '250px',
+            p: 3,
+            textAlign: 'center',
+            color: '#666',
+            border: "1px solid #e0e0e0",
+            boxShadow: "none",
+          }}
+        >
+          <img
+            src={contract}
+            alt="No data icon"
+            style={{ width: '80px', height: '80px', marginBottom: '16px', opacity: 0.6 }}
+          />
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+            No tasks added yet.
+          </Typography>
+          <Typography variant="body1">
+            Start by creating a new task.
+          </Typography>
+        </Paper>
+      ) : (
+        <TableContainer
+          component={Paper}
+          sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}
+        >
+          <Table sx={{ tableLayout: "fixed" }}>
+            <TableHead>
+              <TableRow>
+                {columns.map((col) => (
                   <TableCell
-                    padding="checkbox"
-                    onClick={(event) => handleSelectOne(event, row._id)}
+                    key={col}
+                    sx={{
+                      fontWeight: "bold",
+                      width: `calc(100% / ${totalColumns})`,
+                      textAlign: "center"
+                    }}
                   >
-                    <Checkbox
-                      color="primary"
-                      checked={isItemSelected}
-                      inputProps={{
-                        "aria-labelledby": `table-checkbox-${row._id}`,
+                    {col}
+                  </TableCell>
+                ))}
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    width: `calc(100% / ${totalColumns})`
+                  }}
+                >
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((row) => {
+                const isItemSelected = selected.indexOf(row._id) !== -1;
+                return (
+                  <TableRow
+                    key={row._id}
+                    hover
+                    selected={isItemSelected}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    {columns.map((col) => {
+                      const dataKey = col.toLowerCase().replace(/ /g, "_");
+                      return (
+                        <TableCell
+                          key={col}
+                          sx={{
+                            width: `calc(100% / ${totalColumns})`,
+                            textAlign: "center"
+                          }}
+                        >
+                          {row[dataKey]}
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell
+                      align="center"
+                      sx={{
+                        width: `calc(100% / ${totalColumns})`
                       }}
-                    />
-                  </TableCell>
-
-                  {columns.map((col) => {
-                    const dataKey = col.toLowerCase().replace(/ /g, "_");
-                    return <TableCell key={col}>{row[dataKey]}</TableCell>;
-                  })}
-
-                  <TableCell align="center">
-                    <Box display="flex" justifyContent="center" gap={0.5}>
-                      <IconButton
-                        aria-label="edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTaskOpen(row._id);
-                        }}
-                      >
-                        <EditIcon color="primary" />
-                      </IconButton>
-                      <IconButton
-                        aria-label="delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClick(e, row._id);
-                        }}
-                      >
-                        <DeleteIcon sx={{ color: "red" }} />
-                      </IconButton>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    >
+                      <Box display="flex" justifyContent="center" gap={0.5}>
+                        <IconButton
+                          aria-label="edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTaskOpen(row._id);
+                          }}
+                        >
+                          <EditIcon color="primary" />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(e, row._id);
+                          }}
+                        >
+                          <DeleteIcon sx={{ color: "red" }} />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       {/* MUI Popover for delete confirmation */}
       <Popover

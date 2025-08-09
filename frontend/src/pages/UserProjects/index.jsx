@@ -10,7 +10,6 @@ import {
   Button,
 } from "@mui/material";
 import ProjectTable from "../../components/UserProjects/ProjectTable";
-import { projectData } from "../../components/UserProjects/StaticDatas/";
 import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import styles from "./index.module.css";
@@ -74,12 +73,11 @@ const Projects = () => {
         assignee: item.assignee?.username || "—",
         status: item.status || "—",
         created_by: item.createdBy?.username || "—",
-        created_at: new Date(item.createdAt).toLocaleString(), // Optional formatting
+        created_at: new Date(item.createdAt).toLocaleString(), 
       })) || []
     );
   }, [getAllTaskData]);
 
-  console.log(mappedTaskData, "TASK DATA");
   const {
     data: profileData,
     isLoading: isProfileLoading,
@@ -111,7 +109,6 @@ const Projects = () => {
   const [projectFormData, setProjectFormData] = useState({
     projectName: "",
     teamLead: "",
-    status: "",
   });
 
   const [taskFormData, setTaskFormData] = useState({
@@ -141,7 +138,6 @@ const Projects = () => {
   const handleProjectSelectAll = (event) => {
     if (event.target.checked) {
       const allIds = mappedProjectData.map((row) => row._id);
-      console.log(allIds, "ALL IDS");
       setProjectSelected(allIds);
     } else {
       setProjectSelected([]);
@@ -223,7 +219,6 @@ const Projects = () => {
     setOpenTask(true);
   };
 
-  console.log(taskId, "TASK ID");
 
   const onTaskClose = () => {
     setOpenTask(false);
@@ -236,7 +231,6 @@ const Projects = () => {
       assignee: "",
       status: "",
     });
-    console.log("Task closed, taskId reset to:", null);
   };
 
   const handleChange = (event, name) => {
@@ -309,9 +303,14 @@ const Projects = () => {
     assignee: "Assignee",
   };
 
-  const statusOptions = [{
-    id:"To-do",name:"To-do"
-  },{id:"In-progress",name:"In-progress"},{id:"Done",name:"Done"}]
+  const statusOptions = [
+    {
+      id: "To-do",
+      name: "To-do",
+    },
+    { id: "In-progress", name: "In-progress" },
+    { id: "Done", name: "Done" },
+  ];
 
   const handleOpenToaster = (message, severity = "success") => {
     setToaster({ open: true, message, severity });
@@ -337,7 +336,7 @@ const Projects = () => {
           mb: 2,
         }}
       >
-        <Typography variant="h5" component="h1" fontWeight="bold">
+        <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
           Projects
         </Typography>
 
@@ -354,7 +353,7 @@ const Projects = () => {
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 px: 4,
-                backgroundColor: "#1564bf",
+                backgroundColor: "#143351",
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -370,7 +369,7 @@ const Projects = () => {
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 px: 4,
-                backgroundColor: "#1564bf",
+                backgroundColor: "#143351",
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -383,9 +382,36 @@ const Projects = () => {
       </Box>
 
       {/* Tabs placed below the heading */}
-      <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 2 }}>
-        <Tab label="Projects" />
-        <Tab label="Tasks" />
+      <Tabs
+        value={tabIndex}
+        onChange={handleTabChange}
+        sx={{ mb: 2 }}
+        TabIndicatorProps={{ style: { display: "none" } }} // hide the default underline
+      >
+        <Tab
+          label="Projects"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px 8px 0 0",
+            color: "#143351",
+            "&.Mui-selected": {
+              backgroundColor: "#143351",
+              color: "#fff",
+            },
+          }}
+        />
+        <Tab
+          label="Tasks"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px 8px 0 0",
+            color: "#143351",
+            "&.Mui-selected": {
+              backgroundColor: "#143351",
+              color: "#fff",
+            },
+          }}
+        />
       </Tabs>
 
       {/* Tab Content */}

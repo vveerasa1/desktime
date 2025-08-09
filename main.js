@@ -184,7 +184,7 @@ async function refreshToken(userId) {
   }
 
   try {
-    const res = await axios.post("http://localhost:4005/auth/refresh", {
+    const res = await axios.post("http://51.79.30.127:4005/auth/refresh", {
       refreshToken,
     });
 
@@ -210,6 +210,7 @@ apiServer.post("/store-token", async (req, res) => {
   const { token, userId, refreshToken } = req.body;
 
   console.log(`✅ Token received in Electron for user: ${userId}`);
+  console.log("in store token");
 
   // Set tokens immediately
   setTokens(userId, token, refreshToken);
@@ -240,7 +241,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on http://localhost:${API_PORT}`
+    `🚀 Express API server in Electron listening on http://51.79.30.127:${API_PORT}`
   );
 });
 
@@ -259,7 +260,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://localhost:5173");
+  mainWindow.loadURL("http://51.79.30.127:5173");
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -286,7 +287,7 @@ function createWindow() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    shell.openExternal("http://localhost:5173");
+    shell.openExternal("http://51.79.30.127:5173");
   });
 }
 
@@ -331,7 +332,7 @@ async function initializeDailyTracking(userId) {
     // Check for existing session for today
     const checkRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `http://localhost:4005/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
+      url: `http://51.79.30.127:4005/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
     });
     console.log("checkRes :" + checkRes);
 
@@ -344,6 +345,7 @@ async function initializeDailyTracking(userId) {
 
       // Check if cutoff has already passed for an existing session
       const user = await fetchUserConfig(userId);
+      console.log(user);
       const currentTime = moment().tz(user.timeZone);
       const [cutHour, cutMin] = user.trackingEndTime.split(":").map(Number);
       const cutoff = user.flexibleHours
@@ -365,7 +367,7 @@ async function initializeDailyTracking(userId) {
           // Assuming your session object has arrivalTime
           await makeAuthenticatedRequest(userId, {
             method: "put",
-            url: `http://localhost:4005/tracking/sessions/${existingSessionId}/arrival`,
+            url: `http://51.79.30.127:4005/tracking/sessions/${existingSessionId}/arrival`,
             data: { arrivalTime: new Date() },
           }).catch((e) => console.error("[Arrival Time Update Error]"));
         }
@@ -377,7 +379,7 @@ async function initializeDailyTracking(userId) {
       // No existing session for today, create a new one
       const createRes = await makeAuthenticatedRequest(userId, {
         method: "post",
-        url: "http://localhost:4005/tracking/sessions",
+        url: "http://51.79.30.127:4005/tracking/sessions",
         data: { arrivalTime: new Date() }, // Send arrival time on session creation
       });
 
@@ -412,7 +414,7 @@ async function fetchUserConfig(userId) {
   try {
     const userRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `http://localhost:4005/users/${userId}`,
+      url: `http://51.79.30.127:4005/users/${userId}`,
     });
     return userRes.data.data;
   } catch (error) {
@@ -458,7 +460,7 @@ async function sendActivityToServer(
     );
     return;
   }
-
+  console.log("userConfig :" + userConfig);
   const currentTime = moment().tz(userConfig.timeZone);
   const [cutHour, cutMin] = userConfig.trackingEndTime.split(":").map(Number);
 
@@ -481,7 +483,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:4005/tracking/sessions/idle",
+          url: "http://51.79.30.127:4005/tracking/sessions/idle",
           data: {
             sessionId,
             duration,
@@ -499,7 +501,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:4005/tracking/sessions/active",
+          url: "http://51.79.30.127:4005/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -528,7 +530,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:4005/tracking/sessions/active",
+          url: "http://51.79.30.127:4005/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -562,7 +564,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:4005/tracking/sessions/idle",
+          url: "http://51.79.30.127:4005/tracking/sessions/idle",
           data: {
             sessionId,
             duration,
@@ -602,7 +604,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:4005/tracking/sessions/active",
+          url: "http://51.79.30.127:4005/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -651,7 +653,7 @@ async function captureScreenshot(userId) {
     );
     return;
   }
-
+  console.log(userConfig);
   const currentTime = moment().tz(userConfig.timeZone);
   const [cutHour, cutMin] = userConfig.trackingEndTime.split(":").map(Number);
   const cutoff = userConfig.flexibleHours
@@ -693,7 +695,7 @@ async function captureScreenshot(userId) {
 
     const res = await makeAuthenticatedRequest(userId, {
       method: "post",
-      url: "http://localhost:4005/tracking/sessions/screenshots",
+      url: "http://51.79.30.127:4005/tracking/sessions/screenshots",
       data: formData,
       headers: {
         ...formData.getHeaders(), // Important for multipart/form-data
@@ -832,19 +834,23 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     userState.intervals = {}; // Clear the object
   }
 
-  // 2. Clear in-memory state
-  userState.idleStart = null;
-  userState.activeStart = null;
-  userState.lastActivityTimestamp = null;
-  userState.lastActiveSentTimestamp = null;
-  userState.lastActiveApp = null;
-  userState.lastActiveTitle = null;
-  userState.isSessionEndedForDay = true; // Mark as ended
+  console.log("userState: " + userState);
+
+  console.log("Intervals :" + userState.intervals);
+  console.log("idleStart :" + userState.idleStart);
+  console.log("activeStart :" + userState.activeStart);
+  console.log("lastActivityTimestamp :" + userState.lastActivityTimestamp);
+  console.log("lastActiveSentTimestamp :" + userState.lastActiveSentTimestamp);
+  console.log("isSleeping :" + userState.isSleeping);
+  console.log("isSessionEndedForDay :" + userState.isSessionEndedForDay);
+  console.log("sessionId +" + sessionId);
+  console.log("token +" + token);
 
   // 3. Save any pending active/idle time before stopping if not already saved by cutoff logic
   // This is a safeguard, primarily the cutoff logic in sendActivityToServer should handle it
   // But if logout happens mid-segment, ensure it's saved.
   const now = new Date();
+  console.log("Saving while stopping");
   if (userState.sessionId && userState.token) {
     if (userState.activeStart) {
       const duration = Math.floor(
@@ -853,7 +859,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:4005/tracking/sessions/active",
+          url: "http://51.79.30.127:4005/tracking/sessions/active",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -863,6 +869,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
             title: userState.lastActiveTitle,
           },
         }).catch(console.error);
+        console.log("Saving active time while stopping");
       }
     } else if (userState.idleStart) {
       const duration = Math.floor(
@@ -871,7 +878,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://localhost:4005/tracking/sessions/idle",
+          url: "http://51.79.30.127:4005/tracking/sessions/idle",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -879,16 +886,24 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
             endTime: now,
           },
         }).catch(console.error);
+        console.log("Saving idle time while stopping");
       }
     }
   }
+  userState.idleStart = null;
+  userState.activeStart = null;
+  userState.lastActivityTimestamp = null;
+  userState.lastActiveSentTimestamp = null;
+  userState.lastActiveApp = null;
+  userState.lastActiveTitle = null;
+  userState.isSessionEndedForDay = true; // Mark as ended
 
   // 4. Optionally send end session signal to backend (only on explicit logout or daily rollover end)
   if (endSessionOnBackend && userState.sessionId && userState.token) {
     try {
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://localhost:4005/tracking/sessions/end",
+        url: "http://51.79.30.127:4005/tracking/sessions/end",
         data: { sessionId: userState.sessionId },
       });
       console.log(
@@ -906,8 +921,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   if (endSessionOnBackend) {
     store.delete(`session_id_${userId}`);
     store.delete(`session_date_${userId}`);
-    store.delete(`token_${userId}`);
-    store.delete(`refreshToken_${userId}`);
+
     // Also remove the user's state from the in-memory map
     delete userTrackingStates[userId];
     console.log(`[Store] Cleared all stored data for user ${userId}.`);
@@ -983,6 +997,8 @@ powerMonitor.on("suspend", () => {
   // Mark all active users as sleeping and pause their screenshots
   for (const userId in userTrackingStates) {
     const userState = userTrackingStates[userId];
+    console.log("userState: " + userState);
+
     userState.isSleeping = true;
     if (userState.intervals.screenshot) {
       clearInterval(userState.intervals.screenshot);
@@ -998,6 +1014,8 @@ powerMonitor.on("resume", async () => {
   // Resume tracking for all users
   for (const userId in userTrackingStates) {
     const userState = userTrackingStates[userId];
+    console.log("userState: " + userState);
+
     userState.isSleeping = false; // System is awake now
 
     // Re-start screenshot interval if it was running before suspend
@@ -1061,7 +1079,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://localhost:4005/tracking/sessions/active",
+            url: "http://51.79.30.127:4005/tracking/sessions/active",
             data: {
               sessionId: userState.sessionId,
               duration,
@@ -1082,7 +1100,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://localhost:4005/tracking/sessions/idle",
+            url: "http://51.79.30.127:4005/tracking/sessions/idle",
             data: {
               sessionId: userState.sessionId,
               duration,

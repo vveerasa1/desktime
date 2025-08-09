@@ -13,7 +13,7 @@ import EmployeeProfileDetails from "./EmployeeProfileDetails";
 import CustomButton from "../../../components/CustomButton";
 import { useGetAllTeamQuery } from "../../../redux/services/team";
 import { jwtDecode } from "jwt-decode";
-const AddEmployeeModal = ({ open, handleClose, openToaster }) => {
+const AddEmployeeModal = ({ open, handleClose, openToaster ,handleCloseToaster}) => {
   const token = localStorage.getItem("token");
   let ownerId = null;
   if (token) {
@@ -53,8 +53,6 @@ useEffect(() => {
     setGetTeamsData(formattedTeams); // this assumes you have a state setter
   }
 }, [formattedTeams]);
-console.log(formattedTeams, "formatted data")
-  console.log(teamsData?.data, "TEAMS DATA IN ADD EMPLOYEE MODAL");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -116,7 +114,7 @@ console.log(formattedTeams, "formatted data")
       hasError = true;
     } else if (!/^[A-Za-z]+(?:\s[A-Za-z]+)*$/.test(formData.username)) {
       errors.username =
-        "Only letters and spaces allowed, and no leading or trailing spaces";
+        "Only letters and spaces are allowed. Do not use leading or trailing spaces";
       hasError = true;
     }
 
@@ -129,6 +127,7 @@ console.log(formattedTeams, "formatted data")
     }
      if (!formData.team) {
       errors.team = "Team is required";
+      hasError = true; // This was missing - now it will prevent submission
     }
 
     if (hasError) {
@@ -144,7 +143,7 @@ console.log(formattedTeams, "formatted data")
         ownerId,
       };
 
-      await createProfileApi(payload).unwrap();
+      await createProfileApi([payload]).unwrap();
       openToaster("Employee Added Successfully!", "success");
       setTimeout(() => {
         setFormData({
@@ -153,6 +152,7 @@ console.log(formattedTeams, "formatted data")
           team:"",
           errors: { username: "", email: "" ,team:"" },
         });
+
       }, 2000);
       // Clear form and errors
       setFormData({
@@ -167,14 +167,19 @@ console.log(formattedTeams, "formatted data")
       });
       handleClose();
     } catch (error) {
-      console.error("Error submitting form:", error);
+    console.error("Error submitting form:", error);
+    // Check if the error has a response and data property
+    if (error.data && error.data.error) {
+      // Display the specific error message from the API in the toaster
+      openToaster(error.data.error, "error");
+    } else {
+      // Display a generic error message if the specific message is not available
+      openToaster("An error occurred while adding the employee.", "error");
     }
+  }
   };
-  console.log(formData,"formdata")
   const handleSelect = (event,name) =>{
-    console.log(event,"EVENT",name,"NAMEM")
     const { value } = event.target;
-    console.log(value,"VALUE")
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -186,7 +191,7 @@ console.log(formattedTeams, "formatted data")
   }
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <DialogTitle>Add New Employee</DialogTitle>
+      <DialogTitle sx={{backgroundColor:"#143352",color:"white"}}>Add Employee</DialogTitle>
       <DialogContent dividers>
         <Grid>
           <EmployeeProfileDetails
@@ -198,16 +203,35 @@ console.log(formattedTeams, "formatted data")
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="error" variant="outlined">
+        <Button  onClick={handleClose}            variant="outlined"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px",
+            borderColor: "#ccc",
+            color: "#666",
+            "&:hover": {
+              borderColor: "#999",
+              backgroundColor: "#f0f0f0",
+            },
+          }}>
           Cancel
         </Button>
         <CustomButton
-          variant="contained"
-          color="success"
+        variant="outlined"
+          sx={{
+            textTransform: "none",
+            borderRadius: "8px",
+            borderColor:"#143351",
+            color:"#143351",
+            "&:hover": {
+              backgroundColor: "#143351",
+              color: "white",
+            },
+          }}
           onClick={handleSubmit}
           disabled={createProfileApiIsLoading}
           loading={createProfileApiIsLoading}
-          label="Add Employee"
+          label="Create"
         />
       </DialogActions>
     </Dialog>

@@ -86,6 +86,7 @@ const getUserTrackingInfo = async (req, res) => {
 const idleTimeTracker = async (req, res) => {
   try {
     const { sessionId, startTime, endTime, duration } = req.body;
+    console.log("sessionId :" + sessionId);
 
     const session = await TrackingSession.findById(sessionId);
 
@@ -96,6 +97,21 @@ const idleTimeTracker = async (req, res) => {
     const user = await User.findById(userId);
     let timeZone = user.timeZone;
 
+    const lastidlePeriod =
+      session.idlePeriods && session.idlePeriods.length > 0
+        ? session.idlePeriods[session.idlePeriods.length - 1].end
+        : null;
+    let lastActivePeriod =
+      session.activePeriods && session.activePeriods.length > 0
+        ? session.activePeriods[session.activePeriods.length - 1].end
+        : null;
+
+    if (lastidlePeriod && new Date(lastidlePeriod) > new Date(startTime)) {
+      return res.status(400).json({
+        message: "New idle startTime must be after last idle end time",
+      });
+    }
+
     const endTimeIST = moment(endTime).tz(timeZone);
     const endHour = endTimeIST.hour();
     const endMin = endTimeIST.minute();
@@ -104,13 +120,11 @@ const idleTimeTracker = async (req, res) => {
       .split(":")
       .map(Number);
 
-    let leftTimeSet = false;
-    if (endHour === trackingEndHour && endMin === trackingEndMin) {
-      const lastActivePeriod =
-        session.activePeriods && session.activePeriods.length > 0
-          ? session.activePeriods[session.activePeriods.length - 1].end
-          : null;
-
+    if (
+      endTime === lastidlePeriod ||
+      endTime === lastActivePeriod ||
+      (endHour === trackingEndHour && endMin === trackingEndMin)
+    ) {
       if (lastActivePeriod) {
         const lastEndIST = moment(lastActivePeriod).tz(timeZone);
         const lastEndHour = lastEndIST.hour();
@@ -132,10 +146,15 @@ const idleTimeTracker = async (req, res) => {
 
         // Calculate difference in seconds
         const timeAtWork = leftIST.diff(arrivalIST, "seconds");
+        const totalTrackedTime = session.totalTrackedTime;
+        if (totalTrackedTime > timeAtWork) {
+          session.totalTrackedTime = timeAtWork;
+        }
 
         // Store in session
         await TrackingSession.findByIdAndUpdate(sessionId, {
           timeAtWork,
+          totalTrackedTime,
         });
       }
     }
@@ -181,9 +200,25 @@ const activeTimeTracker = async (req, res) => {
   try {
     const { sessionId, duration, startTime, endTime } = req.body;
     const session = await TrackingSession.findById(sessionId);
+    if (duration > 350) {
+      return idleTimeTracker(req, res);
+    }
 
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
+    }
+    const lastidlePeriod =
+      session.idlePeriods && session.idlePeriods.length > 0
+        ? session.idlePeriods[session.idlePeriods.length - 1].end
+        : null;
+    let lastActivePeriod =
+      session.activePeriods && session.activePeriods.length > 0
+        ? session.activePeriods[session.activePeriods.length - 1].end
+        : null;
+    if (lastActivePeriod && new Date(lastActivePeriod) > new Date(startTime)) {
+      return res.status(400).json({
+        message: "New active startTime must be after last idle end time",
+      });
     }
 
     let userId = session.userId;
@@ -198,7 +233,58 @@ const activeTimeTracker = async (req, res) => {
       .split(":")
       .map(Number);
 
-    let leftTimeSet = false;
+    const fullBlock = 300; // 5 minutes = 300 seconds
+    let productivity = (duration / fullBlock) * 100;
+    productivity = Math.min(100, Math.round(productivity)); // clamp to 100%
+    let neutral = 100 - productivity;
+    if (endTime === lastidlePeriod || endTime === lastActivePeriod) {
+      if (lastActivePeriod) {
+        const lastEndIST = moment(lastActivePeriod).tz(timeZone);
+        const lastEndHour = lastEndIST.hour();
+        const lastEndMin = lastEndIST.minute();
+
+        await TrackingSession.findByIdAndUpdate(sessionId, {
+          leftTime: `${lastEndHour}:${
+            lastEndMin < 10 ? "0" + lastEndMin : lastEndMin
+          }`,
+        });
+        leftTimeSet = true;
+        const arrivalIST = moment(session.arrivalTime).tz(timeZone);
+
+        const leftIST = arrivalIST
+          .clone()
+          .hour(lastEndHour)
+          .minute(lastEndMin)
+          .second(0);
+
+        // Calculate difference in seconds
+        const timeAtWork = leftIST.diff(arrivalIST, "seconds");
+        const totalTrackedTime = session.totalTrackedTime;
+        if (totalTrackedTime > timeAtWork) {
+          session.totalTrackedTime = timeAtWork;
+        }
+
+        // Store in session
+        await TrackingSession.findByIdAndUpdate(sessionId, {
+          timeAtWork,
+          totalTrackedTime,
+        });
+      }
+    }
+    if (!session.leftTime) {
+      await TrackingSession.findByIdAndUpdate(sessionId, {
+        $inc: { totalTrackedTime: duration },
+        $push: {
+          activePeriods: {
+            start: new Date(startTime),
+            end: new Date(endTime),
+            duration,
+            productivity,
+            neutral,
+          },
+        },
+      });
+    }
     if (endHour === trackingEndHour && endMin === trackingEndMin) {
       // Save leftTime as endTimeIST
       await TrackingSession.findByIdAndUpdate(sessionId, {
@@ -212,27 +298,15 @@ const activeTimeTracker = async (req, res) => {
         .minute(trackingEndMin)
         .second(0);
       const timeAtWork = leftIST.diff(arrivalIST, "seconds");
+      const totalTimeAtWork = session.totalTrackedTime;
+      if (totalTimeAtWork > timeAtWork) {
+        session.totalTrackedTime = timeAtWork;
+      }
       await TrackingSession.findByIdAndUpdate(sessionId, {
         timeAtWork,
+        totalTimeAtWork,
       });
     }
-
-    const fullBlock = 300; // 5 minutes = 300 seconds
-    let productivity = (duration / fullBlock) * 100;
-    productivity = Math.min(100, Math.round(productivity)); // clamp to 100%
-    let neutral = 100 - productivity;
-    await TrackingSession.findByIdAndUpdate(sessionId, {
-      $inc: { totalTrackedTime: duration },
-      $push: {
-        activePeriods: {
-          start: new Date(startTime),
-          end: new Date(endTime),
-          duration,
-          productivity,
-          neutral,
-        },
-      },
-    });
 
     res.json({ status: "active time updated" });
   } catch (err) {
@@ -254,111 +328,11 @@ const endSession = async (req, res) => {
   }
 };
 
-cron.schedule("55 23 * * *", async () => {
-  console.log("[CRON] Running sessionStop at 11:59 PM");
-  try {
-    const sessions = await TrackingSession.find({ leftTime: null });
-
-    for (const session of sessions) {
-      const user = await User.findById(session.userId);
-
-      let leftTime = null;
-
-      // if (user?.flexibleHours) {
-      //   const lastActive =
-      //     session.activePeriods?.[session.activePeriods.length - 1]?.end;
-      //   const now = moment();
-
-      //   if (lastActive) {
-      //     const lastActiveMoment = moment(lastActive);
-      //     const minutesSinceLastActive = now.diff(lastActiveMoment, "minutes");
-
-      //     // if (minutesSinceLastActive <= 10) {
-      //     //   // User is likely still working — skip setting leftTime
-      //     //   console.log(`Skipping user ${user.username}, still active.`);
-      //     //   continue;
-      //     // } else {
-      //     leftTime = lastActiveMoment.toDate();
-      //     //}
-      //   } else if (session.idlePeriods?.length > 0) {
-      //     leftTime = session.idlePeriods[0].start;
-      //   } else {
-      //     leftTime = new Date();
-      //   }
-      // } else {
-      // Not flexible: fallback to idle or current time
-      // const trackingEnd = user?.trackingEndTime; // e.g., '20:00'
-      // if (trackingEnd) {
-      // const today = moment().format("YYYY-MM-DD");
-      // const trackingEndMoment = moment(
-      //   `${today} ${trackingEnd}`,
-      //   "YYYY-MM-DD HH:mm"
-      // );
-      // const currentTime = moment().tz(timeZone);
-      // const trackingEndTime = currentTime
-      //   .clone()
-      //   .hour(cutHour)
-      //   .minute(cutMin)
-      //   .second(0);
-
-      // We're past tracking end time
-      const activePeriods = session.activePeriods || [];
-
-      // Find the last idle period (assuming sorted chronologically)
-      const activeIdle = activePeriods[activePeriods.length - 1];
-
-      // if (
-      //   activeIdle?.start &&
-      //   !activeIdle?.end &&
-      //   moment(activeIdle.end).isSameOrAfter(trackingEndMoment)
-      // ) {
-      // User went idle after trackingEnd and hasn't come back
-      leftTime = activeIdle.end;
-      //   } else {
-      //     // Use tracking end time or look for any idle after it
-      //     const idleAfterTrackingEnd = idlePeriods.find((p) =>
-      //       moment(p.start).isSameOrAfter(trackingEndMoment)
-      //     );
-
-      //     if (idleAfterTrackingEnd?.start) {
-      //       leftTime = moment(idleAfterTrackingEnd.start).toDate();
-      //     } else {
-      //       leftTime = trackingEndMoment.toDate();
-      //     }
-      //   }
-      // } else {
-      // Still within tracking window
-      //     console.log(`User ${user.username} is still within tracking hours.`);
-      //     continue;
-      //   }
-      // } else {
-      //   // If no trackingEndTime set, fallback
-      //   const lastIdle = session.idlePeriods?.[session.idlePeriods.length - 1];
-      //   leftTime = lastIdle?.start || new Date();
-      // }
-
-      session.leftTime = leftTime;
-      await session.save();
-
-      console.log(
-        `[CRON] Set leftTime for user ${
-          user?.username || session.userId
-        }: ${leftTime}`
-      );
-    }
-
-    console.log("[CRON] sessionStop completed");
-  } catch (error) {
-    console.error("[CRON Error in sessionStop]", error);
-  }
-});
-
 function isWithinTrackingHours(user) {
-  if (user.flexibleHours) return true;
-
   const now = moment().tz(user.timeZone || user.timeZone);
   const todayName = now.format("dddd"); // e.g., "Monday"
 
+  console.log("todayName :" + todayName);
   // Check if today is in trackingDays
   if (!user.trackingDays || !user.trackingDays.includes(todayName)) {
     console.log(
@@ -426,6 +400,111 @@ const getTodaySessionByUserId = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch today's session", error });
   }
 };
+
+const getAllTrackingsForToday = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    // Step 1: Get owner's timezone
+    const owner = await User.findById(ownerId).select("timeZone");
+    const timezone = owner?.timeZone || "UTC";
+
+    // Step 2: Get all users (owner + team)
+    const users = await User.find({
+      isDeleted: false,
+      $or: [{ _id: ownerId }, { ownerId }],
+    }).select("firstName lastName username photo role active");
+
+    const userIds = users.map((u) => u._id);
+
+    // Step 3: Define today's start and end time in owner's timezone
+    const startOfDay = moment().tz(timezone).startOf("day").toDate();
+    const endOfDay = moment().tz(timezone).endOf("day").toDate();
+
+    // Step 4: Get today's tracking sessions
+    const sessions = await TrackingSession.find({
+      userId: { $in: userIds },
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    }).populate("userId", "username photo role active");
+
+    // Step 5: Map userId to session data
+    const sessionMap = new Map();
+    sessions.forEach((session) =>
+      sessionMap.set(session.userId._id.toString(), session)
+    );
+
+    // Step 6: Process all users
+    const data = users.map((user) => {
+      const session = sessionMap.get(user._id.toString());
+
+      if (session) {
+        const {
+          totalTrackedTime = 0,
+          activePeriods = [],
+          arrivalTime,
+          timeAtWork,
+          leftTime,
+        } = session;
+
+        const deskTime = totalTrackedTime;
+
+        const productiveTime = activePeriods.reduce(
+          (sum, period) => sum + (period.productivity || 0),
+          0
+        );
+
+        const arrivedAtFormatted = arrivalTime
+          ? moment(arrivalTime).tz(timezone).format("HH:mm")
+          : null;
+
+        let offlineTime = 0;
+        if (timeAtWork?.seconds != null) {
+          offlineTime = timeAtWork.seconds - deskTime;
+        } else if (arrivalTime) {
+          const now = moment().tz(timezone);
+          const arrivalMoment = moment(arrivalTime).tz(timezone);
+          const secondsSinceArrival = now.diff(arrivalMoment, "seconds");
+          offlineTime = secondsSinceArrival - deskTime;
+        }
+
+        return {
+          user,
+          deskTime,
+          productiveTime,
+          arrivalTime: arrivedAtFormatted,
+          offlineTime: offlineTime > 0 ? offlineTime : 0,
+          leftTime: leftTime || null,
+        };
+      } else {
+        // No session found for this user today
+        return {
+          user,
+          deskTime: null,
+          productiveTime: null,
+          arrivalTime: null,
+          offlineTime: null,
+          leftTime: null,
+        };
+      }
+    });
+
+    // Step 7: Send response
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      data,
+    });
+  } catch (error) {
+    console.error("Error fetching tracking sessions:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error processing tracking data",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   tracking,
   idleTimeTracker,
@@ -434,4 +513,5 @@ module.exports = {
   getUserTrackingInfo,
   getSessionById,
   getTodaySessionByUserId,
+  getAllTrackingsForToday,
 };

@@ -4,6 +4,7 @@ const {
   getProjectById,
   getAllProjects,
   saveProject,
+  searchProjects
 } = require("../service/project");
 const { authenticate } = require("../utils/middleware");
 const router = express.Router();
@@ -13,4 +14,6 @@ router.post("/", saveProject);
 router.get("/:id", getProjectById);
 router.delete("/:id", deleteProjectById);
 router.get("/owner/:ownerId", getAllProjects);
+router.get("/search/:ownerId", searchProjects);
+
 module.exports = router;

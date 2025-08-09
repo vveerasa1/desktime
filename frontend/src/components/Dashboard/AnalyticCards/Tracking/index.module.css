@@ -50,3 +50,41 @@
 .hDivider {
   margin: 0 !important;
 }
+
+/* index.module.css */
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.metricValue {
+  /* Existing styles for a regular metric value */
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.orange {
+  color: #ffa500;
+}
+
+.green {
+  color: #008000;
+}
+
+.clockContainer {
+  /* This class will apply the shake animation */
+  animation: shake 0.8s infinite;
+}

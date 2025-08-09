@@ -122,15 +122,19 @@ const TaskModal = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+    PaperProps={{sx:{
+      borderRadius:"13px"
+    }}}
+    open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle
         sx={{
-          backgroundColor: "#f5f5f5",
           borderBottom: "1px solid #e0e0e0",
           padding: "16px 24px",
           fontWeight: "bold",
-          color: "#333",
+          color: "white",
           borderRadius: "8px 8px 0 0",
+          backgroundColor:"#143352"
         }}
       >
         {taskId ? "Update Task" : "Add Task"}
@@ -232,7 +236,7 @@ const TaskModal = ({
       >
         <Button
           onClick={() => onClose()}
-          variant="outlined"
+               variant="outlined"
           sx={{
             textTransform: "none",
             borderRadius: "8px",
@@ -248,13 +252,15 @@ const TaskModal = ({
         </Button>
         <Button
           onClick={handleSave}
-          variant="contained"
+          variant="outlined"
           sx={{
             textTransform: "none",
             borderRadius: "8px",
-            backgroundColor: "#194CF0",
+            borderColor:"#143351",
+            color:"#143351",
             "&:hover": {
-              backgroundColor: "#143BA0",
+              backgroundColor: "#143351",
+              color: "white",
             },
           }}
         >

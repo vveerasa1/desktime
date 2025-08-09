@@ -15,7 +15,7 @@ const AppLayout = () => {
   const drawerWidth = mobileOpen || isMobile ? 240 : 72;
   return (
     <Box sx={{ display: "flex", width: "100%", minHeight: "100vh" }}>
-      <Grid sx={{ width: drawerWidth }}>
+      <Grid>
         <Sidebar
           open={open}
           setOpen={setOpen}
@@ -44,7 +44,7 @@ const AppLayout = () => {
             px: 3,
             py: 10,
             flex: 1,
-            backgroundColor: "#f9f9f9",
+            backgroundColor: "#ebecec",
           }}
         >
           <Outlet />

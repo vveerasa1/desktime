@@ -21,8 +21,33 @@ const addScreenshot = async (req, res) => {
 
     const date = moment().format("YYYY-MM-DD");
     const now = new Date();
+    console.log("now :" + now);
+
+    let screenshotLog = await ScreenshotLog.findOne({
+      userId: user._id,
+      sessionId: session._id,
+    });
 
     let screenshotEntries = [];
+
+    const lastScreenshot =
+      screenshotLog?.dailyScreenshots?.screenshots?.slice(-1)[0];
+
+    if (lastScreenshot) {
+      const lastTime = new Date(lastScreenshot.screenshotTime);
+      console.log("lastTime :" + lastTime);
+      const diffSeconds = (now - lastTime) / 1000;
+      console.log("diffSeconds :" + diffSeconds);
+
+      if (diffSeconds < 270) {
+        return res.status(400).json({
+          code: 400,
+          status: "Rejected",
+          message:
+            "Minimum 4 minutes 30 seconds gap required between screenshots",
+        });
+      }
+    }
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
@@ -39,11 +64,6 @@ const addScreenshot = async (req, res) => {
         });
       }
     }
-
-    let screenshotLog = await ScreenshotLog.findOne({
-      userId: user._id,
-      sessionId: session._id,
-    });
 
     if (screenshotLog) {
       // Check if the date matches

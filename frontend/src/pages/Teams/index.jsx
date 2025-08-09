@@ -67,10 +67,8 @@ const Teams = () => {
     setOpen(true);
      if (id) {
     setTeamId(id);
-    console.log(id, "EDIT: teamId set");
   } else {
     setTeamId(undefined);
-    console.log("ADD: No teamId (creating new team)");
   }
   };
 
@@ -92,7 +90,7 @@ const Teams = () => {
     setToaster({ ...toaster, open: false });
   };
   return (
-    <Box sx={{ p: 2, margin: "auto" }}>
+    <Box sx={{margin: "auto" }}>
       <Stack spacing={3}>
         <Box
           sx={{
@@ -104,7 +102,7 @@ const Teams = () => {
           }}
         >
           {/* Left-aligned Title */}
-          <Typography variant="h5" component="h1" fontWeight="bold">
+          <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
             Teams
           </Typography>
 
@@ -118,7 +116,7 @@ const Teams = () => {
             
             <Button
               variant="contained"
-              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#1564bf"}}
+              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#143351"}}
               onClick={()=>handleOpen()}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

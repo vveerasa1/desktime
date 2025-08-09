@@ -63,7 +63,7 @@ const deleteTeam = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const userExists = await User.exists({ teamId: id, isDeleted: false });
+    const userExists = await User.exists({ team: id, isDeleted: false });
 
     if (userExists) {
       return res
@@ -134,10 +134,66 @@ const getTeamById = async (req, res) => {
   }
 };
 
+const searchTeams = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+    const {
+      name,
+      page = 1,
+      limit = 10,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    // Build the search query
+    const searchQuery = { ownerId };
+
+    // Add name search if provided
+    if (name) {
+      searchQuery.name = { $regex: new RegExp(name, 'i') };
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await Team.countDocuments(searchQuery);
+
+    // Find teams with search criteria
+    const teams = await Team.find(searchQuery)
+      .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    res.status(200).json({
+      code: 200,
+      status: 'Success',
+      message: 'Teams fetched successfully',
+      data: {
+        teams,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      code: 500,
+      status: 'Error',
+      message: 'Failed to search teams',
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   addTeam,
   getAllTeams,
   deleteTeam,
   updateTeam,
   getTeamById,
+  searchTeams
 };

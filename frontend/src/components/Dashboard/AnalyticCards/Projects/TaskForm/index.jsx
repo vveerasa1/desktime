@@ -27,10 +27,8 @@ const TaskForm = ({
   handleCloseToaster,
   mappedProjectOptions,
 }) => {
-
-  console.log(userId,"USER USRE SDS")
   const [createTask, isLoading] = useCreateTaskMutation();
-  
+
   const handleSave = async () => {
     let newErrors = {};
     let isValid = true;
@@ -56,10 +54,10 @@ const TaskForm = ({
       isValid = false;
     }
 
-    if (!formData.status) {
-      newErrors.status = "Status is required";
-      isValid = false;
-    }
+    // if (!formData.status) {
+    //   newErrors.status = "Status is required";
+    //   isValid = false;
+    // }
 
     setErrors(newErrors);
     const payload = {
@@ -67,33 +65,39 @@ const TaskForm = ({
       description: formData.description,
       projectId: formData.project,
       assignee: formData.assignee,
-      status: formData.status,
       userId,
       ownerId,
     };
     if (isValid) {
-      
-        await createTask(payload);
-        openToaster("Task Added Successfully!", "success");
+      await createTask(payload);
+      openToaster("Task Added Successfully!", "success");
       onClose();
-      setTimeout(()=>{
-      handleCloseToaster();
-      },5000)
+      setTimeout(() => {
+        handleCloseToaster();
+      }, 5000);
       setFormData({
         taskName: "",
         description: "",
         project: "",
         assignee: "",
-        status: "",
       });
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      PaperProps={{
+        sx: {
+          borderRadius: "13px", 
+        },
+      }}
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+    >
       <DialogTitle
         sx={{
-          // backgroundColor: "#6856f2ff",
           borderBottom: "1px solid #e0e0e0",
           padding: "16px 24px",
           fontWeight: "bold",
@@ -152,7 +156,7 @@ const TaskForm = ({
             helperText={errors?.project}
           />
         </Box>
-        <Box mt={ 2}>
+        <Box mt={2}>
           <CustomDropdown
             label="Assignee"
             name="assignee"
@@ -166,23 +170,22 @@ const TaskForm = ({
             helperText={errors?.assignee}
           />
         </Box>
-          <Box mt={2}>
-            <CustomTextField
-              label="Status"
-              name="status"
-              value={formData.status}
-              handleChange={(e) => {
-                handleChange(e, "status");
-              }}
-              handleBlur={(e) => handleBlur(e, "status")}
-              placeholder="Enter Status "
-              isRequired
-              error={!!errors?.status}
-              helperText={errors?.status}
-              startIcon={<Assignment />}
-            />
-          </Box>
-       
+        {/* <Box mt={2}>
+          <CustomTextField
+            label="Status"
+            name="status"
+            value={formData.status}
+            handleChange={(e) => {
+              handleChange(e, "status");
+            }}
+            handleBlur={(e) => handleBlur(e, "status")}
+            placeholder="Enter Status "
+            isRequired
+            error={!!errors?.status}
+            helperText={errors?.status}
+            startIcon={<Assignment />}
+          />
+        </Box> */}
       </DialogContent>
       <DialogActions
         sx={{
@@ -212,13 +215,15 @@ const TaskForm = ({
         </Button>
         <Button
           onClick={handleSave}
-          variant="contained"
+          variant="outlined"
           sx={{
             textTransform: "none",
             borderRadius: "8px",
-            backgroundColor: "#122d48 !important",
+            borderColor:"#143351",
+            color:"#143351",
             "&:hover": {
-              backgroundColor: "#143BA0",
+              backgroundColor: "#143351",
+              color: "white",
             },
           }}
         >

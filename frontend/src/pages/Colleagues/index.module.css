@@ -7,11 +7,15 @@
 
 .searchActions {
   display: flex !important;
-  gap: 24px !important;
+  gap: 10px !important;
 }
 
 .iconBtn {
   padding: 8px !important;
+}
+.iconBtn:hover{
+  background-color: #808080!important;
+  color: whitesmoke;
 }
 
 .colleaguesWrapper {
@@ -20,13 +24,12 @@
 }
 
 .paperWrapper {
-  padding: 10px !important;
-  height: 100% !important;
+  padding: 20px !important;
 }
 
 .actionButtons {
   display: flex !important;
-  justify-content: space-between !important;
+  justify-content: end !important;
   align-items: center !important;
   margin-bottom: 24px !important;
 }
@@ -43,6 +46,8 @@
   width: 200px !important;
   display: flex !important;
   justify-content: space-between !important;
+  text-transform: none !important;
+  font-size: 17px !important;
 }
 
 .activeCount {
@@ -52,6 +57,7 @@
   padding-right: 8px !important;
   margin-left: 8px !important;
   border-radius: 8px !important;
+
 }
 
 .inactiveBtn {
@@ -61,6 +67,9 @@
   width: 200px !important;
   display: flex !important;
   justify-content: space-between !important;
+  text-transform: none !important;
+  font-size: 17px !important;
+
 }
 
 .inactiveCount {
@@ -70,4 +79,13 @@
   padding-right: 8px !important;
   margin-left: 8px !important;
   border-radius: 8px !important;
+}
+.iconBtn {
+  padding: 8px !important;
+  background-color: #ffffff!important;
+  border-radius: 8px !important;
+}
+.iconBtn:hover{
+  background-color: #808080!important;
+  color: whitesmoke;
 }
