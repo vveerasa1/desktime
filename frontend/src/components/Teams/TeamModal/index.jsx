@@ -135,13 +135,14 @@ useEffect(() => {
       {/* Custom Title Bar */}
       <DialogTitle
         sx={{
-          color: "black",
           display: "flex",
           borderBottom: "1px solid #e0e0e0",
           justifyContent: "space-between",
           alignItems: "center",
           py: 1.5,
           px: 2,
+          backgroundColor:"#143352",
+          color:"white"
         }}
       >
         <Typography variant="h6" component="div" fontWeight="bold">

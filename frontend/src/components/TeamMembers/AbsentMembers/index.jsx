@@ -28,7 +28,10 @@ const AbsentMembers = ({ inactiveUsers, columns, role, formatTime }) => {
                 <TableRow className={styles.tHeadRow}>
                   {columns.map((col, index) => (
                     <TableCell className={styles.tHeadSell} key={index}>
-                      {col}
+                       <Box sx={{textAlign: col ==="Name" ? "left" :"center"}}>
+                                       {col}
+                     
+                                       </Box>
                     </TableCell>
                   ))}
                 </TableRow>
@@ -43,7 +46,7 @@ const AbsentMembers = ({ inactiveUsers, columns, role, formatTime }) => {
                       backgroundColor: idx % 2 === 0 ? "#f4f4f4" : "#ffffff",
                     }}
                   >
-                    <TableCell className={styles.tBodyCell}>
+                    <TableCell sx={{width:"380px"}} className={styles.tBodyCell}>
                       <Box className={styles.tPersonInfo}>
                         <Avatar
                           alt="User Profile"
@@ -71,23 +74,38 @@ const AbsentMembers = ({ inactiveUsers, columns, role, formatTime }) => {
                     </TableCell>
                     <TableCell className={styles.tBodyCell}>
                       {/* {formatTime(row.productiveTime)} */}
+                     <Box sx={{textAlign:"center"}}>
                       -
+
+                     </Box>
                     </TableCell>
                     <TableCell className={styles.tBodyCell}>
                       {/* {formatTime(row.offlineTime)} */}
-                   -
+                   <Box sx={{textAlign:"center"}}>
+                      -
+
+                     </Box>
                     </TableCell>
                     <TableCell className={styles.tBodyCell}>
                       {/* {formatTime(row.deskTime)} */}
+<Box sx={{textAlign:"center"}}>
                       -
+
+                     </Box>
                     </TableCell>
                     <TableCell className={styles.tBodyCell}>
                       {/* {row.arrivalTime || "-"} */}
-                    -
+                    <Box sx={{textAlign:"center"}}>
+                      -
+
+                     </Box>
                     </TableCell>
                     <TableCell className={styles.tBodyCell}>
                       {/* {row.leftTime || "-"} */}
-                    -
+                    <Box sx={{textAlign:"center"}}>
+                      -
+
+                     </Box>
                     </TableCell>
                   </TableRow>
                 ))}

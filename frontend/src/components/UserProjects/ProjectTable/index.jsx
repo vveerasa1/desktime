@@ -7,7 +7,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  // Checkbox, // Keep commented as per original
   IconButton,
   Box,
   Popover,
@@ -16,14 +15,14 @@ import {
 } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { useDeleteProjectMutation } from "../../../redux/services/projects";
-import contract from "../../../assets/images/gray-pen.png"; // Import the image
+import contract from "../../../assets/images/gray-pen.png";
 
 const ProjectTable = ({
   data = [],
   columns = [],
   selected,
-  handleProjectSelectOne, // Not used, consider removing if no checkbox functionality
-  handleProjectSelectAll, // Not used, consider removing if no checkbox functionality
+  handleProjectSelectOne,
+  handleProjectSelectAll,
   onDelete,
   handleOpen,
   openToaster,
@@ -51,7 +50,7 @@ const ProjectTable = ({
         if (onDelete) onDelete(deleteId);
       } catch (err) {
         console.error("Delete failed", err);
-        openToaster("Failed to delete project.", "error"); // Add an error toaster
+        openToaster("Failed to delete project.", "error");
       }
     }
     handleClosePopover();
@@ -59,20 +58,19 @@ const ProjectTable = ({
 
   const openPopover = Boolean(anchorEl);
 
-
   return (
     <>
       {data.length === 0 ? (
         <Paper
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '250px', // Adjust height as needed
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "250px",
             p: 3,
-            textAlign: 'center',
-            color: '#666',
+            textAlign: "center",
+            color: "#666",
             border: "1px solid #e0e0e0",
             boxShadow: "none",
           }}
@@ -80,9 +78,14 @@ const ProjectTable = ({
           <img
             src={contract}
             alt="No data icon"
-            style={{ width: '80px', height: '80px', marginBottom: '16px', opacity: 0.6 }} // Adjust size and opacity
+            style={{
+              width: "80px",
+              height: "80px",
+              marginBottom: "16px",
+              opacity: 0.6,
+            }}
           />
-          <Typography variant="h6" fontWeight="bold" sx={{mb: 1}}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
             No projects added yet.
           </Typography>
           <Typography variant="body1">
@@ -94,33 +97,28 @@ const ProjectTable = ({
           component={Paper}
           sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}
         >
-          <Table>
+          <Table sx={{ tableLayout: "fixed" }}>
             <TableHead>
               <TableRow>
-                {/* Commented out checkbox column header */}
-                {/* <TableCell padding="checkbox">
-                  <Checkbox
-                    color="primary"
-                    indeterminate={
-                      selected.length > 0 &&
-                      selected.length < data.length
-                    }
-                    checked={
-                      data.length > 0 &&
-                      selected.length === data.length
-                    }
-                    onChange={handleProjectSelectAll}
-                    inputProps={{ "aria-label": "select all items" }}
-                  />
-                </TableCell> */}
-
                 {columns.map((col) => (
-                  <TableCell key={col} sx={{ fontWeight: "bold" }}>
+                  <TableCell
+                    key={col}
+                    sx={{
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      width: `calc(100% / ${columns.length + 1})`
+                    }}
+                  >
                     {col}
                   </TableCell>
                 ))}
-
-                <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    width: `calc(100% / ${columns.length + 1})`
+                  }}
+                >
                   Actions
                 </TableCell>
               </TableRow>
@@ -138,26 +136,26 @@ const ProjectTable = ({
                     selected={isItemSelected}
                     sx={{ cursor: "pointer" }}
                   >
-                    {/* Commented out checkbox cell for each row */}
-                    {/* <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        onChange={(event) =>
-                          handleProjectSelectOne(event, row._id)
-                        }
-                        inputProps={{
-                          "aria-labelledby": `table-checkbox-${row._id}`,
-                        }}
-                      />
-                    </TableCell> */}
-
                     {columns.map((col) => {
                       const dataKey = col.toLowerCase().replace(/ /g, "_");
-                      return <TableCell style={{ width: "400px" }} key={col}>{row[dataKey]}</TableCell>;
+                      return (
+                        <TableCell
+                          key={col}
+                          sx={{
+                            width: `calc(100% / ${columns.length + 1})`,
+                            textAlign: "center",
+                          }}
+                        >
+                          <Box>{row[dataKey]}</Box>
+                        </TableCell>
+                      );
                     })}
-
-                    <TableCell align="center">
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        width: `calc(100% / ${columns.length + 1})`,
+                      }}
+                    >
                       <Box display="flex" justifyContent="center" gap={0.5}>
                         <IconButton
                           aria-label="edit"
@@ -184,8 +182,6 @@ const ProjectTable = ({
         </TableContainer>
       )}
 
-
-      {/* Delete Confirmation Popover */}
       <Popover
         open={openPopover}
         anchorEl={anchorEl}

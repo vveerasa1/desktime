@@ -12,6 +12,7 @@ import {
   IconButton,
   Grid,
   Stack,
+  Divider,
 } from "@mui/material";
 import {
   CheckBoxOutlineBlank,
@@ -248,9 +249,12 @@ const TeamMembersForm = ({
       </DialogTitle>
 
       <DialogContent>
+
         <FormControlLabel
+        
           control={
             <Checkbox
+          
               checked={formData.selectAll}
               onChange={handleSelectAll}
               icon={<CheckBoxOutlineBlank fontSize="small" />}
@@ -258,18 +262,20 @@ const TeamMembersForm = ({
             />
           }
           label="Select all"
-          sx={{ padding:1 }}
+          sx={{ marginLeft:3,marginTop:2 }}
         />
 
         <Stack >
           {formData.teamMembers.map((member) => (
-            <Grid mx={3} container mt={3} spacing={3} key={member.id} alignItems="flex-end">
-              <Grid item>
+            <Grid sx={{display:"flex",gap:5}} mx={3}  mt={3}  key={member.id} alignItems="center">
+              <Grid mt={2}>
+              
                 <Checkbox
                   checked={false}
                   icon={<CheckBoxOutlineBlank fontSize="small" />}
                   checkedIcon={<CheckBoxOutlined fontSize="small" />}
                 />
+
               </Grid>
               <Grid item>
                 <CustomTextField
@@ -332,7 +338,7 @@ const TeamMembersForm = ({
                 />
               </Grid>
               {formData.teamMembers.length > 1 && (
-                <Grid item mb={1} xs={1}>
+                <Grid item  mt={1}>
                   <IconButton onClick={() => removeMember(member.id)}>
                     <DeleteIcon />
                   </IconButton>
@@ -358,6 +364,7 @@ const TeamMembersForm = ({
             {formData.submissionError}
           </Typography>
         )}
+        <Box>
 
         <FormControlLabel
           control={
@@ -369,10 +376,11 @@ const TeamMembersForm = ({
             />
           }
           label="Send invite email to team members"
-          sx={{ mt: 3 }}
         />
-      </DialogContent>
+        </Box>
 
+      </DialogContent>
+<Divider/>
       <DialogActions>
         <Button
           onClick={handleClose}

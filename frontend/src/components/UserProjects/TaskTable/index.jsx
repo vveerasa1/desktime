@@ -7,7 +7,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  // Checkbox, // Keep commented as per original
   IconButton,
   Box,
   Popover,
@@ -22,8 +21,8 @@ const TaskTable = ({
   data = [],
   columns = [],
   selected,
-  handleSelectAll, // Not used, consider removing if no checkbox functionality
-  handleSelectOne, // Not used, consider removing if no checkbox functionality
+  handleSelectAll,
+  handleSelectOne,
   onEdit,
   onDelete,
   handleTaskOpen,
@@ -32,8 +31,8 @@ const TaskTable = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [deleteTask] = useDeleteTaskMutation();
-  const selectedCount = selected.length; // Keep if needed for potential future checkbox functionality
-  const rowCount = data.length; // Keep if needed for potential future checkbox functionality
+  const selectedCount = selected.length;
+  const rowCount = data.length;
 
   const handleDeleteClick = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -50,14 +49,16 @@ const TaskTable = ({
       try {
         await deleteTask(deleteTargetId).unwrap();
         openToaster("Task Deleted Successfully!", "success");
-        onDelete?.(deleteTargetId); // optional callback to refresh or remove from UI
-      } catch (err) { // Catch the error to log it
-        console.error("Delete failed", err); // Log the actual error
+        onDelete?.(deleteTargetId);
+      } catch (err) {
+        console.error("Delete failed", err);
         openToaster("Failed to delete task", "error");
       }
     }
     handleClosePopover();
   };
+
+  const totalColumns = columns.length + 1; // +1 for the Actions column
 
   return (
     <>
@@ -68,7 +69,7 @@ const TaskTable = ({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: '250px', // Adjust height as needed
+            minHeight: '250px',
             p: 3,
             textAlign: 'center',
             color: '#666',
@@ -79,7 +80,7 @@ const TaskTable = ({
           <img
             src={contract}
             alt="No data icon"
-            style={{ width: '80px', height: '80px', marginBottom: '16px', opacity: 0.6 }} // Adjust size and opacity
+            style={{ width: '80px', height: '80px', marginBottom: '16px', opacity: 0.6 }}
           />
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
             No tasks added yet.
@@ -93,26 +94,28 @@ const TaskTable = ({
           component={Paper}
           sx={{ border: "1px solid #e0e0e0", boxShadow: "none" }}
         >
-          <Table>
+          <Table sx={{ tableLayout: "fixed" }}>
             <TableHead>
               <TableRow>
-                {/* Commented out checkbox column header */}
-                {/* <TableCell padding="checkbox">
-                  <Checkbox
-                    color="primary"
-                    indeterminate={selectedCount > 0 && selectedCount < rowCount}
-                    checked={rowCount > 0 && selectedCount === rowCount}
-                    onChange={handleSelectAll}
-                  />
-                </TableCell> */}
-
                 {columns.map((col) => (
-                  <TableCell key={col} sx={{ fontWeight: "bold" }}>
+                  <TableCell
+                    key={col}
+                    sx={{
+                      fontWeight: "bold",
+                      width: `calc(100% / ${totalColumns})`,
+                      textAlign: "center"
+                    }}
+                  >
                     {col}
                   </TableCell>
                 ))}
-
-                <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    width: `calc(100% / ${totalColumns})`
+                  }}
+                >
                   Actions
                 </TableCell>
               </TableRow>
@@ -127,26 +130,26 @@ const TaskTable = ({
                     selected={isItemSelected}
                     sx={{ cursor: "pointer" }}
                   >
-                    {/* Commented out checkbox cell for each row */}
-                    {/* <TableCell
-                      padding="checkbox"
-                      onClick={(event) => handleSelectOne(event, row._id)}
-                    >
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          "aria-labelledby": `table-checkbox-${row._id}`,
-                        }}
-                      />
-                    </TableCell> */}
-
                     {columns.map((col) => {
                       const dataKey = col.toLowerCase().replace(/ /g, "_");
-                      return <TableCell style={{ width: "400px" }} key={col}>{row[dataKey]}</TableCell>;
+                      return (
+                        <TableCell
+                          key={col}
+                          sx={{
+                            width: `calc(100% / ${totalColumns})`,
+                            textAlign: "center"
+                          }}
+                        >
+                          {row[dataKey]}
+                        </TableCell>
+                      );
                     })}
-
-                    <TableCell align="center">
+                    <TableCell
+                      align="center"
+                      sx={{
+                        width: `calc(100% / ${totalColumns})`
+                      }}
+                    >
                       <Box display="flex" justifyContent="center" gap={0.5}>
                         <IconButton
                           aria-label="edit"
@@ -175,7 +178,6 @@ const TaskTable = ({
           </Table>
         </TableContainer>
       )}
-
 
       {/* MUI Popover for delete confirmation */}
       <Popover
