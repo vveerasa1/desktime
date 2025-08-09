@@ -3,12 +3,15 @@ import TeamsTable from "../../components/Teams/TeamsTable";
 import { Box, Button, Stack, Typography, IconButton } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import TeamModal from "../../components/Teams/TeamModal";
-import { useGetAllTeamQuery, useSearchTeamQuery } from "../../redux/services/team";
+import {
+  useGetAllTeamQuery,
+  useSearchTeamQuery,
+} from "../../redux/services/team";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 import LoadingComponent from "../../components/ComponentLoader";
 import MuiToaster from "../../components/MuiToaster";
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { useDebounce } from "../../hooks/useDebounce";
 import SearchIcon from "@mui/icons-material/Search";
 import CustomTextField from "../../components/CustomTextField";
@@ -22,13 +25,14 @@ const Teams = () => {
     ownerId = decoded.ownerId;
     role = decoded.role;
   }
-  
+
   const [selected, setSelected] = useState([]);
   const [searchText, setSearchText] = useState("");
   const debouncedSearchText = useDebounce(searchText, 500);
-  
+
   // Team data queries
-  const { data: teamsData, isLoading: teamDataIsLoading } = useGetAllTeamQuery(ownerId);
+  const { data: teamsData, isLoading: teamDataIsLoading } =
+    useGetAllTeamQuery(ownerId);
   const {
     data: searchResults,
     isLoading: isSearchLoading,
@@ -46,18 +50,20 @@ const Teams = () => {
   const [open, setOpen] = useState(false);
 
   // Update team data based on search or all teams
-useEffect(() => {
-  // Handle search results
-  if (debouncedSearchText && searchResults?.data?.teams) {
-    setGetTeamData(Array.isArray(searchResults?.data?.teams) ? searchResults.data : []);
-    console.log(searchResults,"SEARCH RESULT")
-  } 
-  // Handle regular team data
-  else if (teamsData?.data) {
-    setGetTeamData(Array.isArray(teamsData.data) ? teamsData.data : []);
-    console.log(teamsData,"TEAMS FETCH")
-  }
-}, [teamsData, searchResults, debouncedSearchText])
+  useEffect(() => {
+    // Handle search results
+    if (debouncedSearchText && searchResults?.data) {
+      setGetTeamData(
+        Array.isArray(searchResults?.data) ? searchResults.data : []
+      );
+      console.log(searchResults, "SEARCH RESULT");
+    }
+    // Handle regular team data
+    else if (teamsData?.data) {
+      setGetTeamData(Array.isArray(teamsData.data) ? teamsData.data : []);
+      console.log(teamsData, "TEAMS FETCH");
+    }
+  }, [teamsData, searchResults, debouncedSearchText]);
   const handleSelectAll = (event) => {
     if (event.target.checked) {
       const allIds = getTeamData.map((row) => row._id);
@@ -119,7 +125,8 @@ useEffect(() => {
   };
 
   // Determine which loading state to show
-  const isLoading = teamDataIsLoading || (debouncedSearchText && isSearchLoading);
+  const isLoading =
+    teamDataIsLoading || (debouncedSearchText && isSearchLoading);
 
   return (
     <Box sx={{ margin: "auto" }}>
@@ -129,37 +136,41 @@ useEffect(() => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            flexWrap: "wrap", 
-            mb: 2, 
+            flexWrap: "wrap",
+            mb: 2,
           }}
         >
-          <Typography sx={{ fontSize: "23px" }} fontWeight={600} color="#333333">
+          <Typography
+            sx={{ fontSize: "23px" }}
+            fontWeight={600}
+            color="#333333"
+          >
             Teams
           </Typography>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Box sx={{ height: 40 }}>
-              <CustomTextField 
+              <CustomTextField
                 name="search"
                 fullWidth
                 startIcon={<SearchIcon />}
                 placeholder="Search Teams"
                 value={searchText}
-                handleChange={(e)=> handleSearchChange(e,"name")}
+                handleChange={(e) => handleSearchChange(e, "name")}
               />
             </Box>
 
             <IconButton size="small">
               <FilterListIcon fontSize="medium" />
             </IconButton>
-            
+
             <Button
               variant="contained"
-              sx={{ 
+              sx={{
                 textTransform: "none",
                 whiteSpace: "nowrap",
-                px: 4, 
-                backgroundColor: "#143351"
+                px: 4,
+                backgroundColor: "#143351",
               }}
               onClick={() => handleOpen()}
             >
