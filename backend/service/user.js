@@ -133,21 +133,22 @@ const addUser = async (req, res) => {
         const mailOptions = {
           from: config.smtp?.email,
           to: user.email,
-          subject: "Desktime - Invitation",
+          subject: "TrackMe - Invitation",
           text: `Hi ${user.username},
 
-You have been invited to join Desktime.
+You have been invited to join TrackMe.
 
 Here are your login credentials:
 Email: ${user.email}
 Password: ${password}
 
-Please log in to your account to get started.
+Please log in to your account:
+https://trackme.pentabay.com
 
 ***** This is an auto-generated email. Please do not reply. *****
 
 Best regards,  
-Desktime - Pentabay Team`,
+TrackMe - Pentabay Team`,
         };
 
         transporter.sendMail(mailOptions, (error) => {
