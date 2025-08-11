@@ -32,14 +32,22 @@ const addScreenshot = async (req, res) => {
 
     const lastScreenshot =
       screenshotLog?.dailyScreenshots?.screenshots?.slice(-1)[0];
+    console.log("lastScreenshot" + lastScreenshot);
 
     if (lastScreenshot) {
-      const lastTime = new Date(lastScreenshot.screenshotTime);
-      console.log("lastTime :" + lastTime);
-      const diffSeconds = (now - lastTime) / 1000;
-      console.log("diffSeconds :" + diffSeconds);
+      const lastTime = new Date(lastScreenshot.screenshotTime).getTime(); // in ms
+      console.log("lastTime" + lastTime);
 
-      if (diffSeconds < 270) {
+      const nowMs = Date.now(); // current time in ms
+      const diffMs = nowMs - lastTime; // difference in ms
+
+      console.log("lastTime (ms):", lastTime);
+      console.log("diffMs:", diffMs);
+
+      console.log("Utc time :" + new Date().toISOString());
+
+      // 4 minutes 30 seconds = 270,000 ms
+      if (diffMs < 270000) {
         return res.status(400).json({
           code: 400,
           status: "Rejected",
