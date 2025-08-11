@@ -68,7 +68,7 @@ const login = async (req, res) => {
 };
 const generateToken = async (req, res) => {
   const { refreshToken } = req.body;
-  console.log(refreshToken);
+  console.log("inBackend :" + refreshToken);
   console.log(config.auth.REFRESH_SECRET);
   if (!refreshToken)
     return res.status(401).json({ message: "Refresh token required" });
@@ -79,15 +79,23 @@ const generateToken = async (req, res) => {
     // req.user = decoded;
 
     const user = await User.findById(decoded.userId);
+
     const payload = {
       userId: user._id,
       ownerId: user.ownerId,
-      mobile: user?.mobile,
-      email: user?.email,
-      role: user?.role,
+      role: user.role,
+      email: user.email,
+      timeZone: user.timeZone,
     };
+    console.log("payload :" + payload);
+
     const newAccessToken = generateAccessToken(payload);
     const newRefreshToken = generateRefreshToken(payload);
+
+    console.log("newAccessToken :" + newAccessToken);
+    console.log("newRefreshToken :" + newRefreshToken);
+
+    console.log();
 
     res.status(200).json({
       code: 200,

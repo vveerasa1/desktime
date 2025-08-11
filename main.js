@@ -133,6 +133,8 @@ function setSessionDetails(userId, sessionId) {
 async function makeAuthenticatedRequest(userId, config) {
   const userState = getUserState(userId);
   let token = userState.token;
+
+  console.log("token :" + token);
   if (!token) {
     throw new Error(`[Auth Error] No token found for user ${userId}`);
   }
@@ -147,6 +149,7 @@ async function makeAuthenticatedRequest(userId, config) {
         `[Auth] Token expired for user ${userId}. Attempting refresh.`
       );
       const refreshed = await refreshToken(userId);
+      console.log(refreshed);
       if (refreshed) {
         token = getUserState(userId).token; // Get the newly refreshed token
         config.headers.Authorization = `Bearer ${token}`;
@@ -176,6 +179,8 @@ async function makeAuthenticatedRequest(userId, config) {
 async function refreshToken(userId) {
   const userState = getUserState(userId);
   const refreshToken = userState.refreshToken;
+  console.log("get refreshToken :" + refreshToken);
+
   if (!refreshToken) {
     console.error(
       `[Token Refresh] No refresh token available for user ${userId}`
@@ -184,12 +189,20 @@ async function refreshToken(userId) {
   }
 
   try {
-    const res = await axios.post("http://51.79.30.127:4005/auth/refresh", {
-      refreshToken,
-    });
+    console.log("refreshToken api calling");
+    const res = await axios.post(
+      "https://trackme.pentabay.com/api/auth/refresh",
+      {
+        refreshToken,
+      }
+    );
 
-    const newToken = res.data.accessToken;
-    const newRefreshToken = res.data.refreshToken;
+    const newToken = res.data.data.accessToken;
+    const newRefreshToken = res.data.data.refreshToken;
+
+    console.log("newToken :" + newToken);
+    console.log("newRefreshToken :" + newRefreshToken);
+
     setTokens(userId, newToken, newRefreshToken); // Store new tokens
     console.log(
       `[Token Refresh] Successfully refreshed token for user ${userId}`
@@ -241,7 +254,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on http://51.79.30.127:${API_PORT}`
+    `🚀 Express API server in Electron listening on https://localhost:${API_PORT}`
   );
 });
 
@@ -260,7 +273,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://51.79.30.127:5173");
+  mainWindow.loadURL("https://trackme.pentabay.com");
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -283,11 +296,11 @@ function createWindow() {
     { label: "Show App", click: () => mainWindow.show() },
     { label: "Quit", click: () => app.quit() },
   ]);
-  tray.setToolTip("DeskTime Clone");
+  tray.setToolTip("TrackMe Clone");
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    shell.openExternal("http://51.79.30.127:5173");
+    shell.openExternal("https://trackme.pentabay.com");
   });
 }
 
@@ -332,7 +345,7 @@ async function initializeDailyTracking(userId) {
     // Check for existing session for today
     const checkRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `http://51.79.30.127:4005/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
+      url: `https://trackme.pentabay.com/api/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
     });
     console.log("checkRes :" + checkRes);
 
@@ -367,7 +380,7 @@ async function initializeDailyTracking(userId) {
           // Assuming your session object has arrivalTime
           await makeAuthenticatedRequest(userId, {
             method: "put",
-            url: `http://51.79.30.127:4005/tracking/sessions/${existingSessionId}/arrival`,
+            url: `https://trackme.pentabay.com/api/tracking/sessions/${existingSessionId}/arrival`,
             data: { arrivalTime: new Date() },
           }).catch((e) => console.error("[Arrival Time Update Error]"));
         }
@@ -379,7 +392,7 @@ async function initializeDailyTracking(userId) {
       // No existing session for today, create a new one
       const createRes = await makeAuthenticatedRequest(userId, {
         method: "post",
-        url: "http://51.79.30.127:4005/tracking/sessions",
+        url: "https://trackme.pentabay.com/api/tracking/sessions",
         data: { arrivalTime: new Date() }, // Send arrival time on session creation
       });
 
@@ -414,7 +427,7 @@ async function fetchUserConfig(userId) {
   try {
     const userRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `http://51.79.30.127:4005/users/${userId}`,
+      url: `https://trackme.pentabay.com/api/users/${userId}`,
     });
     return userRes.data.data;
   } catch (error) {
@@ -483,7 +496,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://51.79.30.127:4005/tracking/sessions/idle",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
           data: {
             sessionId,
             duration,
@@ -501,7 +514,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://51.79.30.127:4005/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -530,7 +543,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://51.79.30.127:4005/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -564,7 +577,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://51.79.30.127:4005/tracking/sessions/idle",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
           data: {
             sessionId,
             duration,
@@ -604,7 +617,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://51.79.30.127:4005/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -695,7 +708,7 @@ async function captureScreenshot(userId) {
 
     const res = await makeAuthenticatedRequest(userId, {
       method: "post",
-      url: "http://51.79.30.127:4005/tracking/sessions/screenshots",
+      url: "https://trackme.pentabay.com/api/tracking/sessions/screenshots",
       data: formData,
       headers: {
         ...formData.getHeaders(), // Important for multipart/form-data
@@ -859,7 +872,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://51.79.30.127:4005/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -878,7 +891,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "http://51.79.30.127:4005/tracking/sessions/idle",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -903,7 +916,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     try {
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "http://51.79.30.127:4005/tracking/sessions/end",
+        url: "https://trackme.pentabay.com/api/tracking/sessions/end",
         data: { sessionId: userState.sessionId },
       });
       console.log(
@@ -943,7 +956,7 @@ app.whenReady().then(async () => {
 
   // Auto-launch setup
   const deskTimeAutoLauncher = new AutoLaunch({
-    name: "DeskTimeApp",
+    name: "TrackMeApp",
     path: app.getPath("exe"),
   });
 
@@ -1079,7 +1092,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://51.79.30.127:4005/tracking/sessions/active",
+            url: "https://trackme.pentabay.com/api/tracking/sessions/active",
             data: {
               sessionId: userState.sessionId,
               duration,
@@ -1100,7 +1113,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "http://51.79.30.127:4005/tracking/sessions/idle",
+            url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
             data: {
               sessionId: userState.sessionId,
               duration,
