@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Paper,
   Box,
@@ -11,11 +11,13 @@ import {
   TableRow,
   Grid,
   Button,
+  useTheme,
 } from "@mui/material";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import TaskForm from "./TaskForm";
 import styles from "./index.module.css";
 import contract from "../../../../assets/images/gray-pen.png";
+
 const ProjectCard = ({
   userId,
   ownerId,
@@ -36,24 +38,28 @@ const ProjectCard = ({
   handleTaskOpen,
   tableHeaders,
 }) => {
+  const theme = useTheme();
+
+  // column width distribution (adjust if you want different layout)
+  const colWidths = ["35%", "20%", "15%", "15%", "15%"];
+
   const renderedHeader = useMemo(
     () => (
-      <TableHead >
-        <TableRow >
+      <TableHead>
+        <TableRow>
           {tableHeaders.map((header, index) => (
             <TableCell
               key={index}
-              
-              className={`${styles.headerCell} ${index===0?styles.firstHeaderCell:''} ${index===4?styles.lastHeaderCell:''}`}
-              style={{
+              className={`${styles.headerCell} ${
+                index === 0 ? styles.firstHeaderCell : ""
+              } ${index === 4 ? styles.lastHeaderCell : ""}`}
+              sx={{
+                width: colWidths[index],
+                fontWeight: 600,
                 background: "#143351",
-                color: "white !important",
-                // borderRadius:"20px",
-                paddingLeft:
-                  header.title === "Project" || header.title === "Task"
-                    ? 10
-                    : 8,
-                padding: "5px 0px",
+                color: "#fff",
+                padding: "8px 12px",
+                whiteSpace: "nowrap",
               }}
             >
               {header.title}
@@ -62,136 +68,147 @@ const ProjectCard = ({
         </TableRow>
       </TableHead>
     ),
-    [tableHeaders]
+    [tableHeaders] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const renderedRows = useMemo(() => {
     if (!mappedTaskData || mappedTaskData.length === 0) {
       return (
-        <TableBody>
-          <TableRow>
-            <TableCell
-              colSpan={tableHeaders.length}
-              align="center"
-              sx={{
-                borderBottom: "none !important",
-              }}
-            >
-              <Box
-                sx={{
-                  width: "100%",
-                  height: 105,
-                  borderRadius: 2,
-                  borderBottom: "none !important", // REMOVE table row bottom border
-                  display: "flex",
-                  alignItems: "center",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}
-              >
-                <img
-                  src={contract}
-                  alt="No tasks"
-                  style={{ width: 40, height: 40 }}
-                />
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    width: "100%",
-                    fontFamily: "sans-serif",
-                    fontWeight: "600",
-                  }}
-                >
-                  No tasks
-                </Typography>
-              </Box>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      );
-    }
-    return (
-      <TableBody>
-        {mappedTaskData.map((item) => (
-          <TableRow
-            key={item._id}
+        <TableRow>
+          <TableCell
+            colSpan={tableHeaders.length}
+            align="center"
             sx={{
-              height: "40px", // sets the outer height, but not enough alone
-              "& td": {
-                paddingTop: "4px",
-                paddingBottom: "2px",
-              },
+              borderBottom: "none !important",
+              padding: 0,
             }}
           >
-            <TableCell
-              className={styles.bodyCell}
-              // className={`${styles.bodyCell} ${styles.bodyCell}`}
+            <Box
               sx={{
-                position: "relative",
-                padding: "8px 8px 8px 24px",
-                minWidth: "200px",
-                 borderLeft: `4px solid ${item.barColor}`,
-                borderRadius: "12px 0px 0px 12px !important",
+                width: "100%",
+                height: 105,
+                borderRadius: 2,
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "column",
+                justifyContent: "center",
               }}
             >
-              <Typography variant="body2" noWrap>
-                {item.task_name}
+              <img src={contract} alt="No tasks" style={{ width: 40, height: 40 }} />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  width: "100%",
+                  fontFamily: "sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                No tasks
               </Typography>
-            </TableCell>
-            <TableCell
-              className={styles.bodyCell}
-              sx={{ padding: "0px !important", minWidth: "150px" }}
-            >
-              <Typography variant="body2" noWrap>
-                {item.project}
-              </Typography>
-            </TableCell>
-            <TableCell
-              className={styles.bodyCell}
-              sx={{ padding: "18px", minWidth: "120px" }}
-            >
-              <Typography variant="body2" noWrap>
-                {item.assignee}
-              </Typography>
-            </TableCell>
-            <TableCell
-              className={styles.bodyCell}
-              sx={{}}
-            >
-              <Typography variant="body2">{item.status}</Typography>
-            </TableCell>
-            <TableCell
-              className={styles.bodyCell}
-              sx={{
-                padding: "8px",
-                minWidth: "120px",
-                color:
-                  item.status === "In-Progress"
-                    ? theme.palette.warning.main
-                    : "inherit",
-              }}
-            >
-              <Typography variant="body2">{item.created_by}</Typography>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    );
-  }, [mappedTaskData, tableHeaders]);
+            </Box>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return mappedTaskData.map((item) => (
+      <TableRow
+        key={item._id}
+        sx={{
+          "& td": {
+            paddingTop: "8px",
+            paddingBottom: "8px",
+            verticalAlign: "middle",
+          },
+        }}
+      >
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[0],
+            paddingLeft: "20px",
+            borderLeft: `4px solid ${item.barColor}`,
+            borderRadius: "12px 0 0 12px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2" noWrap>
+            {item.task_name}
+          </Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[1],
+            padding: "8px 12px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2" noWrap>
+            {item.project}
+          </Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[2],
+            padding: "8px 12px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2" noWrap>
+            {item.assignee}
+          </Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[3],
+            padding: "8px 12px",
+          }}
+        >
+          <Typography variant="body2">{item.status}</Typography>
+        </TableCell>
+
+        <TableCell
+          className={styles.bodyCell}
+          sx={{
+            width: colWidths[4],
+            padding: "8px 12px",
+            color:
+              item.status === "In-Progress"
+                ? theme.palette.warning.main
+                : "inherit",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Typography variant="body2">{item.created_by}</Typography>
+        </TableCell>
+      </TableRow>
+    ));
+  }, [mappedTaskData, tableHeaders, theme]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Grid item size={{xs:12,md:12}}>
+    <Grid item xs={12} md={12}>
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>
-            <Typography sx={{fontSize:"18px",fontWeight:'600 !important'}} className={styles.headingText}>
+            <Typography sx={{ fontSize: "18px", fontWeight: 600 }} className={styles.headingText}>
               Projects
             </Typography>
-            <Button
-              className={styles.addButton}
-              onClick={() => handleTaskOpen()}
-            >
+            <Button className={styles.addButton} onClick={() => handleTaskOpen()}>
               Add Task <ControlPointIcon className={styles.icon} />
             </Button>
           </Box>
@@ -214,17 +231,25 @@ const ProjectCard = ({
             mappedProjectOptions={mappedProjectOptions}
           />
 
-          <TableContainer className={styles.tableContainer}>
+          {/* === TableContainer with sticky header and scrollable body === */}
+          <TableContainer
+            className={styles.tableContainer}
+            sx={{
+              maxHeight: 320, // adjust scroll area height as needed
+            }}
+          >
             <Table
-              stickyHeader
               aria-label="project table"
+              stickyHeader
               sx={{
-                borderSpacing: "0 8px", // vertical horizontal spacing
-                borderCollapse: "separate", // required for border-spacing to work
+                borderSpacing: "0 8px",
+                borderCollapse: "separate",
+                tableLayout: "fixed", // ensures header and body cell widths align
+                width: "100%",
               }}
             >
               {renderedHeader}
-              {renderedRows}
+              <TableBody>{renderedRows}</TableBody>
             </Table>
           </TableContainer>
         </Box>

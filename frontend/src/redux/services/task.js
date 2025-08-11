@@ -45,7 +45,17 @@ export const Task = createApi({
             }),
             invalidatesTags: ['Task'],
 
-        })
+        }),
+         searchTask: builder.query({
+                    query: ({ id, searchParams }) => ({
+                        url: `${URL_CONSTANTS.TASK}/${URL_CONSTANTS.SEARCH}/${id}`,
+                        method: 'GET',
+                        params: searchParams
+        
+                    }),
+                    providesTags: ['Task']
+        
+                }),
     }),
 });
 
@@ -56,4 +66,5 @@ export const {
     useDeleteTaskMutation,
     useGetAllTasksQuery,
     useGetSingleTaskQuery,
+    useSearchTaskQuery
 } = Task;

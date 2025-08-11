@@ -167,9 +167,87 @@ const deleteTaskById = async (req, res) => {
     });
   }
 };
+const searchTasks = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+    const {
+      name,
+      projectId,
+      assignee,
+      status,
+      createdBy,
+      modifiedBy,
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = req.query;
+
+    // Build the search query
+    const searchQuery = { ownerId };
+
+    // Add field-specific searches if provided
+    if (name) {
+      searchQuery.name = { $regex: new RegExp(name, 'i') };
+    }
+    if (projectId) {
+      searchQuery.projectId = projectId;
+    }
+    if (assignee) {
+      searchQuery.assignee = assignee;
+    }
+    if (status) {
+      searchQuery.status = status;
+    }
+    if (createdBy) {
+      searchQuery.createdBy = createdBy;
+    }
+    if (modifiedBy) {
+      searchQuery.modifiedBy = modifiedBy;
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await Task.countDocuments(searchQuery);
+
+    // Find tasks with search criteria
+    const tasks = await Task.find(searchQuery)
+      .populate("assignee createdBy modifiedBy", "username")
+      .populate("projectId", "name")
+      .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    res.status(200).json({
+      code: 200,
+      status: 'Success',
+      message: 'Tasks fetched successfully',
+      data: {
+        tasks,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    });
+  } catch (err) {
+    console.error('Error searching tasks:', err);
+    res.status(500).json({
+      code: 500,
+      status: 'Error',
+      message: 'Failed to search tasks',
+      error: err.message,
+    });
+  }
+};
 module.exports = {
   deleteTaskById,
   getTaskById,
   getAllTasks,
   saveTask,
+  searchTasks
 };

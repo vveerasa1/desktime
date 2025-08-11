@@ -41,7 +41,7 @@ const ScreenshotGrid = ({ filters, employee }) => {
 
   return (
     <Paper className={styles.container}>
-      <Box py={2} px={2}>
+      <Box py={2} px={1}>
         <Typography variant="h6"
           sx={{ fontSize: "18px", fontWeight: '600 !important', mb: 2 }}>
           Screenshots

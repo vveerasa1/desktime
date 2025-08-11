@@ -29,7 +29,7 @@ const TeamsTable = ({
   const [deleteTeamId, setDeleteTeamId] = useState(null);
   const [deleteTeam] = useDeleteTeamMutation();
   const [loading, setLoading] = useState(false);
-
+  console.log(getTeamData,"TEAM DATAA")
   const handleDeleteClick = (event, teamId) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -142,7 +142,7 @@ const TeamsTable = ({
               </TableHead>
 
               <TableBody>
-                {getTeamData?.map((row) => {
+                {getTeamData && getTeamData?.map((row) => {
                   const isItemSelected = selected.indexOf(row._id) !== -1;
                   return (
                     <TableRow

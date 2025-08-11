@@ -12,39 +12,50 @@ export const User = createApi({
         method: 'POST',
         body: profileData,
       }),
-      invalidatesTags:['User']
+      invalidatesTags: ['User']
     }),
     updateProfile: builder.mutation({
-      query: ({id,profileData}) => ({
+      query: ({ id, profileData }) => ({
         url: `${URL_CONSTANTS.USER}/${id}`,
         method: 'PUT',
         body: profileData,
       }),
-      invalidatesTags:['User']
+      invalidatesTags: ['User']
     }),
-    getAllProfile:builder.query({
-        query:({id})=>({
-            url:`${URL_CONSTANTS.USER}/${URL_CONSTANTS.OWNER}/${id}`,
-            method:'GET',
-        }),
-        providesTags:['User']
+    getAllProfile: builder.query({
+      query: ({ id }) => ({
+        url: `${URL_CONSTANTS.USER}/${URL_CONSTANTS.OWNER}/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['User']
     }),
-    getSingleProfile:builder.query({
-        query:(id)=>({
-            url:`${URL_CONSTANTS.USER}/${id}`,
-            method:'GET',
-        }),
-        providesTags:['User']
+    getSingleProfile: builder.query({
+      query: (id) => ({
+        url: `${URL_CONSTANTS.USER}/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['User']
 
     }),
-   deleteProfile: builder.mutation({
+    deleteProfile: builder.mutation({
       query: (id) => ({
         url: `${URL_CONSTANTS.USER}/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags:['User']
+      invalidatesTags: ['User']
+    }),
+    searchProfile: builder.query({
+      query: ({ id, searchParams }) => ({
+        url: `${URL_CONSTANTS.USER}/${URL_CONSTANTS.SEARCH}/${id}`,
+        method: 'GET',
+        params: searchParams
+
+      }),
+      providesTags: ['User']
+
     }),
   }),
+
 });
 
 // ✅ Export only the hooks you defined
@@ -53,5 +64,6 @@ export const {
   useUpdateProfileMutation,
   useDeleteProfileMutation,
   useGetAllProfileQuery,
-  useGetSingleProfileQuery
+  useGetSingleProfileQuery,
+  useSearchProfileQuery
 } = User;

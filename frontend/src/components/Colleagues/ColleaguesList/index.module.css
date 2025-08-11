@@ -10,9 +10,11 @@
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
-  min-height: 130px !important;
+  height: 100% !important;
+  overflow-y: auto !important;
   border: 1px solid #eee !important;
   position: relative !important;
+  white-space: nowrap !important;
 }
 
 .menuIcon {

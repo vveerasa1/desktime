@@ -15,8 +15,8 @@ export const Team = createApi({
             invalidatesTags: ['Team']
         }),
 
-         updateTeam: builder.mutation({
-            query: ({id,payload}) => ({
+        updateTeam: builder.mutation({
+            query: ({ id, payload }) => ({
                 url: `${URL_CONSTANTS.TEAMS}/${id}`,
                 method: 'PUT',
                 body: payload
@@ -31,19 +31,29 @@ export const Team = createApi({
             invalidatesTags: ['Team']
         }),
         getAllTeam: builder.query({
-            query: ( id ) => ({
+            query: (id) => ({
                 url: `${URL_CONSTANTS.TEAMS}/${URL_CONSTANTS.OWNER}/${id}`,
                 method: 'GET',
             }),
             providesTags: ['Team']
         }),
 
-          getSingleTeam: builder.query({
-            query: ( {id} ) => ({
+        getSingleTeam: builder.query({
+            query: ({ id }) => ({
                 url: `${URL_CONSTANTS.TEAMS}/${id}`,
                 method: 'GET',
             }),
             providesTags: ['Team']
+        }),
+        searchTeam: builder.query({
+            query: ({ id, searchParams }) => ({
+                url: `${URL_CONSTANTS.TEAMS}/${URL_CONSTANTS.SEARCH}/${id}`,
+                method: 'GET',
+                params: searchParams
+
+            }),
+            providesTags: ['Team']
+
         }),
 
     }),
@@ -54,5 +64,6 @@ export const {
     useUpdateTeamMutation,
     useGetAllTeamQuery,
     useGetSingleTeamQuery,
-    useDeleteTeamMutation
+    useDeleteTeamMutation,
+    useSearchTeamQuery
 } = Team;

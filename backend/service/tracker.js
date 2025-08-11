@@ -505,6 +505,144 @@ const getAllTrackingsForToday = async (req, res) => {
   }
 };
 
+const searchTrackings = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+    const { 
+      query = '', 
+      role = '', 
+      fromDate, 
+      toDate,
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    // Step 1: Get owner's timezone
+    const owner = await User.findById(ownerId).select("timeZone");
+    const timezone = owner?.timeZone || "UTC";
+
+    // Step 2: Build user filter
+    const userFilter = {
+      isDeleted: false,
+      $or: [{ _id: ownerId }, { ownerId }],
+    };
+
+    // Add search query filter
+    if (query) {
+      const regex = new RegExp(query, 'i');
+      userFilter.$or = [
+        { username: { $regex: regex } },
+        { firstName: { $regex: regex } },
+        { lastName: { $regex: regex } }
+      ];
+    }
+
+    // Add role filter
+    if (role) {
+      userFilter.role = role;
+    }
+
+    // Step 3: Get filtered users
+    const users = await User.find(userFilter)
+      .select("firstName lastName username photo role active");
+
+    const userIds = users.map(u => u._id);
+
+    // Step 4: Build date range filter
+    const dateFilter = {};
+    if (fromDate) {
+      dateFilter.$gte = moment.tz(fromDate, timezone).startOf('day').toDate();
+    }
+    if (toDate) {
+      dateFilter.$lte = moment.tz(toDate, timezone).endOf('day').toDate();
+    }
+
+    // Step 5: Get tracking sessions with pagination
+    const sessionQuery = {
+      userId: { $in: userIds }
+    };
+    
+    if (Object.keys(dateFilter).length > 0) {
+      sessionQuery.createdAt = dateFilter;
+    }
+
+    const skip = (page - 1) * limit;
+    const total = await TrackingSession.countDocuments(sessionQuery);
+
+    const sessions = await TrackingSession.find(sessionQuery)
+      .populate("userId", "username photo role active")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Step 6: Process data
+    const data = sessions.map(session => {
+      const {
+        totalTrackedTime = 0,
+        activePeriods = [],
+        arrivalTime,
+        timeAtWork,
+        leftTime,
+        createdAt
+      } = session;
+
+      const deskTime = totalTrackedTime;
+      const productiveTime = activePeriods.reduce(
+        (sum, period) => sum + (period.productivity || 0),
+        0
+      );
+
+      const arrivedAtFormatted = arrivalTime
+        ? moment(arrivalTime).tz(timezone).format("HH:mm")
+        : null;
+
+      let offlineTime = 0;
+      if (timeAtWork?.seconds != null) {
+        offlineTime = timeAtWork.seconds - deskTime;
+      } else if (arrivalTime) {
+        const arrivalMoment = moment(arrivalTime).tz(timezone);
+        const endMoment = leftTime ? moment(leftTime).tz(timezone) : moment().tz(timezone);
+        const secondsSinceArrival = endMoment.diff(arrivalMoment, "seconds");
+        offlineTime = secondsSinceArrival - deskTime;
+      }
+
+      return {
+        user: session.userId,
+        deskTime,
+        productiveTime,
+        arrivalTime: arrivedAtFormatted,
+        offlineTime: offlineTime > 0 ? offlineTime : 0,
+        leftTime: leftTime || null,
+        date: moment(createdAt).tz(timezone).format("YYYY-MM-DD")
+      };
+    });
+
+    // Step 7: Send response
+    res.status(200).json({
+      code: 200,
+      status: "Success",
+      data: {
+        results: data,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit)
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Error searching tracking sessions:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error searching tracking data",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   tracking,
   idleTimeTracker,
@@ -514,4 +652,5 @@ module.exports = {
   getSessionById,
   getTodaySessionByUserId,
   getAllTrackingsForToday,
+  searchTrackings
 };

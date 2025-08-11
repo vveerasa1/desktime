@@ -515,7 +515,7 @@ const ProductivityBar = ({ getProductiviyData, isSnap, title,ownerId }) => {
 
   return (
     <Paper elevation={3} sx={{ p: 2, marginBottom: "15px" }}>
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 0 }}>
         {<Typography
           sx={{ fontSize: "18px", fontWeight: "600 !important", mb: 2 }}
         >

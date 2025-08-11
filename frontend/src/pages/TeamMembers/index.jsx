@@ -23,13 +23,15 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import Tooltip from "@mui/material/Tooltip";
+import SearchIcon from "@mui/icons-material/Search";
+
 import TeamMembersForm from "../../components/TeamMembers/TeamMembersForm";
 import { useGetAllTeamQuery } from "../../redux/services/team";
 import MuiToaster from "../../components/MuiToaster";
 import AbsentMembers from "../../components/TeamMembers/AbsentMembers";
 import TeamSnapShot from "../../components/TeamMembers/TeamSnapShots";
 import EmployeeList from "../../components/TeamMembers/EmployeeList";
+import CustomTextField from "../../components/CustomTextField";
 const columns = [
   "Name",
   "Productive time",
@@ -140,21 +142,21 @@ const formatTime = (seconds) => {
 
 const TeamMembers = () => {
   const [formData, setFormData] = useState({
-      teamMembers: [
-        {
-          id: 1,
-          username: "",
-          email: "",
-          team: "",
-          role: "",
-          touched: {},
-          errors: {},
-        },
-      ],
-      selectAll: false,
-      sendInvite: false,
-      submissionError: "",
-    });
+    teamMembers: [
+      {
+        id: 1,
+        username: "",
+        email: "",
+        team: "",
+        role: "",
+        touched: {},
+        errors: {},
+      },
+    ],
+    selectAll: false,
+    sendInvite: false,
+    submissionError: "",
+  });
   const token = localStorage.getItem("token");
   let ownerId = null;
   let role = null;
@@ -219,23 +221,22 @@ const TeamMembers = () => {
 
   const handleClose = () => {
     setOpen(false);
-      setFormData({
-    teamMembers: [
-      {
-        id: 1,
-        username: "",
-        email: "",
-        team: "",
-        role: "",
-        touched: {},
-        errors: {},
-      },
-    ],
-    selectAll: false,
-    sendInvite: false,
-    submissionError: "",
-  });
-
+    setFormData({
+      teamMembers: [
+        {
+          id: 1,
+          username: "",
+          email: "",
+          team: "",
+          role: "",
+          touched: {},
+          errors: {},
+        },
+      ],
+      selectAll: false,
+      sendInvite: false,
+      submissionError: "",
+    });
   };
 
   return (
@@ -261,7 +262,14 @@ const TeamMembers = () => {
           </Typography>
           {/* Right-aligned controls */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <CustomSearchInput />
+            <Box sx={{ height: 40, width: "100%" }}>
+              <CustomTextField
+                name="search"
+                fullWidth
+                startIcon={<SearchIcon />}
+                placeholder="Search Members"
+              />
+            </Box>
 
             <IconButton size="small">
               <FilterListIcon fontSize="medium" />

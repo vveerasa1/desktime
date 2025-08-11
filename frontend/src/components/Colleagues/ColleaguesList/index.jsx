@@ -104,8 +104,8 @@ const ColleaguesList = ({
           {colleaguesData?.users?.length > 0 ? (
             <Grid container spacing={4}>
               {colleaguesData.users.map((colleague) => (
-                <Grid item key={colleague._id} size={{xs:"12",md:3}}>
-                  <Paper className={styles.card} elevation={1}>
+                <Grid item key={colleague._id} size={{xs:12,md:3}}>
+                  <Paper className={styles.card} elevation={3}>
                     {colleague.active === true ?  <ActiveDot /> : <InActiveDot/> }
                     {(userRole === "Admin" || userRole === "Owner") && (
                       <IconButton
