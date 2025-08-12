@@ -101,7 +101,7 @@ const TrackingCard = ({
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `${hours}h ${minutes}m ${seconds}s`;
+    return totalSeconds?`${hours}h ${minutes}m ${seconds}s`: '--';
   };
 
   // Example values in seconds
@@ -114,7 +114,7 @@ const TrackingCard = ({
     () => [
       {
         title: "Total offline times",
-        value: totalOfflineTime,
+        value: totalOfflineTime  || '--',
         // color: orderedCards[0]?.valueColor
       },
 

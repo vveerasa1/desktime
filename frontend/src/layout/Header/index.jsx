@@ -30,13 +30,13 @@ import LoadingComponent from "../../components/ComponentLoader";
 const Header = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState();
-  const token = localStorage.getItem("token");
+  const autUser =  JSON.parse(localStorage.getItem("autUser"));
   let userId = null;
   const auth = useAuth();
-  if (token) {
+  if (autUser) {
     try {
-      const decoded = jwtDecode(token);
-      userId = decoded?.userId || decoded?.sub;
+      // const decoded = jwtDecode(token);
+      userId = autUser?._id;
     } catch (err) {
       console.error("Invalid token", err);
     }
@@ -49,7 +49,7 @@ const Header = () => {
   } = useGetSingleProfileQuery(userId, {
     skip: !userId,
   });
-
+  console.log(JSON.stringify(currentUserProfile),currentUserProfile?.data?.username,userId)
   const username = currentUserProfile?.data?.username || "Guest";
   const avatarLetter = username ? username.charAt(0).toUpperCase() : '?';
   useEffect(() => {
@@ -60,18 +60,18 @@ const Header = () => {
       console.log('auth', auth);
       navigate('/')
     }
-    if (auth.isAuthenticated) {
-      // console.log(auth.user?.profile?.sub);
-      // localStorage.setItem('token', auth.user.access_token);
-      // localStorage.setItem("authUser", auth.user?.profile);
+    // if (auth.isAuthenticated) {
+    //   // console.log(auth.user?.profile?.sub);
+    //   // localStorage.setItem('token', auth.user.access_token);
+    //   // localStorage.setItem("authUser", auth.user?.profile);
 
-      const groups = auth.user?.profile?.["cognito:groups"] || [];
-      if (groups.includes("hrmsAccess")) {
+    //   const groups = auth.user?.profile?.["cognito:groups"] || [];
+    //   if (groups.includes("hrmsAccess")) {
         navigate('/dashboard');
-      } else {
-        navigate('/subscribe-trackme');
-      }
-    }
+      // } else {
+      //   navigate('/subscribe-trackme');
+      // }
+    // }
   }, [auth.isLoading, auth.isAuthenticated]);
 
   const [anchorEl, setAnchorEl] = useState(null);

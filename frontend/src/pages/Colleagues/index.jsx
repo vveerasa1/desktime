@@ -16,20 +16,22 @@ import styles from "./index.module.css";
 import MuiToaster from "../../components/MuiToaster";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 const Colleagues = () => {
-  const token = localStorage.getItem("token");
-  let userId = null;
-  let role = null;
-  let ownerId = null;
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      userId = decoded?.userId || decoded?.sub;
-      role = decoded?.role;
-      ownerId = decoded?.ownerId;
-    } catch (err) {
-      console.error("Invalid token", err);
-    }
-  }
+  const autUser = JSON.parse(localStorage.getItem("autUser"));
+
+  const userId = localStorage.getItem("userId");
+  // let userId = null;
+  let role = autUser?.role || null;
+  let ownerId = autUser?.ownerId || null;
+  // if (token) {
+  //   try {
+  //     const decoded = jwtDecode(token);
+  //     userId = decoded?.userId || decoded?.sub;
+  //     role = decoded?.role;
+  //     ownerId = decoded?.ownerId;
+  //   } catch (err) {
+  //     console.error("Invalid token", err);
+  //   }
+  // }
 
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");

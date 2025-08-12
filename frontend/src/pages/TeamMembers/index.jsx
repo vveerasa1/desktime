@@ -155,14 +155,14 @@ const TeamMembers = () => {
       sendInvite: false,
       submissionError: "",
     });
-  const token = localStorage.getItem("token");
-  let ownerId = null;
-  let role = null;
-  if (token) {
-    const decoded = jwtDecode(token);
-    ownerId = decoded.ownerId;
-    role = decoded?.role;
-  }
+  const autUser = JSON.parse(localStorage.getItem("autUser"));
+  let ownerId = autUser?.ownerId;
+  let role = autUser?.role;
+  // if (autUser) {
+  //   const decoded = jwtDecode(token);
+  //   ownerId = decoded.ownerId;
+  //   role = decoded?.role;
+  // }
 
   const skipQuery = !ownerId;
   const {

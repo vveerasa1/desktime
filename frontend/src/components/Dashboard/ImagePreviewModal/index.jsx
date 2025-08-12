@@ -21,17 +21,17 @@ const ImagePreviewModal = ({
   employee
 }) => {
 
-    const token = localStorage.getItem('token');
-      let userId = null;
+    // const token = localStorage.getItem('userId');
+      let userId =employee|| localStorage.getItem('userId');
     
-      if (token) {
-        try {
-          const decoded = jwtDecode(token);
-          userId = employee || decoded?.userId 
-        } catch (err) {
-          console.error("Invalid token", err);
-        }
-      }
+      // if (token) {
+      //   try {
+      //     const decoded = jwtDecode(token);
+      //     userId = employee || decoded?.userId 
+      //   } catch (err) {
+      //     console.error("Invalid token", err);
+      //   }
+      // }
     
       const { data: currentUserProfile, isLoading, isError } =
         useGetSingleProfileQuery(userId, {

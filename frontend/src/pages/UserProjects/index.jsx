@@ -25,16 +25,16 @@ import TaskModal from "../../components/UserProjects/TaskModal";
 import LoadingComponent from "../../components/ComponentLoader";
 
 const Projects = () => {
-  const token = localStorage.getItem("token");
-  let userId = null;
-  let ownerId = null;
-  if (token) {
-    const decoded = jwtDecode(token);
-    userId = decoded?.userId;
-    ownerId = decoded?.ownerId;
-  } else {
-    console.log("ERROR");
-  }
+  const autUser = JSON.parse(localStorage.getItem("autUser"));
+  let userId = autUser?._id || null;
+  let ownerId = autUser?.ownerId || null;
+  // if (token) {
+  //   const decoded = jwtDecode(token);
+  //   userId = decoded?.userId;
+  //   ownerId = decoded?.ownerId;
+  // } else {
+  //   console.log("ERROR");
+  // }
 
   const { data: getAllProjectsData, isLoading: getAllProjectsIsLoading } =
     useGetAllProjectsQuery({ id: ownerId });
@@ -73,7 +73,7 @@ const Projects = () => {
         assignee: item.assignee?.username || "—",
         status: item.status || "—",
         created_by: item.createdBy?.username || "—",
-        created_at: new Date(item.createdAt).toLocaleString(), 
+        created_at: new Date(item.createdAt).toLocaleString(),
       })) || []
     );
   }, [getAllTaskData]);
@@ -336,7 +336,7 @@ const Projects = () => {
           mb: 2,
         }}
       >
-        <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
+        <Typography sx={{ fontSize: "23px" }} fontWeight={600} color="#333333">
           Projects
         </Typography>
 

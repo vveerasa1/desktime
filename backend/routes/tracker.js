@@ -12,6 +12,8 @@ const {
 const { addScreenshot } = require("../service/screenshot");
 const multer = require("multer");
 const { authenticate } = require("../utils/middleware");
+const { validateToken } = require("../middleware/verifyCognitoJwt");
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();

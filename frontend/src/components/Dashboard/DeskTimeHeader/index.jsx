@@ -18,7 +18,8 @@ import LoadingComponent from "../../ComponentLoader";
 const DeskTimeHeader = ({ setFilters, getSingleData, TrackingCard, isDashboad }) => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
-  const loggedInUserId = token ? jwtDecode(token).userId : null;
+  const loggedInUserId = localStorage.getItem("userId");
+ 
 
   // Get displayed user ID from the getSingleData response
   const displayedUserId = getSingleData?.data?._id;

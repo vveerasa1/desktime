@@ -65,6 +65,7 @@ const addUser = async (req, res) => {
 
       try {
         const password = await generateRandomPassword(12);
+        console.log(password,"password*******************")
         const params = {
           UserPoolId: config.cognito.userPoolId,
           Username: email,
@@ -434,7 +435,7 @@ const getScreenshotsById = async (req, res) => {
     });
     // console.log(screenshots);
     if (!screenshotsDoc || screenshotsDoc.dailyScreenshots.date !== date) {
-      return res.status(404).json({
+      return res.status(200).json({
         code: 200,
         status: "Not Found",
         message: "No screenshots found for the provided date",

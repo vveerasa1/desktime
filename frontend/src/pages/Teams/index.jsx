@@ -12,14 +12,14 @@ import LoadingComponent from "../../components/ComponentLoader";
 import MuiToaster from "../../components/MuiToaster";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 const Teams = () => {
-  const token = localStorage.getItem("token");
-  let ownerId = null;
-  let role = null;
-  if (token) {
-    let decoded = jwtDecode(token);
-    ownerId = decoded.ownerId;
-    role = decoded.role;
-  }
+  const autUser =JSON.parse(localStorage.getItem("autUser"));
+  let ownerId = autUser?.ownerId;
+  let role = autUser?.role;
+  // if (token) {
+  //   let decoded = jwtDecode(token);
+  //   ownerId = decoded.ownerId;
+  //   role = decoded.role;
+  // }
   const [selected, setSelected] = useState([]);
 
   const { data: teamsData, isLoading: teamDataIsLoading } =

@@ -22,16 +22,18 @@ const Dashboard = () => {
   let { type, employee } = useParams();
   employee = employee?.split("=")?.[1];
 
-  const token = localStorage.getItem("token");
+  const autUser = JSON.parse(localStorage.getItem("autUser"));
+
   const decodedUserId = localStorage.getItem("userId");
 
   // let decodedUserId = null;
-  let ownerId = null
-  if (token) {
-    const decoded = jwtDecode(token);
-    // decodedUserId = decoded.userId;
-    ownerId = decoded.ownerId
-  }
+  let ownerId = autUser.ownerId
+  console.log(autUser)
+  // if (token) {
+  //   const decoded = jwtDecode(token);
+  //   // decodedUserId = decoded.userId;
+  //   ownerId = decoded.ownerId
+  // }
 
   const userId = employee || decodedUserId || employee;
 

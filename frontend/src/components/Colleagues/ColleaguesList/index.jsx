@@ -61,13 +61,15 @@ const ColleaguesList = ({
   const [deleteProfile] = useDeleteProfileMutation();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedColleague, setSelectedColleague] = useState(null);
-  const token = localStorage.getItem("token");
-  let userRole = "";
+  const authUser =  JSON.parse(localStorage.getItem("autUser"));
 
-  if (token) {
-    let decoded = jwtDecode(token);
-    userRole = decoded?.role;
-  }
+
+  let userRole =authUser.role|| "";
+
+  // if (token) {
+  //   let decoded = jwtDecode(token);
+  //   userRole = decoded?.role;
+  // }
 
   const handleEdit = () => {
     handleMenuClose();

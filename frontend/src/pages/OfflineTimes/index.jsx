@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, Tabs, Tab, IconButton, Grid } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -69,12 +69,13 @@ const OfflineTimes = () => {
     severity: "success",
   });
   const [offlineData, setOfflineData] = useState([]);
-  const token = localStorage.getItem("token");
-  let ownerId = null;
-  if (token) {
-    const decoded = jwtDecode(token);
-    ownerId = decoded?.ownerId;
-  }
+  const autUser =JSON.parse(localStorage.getItem("autUser"));
+  let ownerId =autUser?.ownerId|| null;
+  console.log(autUser,ownerId,"ownerIdownerId")
+  // if (token) {
+  //   const decoded = jwtDecode(token);
+  //   ownerId = decoded?.ownerId;
+  // }
   const { data: getOfflineTrackingData, isLoading } =
     useGetAllOfflineRequestQuery({
       id: ownerId,
@@ -88,7 +89,7 @@ const OfflineTimes = () => {
     }
   }, [getOfflineTrackingData]);
 
- 
+
   const handleTabChange = (event, newValue) => {
     const tabLabels = ["Pending", "Approved", "Declined"];
     setStatus(tabLabels[newValue]);
@@ -211,17 +212,17 @@ const OfflineTimes = () => {
         <Box sx={{ mt: 3, mb: 3 }}>
           <Grid container spacing={3}>
             <TimeCards
-              totalOfflineTime={getOfflineTrackingData.totalOfflineTimes}
-              totalProductiveTime={getOfflineTrackingData.productiveTime}
-              totalUnProductiveTime={getOfflineTrackingData.unproductiveTime}
-              totalNeutralTime={getOfflineTrackingData.neutralTime}
+              totalOfflineTime={getOfflineTrackingData?.totalOfflineTimes}
+              totalProductiveTime={getOfflineTrackingData?.productiveTime}
+              totalUnProductiveTime={getOfflineTrackingData?.unproductiveTime}
+              totalNeutralTime={getOfflineTrackingData?.neutralTime}
             />
           </Grid>
         </Box>
       )}
 
       <OfflineTimesTable
-      status={status}
+        status={status}
         openToaster={handleOpenToaster}
         offlineData={offlineData}
       />

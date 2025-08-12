@@ -11,7 +11,7 @@ const router = express.Router();
 router.use(express.json());
 
 router.get("/", validateToken, dashboardCard);
-router.get("/productivity", authenticate, dashboardProductivityTime);
-router.get("/offlineRequest", authenticate, getOfflineRequests);
+router.get("/productivity", validateToken, dashboardProductivityTime);
+router.get("/offlineRequest", validateToken, getOfflineRequests);
 
 module.exports = router;

@@ -29,16 +29,16 @@ const Profile = () => {
   const [createProfileApi, { isLoading: createProfileApiIsLoading }] =
     useCreateProfileMutation();
 
-  const token = localStorage.getItem("token");
+  const autUser =  JSON.parse(localStorage.getItem("autUser"));
 
   let userId = null;
   let role = null;
   let ownerId = null;
-  if (token) {
-    const decoded = jwtDecode(token);
-    userId = decoded?.userId;
-    role = decoded?.role;
-    ownerId = decoded?.ownerId;
+  if (autUser) {
+    // const decoded = jwtDecode(token);
+    userId = autUser?._id;
+    role = autUser?.role;
+    ownerId = autUser?.ownerId;
   }
   const userIdToFetch = paramId || userId;
   const {
@@ -48,7 +48,7 @@ const Profile = () => {
     error,
   } = useGetSingleProfileQuery(userIdToFetch, { skip: !userIdToFetch });
 
-  const loggedInUserId = token ? jwtDecode(token).userId : null;
+  const loggedInUserId = userId || null;
   const displayedUserId = profileDetails?.data?._id;
   const isOwnProfile = loggedInUserId === displayedUserId;
   const {

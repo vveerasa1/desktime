@@ -116,12 +116,12 @@ const staticData = [
 ];
 
 const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
-  const token = localStorage.getItem("token");
-  let userId = null;
-  if (token) {
-    let decoded = jwtDecode(token);
-    userId = decoded.userId;
-  }
+  const token = localStorage.getItem("userId");
+  let userId =localStorage.getItem("userId");
+  // if (token) {
+  //   let decoded = jwtDecode(token);
+  //   userId = decoded.userId;
+  // }
   const [selectedRows, setSelectedRows] = useState([]);
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;

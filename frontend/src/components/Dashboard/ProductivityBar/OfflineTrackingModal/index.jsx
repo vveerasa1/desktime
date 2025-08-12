@@ -69,12 +69,12 @@ const OfflineTrackingModal = ({
   const [createOfflineRequest, { isLoading, isSuccess, isError, error }] = useCreateOfflineRequestMutation();
   console.log(date)
   
-  const { data: getOfflineTrackingData } =
-      useGetAllOfflineRequestQuery({
-        id: ownerId,
-        status: status, // assuming API expects 'pending', 'approved', etc.
-      });
-    console.log(getOfflineTrackingData, "DATA");
+  // const { data: getOfflineTrackingData } =
+  //     useGetAllOfflineRequestQuery({
+  //       id: ownerId,
+  //       status: status, // assuming API expects 'pending', 'approved', etc.
+  //     });
+    // console.log(getOfflineTrackingData, "DATA");
   
   const [formData, setFormData] = useState({
     description: "",

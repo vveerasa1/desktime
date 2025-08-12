@@ -24,13 +24,13 @@ import {
 import { jwtDecode } from "jwt-decode";
 import { useGetAllProfileQuery } from "../../redux/services/user";
 export default function WeeklyAbsenceCalendar() {
-  const token = localStorage.getItem('token')
-  let ownerId = null
-  if(token){
-    let decoded = jwtDecode(token)
-    ownerId =decoded?.ownerId
-  } 
-   const {data:getAllProfileData,isLoading} = useGetAllProfileQuery({id:ownerId}) 
+  const token = localStorage.getItem('autUser')
+  let ownerId = JSON.parse(localStorage.getItem("autUser"))?.ownerId || null
+  // if(token){
+  //   let decoded = jwtDecode(token)
+  //   ownerId =decoded?.ownerId
+  // } 
+  const { data: getAllProfileData, isLoading } = useGetAllProfileQuery({ id: ownerId })
   const theme = useTheme();
   const [tab, setTab] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -76,9 +76,9 @@ export default function WeeklyAbsenceCalendar() {
     setAllLeaves(updated);
     setDialogOpen(false);
   };
-  
+
   return (
-   <Box className={styles.calendarRoot}>
+    <Box className={styles.calendarRoot}>
       <Typography variant="h6">Absence Calendar</Typography>
 
       <Box className={styles.headerRow}>
