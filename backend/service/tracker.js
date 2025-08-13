@@ -3,6 +3,7 @@ const TrackingSession = require("../models/trackingSession");
 const cron = require("node-cron");
 const User = require("../models/user");
 const moment = require("moment-timezone");
+const OfflineRequest = require("../models/offlineRequest");
 
 const tracking = async (req, res) => {
   try {
@@ -404,7 +405,7 @@ const getTodaySessionByUserId = async (req, res) => {
 const getAllTrackingsForToday = async (req, res) => {
   try {
     const { ownerId } = req.params;
-    const { search } = req.query;
+    const { search, date } = req.query;
 
     // Step 1: Get owner's timezone
     const owner = await User.findById(ownerId).select("timeZone");
@@ -432,9 +433,10 @@ const getAllTrackingsForToday = async (req, res) => {
 
     const userIds = users.map((u) => u._id);
 
-    // Step 3: Define today's start and end time in owner's timezone
-    const startOfDay = moment().tz(timezone).startOf("day").toDate();
-    const endOfDay = moment().tz(timezone).endOf("day").toDate();
+    const baseDate = date ? moment.tz(date, timezone) : moment().tz(timezone);
+
+    const startOfDay = baseDate.startOf("day").toDate();
+    const endOfDay = baseDate.endOf("day").toDate();
 
     // Step 4: Get today's tracking sessions
     const sessions = await TrackingSession.find({
@@ -519,6 +521,167 @@ const getAllTrackingsForToday = async (req, res) => {
     });
   }
 };
+const formatDuration = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}m ${secs}s`;
+};
+
+const snapshot = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    const owner = await User.findById(req.params.ownerId);
+    const timeZone = owner.timeZone;
+    const targetDate = date || moment().tz(timeZone).format("YYYY-MM-DD");
+
+    const sessionsForDate = await TrackingSession.find({
+      $expr: {
+        $eq: [
+          {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$arrivalTime",
+              timezone: timeZone,
+            },
+          },
+          targetDate,
+        ],
+      },
+    });
+
+    // Collect all unique userIds to fetch their usernames and roles in one go
+    const userIds = [
+      ...new Set(sessionsForDate.map((s) => s.userId.toString())),
+    ];
+    const usersMap = {};
+    const users = await User.find(
+      { _id: { $in: userIds } },
+      { username: 1, role: 1, photo: 1 }
+    );
+    users.forEach((u) => {
+      usersMap[u._id.toString()] = {
+        username: u.username,
+        role: u.role,
+        photo: u.photo,
+      };
+    });
+
+    let allUserSessions = [];
+
+    for (const session of sessionsForDate) {
+      let formatted = [];
+
+      if (session.activePeriods) {
+        formatted = session.activePeriods
+          .filter((period) => period.start && period.end)
+          .map((period) => {
+            const start = moment(period.start).tz(timeZone);
+            const end = moment(period.end).tz(timeZone);
+            const duration = period.duration || 0;
+
+            return {
+              time: start.format("HH:mm"),
+              productive: period.productivity || 0,
+              neutral: period.neutral || 0,
+              break: 0,
+              timeRange: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+              apps: [],
+              total: formatDuration(duration),
+            };
+          });
+      }
+
+      // Fetch offline requests for this user and date
+      const offlineRequests = await OfflineRequest.find({
+        userId: session.userId,
+        startTime: {
+          $gte: moment(targetDate).startOf("day").toDate(),
+          $lte: moment(targetDate).endOf("day").toDate(),
+        },
+      });
+
+      const processedOfflineIntervals = [];
+      offlineRequests.forEach((request) => {
+        const intervals = splitOfflineTimeIntoIntervals(
+          request.startTime,
+          request.endTime,
+          request.description,
+          request.projectName,
+          request.taskName,
+          request.productivity,
+          session.userId
+        );
+        intervals.forEach((interval) => {
+          const start = moment(interval.startTime).tz(timeZone);
+          const end = moment(interval.endTime).tz(timeZone);
+          const duration = moment.duration(end.diff(start)).asSeconds();
+          const total = formatDuration(duration);
+          const productive = Math.round((duration / 300) * 100);
+          const neutral = 100 - productive;
+
+          processedOfflineIntervals.push({
+            time: start.format("HH:mm"),
+            productive,
+            neutral,
+            break: 0,
+            timeRange: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+            apps: [],
+            total,
+            isOfflineRequest: true,
+            status: request.status,
+            description: request.description,
+            projectName: request.projectName,
+            taskName: request.taskName,
+            originalRequestId: request._id,
+          });
+        });
+      });
+
+      formatted = [...formatted, ...processedOfflineIntervals];
+
+      // Sort
+      formatted.sort((a, b) => {
+        const timeA = moment(a.time, "HH:mm");
+        const timeB = moment(b.time, "HH:mm");
+        return timeA - timeB;
+      });
+
+      // Calculate totalTime
+      let totalTime;
+      if (session.timeAtWork) {
+        totalTime = session.timeAtWork; // already in desired format
+      } else {
+        totalTime = session.totalTrackedTime;
+      }
+
+      allUserSessions.push({
+        userId: session.userId,
+        username: usersMap[session.userId.toString()]?.username || null,
+        role: usersMap[session.userId.toString()]?.role || null,
+        photo: usersMap[session.userId.toString()]?.photo || null,
+        date: targetDate,
+        totalTime,
+        session: formatted,
+      });
+    }
+
+    return res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Dashboard card data fetched successfully",
+      data: allUserSessions,
+    });
+  } catch (error) {
+    console.error("Error fetching snapshots:", error);
+    res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Error processing tracking data",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   tracking,
@@ -529,4 +692,5 @@ module.exports = {
   getSessionById,
   getTodaySessionByUserId,
   getAllTrackingsForToday,
+  snapshot,
 };
