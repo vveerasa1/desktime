@@ -21,6 +21,7 @@ import {
   ExpandLess,
   ExpandMore,
 } from "@mui/icons-material";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import GroupsIcon from "@mui/icons-material/Groups";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logo from "../../assets/images/logo.png";
@@ -37,7 +38,10 @@ const navItems = [
   { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
 ];
 
-const settingsItems = [{ label: "My Profile", path: "/settings" }];
+const settingsItems = [
+  { label: "My Profile", path: "/settings" },
+  { label: "Billing", path: "/billings" },
+];
 
 const Sidebar = ({
   setOpen,
@@ -63,7 +67,7 @@ const Sidebar = ({
     if (!isMobile) {
       hoverTimeoutRef.current = setTimeout(() => {
         setMobileOpen(false);
-      }, 50); 
+      }, 50);
     }
   };
 
@@ -187,11 +191,15 @@ const Sidebar = ({
                     onMouseEnter={() => !isMobile && setMobileOpen(true)}
                   >
                     <Box mt={0.5} className={styles.iconWrapper}>
-                      {label === "My Profile" ? (
-                        <PersonOutlineIcon />
-                      ) : (
-                        <SettingsIcon />
-                      )}
+                      <Box mt={0.5} className={styles.iconWrapper}>
+                        {label === "My Profile" ? (
+                          <PersonOutlineIcon />
+                        ) : label === "Billing" ? (
+                          <AttachMoneyIcon />
+                        ) : (
+                          <SettingsIcon />
+                        )}
+                      </Box>
                     </Box>
                     {!isMobile && mobileOpen && (
                       <ListItemText
