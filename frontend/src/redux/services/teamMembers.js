@@ -7,12 +7,22 @@ export const TeamMembers = createApi({
     tagTypes: ['TeamMembers'],
     endpoints: (builder) => ({
         getAllTeamMembers: builder.query({
-            query: ( {id} ) => ({
-                url: `${URL_CONSTANTS.TRACKING}/${URL_CONSTANTS.SESSION}/${id}/${URL_CONSTANTS.TODAY}`,
-                method: 'GET',
-            }),
-            providesTags: ['TeamMembers']
+            query: ({ id, search }) => {
+                const queryObj = {
+                    url: `${URL_CONSTANTS.TRACKING}/${URL_CONSTANTS.SESSION}/${id}/${URL_CONSTANTS.TODAY}`,
+                    method: 'GET',
+                };
+
+                if (search) {
+                    queryObj.params = { search }; 
+                }
+
+
+                return queryObj;
+            },
+            providesTags: ['TeamMembers'],
         }),
+
 
     }),
 });

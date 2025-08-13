@@ -9,7 +9,6 @@ import {
   Divider,
   Box,
   Collapse,
-  IconButton,
 } from "@mui/material";
 import {
   MenuOpen as MenuOpenIcon,

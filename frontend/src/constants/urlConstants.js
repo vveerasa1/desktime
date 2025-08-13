@@ -21,5 +21,10 @@ export const URL_CONSTANTS = {
   SESSION:"sessions",
   TODAY:"today",
   OFFLINE_REQUESTS:"offlineRequest",
-  SEARCH:"search"
+  SEARCH:"search",
+  SENDOTP:"send-otp",
+  VERIFYOTP:"verify-otp",
+  CHANGEPASSWORD:"change-password",
+  RESET:"reset",
+  PASSWORD:"password"
 };

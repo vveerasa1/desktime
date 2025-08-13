@@ -23,10 +23,19 @@ export const User = createApi({
       invalidatesTags: ['User']
     }),
     getAllProfile: builder.query({
-      query: ({ id }) => ({
-        url: `${URL_CONSTANTS.USER}/${URL_CONSTANTS.OWNER}/${id}`,
-        method: 'GET',
-      }),
+      query: ({ id, search }) => {
+        const queryObj = {
+          url: `${URL_CONSTANTS.USER}/${URL_CONSTANTS.OWNER}/${id}`,
+          method: 'GET',
+        };
+
+        if (search) {
+          queryObj.params = { search };
+        }
+
+
+        return queryObj;
+      },
       providesTags: ['User']
     }),
     getSingleProfile: builder.query({
@@ -44,16 +53,7 @@ export const User = createApi({
       }),
       invalidatesTags: ['User']
     }),
-    searchProfile: builder.query({
-      query: ({ id, searchParams }) => ({
-        url: `${URL_CONSTANTS.USER}/${URL_CONSTANTS.SEARCH}/${id}`,
-        method: 'GET',
-        params: searchParams
 
-      }),
-      providesTags: ['User']
-
-    }),
   }),
 
 });
@@ -65,5 +65,4 @@ export const {
   useDeleteProfileMutation,
   useGetAllProfileQuery,
   useGetSingleProfileQuery,
-  useSearchProfileQuery
 } = User;

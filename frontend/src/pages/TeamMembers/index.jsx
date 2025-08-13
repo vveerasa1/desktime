@@ -32,6 +32,7 @@ import AbsentMembers from "../../components/TeamMembers/AbsentMembers";
 import TeamSnapShot from "../../components/TeamMembers/TeamSnapShots";
 import EmployeeList from "../../components/TeamMembers/EmployeeList";
 import CustomTextField from "../../components/CustomTextField";
+
 const columns = [
   "Name",
   "Productive time",
@@ -157,6 +158,9 @@ const TeamMembers = () => {
     sendInvite: false,
     submissionError: "",
   });
+  const [search, setSearch] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
   const token = localStorage.getItem("token");
   let ownerId = null;
   let role = null;
@@ -171,7 +175,7 @@ const TeamMembers = () => {
     data: getAllTeamMembersData,
     isLoading: getAllTeamMembersIsLoading,
     refetch: refetchTeamMembers,
-  } = useGetAllTeamMembersQuery({ id: ownerId }, { skip: skipQuery });
+  } = useGetAllTeamMembersQuery({ id: ownerId, search: search }, { skip: skipQuery });
 
   const {
     data: teamsData,
@@ -192,6 +196,7 @@ const TeamMembers = () => {
     }
     return [];
   }, [isSuccess, teamsData]);
+  
   const userData = getAllTeamMembersData?.data || [];
   const userCount = userData?.length || 0;
   const inactiveUserCount = userData.filter(
@@ -199,15 +204,14 @@ const TeamMembers = () => {
   ).length;
   const inactiveUsers = userData?.filter((item) => item.user?.active === false);
 
-  console.log(inactiveUsers, "IN ACTIVE");
   const [activeTab, setActiveTab] = useState("tab1");
   const [open, setOpen] = useState(false);
-  const [errors, setErrors] = useState({});
   const [toaster, setToaster] = useState({
     open: false,
     message: "",
     severity: "success",
   });
+
   const handleOpenToaster = (message, severity = "success") => {
     setToaster({ open: true, message, severity });
   };
@@ -215,6 +219,7 @@ const TeamMembers = () => {
   const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
+  
   const handleOpen = () => {
     setOpen(true);
   };
@@ -237,6 +242,22 @@ const TeamMembers = () => {
       sendInvite: false,
       submissionError: "",
     });
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    
+    // Debounce the search to avoid too many API calls
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    setSearchTimeout(
+      setTimeout(() => {
+        refetchTeamMembers();
+      }, 500)
+    );
   };
 
   return (
@@ -263,12 +284,16 @@ const TeamMembers = () => {
           {/* Right-aligned controls */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Box sx={{ height: 40, width: "100%" }}>
+              <Box>
               <CustomTextField
                 name="search"
                 fullWidth
                 startIcon={<SearchIcon />}
-                placeholder="Search Members"
+                placeholder="Search"
+                value={search}
+                handleChange={(e)=> handleSearchChange(e,'name')}
               />
+            </Box>
             </Box>
 
             <IconButton size="small">
@@ -324,20 +349,6 @@ const TeamMembers = () => {
                   4
                 </Typography>
               </Button>
-              {/* <Button
-                variant=""
-                onClick={() => setActiveTab("tab3")}
-                className={`${styles.tabButton} ${
-                  activeTab === "tab3" ? styles.active : ""
-                }`}
-              >
-                <Typography variant="h4" className={styles.tabHeadingTexts}>
-                  Slacking
-                </Typography>
-                <Typography variant="h4" className={styles.tabHeadingCount}>
-                  0
-                </Typography>
-              </Button> */}
               <Button
                 variant=""
                 onClick={() => setActiveTab("tab4")}
@@ -352,20 +363,6 @@ const TeamMembers = () => {
                   {inactiveUserCount}
                 </Typography>
               </Button>
-              {/* <Button
-                variant=""
-                onClick={() => setActiveTab("tab5")}
-                className={`${styles.tabButton} ${
-                  activeTab === "tab5" ? styles.active : ""
-                }`}
-              >
-                <Typography variant="h4" className={styles.tabHeadingTexts}>
-                  Late
-                </Typography>
-                <Typography variant="h4" className={styles.tabHeadingCount}>
-                  0
-                </Typography>
-              </Button> */}
             </Box>
 
             <Box className={styles.tabContent}>
@@ -386,20 +383,6 @@ const TeamMembers = () => {
                 />
               )}
 
-              {/* {activeTab === "tab3" && (
-                <Box className={styles.tabContentWrapper}>
-                  <Box className={styles.noMenbersBox}>
-                    <Typography variant="h3">
-                      No team members are currently working
-                    </Typography>
-                    <Typography variant="body2">
-                      To see all team members, clear the filters and switch to
-                      the Employees tab.
-                    </Typography>
-                  </Box>
-                </Box>
-              )} */}
-
               {activeTab === "tab4" && (
                 <AbsentMembers
                   inactiveUsers={inactiveUsers}
@@ -407,19 +390,6 @@ const TeamMembers = () => {
                   role={role}
                   formatTime={formatTime}
                 />
-              )}
-              {activeTab === "tab5" && (
-                <Box className={styles.tabContentWrapper}>
-                  <Box className={styles.noMenbersBox}>
-                    <Typography variant="h3">
-                      No team members are currently working
-                    </Typography>
-                    <Typography variant="body2">
-                      To see all team members, clear the filters and switch to
-                      the Employees tab.
-                    </Typography>
-                  </Box>
-                </Box>
               )}
             </Box>
           </Box>
@@ -440,7 +410,7 @@ const TeamMembers = () => {
         message={toaster.message}
         severity={toaster.severity}
         handleClose={handleCloseToaster}
-      />{" "}
+      />
     </Box>
   );
 };

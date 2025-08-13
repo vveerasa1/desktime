@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Box, Typography, Tabs, Tab, IconButton, Grid } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -10,6 +10,9 @@ import { useGetAllOfflineRequestQuery } from "../../redux/services/dashboard";
 import { jwtDecode } from "jwt-decode";
 import LoadingComponent from "../../components/ComponentLoader";
 import MuiToaster from "../../components/MuiToaster";
+import CustomCalendar from "../../components/CustomCalender";
+import dayjs from "dayjs";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 const offlineTimesData = [
   {
@@ -63,6 +66,26 @@ const OfflineTimes = () => {
   const [tabValue, setTabValue] = useState(0);
   const [selected, setSelected] = useState([]);
   const [status, setStatus] = useState("Pending");
+  const [date, setDate] = useState(dayjs());
+
+  const handleDateChange = useCallback((newDate) => {
+    setDate(newDate);
+  }, []);
+
+  const handleNextClick = () => {
+    const nextDate = dayjs(date).add(1, 'day');
+    if (!nextDate.isAfter(dayjs(), 'day')) {
+      setDate(nextDate);
+    }
+  };
+
+  const handlePrevClick = () => {
+    const prevDate = dayjs(date).subtract(1, 'day');
+    setDate(prevDate);
+  };
+
+  const isNextDisabled = dayjs(date).isSame(dayjs(), 'day') || dayjs(date).isAfter(dayjs(), 'day');
+
   const [toaster, setToaster] = useState({
     open: false,
     message: "",
@@ -75,12 +98,15 @@ const OfflineTimes = () => {
     const decoded = jwtDecode(token);
     ownerId = decoded?.ownerId;
   }
-  const { data: getOfflineTrackingData, isLoading } =
+
+  const formattedDate = date.format('YYYY-MM-DD');
+  
+  const { data: getOfflineTrackingData, isLoading, refetch } =
     useGetAllOfflineRequestQuery({
       id: ownerId,
-      status: status, // assuming API expects 'pending', 'approved', etc.
+      status: status,
+      date: formattedDate
     });
-  console.log(getOfflineTrackingData, "DATA");
 
   useEffect(() => {
     if (getOfflineTrackingData) {
@@ -88,7 +114,10 @@ const OfflineTimes = () => {
     }
   }, [getOfflineTrackingData]);
 
- 
+  useEffect(() => {
+    refetch();
+  }, [date, refetch]);
+
   const handleTabChange = (event, newValue) => {
     const tabLabels = ["Pending", "Approved", "Declined"];
     setStatus(tabLabels[newValue]);
@@ -131,6 +160,7 @@ const OfflineTimes = () => {
   const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
+
   return (
     <Box sx={{ p: 3, minHeight: "100vh" }}>
       <Box className={styles.pageContainer}>
@@ -156,10 +186,39 @@ const OfflineTimes = () => {
               />
             </IconButton>
           </Box>
+          <Box sx={{height:'40px'}} className={styles.datePicker}>
+            <CustomCalendar
+              selectedDate={date}
+              name="date"
+              onChange={handleDateChange}
+              fontSize="small"
+              maxDate={dayjs()}
+            />
+          </Box>
+          <Box sx={{height:'40px'}} className={styles.nextPrevIcons}>
+            <Box className={styles.npIcon} onClick={handlePrevClick}>
+              <ChevronLeft sx={{ cursor: "pointer" }} className={styles.icon} />
+            </Box>
+
+            <Box
+              className={styles.npIcon}
+              onClick={!isNextDisabled ? handleNextClick : undefined}
+              sx={{
+                "& .MuiSvgIcon-root": {
+                  cursor: isNextDisabled ? "not-allowed" : "pointer",
+                  color: isNextDisabled ? "#ccc" : "inherit",
+                },
+              }}
+            >
+              <ChevronRight
+                sx={{ cursor: "pointer" }}
+                className={styles.icon}
+              />
+            </Box>
+          </Box>
         </Box>
       </Box>
 
-      {/* <Tabs value={tabValue} onChange={handleTabChange} aria-label="offline times tabs"> */}
       <Box
         sx={{
           mt: 0,
@@ -177,14 +236,13 @@ const OfflineTimes = () => {
           onChange={handleTabChange}
           aria-label="offline times tabs"
           TabIndicatorProps={{
-            style: { backgroundColor: "#001F5B" }, // Navy blue indicator
+            style: { backgroundColor: "#001F5B" },
           }}
           sx={{
             borderRadius: 1,
-            // mb: 2,
             minHeight: 30,
             ".MuiTab-root": {
-              color: "#001F5B", // navy blue text for unselected
+              color: "#001F5B",
               fontWeight: 600,
               textTransform: "none",
               minHeight: 30,
@@ -192,8 +250,8 @@ const OfflineTimes = () => {
               paddingBottom: 0,
             },
             ".Mui-selected": {
-              color: "#f7f7f8ff !important", // navy blue text for selected
-              backgroundColor: "#001F5B !important", // navy blue text for selected
+              color: "#f7f7f8ff !important",
+              backgroundColor: "#001F5B !important",
               borderRadius: "6px 6px 0px 0px",
               minHeight: 40,
             },
@@ -203,7 +261,6 @@ const OfflineTimes = () => {
           <Tab label="Approved" />
           <Tab label="Declined" />
         </Tabs>
-        {/* <SmallTimeCards /> */}
       </Box>
       {isLoading === true ? (
         <LoadingComponent />
@@ -211,17 +268,17 @@ const OfflineTimes = () => {
         <Box sx={{ mt: 3, mb: 3 }}>
           <Grid container spacing={3}>
             <TimeCards
-              totalOfflineTime={getOfflineTrackingData.totalOfflineTimes}
-              totalProductiveTime={getOfflineTrackingData.productiveTime}
-              totalUnProductiveTime={getOfflineTrackingData.unproductiveTime}
-              totalNeutralTime={getOfflineTrackingData.neutralTime}
+              totalOfflineTime={getOfflineTrackingData?.totalOfflineTimes}
+              totalProductiveTime={getOfflineTrackingData?.productiveTime}
+              totalUnProductiveTime={getOfflineTrackingData?.unproductiveTime}
+              totalNeutralTime={getOfflineTrackingData?.neutralTime}
             />
           </Grid>
         </Box>
       )}
 
       <OfflineTimesTable
-      status={status}
+        status={status}
         openToaster={handleOpenToaster}
         offlineData={offlineData}
       />
