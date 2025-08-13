@@ -1,6 +1,7 @@
 const { CognitoJwtVerifier } = require("aws-jwt-verify");
 const config = require('../config');
 const aws = require('aws-sdk');
+const User = require("../models/user");
 
 const verifier = CognitoJwtVerifier.create({
     userPoolId: config.cognito.userPoolId,
@@ -28,10 +29,12 @@ const validateToken = async (req, res, next) => {
 
             const payload = await verifier.verify(token);
             console.log(payload, "payload")
-
+            const users = await User.findOne({ cognitoId: payload.sub });
+            console.log(users, "usersusersusersusersusers **********",users?._id?.toString())
             if (payload) {
                 req.user = {
                     ...payload,
+                    userId:users?._id?.toString(),
                     timeZone: "Asia/Kolkata",
                 };
                 next();
@@ -43,6 +46,6 @@ const validateToken = async (req, res, next) => {
         console.log(error);
         res.status(401).json({ code: 401, status: 'Failed', message: 'Invalid Token.' });
     }
-};  
+};
 
 module.exports = { validateToken, provider };

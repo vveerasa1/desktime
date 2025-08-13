@@ -18,8 +18,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import {jwtDecode} from "jwt-decode";
-import { useGetSingleProfileQuery } from '../../redux/services/user'; 
+import { jwtDecode } from "jwt-decode";
+import { useGetSingleProfileQuery } from '../../redux/services/user';
 import { useAuth } from 'react-oidc-context';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +30,7 @@ import LoadingComponent from "../../components/ComponentLoader";
 const Header = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState();
-  const autUser =  JSON.parse(localStorage.getItem("autUser"));
+  const autUser = JSON.parse(localStorage.getItem("autUser"));
   let userId = null;
   const auth = useAuth();
   if (autUser) {
@@ -49,8 +49,7 @@ const Header = () => {
   } = useGetSingleProfileQuery(userId, {
     skip: !userId,
   });
-  console.log(JSON.stringify(currentUserProfile),currentUserProfile?.data?.username,userId)
-  const username = currentUserProfile?.data?.username || "Guest";
+  const username = (currentUserProfile)?.data?.username || "Guest";
   const avatarLetter = username ? username.charAt(0).toUpperCase() : '?';
   useEffect(() => {
     console.log('auth', auth);
@@ -58,7 +57,10 @@ const Header = () => {
 
     if (!auth.isLoading && !auth.isAuthenticated) {
       console.log('auth', auth);
+      localStorage.clear();
+      sessionStorage.clear();
       navigate('/')
+
     }
     // if (auth.isAuthenticated) {
     //   // console.log(auth.user?.profile?.sub);
@@ -67,10 +69,10 @@ const Header = () => {
 
     //   const groups = auth.user?.profile?.["cognito:groups"] || [];
     //   if (groups.includes("hrmsAccess")) {
-        navigate('/dashboard');
-      // } else {
-      //   navigate('/subscribe-trackme');
-      // }
+    navigate('/dashboard');
+    // } else {
+    //   navigate('/subscribe-trackme');
+    // }
     // }
   }, [auth.isLoading, auth.isAuthenticated]);
 
@@ -101,7 +103,7 @@ const Header = () => {
       <Toolbar sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
         {/* Chat Icon */}
 
-        <Box sx={{ display: "flex", alignItems: "center" ,gap:2}}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Box mt={0.3}>
             <Tooltip title="Messages">
               <IconButton>
@@ -120,11 +122,11 @@ const Header = () => {
 
         {/* User Info */}
         <Box
-        onClick={handleClick}
-        display="flex" alignItems="center" gap={0}>
+          onClick={handleClick}
+          display="flex" alignItems="center" gap={0}>
           <Box textAlign="right">
             {isLoading ? (
-              <Typography variant="subtitle2"><LoadingComponent/></Typography>
+              <Typography variant="subtitle2"><LoadingComponent /></Typography>
             ) : isError ? (
               <Typography variant="subtitle2" color="error">
                 Error
@@ -181,7 +183,7 @@ const Header = () => {
           <MenuItem onClick={() => navigate("/settings")}>
             <Typography>Profile</Typography>
           </MenuItem>
-{/* 
+          {/* 
           <MenuItem onClick={handleClose}>
             <Typography>Contact us</Typography>
           </MenuItem> */}

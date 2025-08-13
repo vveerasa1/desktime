@@ -6,7 +6,7 @@ const {
   saveTask,
   searchTasks
 } = require("../service/task");
-const { authenticate } = require("../utils/middleware");
+
 const router = express.Router();
 router.use(express.json());
 

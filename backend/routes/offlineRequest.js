@@ -5,14 +5,14 @@ const {
   deleteOfflineTimesByUserId,
   getAllOfflineRequestByStatus,
 } = require("../service/offlineRequest");
-const { authenticate } = require("../utils/middleware");
 const router = express.Router();
+const { validateToken } = require("../middleware/verifyCognitoJwt");
 
 // router.use(express.json());
 
-router.post("/", authenticate, createOfflineRequest);
-router.put("/:id", authenticate, updateOfflineRequest);
-router.delete("/", authenticate, deleteOfflineTimesByUserId);
+router.post("/", validateToken, createOfflineRequest);
+router.put("/:id", validateToken, updateOfflineRequest);
+router.delete("/", validateToken, deleteOfflineTimesByUserId);
 router.get("/:ownerId", getAllOfflineRequestByStatus);
 
 module.exports = router;

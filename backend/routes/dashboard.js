@@ -4,7 +4,6 @@ const {
   dashboardProductivityTime,
 } = require("../service/dashboard");
 const { getOfflineRequests } = require("../service/offlineRequest");
-const { authenticate } = require("../utils/middleware");
 const { validateToken } = require("../middleware/verifyCognitoJwt");
 
 const router = express.Router();

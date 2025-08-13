@@ -274,6 +274,7 @@ const generateRandomPassword = (length = 12) => {
 
 const getUserById = async (req, res) => {
   try {
+    console.log(req.params.id,'req.params.id***************88')
     const users = await User.findById(req.params.id);
     res.status(200).json({
       code: 200,
@@ -465,12 +466,14 @@ const getScreenshotsById = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
+    console.log(req.params.id,'req.params.id***************88')
+
     const { date } = req.query; // expects type=day|week|month
     const user = req.user;
     console.log(user);
     let userId = user.userId;
     const session = await trackingSession.findOne({
-      userId: userId,
+      userId: req.params.id,
       $expr: {
         $eq: [
           { $dateToString: { format: "%Y-%m-%d", date: "$arrivalTime" } },

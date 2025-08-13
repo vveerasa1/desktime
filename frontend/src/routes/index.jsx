@@ -7,6 +7,7 @@ import AbsenceCalender from "../pages/AbsenceCalendar";
 import Projects from "../pages/UserProjects";
 import ProtectedRoute from "../components/ProtectedRoute";
 import OfflineTimes from "../pages/OfflineTimes";
+import LogoutSuccess from "../pages/Auth/Logout";
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Profile = lazy(() => import("../pages/Profile"));
 const Colleagues = lazy(() => import("../pages/Colleagues"));
@@ -81,6 +82,10 @@ export const routes = [
   {
     path: "/callback",
     element: <Callback />,
+  },
+   {
+    path: "/logout-success",
+    element: <LogoutSuccess />,
   },
   {
     path: "/subscribe-trackme",

@@ -9,6 +9,7 @@ const addScreenshot = async (req, res) => {
   try {
     console.log(req.body);
     console.log("Screenshot process");
+    console.log('screenshot',req.body.userId)
     const user = await User.findById(req.body.userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });

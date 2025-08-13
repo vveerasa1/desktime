@@ -27,7 +27,7 @@ const Dashboard = () => {
   const decodedUserId = localStorage.getItem("userId");
 
   // let decodedUserId = null;
-  let ownerId = autUser.ownerId
+  let ownerId = autUser?.ownerId
   console.log(autUser)
   // if (token) {
   //   const decoded = jwtDecode(token);

@@ -13,13 +13,23 @@ const cognitoAuthConfig = {
   client_id: "4o3gl6qqe1i5uapeitu56p3lst",
   redirect_uri: "http://localhost:5173/callback",
   response_type: "code",
+  // post_logout_redirect_uri: "http://localhost:5173",
+  //  metadata: {
+  //   end_session_endpoint: "https://us-east-16ivaal8x0.auth.us-east-1.amazoncognito.com/logout"
+  // },
   scope: "email openid phone profile aws.cognito.signin.user.admin",
+  automaticSilentRenew: false,
+  // metadata: {
+  //   end_session_endpoint:
+  //     "https://us-east-16ivaal8x0.auth.us-east-1.amazoncognito.com/logout",
+  // },
 };
 
 const onSigninCallback = async (user) => {
   console.log('User signed in:', user?.profile);
   window.history.replaceState({}, document.title, window.location.pathname);
 };
+
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <StrictMode>

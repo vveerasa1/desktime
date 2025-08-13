@@ -12,7 +12,7 @@ const OidcLoginRedirect = () => {
       auth.signinRedirect();
     }
     if(auth.isAuthenticated){
-      localStorage.setItem('token', auth.user.access_token)
+      localStorage.setItem('token', auth.user.id_token)
       navigate('/dashboard');
     }
   }, [auth.isLoading, auth.isAuthenticated]);

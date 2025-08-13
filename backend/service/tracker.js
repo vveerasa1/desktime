@@ -9,8 +9,10 @@ const tracking = async (req, res) => {
     const user = req.user;
     console.log("user :" + user);
     let userId = user.userId;
+    console.log(userId,"userIduserIduserIduserId session**************")
     let timeZone = user.timeZone;
     const now = moment().tz(timeZone).toDate();
+    console.log(timeZone,now,"timeZonetimeZonetimeZonetimeZonetimeZone session**************")
 
     // const endOfDay = moment().tz(timeZone).set({
     //   hour: 23,
@@ -26,8 +28,12 @@ const tracking = async (req, res) => {
       arrivalTime: now,
       // leftTime: leftTime,
     });
+    console.log(session,now,"sessionsessionsessionsession session**************")
+
     res.json({ sessionId: session._id });
   } catch (error) {
+    console.log(error,"sessionsessionsessionsession session**************")
+
     res.status(500).json({ message: "Failed to start session", error });
   }
 };
@@ -384,7 +390,7 @@ const getTodaySessionByUserId = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ message: "userId is required in params" });
     }
-
+   
     // Use server timezone or set as needed
     const todayStart = moment().startOf("day").toDate();
     const todayEnd = moment().endOf("day").toDate();

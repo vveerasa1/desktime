@@ -7,7 +7,6 @@ const {
   getTeamById,
   searchTeams
 } = require("../service/team");
-// const { authenticate } = require("../utils/middleware");
 const router = express.Router();
 router.use(express.json());
 

@@ -16,7 +16,7 @@ import { jwtDecode } from "jwt-decode";
 const AddEmployeeModal = ({ open, handleClose, openToaster ,handleCloseToaster}) => {
   const token = localStorage.getItem("token");
   
-  let ownerId =JSON.parse(localStorage.getItem("autUser")).ownerId;
+  let ownerId =JSON.parse(localStorage.getItem("autUser"))?.ownerId;
 
   // if (token) {
   //   try {

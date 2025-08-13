@@ -36,18 +36,37 @@ const theme = createTheme({
 });
 
 const LogoutConfirmationDialog = ({ open, setOpen, handleCloseDialog }) => {
- const userId =  localStorage.getItem('userId')
+  const userId = localStorage.getItem('userId')
   const navigate = useNavigate();
-   const auth = useAuth();
+  const auth = useAuth();
 
- 
+
 
   const [logoutApi, { isLoading, isError, error }] = useLogoutSessionMutation();
-  const handleConfirmLogout = () => {
-    logoutApi({userId});
+  const handleConfirmLogout = async () => {
+    logoutApi({ userId });
+    const idToken = localStorage.getItem('token');
+    // window.location.href = `https://us-east-16ivaal8x0.auth.us-east-1.amazoncognito.com/logout?client_id=4o3gl6qqe1i5uapeitu56p3lst&logout_uri=${encodeURIComponent("http://localhost:5173")}`;
+    // auth.signoutRedirect({
+    //   // id_token_hint: idToken,
+    //   post_logout_redirect_uri: "http://localhost:5173", // must be added in Cognito sign-out URLs
+    // });
+    await auth.removeUser(); // Removes OIDC user from storage
     localStorage.clear();
-    auth.signoutRedirect(); // This will redirect to Cognito's logout and return to your app
-    navigate("/", { replace: true });
+    sessionStorage.clear();
+    setOpen(false);
+    navigate("/");
+    const logoutUri = encodeURIComponent("http://localhost:5173");
+    window.location.href = `https://us-east-16ivaal8x0.auth.us-east-1.amazoncognito.com/logout?client_id=4o3gl6qqe1i5uapeitu56p3lst&logout_uri=${logoutUri}`;
+
+    //     auth.removeUser();
+    //     localStorage.clear();
+    // sessionStorage.clear();
+    //  auth.signoutSilent();
+    // auth.signoutRedirect();
+
+    // localStorage.clear();
+
     setOpen(false);
   };
 

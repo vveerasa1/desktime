@@ -7,9 +7,9 @@ const config = require("../config");
 //   ACL: "public-read",
 // });
 const s3 = new AWS.S3({
-  accessKeyId: config.AWS.ACCESS_KEY_ID,
-  secretAccessKey: config.AWS.SECRET_ACCESS_KEY,
-  endpoint: new AWS.Endpoint(config.AWS.endpoint), // example OVH S3 endpoint
+  accessKeyId: config.OVH.ACCESS_KEY_ID,
+  secretAccessKey: config.OVH.SECRET_ACCESS_KEY,
+  endpoint: new AWS.Endpoint(config.OVH.endpoint), // example OVH S3 endpoint
   region: "bhs",
   s3ForcePathStyle: true, // important for OVH
 });
