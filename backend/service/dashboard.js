@@ -182,28 +182,22 @@ const dashboardCard = async (req, res) => {
         timeAtWork,
       };
     } else if (type === "week" || type === "month") {
-      const baseDate = date ? moment(date).tz(timeZone) : moment().tz(timeZone);
+      const baseDate = moment().tz(timeZone);
 
       const start =
         type === "week"
-          ? baseDate.clone().startOf("isoWeek") // Monday
+          ? baseDate.clone().startOf("isoWeek")
           : baseDate.clone().startOf("month");
 
       const end =
         type === "week"
-          ? baseDate.clone().endOf("isoWeek") // Sunday
+          ? baseDate.clone().endOf("isoWeek")
           : baseDate.clone().endOf("month");
 
-      console.log("Start:", start.toISOString());
-      console.log("End:", end.toISOString());
-
-      // Use string field `date` in 'YYYY-MM-DD' format for query
+      // Fetch all sessions for this user in range
       const sessions = await TrackingSession.find({
         userId,
-        arrivalTime: {
-          $gte: start.toDate(),
-          $lte: end.toDate(),
-        },
+        arrivalTime: { $gte: start.toDate(), $lte: end.toDate() },
       });
 
       if (sessions.length === 0) {
@@ -214,41 +208,130 @@ const dashboardCard = async (req, res) => {
 
       let totalDeskTime = 0;
       let totalTimeAtWork = 0;
-      let totalArrivalTime = 0;
-      let totalLeftTime = 0;
-      let count = 0;
+      let totalIdleTime = 0;
+      let totalArrivalMillis = 0;
+      let totalLeftMillis = 0;
+      let arrivalCount = 0;
       let leftCount = 0;
 
-      sessions.forEach((session) => {
-        const arrival = moment(session.arrivalTime).tz(timeZone);
-        const timeAtWork = session.timeAtWork ? session.timeAtWork : 0;
-        const activeTime = (session.activePeriods || []).reduce(
+      for (let session of sessions) {
+        const sessionDateStr = moment(session.arrivalTime)
+          .tz(timeZone)
+          .format("YYYY-MM-DD");
+        const trackingEndHour = user.trackingEndTime;
+        const trackingEndTimeStr = `${sessionDateStr} ${trackingEndHour}`;
+        const trackingEndTimeTz = moment.tz(
+          trackingEndTimeStr,
+          "YYYY-MM-DD HH:mm",
+          timeZone
+        );
+        const trackingEndTimeUTC = trackingEndTimeTz.toDate();
+
+        const nowUserTZ = moment().tz(timeZone);
+        const nowDateStr = nowUserTZ.format("YYYY-MM-DD");
+
+        // --- End-of-day cutoff logic like "day" ---
+        if (nowDateStr !== sessionDateStr || new Date() > trackingEndTimeUTC) {
+          if (!session.leftTime) {
+            const lastActivePeriod =
+              session.activePeriods?.[session.activePeriods.length - 1];
+            let leftTime;
+
+            if (lastActivePeriod?.end) {
+              const lastEndTime = lastActivePeriod.end;
+              const endTimeIST = moment(lastEndTime).tz(timeZone);
+              const endHour = endTimeIST.hour();
+              const endMin = endTimeIST.minute();
+
+              if (lastEndTime.getTime() <= trackingEndTimeUTC.getTime()) {
+                leftTime = `${endHour}:${endMin < 10 ? "0" + endMin : endMin}`;
+              } else {
+                leftTime = trackingEndHour;
+              }
+            } else {
+              leftTime = trackingEndHour;
+            }
+
+            session.leftTime = leftTime;
+
+            const arrivalIST = moment(session.arrivalTime).tz(timeZone);
+            const [leftEndHour, leftEndMin] = session.leftTime
+              .split(":")
+              .map(Number);
+            const leftIST = arrivalIST
+              .clone()
+              .hour(leftEndHour)
+              .minute(leftEndMin)
+              .second(0);
+
+            const newTimeAtWork = leftIST.diff(arrivalIST, "seconds");
+            session.timeAtWork = newTimeAtWork;
+
+            if (session.totalTrackedTime > newTimeAtWork) {
+              session.totalTrackedTime = newTimeAtWork;
+            }
+
+            await session.save();
+          }
+        }
+
+        // --- Arrival time average ---
+        const arrivalMoment = moment(session.arrivalTime).tz(timeZone);
+        totalArrivalMillis +=
+          arrivalMoment.hours() * 3600 * 1000 +
+          arrivalMoment.minutes() * 60 * 1000 +
+          arrivalMoment.seconds() * 1000;
+        arrivalCount++;
+
+        // --- Left time average ---
+        if (session.leftTime) {
+          const [h, m] = session.leftTime.split(":").map(Number);
+          totalLeftMillis += (h * 60 + m) * 60 * 1000; // convert to ms
+          leftCount++;
+        }
+
+        // --- Desk & Work time totals ---
+        let deskTime = session.totalTrackedTime;
+        let workTime = session.timeAtWork;
+
+        // If no timeAtWork and session is today → calculate until now
+        if (!workTime && sessionDateStr === nowDateStr) {
+          workTime = Math.floor(
+            (nowUserTZ.valueOf() - arrivalMoment.valueOf()) / 1000
+          );
+        }
+
+        if (deskTime > workTime) {
+          deskTime = workTime;
+        }
+
+        totalDeskTime += deskTime;
+        totalTimeAtWork += workTime;
+        totalIdleTime += (session.idlePeriods || []).reduce(
           (acc, p) => acc + (p.duration || 0),
           0
         );
-        const desktime = activeTime ? activeTime : 0;
+      }
 
-        totalDeskTime += desktime;
-        totalTimeAtWork += timeAtWork;
-        totalArrivalTime += arrival.valueOf(); // milliseconds
-        if (session?.leftTime) {
-          const leftMoment = moment(session.leftTime, "HH:mm");
-          const durationFromStart =
-            leftMoment.hours() * 3600 * 1000 + leftMoment.minutes() * 60 * 1000;
-          totalLeftTime += durationFromStart;
-          leftCount++;
-        }
-        count++;
-      });
+      // --- Final aggregated result ---
+      const avgArrivalMillis = arrivalCount
+        ? totalArrivalMillis / arrivalCount
+        : null;
+      const avgLeftMillis = leftCount ? totalLeftMillis / leftCount : null;
 
       result = {
         type,
-        arrivalTime: moment(totalArrivalTime / count).format("HH:mm:ss"),
-        leftTime: leftCount
-          ? moment.utc(totalLeftTime / leftCount).format("HH:mm")
-          : null,
-        deskTime: Math.floor(totalDeskTime / count),
-        timeAtWork: Math.floor(totalTimeAtWork / count),
+        arrivalTime:
+          avgArrivalMillis != null
+            ? moment.utc(avgArrivalMillis).format("HH:mm:ss")
+            : null,
+        leftTime:
+          avgLeftMillis != null
+            ? moment.utc(avgLeftMillis).format("HH:mm")
+            : null,
+        deskTime: totalDeskTime,
+        idleTime: totalIdleTime,
+        timeAtWork: totalTimeAtWork,
       };
     }
     res.status(200).json({

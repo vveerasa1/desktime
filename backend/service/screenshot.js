@@ -56,21 +56,35 @@ const addScreenshot = async (req, res) => {
         });
       }
     }
-
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const folderPath = `${user.employeeId}/${date}`;
-        const uploadedFile = await uploadFileToS3(file, folderPath);
-        const newFileName = uploadedFile.Key.split("/").pop();
-        console.log(newFileName);
-        const screenShotUrl =
-          config.AWS.publicUrl + `${folderPath}/${newFileName}`;
-        screenshotEntries.push({
-          screenshotTime: now,
-          screenshotApp: req.body.screenshotApp || "",
-          screenshotPath: screenShotUrl,
-        });
-      }
+    const files = req.files;
+    const screenshotFile = files.screenshot && files.screenshot[0];
+    const iconFile = files.screenshotAppIcon && files.screenshotAppIcon[0];
+    let screenshotUrl = null;
+    if (screenshotFile) {
+      const folderPath = `${user.employeeId}/${date}`;
+      const uploadedScreenshot = await uploadFileToS3(
+        screenshotFile,
+        folderPath
+      );
+      screenshotUrl =
+        config.AWS.publicUrl +
+        `${folderPath}/${uploadedScreenshot.Key.split("/").pop()}`;
+    }
+    let iconUrl = null;
+    if (iconFile) {
+      const folderPath = `${user.employeeId}/${date}/icons`; // Create a subfolder for icons
+      const uploadedIcon = await uploadFileToS3(iconFile, folderPath);
+      iconUrl =
+        config.AWS.publicUrl +
+        `${folderPath}/${uploadedIcon.Key.split("/").pop()}`;
+    }
+    if (screenshotFile) {
+      screenshotEntries.push({
+        screenshotTime: now,
+        screenshotApp: req.body.screenshotApp || "",
+        screenshotPath: screenshotUrl,
+        screenshotAppIcon: iconUrl, // Store the icon URL here
+      });
     }
 
     if (screenshotLog) {

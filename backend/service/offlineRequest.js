@@ -16,8 +16,14 @@ const createOfflineRequest = async (req, res) => {
       productivity,
     } = req.body;
     const userId = req.user.userId;
+    let status = "Pending";
     console.log("userId", userId);
     const user = req.user;
+    const role = user.role;
+    if (role === "Admin" || role === "Owner") {
+      status = "Approved";
+    }
+
     let timeZone = user.timeZone || "Asia/Kolkata";
     const now = moment().tz(timeZone).toDate();
     const fullStart = moment.tz(
@@ -66,7 +72,7 @@ const createOfflineRequest = async (req, res) => {
       projectName,
       taskName,
       productivity,
-      status: "Pending",
+      status,
     });
 
     await newRequest.save();
@@ -186,7 +192,7 @@ const deleteOfflineTimesByUserId = async (req, res) => {
 const getAllOfflineRequestByStatus = async (req, res, next) => {
   try {
     const { ownerId } = req.params;
-    const { status } = req.query;
+    const { status, date } = req.query;
 
     if (!status) {
       return res
@@ -202,15 +208,31 @@ const getAllOfflineRequestByStatus = async (req, res, next) => {
     const users = await User.find({
       isDeleted: false,
       $or: [{ _id: ownerId }, { ownerId }],
-    }).select("firstName lastName username photo role active");
+    }).select("username photo role active");
 
     const userIds = users.map((u) => u._id);
 
-    // Step 3: Fetch offline requests with matching status
-    const requests = await OfflineRequest.find({
+    const filter = {
       userId: { $in: userIds },
       status: status,
-    })
+    };
+
+    if (date) {
+      // Parse date in owner's timezone
+      const startOfDay = moment
+        .tz(date, "YYYY-MM-DD", timezone)
+        .startOf("day")
+        .toDate();
+      const endOfDay = moment
+        .tz(date, "YYYY-MM-DD", timezone)
+        .endOf("day")
+        .toDate();
+
+      filter.createdAt = { $gte: startOfDay, $lte: endOfDay };
+    }
+
+    // Step 3: Fetch offline requests with matching status
+    const requests = await OfflineRequest.find(filter)
       .populate({ path: "modifiedBy", select: "username" })
       .populate({
         path: "userId",
@@ -220,7 +242,6 @@ const getAllOfflineRequestByStatus = async (req, res, next) => {
           select: "name",
         },
       })
-
       .sort({ createdAt: -1 });
     let productiveTime = 0;
     let unproductiveTime = 0;

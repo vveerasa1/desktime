@@ -254,7 +254,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on https://localhost:${API_PORT}`
+    `🚀 Express API server in Electron listening on https://localhost:4005:${API_PORT}`
   );
 });
 
@@ -273,7 +273,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("https://trackme.pentabay.com");
+  mainWindow.loadURL("https://localhost:517");
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -684,6 +684,21 @@ async function captureScreenshot(userId) {
     const win = await activeWin();
     const appName = win ? win.owner.name : "unknown_app";
     const windowTitle = win ? win.title : "unknown_title";
+    const appPath = win ? win.owner.path : null;
+
+    let iconFileBuffer = null;
+    let iconFilename = null;
+
+    if (appPath) {
+      try {
+        const nativeImage = await app.getFileIcon(appPath, { size: "normal" });
+        iconFileBuffer = nativeImage.toPNG();
+        iconFilename = `icon_${appName.replace(/\s+/g, "-")}_${Date.now()}.png`;
+      } catch (iconError) {
+        console.error(`❌ Error getting icon for ${appName}:`, iconError);
+        // On error, iconFileBuffer and iconFilename will remain null
+      }
+    }
 
     // Skip if screen is locked, or no active window (e.g., desktop)
     if (!win || win.owner.name.toLowerCase().includes("lock") || !win.title) {
@@ -700,6 +715,13 @@ async function captureScreenshot(userId) {
     formData.append("screenshotApp", appName);
     formData.append("screenshotTitle", windowTitle); // Include window title for screenshot context
     formData.append("timestamp", new Date().toISOString()); // Timestamp for the screenshot
+
+    if (iconFileBuffer) {
+      formData.append("screenshotAppIcon", iconFileBuffer, {
+        filename: iconFilename,
+        contentType: "image/png",
+      });
+    }
 
     formData.append("screenshot", imgBuffer, {
       filename: `screenshot_${appName.replace(/\s+/g, "-")}_${Date.now()}.jpg`,
@@ -729,6 +751,31 @@ async function captureScreenshot(userId) {
  * Starts all tracking intervals for a specific user.
  * @param {string} userId
  */
+
+async function startScreenshotLoop(userId) {
+  const userState = getUserState(userId);
+  if (
+    userState.isSessionEndedForDay ||
+    userState.isSleeping ||
+    !userState.token
+  ) {
+    console.log(
+      `[Screenshot Loop] Skipping for ${userId}: session ended, sleeping, or no token.`
+    );
+    return;
+  }
+
+  // Await the completion of the screenshot capture before scheduling the next one
+  await captureScreenshot(userId);
+
+  // Schedule the next screenshot only after the previous one has finished
+  if (!userState.isSessionEndedForDay && !userState.isSleeping) {
+    userState.intervals.screenshot = setTimeout(
+      () => startScreenshotLoop(userId),
+      SCREENSHOT_INTERVAL
+    );
+  }
+}
 async function startTrackingForUser(userId) {
   const userState = getUserState(userId);
   if (!userState.token) {
@@ -827,9 +874,7 @@ async function startTrackingForUser(userId) {
   }, 2000);
 
   // Screenshot Capture (every SCREENSHOT_INTERVAL)
-  userState.intervals.screenshot = setInterval(() => {
-    captureScreenshot(userId);
-  }, SCREENSHOT_INTERVAL);
+  startScreenshotLoop(userId);
 }
 
 /**
@@ -847,6 +892,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     Object.values(userState.intervals).forEach(clearInterval);
     userState.intervals = {}; // Clear the object
   }
+  userState.isSessionEndedForDay = true;
 
   console.log("userState: " + userState);
 
@@ -857,8 +903,6 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   console.log("lastActiveSentTimestamp :" + userState.lastActiveSentTimestamp);
   console.log("isSleeping :" + userState.isSleeping);
   console.log("isSessionEndedForDay :" + userState.isSessionEndedForDay);
-  console.log("sessionId +" + sessionId);
-  console.log("token +" + token);
 
   // 3. Save any pending active/idle time before stopping if not already saved by cutoff logic
   // This is a safeguard, primarily the cutoff logic in sendActivityToServer should handle it
@@ -937,7 +981,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     store.delete(`session_date_${userId}`);
 
     // Also remove the user's state from the in-memory map
-    delete userTrackingStates[userId];
+    userTrackingStates = {};
     console.log(`[Store] Cleared all stored data for user ${userId}.`);
   } else {
     // If not explicit logout (e.g., daily cutoff), clear session ID/date
@@ -1011,6 +1055,7 @@ powerMonitor.on("suspend", () => {
   // Mark all active users as sleeping and pause their screenshots
   for (const userId in userTrackingStates) {
     const userState = userTrackingStates[userId];
+
     console.log("userState: " + userState);
 
     userState.isSleeping = true;
@@ -1041,9 +1086,7 @@ powerMonitor.on("resume", async () => {
       console.log(
         `[Resume] Restarting screenshot interval for user ${userId}.`
       );
-      userState.intervals.screenshot = setInterval(() => {
-        captureScreenshot(userId);
-      }, SCREENSHOT_INTERVAL);
+      startScreenshotLoop(userId);
     }
 
     // Force an immediate activity check after resume to correct state

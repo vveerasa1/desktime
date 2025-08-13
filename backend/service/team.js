@@ -141,8 +141,8 @@ const searchTeams = async (req, res) => {
       name,
       page = 1,
       limit = 10,
-      sortBy = 'name',
-      sortOrder = 'asc',
+      sortBy = "name",
+      sortOrder = "asc",
     } = req.query;
 
     // Build the search query
@@ -150,7 +150,7 @@ const searchTeams = async (req, res) => {
 
     // Add name search if provided
     if (name) {
-      searchQuery.name = { $regex: new RegExp(name, 'i') };
+      searchQuery.name = { $regex: new RegExp(name, "i") };
     }
 
     // Calculate pagination
@@ -161,14 +161,14 @@ const searchTeams = async (req, res) => {
 
     // Find teams with search criteria
     const teams = await Team.find(searchQuery)
-      .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+      .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
     res.status(200).json({
       code: 200,
-  status: 'Success',
-  message: 'Teams fetched successfully',
+      status: "Success",
+      message: "Teams fetched successfully",
       data: teams, // Array directly here
       pagination: {
         total,
@@ -177,12 +177,11 @@ const searchTeams = async (req, res) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-
   } catch (err) {
     res.status(500).json({
       code: 500,
-      status: 'Error',
-      message: 'Failed to search teams',
+      status: "Error",
+      message: "Failed to search teams",
       error: err.message,
     });
   }
@@ -194,5 +193,5 @@ module.exports = {
   deleteTeam,
   updateTeam,
   getTeamById,
-  searchTeams
+  searchTeams,
 };

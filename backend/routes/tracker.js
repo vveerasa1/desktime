@@ -22,7 +22,14 @@ router.post("/sessions", authenticate, tracking);
 router.get("/sessions", authenticate, getUserTrackingInfo);
 router.put("/sessions/idle", idleTimeTracker);
 router.put("/sessions/active", activeTimeTracker);
-router.post("/sessions/screenshots", upload.array("screenshot"), addScreenshot);
+router.post(
+  "/sessions/screenshots",
+  upload.fields([
+    { name: "screenshot", maxCount: 1 },
+    { name: "screenshotAppIcon", maxCount: 1 },
+  ]),
+  addScreenshot
+);
 router.get("/sessions/:id", getSessionById);
 router.get("/sessions/user/:userId/today", getTodaySessionByUserId);
 router.get("/sessions/:ownerId/today", getAllTrackingsForToday);
