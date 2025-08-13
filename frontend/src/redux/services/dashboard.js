@@ -61,9 +61,12 @@ export const Dashboard = createApi({
     }),
 
     getAllOfflineRequest: builder.query({
-      query: ({ id, status }) => ({
+      query: ({ id, status,date }) => ({
         url: `${URL_CONSTANTS.OFFLINE_REQUESTS}/${id}?status=${status}`,
         method: 'GET',
+        params: {
+          date:date
+        }
 
       }),
       providesTags: ['productivity']

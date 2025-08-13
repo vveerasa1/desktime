@@ -123,9 +123,14 @@ const ScreenshotGrid = ({ filters, employee }) => {
                   />
                   <Box className={styles.screenshotFooter}>
                     <Box className={styles.appInfo}>
-                      <Typography variant="body2">
+                      <Box sx={{display:"flex",gap:0.5}} >
+                                                <img style={{height:"15px",marginTop:2}} src={shot.screenshotAppIcon} alt="" />
+
+                    <Typography variant="body2">
                         {shot.screenshotApp}
                       </Typography>
+                      </Box>
+                     
                     </Box>
                     <Box>
                       <Typography

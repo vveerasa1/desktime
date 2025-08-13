@@ -26,5 +26,6 @@ export const URL_CONSTANTS = {
   VERIFYOTP:"verify-otp",
   CHANGEPASSWORD:"change-password",
   RESET:"reset",
-  PASSWORD:"password"
+  PASSWORD:"password",
+  SNAPSHOT:"snapshot"
 };
