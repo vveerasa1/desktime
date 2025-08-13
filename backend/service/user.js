@@ -228,7 +228,7 @@ const updateUser = async (req, res) => {
       });
     }
     const oldTeamId = existingUser.team?.toString();
-    const newTeamId = req.body.team?.toString();
+    const newTeamId = req.body.team;
     const updateData = {
       ...req.body,
       workDuration: durationSeconds,
@@ -236,6 +236,11 @@ const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(id, updateData, {
       new: true,
     });
+    if (newTeamId && oldTeamId === undefined) {
+      await Team.findByIdAndUpdate(newTeamId, {
+        $inc: { teamMembersCount: 1 },
+      });
+    }
 
     if (newTeamId && oldTeamId && newTeamId !== oldTeamId) {
       await Team.findByIdAndUpdate(oldTeamId, {
