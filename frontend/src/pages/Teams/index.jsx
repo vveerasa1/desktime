@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import TeamsTable from "../../components/Teams/TeamsTable";
 import { Box, Button, Stack, Typography, IconButton } from "@mui/material";
-
-import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import TeamModal from "../../components/Teams/TeamModal";
-import { useGetAllTeamQuery } from "../../redux/services/team";
+import {
+  useGetAllTeamQuery,
+  useSearchTeamQuery,
+} from "../../redux/services/team";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 import LoadingComponent from "../../components/ComponentLoader";
 import MuiToaster from "../../components/MuiToaster";
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import { useDebounce } from "../../hooks/useDebounce";
+import SearchIcon from "@mui/icons-material/Search";
+import CustomTextField from "../../components/CustomTextField";
+
 const Teams = () => {
   const autUser =JSON.parse(localStorage.getItem("autUser"));
   let ownerId = autUser?.ownerId;
@@ -22,18 +27,44 @@ const Teams = () => {
   // }
   const [selected, setSelected] = useState([]);
 
+  const [selected, setSelected] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const debouncedSearchText = useDebounce(searchText, 500);
+
+  // Team data queries
   const { data: teamsData, isLoading: teamDataIsLoading } =
     useGetAllTeamQuery(ownerId);
+  const {
+    data: searchResults,
+    isLoading: isSearchLoading,
+    isError: isSearchError,
+  } = useSearchTeamQuery(
+    {
+      id: ownerId,
+      searchParams: { name: debouncedSearchText },
+    },
+    { skip: !debouncedSearchText }
+  );
+
   const [getTeamData, setGetTeamData] = useState([]);
   const [teamId, setTeamId] = useState();
   const [open, setOpen] = useState(false);
 
+  // Update team data based on search or all teams
   useEffect(() => {
-    if (teamsData?.data) {
-      setGetTeamData(teamsData.data);
+    // Handle search results
+    if (debouncedSearchText && searchResults?.data) {
+      setGetTeamData(
+        Array.isArray(searchResults?.data) ? searchResults.data : []
+      );
+      console.log(searchResults, "SEARCH RESULT");
     }
-  }, [teamsData]);
-
+    // Handle regular team data
+    else if (teamsData?.data) {
+      setGetTeamData(Array.isArray(teamsData.data) ? teamsData.data : []);
+      console.log(teamsData, "TEAMS FETCH");
+    }
+  }, [teamsData, searchResults, debouncedSearchText]);
   const handleSelectAll = (event) => {
     if (event.target.checked) {
       const allIds = getTeamData.map((row) => row._id);
@@ -65,11 +96,11 @@ const Teams = () => {
 
   const handleOpen = (id) => {
     setOpen(true);
-     if (id) {
-    setTeamId(id);
-  } else {
-    setTeamId(undefined);
-  }
+    if (id) {
+      setTeamId(id);
+    } else {
+      setTeamId(undefined);
+    }
   };
 
   const handleClose = () => {
@@ -79,7 +110,7 @@ const Teams = () => {
   const [toaster, setToaster] = useState({
     open: false,
     message: "",
-    severity: "success", // or "error"
+    severity: "success",
   });
 
   const handleOpenToaster = (message, severity = "success") => {
@@ -89,51 +120,70 @@ const Teams = () => {
   const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  // Determine which loading state to show
+  const isLoading =
+    teamDataIsLoading || (debouncedSearchText && isSearchLoading);
+
   return (
-    <Box sx={{margin: "auto" }}>
+    <Box sx={{ margin: "auto" }}>
       <Stack spacing={3}>
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            flexWrap: "wrap", 
-            mb: 2, 
+            flexWrap: "wrap",
+            mb: 2,
           }}
         >
-          {/* Left-aligned Title */}
-          <Typography sx={{fontSize:"23px"}} fontWeight={600} color="#333333">
+          <Typography
+            sx={{ fontSize: "23px" }}
+            fontWeight={600}
+            color="#333333"
+          >
             Teams
           </Typography>
 
-          {/* Right-aligned controls */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <CustomSearchInput />
+            <Box sx={{ height: 40 }}>
+              <CustomTextField
+                name="search"
+                fullWidth
+                startIcon={<SearchIcon />}
+                placeholder="Search Teams"
+                value={searchText}
+                handleChange={(e) => handleSearchChange(e, "name")}
+              />
+            </Box>
 
             <IconButton size="small">
               <FilterListIcon fontSize="medium" />
             </IconButton>
-            
+
             <Button
               variant="contained"
-              sx={{ textTransform: "none",whiteSpace:"nowrap",px:4, backgroundColor:"#143351"}}
-              onClick={()=>handleOpen()}
+              sx={{
+                textTransform: "none",
+                whiteSpace: "nowrap",
+                px: 4,
+                backgroundColor: "#143351",
+              }}
+              onClick={() => handleOpen()}
             >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                     <GroupAddIcon   />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <GroupAddIcon />
                 Add Team
-                </Box>
-               
+              </Box>
             </Button>
           </Box>
         </Box>
 
-        {/* Header */}
-
-        {/* Search and Sort Controls */}
-
-        {/* Table */}
-        {teamDataIsLoading ? (
+        {isLoading ? (
           <LoadingComponent />
         ) : (
           <TeamsTable

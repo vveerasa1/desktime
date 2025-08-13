@@ -16,12 +16,15 @@ import styles from './index.module.css';
 import ImageSection from '../../../components/AuthImageSection';
 import CustomTextField from '../../../components/CustomTextField';
 import { useLoginMutation } from '../../../redux/services/login';
-
+import { useSelector } from 'react-redux';
+import { useResetPasswordMutation } from '../../../redux/services/auth';
 const ResetPassword = () => {
+    const email = useSelector((state) => state.authFlow.email);
+    const [resetPassword] = useResetPasswordMutation();
   const navigate = useNavigate();
-  const [loginInfo, setLoginInfo] = useState({ email: '', password: 'Akash21@' });
+  const [loginInfo, setLoginInfo] = useState({ newPassword: '',confirmPassword:"" });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ newPassword: '',confirmPassword:'' });
   const [loginApi, { isLoading, isError, error }] = useLoginMutation();
 
   const togglePasswordVisibility = () => {
@@ -39,15 +42,11 @@ const ResetPassword = () => {
   };
 
   const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const newErrors = {
-      email: !loginInfo.email
-        ? 'Email is required'
-        : !emailRegex.test(loginInfo.email)
-          ? 'Enter a valid email'
-          : '',
-      password: loginInfo.password.trim() ? '' : 'Password is required',
+      newPassword: loginInfo.newPassword.trim() ? '' : 'Password is required',
+      confirmPassword: loginInfo.confirmPassword.trim() ? '' : 'Confirm Password is required',
+
     };
 
     setErrors(newErrors);
@@ -58,8 +57,14 @@ const ResetPassword = () => {
   const handleLogin = async () => {
     if (!validateForm()) return;
 
-    try {
-     
+    try { 
+      const payload = {
+        newPassword:loginInfo.newPassword,
+        confirmPassword:loginInfo.confirmPassword,
+        email:email
+      }
+      await resetPassword(payload).unwrap();
+      navigate('/');
     } catch (err) {
       console.error('Login failed:', err);
     }
@@ -83,10 +88,10 @@ const ResetPassword = () => {
             type="email"
             fullWidth
             startIcon={<EmailIcon />}
-            value={loginInfo.email}
-            handleChange={(e) => handleChange(e, 'email')}
-            error={Boolean(errors.email)}
-            helperText={errors.email}
+            value={loginInfo.newPassword}
+            handleChange={(e) => handleChange(e, 'newPassword')}
+            error={Boolean(errors.newPassword)}
+            helperText={errors.newPassword}
           />
           <CustomTextField
             label="Confirm Password"
@@ -94,10 +99,10 @@ const ResetPassword = () => {
             type="email"
             fullWidth
             startIcon={<EmailIcon />}
-            value={loginInfo.email}
-            handleChange={(e) => handleChange(e, 'email')}
-            error={Boolean(errors.email)}
-            helperText={errors.email}
+            value={loginInfo.confirmPassword}
+            handleChange={(e) => handleChange(e, 'confirmPassword')}
+            error={Boolean(errors.confirmPassword)}
+            helperText={errors.confirmPassword}
           />
           <Button
             variant="contained"

@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema(
     photo: { type: String },
     workDuration: { type: String },
     active: { type: Boolean, default: false },
+    otp: { type: String },
+    otpExpires: { type: Date },
     isDeleted: { type: Boolean, default: false },
     cognitoId: { type: String },  // Added field for Cognito user ID
   },

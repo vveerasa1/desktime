@@ -3,12 +3,16 @@ import { Box, Button, Typography, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AuthImageSection from '../../../components/AuthImageSection';
 import styles from './index.module.css';
-
+import { useSelector } from 'react-redux';
+import { useVerifyOtpMutation } from '../../../redux/services/auth';
 const OtpVerify = () => {
+  const email = useSelector((state) => state.authFlow.email);
+  console.log(email, "EMAIL");
+
   const navigate = useNavigate();
   const [otp, setOtp] = useState(new Array(6).fill(''));
   const inputsRef = useRef([]);
-
+  const [verifyOtp] = useVerifyOtpMutation();
   const handleChange = (element, index) => {
     if (/[^0-9]/.test(element.value)) return; // Only allow numbers
 
@@ -28,6 +32,18 @@ const OtpVerify = () => {
     }
   };
 
+  const handleSubmit  = async () =>{
+    try {
+      const payload = {
+        otp:otp.join(''),
+        email:email
+      }
+      await verifyOtp(payload).unwrap();
+      navigate('/reset-password')
+    }catch(error){
+      console.log(error)
+    }
+  }
   const handleVerify = () => {
     const enteredOtp = otp.join('');
     if (enteredOtp.length < 6) {
@@ -86,9 +102,9 @@ const OtpVerify = () => {
             variant="contained"
             fullWidth
             className={styles.button}
-        
+            onClick={()=>handleSubmit()}
           >
-      
+            
             Verify
           </Button>
 

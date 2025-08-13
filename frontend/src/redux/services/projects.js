@@ -41,11 +41,21 @@ export const Project = createApi({
         deleteProject: builder.mutation({
             query: (id) => ({
                 url: `${URL_CONSTANTS.PROJECTS}/${id}`,
-                method:'DELETE'
+                method: 'DELETE'
             }),
             invalidatesTags: ['Project'],
 
-        })
+        }),
+        searchProject: builder.query({
+            query: ({ id, searchParams }) => ({
+                url: `${URL_CONSTANTS.PROJECTS}/${URL_CONSTANTS.SEARCH}/${id}`,
+                method: 'GET',
+                params: searchParams
+
+            }),
+            providesTags: ['Project']
+
+        }),
     }),
 });
 
@@ -56,4 +66,5 @@ export const {
     useDeleteProjectMutation,
     useGetAllProjectsQuery,
     useGetSingleProjectQuery,
+    useSearchProjectQuery
 } = Project;

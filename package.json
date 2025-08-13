@@ -1,5 +1,5 @@
 {
-  "name": "desktime",
+  "name": "trackme",
   "version": "1.0.0",
   "description": "Tracking app",
   "main": "main.js",
@@ -9,8 +9,8 @@
     "rebuild": "electron-rebuild"
   },
   "build": {
-    "appId": "com.vijay.desktime",
-    "productName": "DeskTime",
+    "appId": "com.vijay.trackMe",
+    "productName": "TrackMe",
     "files": [
       "**/*",
       "!node_modules/.cache"

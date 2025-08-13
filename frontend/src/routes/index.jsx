@@ -8,6 +8,7 @@ import Projects from "../pages/UserProjects";
 import ProtectedRoute from "../components/ProtectedRoute";
 import OfflineTimes from "../pages/OfflineTimes";
 import LogoutSuccess from "../pages/Auth/Logout";
+import Billing from "../pages/Billing";
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Profile = lazy(() => import("../pages/Profile"));
 const Colleagues = lazy(() => import("../pages/Colleagues"));
@@ -59,8 +60,7 @@ const TeamMembers = lazy(() =>import('../pages/TeamMembers'))
 //         path: "settings",
 //         element: <Profile />,
 //       },
-      
-      
+
 //       {
 //         path: "absence-calendar",
 //         element: <AbsenceCalender />,
@@ -72,7 +72,6 @@ const TeamMembers = lazy(() =>import('../pages/TeamMembers'))
 //     ],
 //   },
 // ];
-
 
 export const routes = [
   {
@@ -89,7 +88,7 @@ export const routes = [
   },
   {
     path: "/subscribe-trackme",
-    element: <Subscribe />,
+    element: <Billing />,
   },
   {
     path: "/forgot-password",
@@ -103,6 +102,8 @@ export const routes = [
     path: "/reset-password",
     element: <ResetPassword />,
   },
+  { path: "/billings", element: <Billing /> },
+
   {
     path: "/", // 🔒 Protected Route Shell
     element: <ProtectedRoute />, // ✅ Auth check happens here
@@ -119,8 +120,8 @@ export const routes = [
           { path: "absence-calendar", element: <AbsenceCalender /> },
           { path: "projects", element: <Projects /> },
           { path: "teams", element: <Teams /> },
-          {path: "/team-members",element: <TeamMembers />,},
-          {path: "/offline-times",element: <OfflineTimes />,},
+          { path: "/team-members", element: <TeamMembers /> },
+          { path: "/offline-times", element: <OfflineTimes /> },
         ],
       },
     ],

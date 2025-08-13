@@ -8,6 +8,7 @@ const {
   getSessionById,
   getTodaySessionByUserId,
   getAllTrackingsForToday,
+  snapshot,
 } = require("../service/tracker");
 const { addScreenshot } = require("../service/screenshot");
 const multer = require("multer");
@@ -17,6 +18,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();
 router.use(express.json());
+router.get("/sessions/snapshot/:ownerId", snapshot);
 
 router.post("/sessions", validateToken, tracking);
 router.get("/sessions", validateToken, getUserTrackingInfo);

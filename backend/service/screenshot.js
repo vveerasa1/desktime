@@ -33,14 +33,22 @@ const addScreenshot = async (req, res) => {
 
     const lastScreenshot =
       screenshotLog?.dailyScreenshots?.screenshots?.slice(-1)[0];
+    console.log("lastScreenshot" + lastScreenshot);
 
     if (lastScreenshot) {
-      const lastTime = new Date(lastScreenshot.screenshotTime);
-      console.log("lastTime :" + lastTime);
-      const diffSeconds = (now - lastTime) / 1000;
-      console.log("diffSeconds :" + diffSeconds);
+      const lastTime = new Date(lastScreenshot.screenshotTime).getTime(); // in ms
+      console.log("lastTime" + lastTime);
 
-      if (diffSeconds < 270) {
+      const nowMs = Date.now(); // current time in ms
+      const diffMs = nowMs - lastTime; // difference in ms
+
+      console.log("lastTime (ms):", lastTime);
+      console.log("diffMs:", diffMs);
+
+      console.log("Utc time :" + new Date().toISOString());
+
+      // 4 minutes 30 seconds = 270,000 ms
+      if (diffMs < 270000) {
         return res.status(400).json({
           code: 400,
           status: "Rejected",
@@ -49,21 +57,35 @@ const addScreenshot = async (req, res) => {
         });
       }
     }
-
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const folderPath = `${user.employeeId}/${date}`;
-        const uploadedFile = await uploadFileToS3(file, folderPath);
-        const newFileName = uploadedFile.Key.split("/").pop();
-        console.log(newFileName);
-        const screenShotUrl =
-          config.AWS.publicUrl + `${folderPath}/${newFileName}`;
-        screenshotEntries.push({
-          screenshotTime: now,
-          screenshotApp: req.body.screenshotApp || "",
-          screenshotPath: screenShotUrl,
-        });
-      }
+    const files = req.files;
+    const screenshotFile = files.screenshot && files.screenshot[0];
+    const iconFile = files.screenshotAppIcon && files.screenshotAppIcon[0];
+    let screenshotUrl = null;
+    if (screenshotFile) {
+      const folderPath = `${user.employeeId}/${date}`;
+      const uploadedScreenshot = await uploadFileToS3(
+        screenshotFile,
+        folderPath
+      );
+      screenshotUrl =
+        config.AWS.publicUrl +
+        `${folderPath}/${uploadedScreenshot.Key.split("/").pop()}`;
+    }
+    let iconUrl = null;
+    if (iconFile) {
+      const folderPath = `${user.employeeId}/${date}/icons`; // Create a subfolder for icons
+      const uploadedIcon = await uploadFileToS3(iconFile, folderPath);
+      iconUrl =
+        config.AWS.publicUrl +
+        `${folderPath}/${uploadedIcon.Key.split("/").pop()}`;
+    }
+    if (screenshotFile) {
+      screenshotEntries.push({
+        screenshotTime: now,
+        screenshotApp: req.body.screenshotApp || "",
+        screenshotPath: screenshotUrl,
+        screenshotAppIcon: iconUrl, // Store the icon URL here
+      });
     }
 
     if (screenshotLog) {

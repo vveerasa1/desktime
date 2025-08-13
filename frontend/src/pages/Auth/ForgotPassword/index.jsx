@@ -8,20 +8,21 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import EmailIcon from '@mui/icons-material/Email';
-
+import { useDispatch } from 'react-redux';
 import styles from './index.module.css';
 import ImageSection from '../../../components/AuthImageSection';
 import CustomTextField from '../../../components/CustomTextField';
 import { useLoginMutation } from '../../../redux/services/login';
-
+import { useSendOtpMutation } from '../../../redux/services/auth';
+import { setEmail } from '../../../redux/slices/authFlowSlice';
 const ForgotPassword = () => {
+  const dispatch = useDispatch()
   const navigate = useNavigate();
   const [loginInfo, setLoginInfo] = useState({ email: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
-
   const [loginApi, { isLoading, isError, error }] = useLoginMutation();
-
+  const [sendOtp] = useSendOtpMutation();
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword((prev) => !prev);
   }, []);
@@ -48,7 +49,6 @@ const ForgotPassword = () => {
         : !emailRegex.test(loginInfo.email)
           ? 'Enter a valid email'
           : '',
-      password: loginInfo.password.trim() ? '' : 'Password is required',
     };
 
     setErrors(newErrors);
@@ -59,9 +59,12 @@ const ForgotPassword = () => {
     if (!validateForm()) return;
 
     try {
-
-
-      // navigate('/dashboard');
+      const payload = {
+        email: loginInfo.email
+      }
+      await sendOtp(payload).unwrap();
+      dispatch(setEmail(loginInfo.email))
+      navigate('/verify-otp');
     } catch (err) {
       console.error('Login failed:', err);
     }

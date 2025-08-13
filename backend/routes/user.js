@@ -9,7 +9,8 @@ const {
   deleteUser,
   getUserByCognitoId,
   isUserExist,
-  searchUsers
+  // searchUsers,
+  resetPassword
 } = require("../service/user");
 const { authenticate } = require("../utils/middleware");
 
@@ -27,5 +28,7 @@ router.delete("/:id", validateToken, deleteUser);
 router.get("/owner/:ownerId", getAllUser);
 router.get("/:id/screenshots", validateToken, getScreenshotsById);
 router.get("/sessions", validateToken, getUser);
-router.get("/search/:ownerId", validateToken, searchUsers);
+// router.get("/search/:ownerId", validateToken, searchUsers);
+router.post("/reset/password", resetPassword);
+
 module.exports = router;

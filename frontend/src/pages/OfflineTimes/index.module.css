@@ -5,6 +5,34 @@
   height: 50px;
 }
 
+body .datePicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nextPrevIcons{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.npIcon{
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  color: #999da1;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+
 .searchActions {
   display: flex !important;
   gap:10px !important;
