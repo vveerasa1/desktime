@@ -640,90 +640,6 @@ async function sendActivityToServer(
  * Captures and uploads a screenshot for a given user.
  * @param {string} userId
  */
-// async function captureScreenshot(userId) {
-//   const userState = getUserState(userId);
-//   const sessionId = userState.sessionId;
-
-//   if (
-//     userState.isSessionEndedForDay ||
-//     userState.isSleeping ||
-//     !sessionId ||
-//     !userState.token
-//   ) {
-//     console.log(
-//       `[Screenshot] Skipping for ${userId}: session ended, sleeping, no session, or no token.`
-//     );
-//     return;
-//   }
-
-//   let userConfig;
-//   try {
-//     userConfig = await fetchUserConfig(userId);
-//   } catch (error) {
-//     console.error(
-//       `[Screenshot] Could not fetch user config for ${userId}, skipping screenshot.`,
-//       error
-//     );
-//     return;
-//   }
-//   console.log(userConfig);
-//   const currentTime = moment().tz(userConfig.timeZone);
-//   const [cutHour, cutMin] = userConfig.trackingEndTime.split(":").map(Number);
-//   const cutoff = userConfig.flexibleHours
-//     ? currentTime.clone().endOf("day").seconds(0)
-//     : currentTime.clone().hour(cutHour).minute(cutMin).second(0);
-
-//   if (currentTime.isAfter(cutoff)) {
-//     console.log(`[Screenshot] Skipped for user ${userId} - after cutoff.`);
-//     userState.isSessionEndedForDay = true;
-//     await stopTrackingForUser(userId); // Ensure tracking is stopped if cutoff is passed
-//     return;
-//   }
-
-//   try {
-//     const win = await activeWin();
-//     const appName = win ? win.owner.name : "unknown_app";
-//     const windowTitle = win ? win.title : "unknown_title";
-
-//     // Skip if screen is locked, or no active window (e.g., desktop)
-//     if (!win || win.owner.name.toLowerCase().includes("lock") || !win.title) {
-//       console.log(
-//         `[Screenshot] Skipped: locked screen or no active window for user ${userId}`
-//       );
-//       return;
-//     }
-
-//     const imgBuffer = await screenshot({ format: "jpg" });
-//     const formData = new FormData();
-//     formData.append("userId", userId);
-//     formData.append("sessionId", sessionId);
-//     formData.append("screenshotApp", appName);
-//     formData.append("screenshotTitle", windowTitle); // Include window title for screenshot context
-//     formData.append("timestamp", new Date().toISOString()); // Timestamp for the screenshot
-
-//     formData.append("screenshot", imgBuffer, {
-//       filename: `screenshot_${appName.replace(/\s+/g, "-")}_${Date.now()}.jpg`,
-//       contentType: "image/jpeg",
-//     });
-
-//     const res = await makeAuthenticatedRequest(userId, {
-//       method: "post",
-//       url: "https://51.79.30.127:4005/api/tracking/sessions/screenshots",
-//       data: formData,
-//       headers: {
-//         ...formData.getHeaders(), // Important for multipart/form-data
-//       },
-//     });
-//     console.log(`[Screenshot Uploaded] for user ${userId}:`, res.data);
-//   } catch (err) {
-//     console.error(`[Screenshot Error] for user ${userId}:`, err.message);
-//     if (err.response) {
-//       console.error("Response data:", err.response.data);
-//       console.error("Response status:", err.response.status);
-//     }
-//   }
-// }
-
 async function captureScreenshot(userId) {
   const userState = getUserState(userId);
   const sessionId = userState.sessionId;
@@ -750,7 +666,7 @@ async function captureScreenshot(userId) {
     );
     return;
   }
-
+  console.log(userConfig);
   const currentTime = moment().tz(userConfig.timeZone);
   const [cutHour, cutMin] = userConfig.trackingEndTime.split(":").map(Number);
   const cutoff = userConfig.flexibleHours
@@ -760,7 +676,7 @@ async function captureScreenshot(userId) {
   if (currentTime.isAfter(cutoff)) {
     console.log(`[Screenshot] Skipped for user ${userId} - after cutoff.`);
     userState.isSessionEndedForDay = true;
-    await stopTrackingForUser(userId);
+    await stopTrackingForUser(userId); // Ensure tracking is stopped if cutoff is passed
     return;
   }
 
@@ -768,8 +684,8 @@ async function captureScreenshot(userId) {
     const win = await activeWin();
     const appName = win ? win.owner.name : "unknown_app";
     const windowTitle = win ? win.title : "unknown_title";
-    const appPath = win ? win.owner.path : null;
 
+    // Skip if screen is locked, or no active window (e.g., desktop)
     if (!win || win.owner.name.toLowerCase().includes("lock") || !win.title) {
       console.log(
         `[Screenshot] Skipped: locked screen or no active window for user ${userId}`
@@ -777,61 +693,25 @@ async function captureScreenshot(userId) {
       return;
     }
 
-    // Get application icon
-    let iconBuffer = null;
-    if (appPath) {
-      try {
-        // For Windows
-        if (process.platform === 'win32') {
-          const extractIcon = require('extract-icon');
-          iconBuffer = await extractIcon(appPath, { size: 32 });
-        } 
-        // For macOS
-        else if (process.platform === 'darwin') {
-          const { execSync } = require('child_process');
-          const iconPath = `/tmp/${Date.now()}_icon.icns`;
-          execSync(`sips -s format icns "${appPath}" --out "${iconPath}"`);
-          const fs = require('fs');
-          iconBuffer = fs.readFileSync(iconPath);
-          fs.unlinkSync(iconPath);
-        }
-        // For Linux (this is more complex and may require additional packages)
-        else if (process.platform === 'linux') {
-          // You might need to implement this based on your Linux distribution
-          console.log('Icon extraction not implemented for Linux');
-        }
-      } catch (iconError) {
-        console.error(`[Icon Error] Could not extract icon for ${appName}:`, iconError.message);
-      }
-    }
-
     const imgBuffer = await screenshot({ format: "jpg" });
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("sessionId", sessionId);
     formData.append("screenshotApp", appName);
-    formData.append("screenshotTitle", windowTitle);
-    formData.append("timestamp", new Date().toISOString());
+    formData.append("screenshotTitle", windowTitle); // Include window title for screenshot context
+    formData.append("timestamp", new Date().toISOString()); // Timestamp for the screenshot
 
     formData.append("screenshot", imgBuffer, {
       filename: `screenshot_${appName.replace(/\s+/g, "-")}_${Date.now()}.jpg`,
       contentType: "image/jpeg",
     });
 
-    // Add icon to form data if available
-    if (iconBuffer) {
-      formData.append("appIcon", iconBuffer, {
-        filename: `icon_${appName.replace(/\s+/g, "-")}_${Date.now()}.${process.platform === 'win32' ? 'ico' : 'icns'}`,
-        contentType: process.platform === 'win32' ? 'image/x-icon' : 'image/icns',
-      });
-    }
-
     const res = await makeAuthenticatedRequest(userId, {
       method: "post",
       url: "https://51.79.30.127:4005/api/tracking/sessions/screenshots",
       data: formData,
       headers: {
-        ...formData.getHeaders(),
+        ...formData.getHeaders(), // Important for multipart/form-data
       },
     });
     console.log(`[Screenshot Uploaded] for user ${userId}:`, res.data);
@@ -843,6 +723,8 @@ async function captureScreenshot(userId) {
     }
   }
 }
+
+
 /**
  * Starts all tracking intervals for a specific user.
  * @param {string} userId
