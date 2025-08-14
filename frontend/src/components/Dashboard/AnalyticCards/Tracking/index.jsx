@@ -91,18 +91,28 @@ const TrackingCard = ({ orderedCards }) => {
       value: orderedCards[0]?.value,
       color: orderedCards[0]?.valueColor,
     },
-    {
+    
     // If Left time is empty, show Status instead
-    title: !orderedCards[1]?.value || orderedCards[1]?.value === "ONLINE"
-      ? "Status"
-      : orderedCards[1]?.title,
-    value: !orderedCards[1]?.value || orderedCards[1]?.value === "00:00"
-      ? (orderedCards[0]?.value && orderedCards[0]?.value !== "00:00" ? "ONLINE" : "OFFLINE")
-      : orderedCards[1]?.value,
-    color: !orderedCards[1]?.value || orderedCards[1]?.value === "00:00"
-      ? (orderedCards[0]?.value && orderedCards[0]?.value !== "00:00" ? "#008000" : "#808080")
-      : orderedCards[1]?.valueColor,
-  },
+ {
+  title: !orderedCards[1]?.value || orderedCards[1]?.value === "ONLINE"
+    ? "Status"
+    : orderedCards[1]?.title,
+
+  value: !orderedCards[1]?.value || orderedCards[1]?.value === "00:00"
+    ? (orderedCards[0]?.value && orderedCards[0]?.value !== "00:00"
+        ? "ONLINE"
+        : "OFFLINE")
+    : orderedCards[1]?.value,
+
+  color: !orderedCards[1]?.value || orderedCards[1]?.value === "00:00"
+    ? (orderedCards[0]?.value && orderedCards[0]?.value !== "00:00"
+        ? "#008000" // green
+        : "#808080") // grey
+    : (orderedCards[1]?.value === "ONLINE"
+        ? "#008000" // force green if ONLINE
+        : orderedCards[1]?.valueColor || "#808080"), // fallback to grey
+},
+
     {
       title: orderedCards[2]?.title,
       value: orderedCards[2]?.value,
