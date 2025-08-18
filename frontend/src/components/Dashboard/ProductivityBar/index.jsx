@@ -71,7 +71,7 @@ const TRACKED_COLOR = "#3BA5E3"; // Blue for tracked
 const UNTRACKED_COLOR = "white"; // Grey for untracked/idle
 const NO_DATA_COLOR = "#E0E0E0"; // Light grey for no data bars
 
-const ProductivityBar = ({ getProductiviyData, isSnap, title,ownerId }) => {
+const ProductivityBar = ({ getProductiviyData, isSnap, title,ownerId,employee ,userId}) => {
   const productivity = getProductiviyData?.data;
 
   let currentViewMode = "day";
@@ -329,6 +329,8 @@ const ProductivityBar = ({ getProductiviyData, isSnap, title,ownerId }) => {
           currentNormalizedData={dayNormalizedData}
           TRACKED_COLOR={TRACKED_COLOR}
           UNTRACKED_COLOR={UNTRACKED_COLOR}
+          employee={employee}
+          userId={userId}
         />
         {/* Render XAxis separately below the ActivityTimelineBar */}
         <Box sx={{ width: "100%", height: 30, mt: 0 }}>

@@ -171,8 +171,8 @@ const ComparePlan = () => {
                   Features
                 </Typography>
               </StyledTableCell>
-              <PlanHeader title="Pro" price="$7" color="#2196f3" popular />
-              <PlanHeader title="Premium" price="$10" color="#ff9800" />
+              <PlanHeader title="Pro" price="₹366.67" color="black"  />
+              <PlanHeader title="Premium" price="₹513.33" color="#4ea819" />
               <PlanHeader title="Enterprise" price="Custom" color="#9c27b0" />
             </TableRow>
           </TableHead>

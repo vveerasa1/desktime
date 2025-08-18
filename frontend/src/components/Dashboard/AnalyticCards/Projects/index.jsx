@@ -201,7 +201,7 @@ const ProjectCard = ({
   }, [mappedTaskData, tableHeaders, theme]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Grid item xs={12} md={12}>
+    <Grid item size={{ xs: 12, md: 6 }} >
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>
@@ -234,13 +234,10 @@ const ProjectCard = ({
           {/* === TableContainer with sticky header and scrollable body === */}
           <TableContainer
             className={styles.tableContainer}
-            sx={{
-              maxHeight: 320, // adjust scroll area height as needed
-            }}
+            
           >
             <Table
               aria-label="project table"
-              stickyHeader
               sx={{
                 borderSpacing: "0 8px",
                 borderCollapse: "separate",

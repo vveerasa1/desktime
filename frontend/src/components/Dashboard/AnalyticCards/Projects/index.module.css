@@ -38,8 +38,9 @@
 }
 
 .tableContainer {
-  overflow-y: auto !important;
-  max-height: 175px !important;
+  overflow-y: scroll !important;
+  max-height: 200px !important; /* adjust scroll area height as needed */
+  width: 100% !important;
 }
 
 .headerCell {

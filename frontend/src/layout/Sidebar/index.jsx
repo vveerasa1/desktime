@@ -73,7 +73,13 @@ const Sidebar = ({
     { label: "Colleagues", path: "/colleagues", icon: <AccountCircleIcon /> },
     { label: "Projects", path: "/projects", icon: <FolderIcon /> },
     ...(userRole === "Admin" || userRole === "Owner"
-      ? [{ label: "Offline Times", path: "/offline-times", icon: <EventBusyIcon /> }]
+      ? [
+          {
+            label: "Offline Times",
+            path: "/offline-times",
+            icon: <EventBusyIcon />,
+          },
+        ]
       : []),
     { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
   ];
@@ -101,10 +107,10 @@ const Sidebar = ({
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
-    
+
     // Toggle the sidebar state
     setMobileOpen(!mobileOpen);
-    
+
     // Toggle the hoverEnabled state
     setHoverEnabled(!hoverEnabled);
 
@@ -113,9 +119,8 @@ const Sidebar = ({
       clearTimeout(clickTimeoutRef.current);
     }
     clickTimeoutRef.current = setTimeout(() => {
-        setHoverEnabled(!hoverEnabled);
-    }, 400); 
-
+      setHoverEnabled(!hoverEnabled);
+    }, 400);
   }, [mobileOpen, setMobileOpen, hoverEnabled]);
 
   const handleMouseEnter = useCallback(() => {
@@ -130,12 +135,12 @@ const Sidebar = ({
   }, [isMobile, mobileOpen, hoverEnabled, setMobileOpen]);
 
   const handleMouseLeave = useCallback(() => {
-      if (hoverTimeoutRef.current) {
-          clearTimeout(hoverTimeoutRef.current);
-      }
-      if (!isMobile && mobileOpen && hoverEnabled) {
-          setMobileOpen(false);
-      }
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    if (!isMobile && mobileOpen && hoverEnabled) {
+      setMobileOpen(false);
+    }
   }, [isMobile, mobileOpen, hoverEnabled, setMobileOpen]);
 
   const isSettingsActive = useMemo(
@@ -304,30 +309,31 @@ const Sidebar = ({
         }}
       >
         {drawerContent}
-      </Drawer>
-      
-      {!isMobile && (
+        {!isMobile && (
         <IconButton
           onClick={toggleSidebar}
           sx={{
-            position: 'fixed',
-            left: mobileOpen ? drawerWidth - 12 : 60,
-            top: 'calc(50% - 350px)',
+            position: "fixed",
+            // Position the button exactly at the sidebar's edge, minus half its width
+            left: mobileOpen ? `${drawerWidth - 12}px` : "60px",
             zIndex: 1301,
-            backgroundColor: '#143351',
-            color: 'white',
-            width: '24px',
-            height: '48px',
-            borderRadius: '0 30px 30px 0',
-            transition: 'left 0.3s ease-in-out',
-            '&:hover': {
-              backgroundColor: '#1a446b',
+            backgroundColor: "#143351",
+            color: "white",
+            borderRadius: "0 30px 30px 0",
+            width: "26px",
+            marginTop:"14px",
+            transition: "left 0.3s ease-in-out",
+            "&:hover": {
+              backgroundColor: "#1a446b",
             },
           }}
         >
           {mobileOpen ? <ChevronLeft /> : <ChevronRight />}
         </IconButton>
       )}
+      </Drawer>
+
+      
     </Box>
   );
 };

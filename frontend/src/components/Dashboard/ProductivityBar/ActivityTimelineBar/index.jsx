@@ -155,7 +155,9 @@ const ActivityTimelineBar = ({
   currentNormalizedData,
   TRACKED_COLOR,
   UNTRACKED_COLOR,
-  ownerId
+  ownerId,
+  employee,
+  userId
 }) => {
   const [open, setOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState({ start: null, end: null });
@@ -345,6 +347,8 @@ const ActivityTimelineBar = ({
         setErrors={setErrors}
         formData={formData}
         setFormData={setFormData}
+        employee={employee}
+        userId={userId}
       />
 
       <MuiToaster

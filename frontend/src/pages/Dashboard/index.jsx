@@ -113,7 +113,7 @@ const Dashboard = () => {
           <LoadingComponent />
         ) : (
           <Box >
-          <ProductivityBar ownerId={ownerId}  getProductiviyData={getProductiviyData} />
+          <ProductivityBar userId={userId} employee={employee} ownerId={ownerId}  getProductiviyData={getProductiviyData} />
 
           </Box>
         ))}
@@ -131,7 +131,7 @@ const Dashboard = () => {
       )}
 
       {filters.viewMode === "day" && (
-        <Box >
+        <Box>
 
         <ScreenshotGrid employee={employee} filters={filters} />
       
