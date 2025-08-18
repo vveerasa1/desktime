@@ -153,7 +153,8 @@ const ColleaguesList = ({
                       transformOrigin={{ vertical: "top", horizontal: "right" }}
                       PaperProps={{
                         sx: {
-                          boxShadow: "0px 0px 2px -1px",
+                          boxShadow: "0px 0px 1.5px -1px",
+                          borderColor:"red !important "
                         },
                       }}
                     >

@@ -198,12 +198,13 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
           sx={{ tableLayout: "fixed", minWidth: 650, border: "none" }}
         >
           <TableHead className={styles.tableHead}>
-                {!(status === "Approved" || status === "Declined") && (
-
-            <TableRow className={`${styles.mainRow} ${styles.stickyHeader}`}>
-              <TableCell
-                colSpan={status === "Approved" || status === "Declined" ? 7 : 7}
-              >
+            {!(status === "Approved" || status === "Declined") && (
+              <TableRow className={`${styles.mainRow} ${styles.stickyHeader}`}>
+                <TableCell
+                  colSpan={
+                    status === "Approved" || status === "Declined" ? 7 : 7
+                  }
+                >
                   <Box
                     display="flex"
                     justifyContent="space-between"
@@ -254,9 +255,9 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                       </Typography>
                     </Box>
                   </Box>
-              </TableCell>
-            </TableRow>
-                )}
+                </TableCell>
+              </TableRow>
+            )}
 
             <TableRow>
               <TableCell>
@@ -297,7 +298,7 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
           </TableHead>
           <TableBody
             className={styles.scrollableTableBody}
-            sx={{ height: "100px !important" , overflow: "auto" }}
+            sx={{ height: "100px !important", overflow: "auto" }}
           >
             {paginatedData.length > 0 ? (
               paginatedData.map((row) => (
@@ -317,7 +318,14 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                           onChange={() => handleSelectRow(row._id)}
                         />
                       )}
-                      <Box sx={{mx:status === "Approved" || status === "Declined" ? 5 : 0}}>
+                      <Box
+                        sx={{
+                          mx:
+                            status === "Approved" || status === "Declined"
+                              ? 5
+                              : 0,
+                        }}
+                      >
                         <Typography
                           variant="body2"
                           sx={{
@@ -355,7 +363,14 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
                     <TableCell className={`${styles.rowcell}`}>
-                      <Box sx={{color:status === "Declined" ? "#e93333ff" :"green"}} className={styles.productive}>{row.status}</Box>
+                      <Box
+                        sx={{
+                          color: status === "Declined" ? "#e93333ff" : "green",
+                        }}
+                        className={styles.productive}
+                      >
+                        {row.status}
+                      </Box>
                     </TableCell>
                   ) : (
                     <TableCell className={`${styles.rowcell}`}>
@@ -370,7 +385,11 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
                     <TableCell className={`${styles.rowcell}`}>
-                      <Box>{row?.modifiedBy?.username}</Box>
+                      <Box>
+                        {row?.modifiedBy?.username
+                          ? row.modifiedBy.username
+                          : "-"}
+                      </Box>
                     </TableCell>
                   ) : (
                     <TableCell className={`${styles.rowcell}`}>

@@ -40,7 +40,7 @@ const PricingPlans = () => {
 
       <Grid container spacing={3} justifyContent="center">
         {/* Pro Plan */}
-        <Grid item  xs={12} md={4}>
+        <Grid item  size={{xs:12,md:3}}>
           <Card
             sx={{
               display: "flex",
@@ -126,7 +126,7 @@ const PricingPlans = () => {
         </Grid>
 
         {/* Premium Plan (Most Popular) */}
-        <Grid item xs={12} md={4}>
+        <Grid item size={{xs:12,md:3}}>
           <Card
             sx={{
               display: "flex",
@@ -149,7 +149,7 @@ const PricingPlans = () => {
               sx={{
                 position: "absolute",
                 top: -12,
-                right: 73,
+                right: 60,
                 backgroundColor: "#edfce3",
                 color: "green",
                 px: 2,
@@ -245,7 +245,7 @@ const PricingPlans = () => {
         </Grid>
 
         {/* Enterprise Plan */}
-        <Grid item  xs={12} md={4}>
+        <Grid item size={{xs:12,md:3}}>
           <Card
             sx={{
               display: "flex",
@@ -272,7 +272,7 @@ const PricingPlans = () => {
                 </Box>
               </Typography>
               <Typography variant="subtitle2" color="" gutterBottom>
-                FOR LARGE ORGANISATIONS
+                FOR LARGER ORGANISATIONS AND BUSINESS
               </Typography>
 
               <Typography variant="h4" sx={{ fontWeight: "bold" }}>
