@@ -181,6 +181,7 @@ const Sidebar = ({
             const isActive = path && location.pathname.startsWith(path);
             return (
               <ListItem
+              sx={{cursor: "pointer"}}
                 button
                 key={label}
                 className={`${styles.listItem} ${
@@ -202,6 +203,8 @@ const Sidebar = ({
           })}
 
           <ListItem
+              sx={{cursor: "pointer"}}
+
             button
             className={`${styles.listItem} ${
               isSettingsActive ? styles.activeItem : ""
@@ -214,6 +217,7 @@ const Sidebar = ({
             {!isMobile && mobileOpen && (
               <>
                 <ListItemText
+                
                   className={styles.listItemText}
                   primary="Settings"
                 />
@@ -231,6 +235,8 @@ const Sidebar = ({
                 const isActive = path && location.pathname.startsWith(path);
                 return (
                   <ListItem
+              sx={{cursor: "pointer"}}
+
                     button
                     key={label}
                     className={`${styles.listItem} ${styles.nestedItem} ${

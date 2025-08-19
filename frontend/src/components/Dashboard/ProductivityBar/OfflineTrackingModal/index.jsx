@@ -10,6 +10,7 @@ import {
   Button,
   Slider,
   IconButton,
+  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import styles from "./index.module.css";
@@ -428,7 +429,7 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
             />
           </RadioGroup>
           </Box>
-
+              <Divider/>
           <Box className={styles.actions}>
             <Button
               variant="outlined"
