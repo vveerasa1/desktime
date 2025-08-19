@@ -137,3 +137,28 @@
 .lastHeaderCell{
   border-radius: 0px 10px 0px 0px ;
 }
+
+.tableContainer {
+  overflow-x: auto !important; /* allow horizontal scroll on small screens */
+  overflow-y: auto !important;
+  max-height: 250px !important; /* adjust as needed */
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important; /* center table */
+}
+
+.headerCell, .bodyCell {
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+/* Make table more responsive */
+@media (max-width: 768px) {
+  .tableContainer {
+    max-height: 200px !important;
+  }
+  .headerCell, .bodyCell {
+    font-size: 12px !important; /* shrink font */
+    padding: 6px !important;
+  }
+}

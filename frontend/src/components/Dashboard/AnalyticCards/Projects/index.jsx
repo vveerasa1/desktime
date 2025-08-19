@@ -41,7 +41,7 @@ const ProjectCard = ({
   const theme = useTheme();
 
   // column width distribution (adjust if you want different layout)
-  const colWidths = ["35%", "20%", "15%", "15%", "15%"];
+  const colWidths = ["20%", "20%", "20%", "20%", "20%"];
 
   const renderedHeader = useMemo(
     () => (
@@ -94,7 +94,11 @@ const ProjectCard = ({
                 justifyContent: "center",
               }}
             >
-              <img src={contract} alt="No tasks" style={{ width: 40, height: 40 }} />
+              <img
+                src={contract}
+                alt="No tasks"
+                style={{ width: 40, height: 40 }}
+              />
               <Typography
                 variant="body2"
                 color="text.secondary"
@@ -201,14 +205,20 @@ const ProjectCard = ({
   }, [mappedTaskData, tableHeaders, theme]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Grid item size={{ xs: 12, md: 6 }} >
+    <Grid item size={{ xs: 12, md: 6 }}>
       <Paper elevation={3} className={styles.card}>
         <Box className={styles.content}>
           <Box className={styles.header}>
-            <Typography sx={{ fontSize: "18px", fontWeight: 600 }} className={styles.headingText}>
+            <Typography
+              sx={{ fontSize: "18px", fontWeight: 600 }}
+              className={styles.headingText}
+            >
               Projects
             </Typography>
-            <Button className={styles.addButton} onClick={() => handleTaskOpen()}>
+            <Button
+              className={styles.addButton}
+              onClick={() => handleTaskOpen()}
+            >
               Add Task <ControlPointIcon className={styles.icon} />
             </Button>
           </Box>
@@ -234,15 +244,18 @@ const ProjectCard = ({
           {/* === TableContainer with sticky header and scrollable body === */}
           <TableContainer
             className={styles.tableContainer}
-            
+            sx={{
+              display: "flex",
+              justifyContent: "center", // center table horizontally
+            }}
           >
             <Table
               aria-label="project table"
               sx={{
                 borderSpacing: "0 8px",
                 borderCollapse: "separate",
-                tableLayout: "fixed", // ensures header and body cell widths align
-                width: "100%",
+                tableLayout: "auto", // let browser auto-adjust widths
+                width: "100%", // use full width
               }}
             >
               {renderedHeader}

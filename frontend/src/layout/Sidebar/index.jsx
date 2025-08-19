@@ -217,7 +217,7 @@ const Sidebar = ({
                   className={styles.listItemText}
                   primary="Settings"
                 />
-                {settingsOpen ? <ExpandLess /> : <ExpandMore />}
+                {settingsOpen ? <ExpandMore /> : <ExpandLess />}
               </>
             )}
           </ListItem>
@@ -300,7 +300,6 @@ const Sidebar = ({
             width: mobileOpen ? drawerWidth : "72px",
             boxSizing: "border-box",
             backgroundColor: "#143351",
-            borderRadius: "0px 20px 20px 0px !important",
             color: "#fff",
             zIndex: (theme) => theme.zIndex.appBar + 2,
             transition: "width 0.3s ease-in-out",
@@ -322,14 +321,24 @@ const Sidebar = ({
             color: "white",
             borderRadius: "0 30px 30px 0",
             width: "26px",
-            marginTop:"14px",
+            marginTop:"-1px",
             transition: "left 0.3s ease-in-out",
             "&:hover": {
-              backgroundColor: "#1a446b",
+              backgroundColor: "#143351",
             },
           }}
         >
-          {mobileOpen ? <ChevronLeft /> : <ChevronRight />}
+          {mobileOpen ? <ChevronLeft sx={{
+             "&:hover": {
+              backgroundColor: "#466170",
+              borderRadius: "30px",
+            },
+          }} /> : <ChevronRight sx={{
+             "&:hover": {
+              backgroundColor: "#466170",
+              borderRadius: "30px",
+            },
+          }}  />}
         </IconButton>
       )}
       </Drawer>

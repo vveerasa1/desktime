@@ -73,6 +73,20 @@ const Dashboard = () => {
     // }
   }, [searchParams, viewMode, date, employee, navigate]);
   
+useEffect(() => {
+  const handleBackButton = (event) => {
+    console.log("Back button clicked!");
+    navigate("/team-members", { replace: true }); // Always go to team members
+  };
+
+  window.onpopstate = handleBackButton;
+
+  return () => {
+    window.onpopstate = null; // cleanup
+  };
+}, [navigate]);
+
+
   const { data: getDashboardData, isLoading } = useGetDashboardDataQuery({
     day: filters.viewMode,
     date: filters.date,
