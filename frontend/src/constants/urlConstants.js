@@ -1,8 +1,8 @@
 export const URL_CONSTANTS = {
   // BASE_URL: "http://localhost:4005/",
-// BASE_URL: "https://trackme.pentabay.com/api/",
+BASE_URL: "https://trackme.pentabay.com/api/",
 
-  BASE_URL: "http://51.79.30.127:4005/", //
+  // BASE_URL: "http://51.79.30.127:4005/", //
   USER: "users",
   AUTH: "auth",
   LOGIN: "login",
