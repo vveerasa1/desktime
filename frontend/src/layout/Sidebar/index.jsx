@@ -69,7 +69,6 @@ const Sidebar = ({
 
   const navItems = [
     { label: "My Tracking", path: "/dashboard", icon: <DashboardIcon /> },
-    { label: "Team Members", path: "/team-members", icon: <PeopleIcon /> },
     { label: "Colleagues", path: "/colleagues", icon: <AccountCircleIcon /> },
     { label: "Projects", path: "/projects", icon: <FolderIcon /> },
     ...(userRole === "Admin" || userRole === "Owner"
@@ -79,6 +78,8 @@ const Sidebar = ({
             path: "/offline-times",
             icon: <EventBusyIcon />,
           },
+    { label: "Team Members", path: "/team-members", icon: <PeopleIcon /> },
+
         ]
       : []),
     { label: "Teams", path: "/teams", icon: <GroupsIcon /> },
