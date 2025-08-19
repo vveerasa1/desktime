@@ -21,10 +21,11 @@ mongoose.connect(`${config.mongoDb.url}${config.mongoDb.dbName}`)
     .catch(error => {
         console.error('MongoDB connection error:', error);
     });
-
-app.listen(config.port,()=>{
-    console.log(`Server is Listening on port ${config.port}`)
-});
 app.use(cors());
 app.use(express.json());
 app.use("/",routes);
+console.log('Server is running in', config.env,config.port, 'mode');
+app.listen(4005,()=>{
+    console.log(`Server is Listening on port ${config.port}`)
+});
+

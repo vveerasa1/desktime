@@ -14,11 +14,12 @@ export default function Callback() {
 
   useEffect(() => {
     console.log("Auth:", auth);
-    // if (!auth.isLoading && !auth.isAuthenticated) {
-    //   auth.signinRedirect(); // Redirect to Cognito Hosted UI
-    // }
+    
+    if (!auth.isLoading && !auth.isAuthenticated) {
+      auth.signinRedirect(); // Redirect to Cognito Hosted UI
+    }   
+
     if (!auth.isLoading && auth.isAuthenticated) {
-      // auth.signoutPopup(); // Redirect to Cognito Hosted UI
 
       console.log(auth.user.id_token)
       const decoded = jwtDecode(auth.user.id_token)
@@ -29,6 +30,7 @@ export default function Callback() {
 
         console.log(groups, groups.includes("trackmeAccess"), "groups.includes")
 
+        localStorage.setItem('accessToken', auth.user.access_token);
         localStorage.setItem('token', auth.user.id_token);
         localStorage.setItem('refresh_token', auth.user.refresh_token);
         setCognitoId(auth.user?.profile?.sub)
@@ -36,6 +38,7 @@ export default function Callback() {
         navigate('/subscribe-trackme');
       }
     }
+    
   }, [auth.isLoading, auth.isAuthenticated]);
   useEffect(() => {
     if (userdata) {
@@ -56,29 +59,5 @@ export default function Callback() {
       navigate('/dashboard');
     }
   }, [userdata])
-  // useEffect(() => {
-  //     console.log('auth', auth);
-  //       // auth.signoutPopup();
-
-  //     if (!auth.isLoading && !auth.isAuthenticated) {
-  //       console.log('auth', auth);
-  //       auth.signinRedirect();
-  //     }
-  //     if (auth.isAuthenticated) {
-  //       // auth.signoutPopup();
-
-  //       // setId(auth.user?.profile?.sub);
-  //       console.log(auth.user?.profile?.sub);
-  //       localStorage.setItem('token', auth.user.access_token);
-  //       // localStorage.setItem("authUser", auth.user?.profile);
-  //       // console.log(jwtDecode(auth.user.id_token))
-  //       // const groups = auth.user?.profile?.["cognito:groups"] || [];
-  //       // if (groups.includes("hrmsAccess")) {
-  //         navigate('/dashboard');
-  //       // } else {
-  //       //   navigate('/subscribe-trackme');
-  //       // }
-  //     }
-  //   }, [auth.isLoading, auth.isAuthenticated]);
   return <div>Processing login...</div>;
 }

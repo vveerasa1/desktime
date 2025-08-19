@@ -11,9 +11,11 @@ const OidcLoginRedirect = () => {
       console.log('auth', auth);
       auth.signinRedirect();
     }
+    auth.events.addAccessTokenExpired(() => {
+      console.log("Token expired. Logging out.");
+    });
     if(auth.isAuthenticated){
-      localStorage.setItem('token', auth.user.id_token)
-      navigate('/dashboard');
+      navigate('/callback');
     }
   }, [auth.isLoading, auth.isAuthenticated]);
 

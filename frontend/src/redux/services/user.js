@@ -46,12 +46,12 @@ export const User = createApi({
       providesTags: ['User']
 
     }),
-     userExist:builder.query({
-        query:()=>({
-            url:`${URL_CONSTANTS.USER}/exist`,
-            method:'GET',
-        }),
-        providesTags:['User']
+    userExist: builder.query({
+      query: () => ({
+        url: `${URL_CONSTANTS.USER}/exist`,
+        method: 'GET',
+      }),
+      providesTags: ['User']
 
     }),
     deleteProfile: builder.mutation({
@@ -61,7 +61,22 @@ export const User = createApi({
       }),
       invalidatesTags: ['User']
     }),
-
+    globalLogout: builder.mutation({
+      query: (payload) => ({
+        url: `${URL_CONSTANTS.USER}/global-logout`,
+        method: 'POST',
+        body:payload
+      }),
+      // invalidatesTags: ['User']
+    }),
+    refreshToken: builder.mutation({
+      query: (payload) => ({
+        url: `${URL_CONSTANTS.USER}/refreshTokens`,
+        method: 'POST',
+        body:payload
+      }),
+      // invalidatesTags: ['User']
+    }),
   }),
 
 });
@@ -73,5 +88,7 @@ export const {
   useDeleteProfileMutation,
   useGetAllProfileQuery,
   useGetSingleProfileQuery,
-  useUserExistQuery
+  useUserExistQuery,
+  useGlobalLogoutMutation,
+  useRefreshTokenMutation
 } = User;

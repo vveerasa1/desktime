@@ -8,6 +8,7 @@ const ScreenshotLog = require("../models/screenshot");
 const trackingSession = require("../models/trackingSession");
 const Team = require("../models/team");
 const AWS = require("aws-sdk");
+const { addUserToGroups } = require("../utils/cognito");
 
 // Configure AWS Cognito
 const cognito = new AWS.CognitoIdentityServiceProvider({
@@ -16,6 +17,62 @@ const cognito = new AWS.CognitoIdentityServiceProvider({
   secretAccessKey: config.AWS.SECRET_ACCESS_KEY,
 });
 
+async function handleRefreshToken(refreshToken, clientId) {
+  try {
+    const params = {
+      AuthFlow: 'REFRESH_TOKEN_AUTH',
+      ClientId: clientId,
+      AuthParameters: {
+        REFRESH_TOKEN: refreshToken,
+      },
+    };
+    const response = await cognito.initiateAuth(params).promise();
+    console.log("New tokens:", response.AuthenticationResult);
+    return response.AuthenticationResult; // contains access_token, id_token, etc.
+  } catch (error) {
+    console.error("Refresh token failed:", error.message);
+    if (error.code === 'NotAuthorizedException') {
+      throw new Error("Refresh token expired or invalid");
+    }
+    throw error;
+  }
+}
+const refreshTokens = async (req, res) => {
+  console.log(req.body)
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({ message: "Refresh token is required" });
+  }
+
+  try {
+    const tokens = await handleRefreshToken(refreshToken, config.cognito.clientId);
+    res.status(200).json({
+      message: "Token refreshed successfully",
+      tokens,
+    });
+  } catch (err) {
+    res.status(401).json({ message: err.message || "Failed to refresh token" });
+  }
+};
+const globalLogout = async (req, res) => {
+  try {
+
+    const { email } = req.body; // short-lived token from client
+    const response = await cognito.adminUserGlobalSignOut({
+      UserPoolId: config.cognito.userPoolId,
+      Username: email, // 👈 email as username
+    }).promise().then((data) => {
+      console.log(data);
+    }).catch((err) => {
+      console.error("Error during global sign out:", err);
+    })
+    res.status(200).json({ message: "User globally signed out" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to sign out globally" });
+  }
+
+};
 const isUserExist = async (req, res) => {
 
   try {
@@ -65,7 +122,7 @@ const addUser = async (req, res) => {
 
       try {
         const password = await generateRandomPassword(12);
-        console.log(password,"password*******************")
+        console.log(password, "password*******************")
         const params = {
           UserPoolId: config.cognito.userPoolId,
           Username: email,
@@ -81,7 +138,10 @@ const addUser = async (req, res) => {
         let cognitoUser;
         try {
           const createUserResponse = await cognito.adminCreateUser(params).promise();
+          const userPoolId = config.cognito.userPoolId
           cognitoUser = createUserResponse.User;
+          addUserToGroups(email, userPoolId, ["trackmeAccess"]);
+
         } catch (cognitoError) {
           console.error("Error creating user in Cognito:", cognitoError);
           return res.status(500).json({
@@ -274,7 +334,6 @@ const generateRandomPassword = (length = 12) => {
 
 const getUserById = async (req, res) => {
   try {
-    console.log(req.params.id,'req.params.id***************88')
     const users = await User.findById(req.params.id);
     res.status(200).json({
       code: 200,
@@ -485,7 +544,6 @@ const getScreenshotsById = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    console.log(req.params.id,'req.params.id***************88')
 
     const { date } = req.query; // expects type=day|week|month
     const user = req.user;
@@ -568,4 +626,6 @@ module.exports = {
   isUserExist,
   // searchUsers,
   resetPassword,
+  globalLogout,
+  refreshTokens
 };

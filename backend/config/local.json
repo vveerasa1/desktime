@@ -1,6 +1,6 @@
 {
   "port": 4005,
-  "env": "dev",
+  "env": "local",
   "mongoDb": {
     "url": "mongodb://localhost:27017/",
     "dbName": "desktime"

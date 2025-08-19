@@ -27,7 +27,6 @@ const Teams = () => {
   // }
   const [selected, setSelected] = useState([]);
 
-  const [selected, setSelected] = useState([]);
   const [searchText, setSearchText] = useState("");
   const debouncedSearchText = useDebounce(searchText, 500);
 

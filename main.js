@@ -910,10 +910,6 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   console.log("lastActiveSentTimestamp :" + userState.lastActiveSentTimestamp);
   console.log("isSleeping :" + userState.isSleeping);
   console.log("isSessionEndedForDay :" + userState.isSessionEndedForDay);
-<<<<<<< HEAD
-
-=======
->>>>>>> 3f432e5d5b7c4033b20f03e09ea200ed6a51562e
 
   // 3. Save any pending active/idle time before stopping if not already saved by cutoff logic
   // This is a safeguard, primarily the cutoff logic in sendActivityToServer should handle it

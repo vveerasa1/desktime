@@ -10,7 +10,9 @@ const {
   getUserByCognitoId,
   isUserExist,
   // searchUsers,
-  resetPassword
+  globalLogout,
+  resetPassword,
+  refreshTokens
 } = require("../service/user");
 const { authenticate } = require("../utils/middleware");
 
@@ -19,6 +21,7 @@ const { validateToken } = require("../middleware/verifyCognitoJwt");
 const router = express.Router();
 router.use(express.json());
 router.get("/exist", validateToken, isUserExist);
+router.post("/refreshTokens", refreshTokens);
 
 router.post("/", addUser);
 // router.get("/:id", authenticate, getUserById);
@@ -30,5 +33,6 @@ router.get("/:id/screenshots", validateToken, getScreenshotsById);
 router.get("/sessions", validateToken, getUser);
 // router.get("/search/:ownerId", validateToken, searchUsers);
 router.post("/reset/password", resetPassword);
+router.post("/global-logout", globalLogout);
 
 module.exports = router;

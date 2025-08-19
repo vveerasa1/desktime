@@ -19,7 +19,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { jwtDecode } from "jwt-decode";
-import { useGetSingleProfileQuery } from '../../redux/services/user';
+import { useGetSingleProfileQuery, useRefreshTokenMutation } from '../../redux/services/user';
 import { useAuth } from 'react-oidc-context';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 
 import LogoutConfirmationDialog from "../../pages/Auth/LogoutModal";
 import LoadingComponent from "../../components/ComponentLoader";
+import { useLayoutEffect } from "react";
 const Header = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState();
@@ -41,6 +42,7 @@ const Header = () => {
       console.error("Invalid token", err);
     }
   }
+  const [refreshTokenApi] = useRefreshTokenMutation()
 
   const {
     data: currentUserProfile,
@@ -51,29 +53,45 @@ const Header = () => {
   });
   const username = (currentUserProfile)?.data?.username || "Guest";
   const avatarLetter = username ? username.charAt(0).toUpperCase() : '?';
+  useLayoutEffect(() => {
+    console.log("Dashboard Datalayout effect");
+    const refreshUserToken = async () => {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken) {
+        try {
+          if (!refreshToken) {
+            throw new Error("No refresh token available");
+          }
+          await refreshTokenApi({ refreshToken: refreshToken }).unwrap().then(() => {
+            console.log("Token refreshed successfully");
+          }).catch((error) => {
+            console.error("Error refreshing token:", error);
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = `https://us-east-16ivaal8x0.auth.us-east-1.amazoncognito.com/logout?client_id=4ddoerjll2aonqd8srp8rljt9&logout_uri=${encodeURIComponent("http://localhost:5173")}`;
+            dispatch(addUserInfo({})); // Clear user info in Redux
+            navigate('/');
+          })
+          // localStorage.setItem("token", user.id_token); // Store new token in local storage
+        } catch (error) {
+        console.log("Error refreshing token:", error);
+        }
+      }
+    };
+
+    refreshUserToken();
+  }, []);
   useEffect(() => {
     console.log('auth', auth);
-    // auth.signoutPopup();
-
     if (!auth.isLoading && !auth.isAuthenticated) {
       console.log('auth', auth);
       localStorage.clear();
       sessionStorage.clear();
-      navigate('/')
-
+      navigate("/");
+      const logoutUri = encodeURIComponent("http://localhost:5173");
+      window.location.href = `https://us-east-16ivaal8x0.auth.us-east-1.amazoncognito.com/logout?client_id=4o3gl6qqe1i5uapeitu56p3lst&logout_uri=${logoutUri}`;
     }
-    // if (auth.isAuthenticated) {
-    //   // console.log(auth.user?.profile?.sub);
-    //   // localStorage.setItem('token', auth.user.access_token);
-    //   // localStorage.setItem("authUser", auth.user?.profile);
-
-    //   const groups = auth.user?.profile?.["cognito:groups"] || [];
-    //   if (groups.includes("hrmsAccess")) {
     navigate('/dashboard');
-    // } else {
-    //   navigate('/subscribe-trackme');
-    // }
-    // }
   }, [auth.isLoading, auth.isAuthenticated]);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -183,14 +201,6 @@ const Header = () => {
           <MenuItem onClick={() => navigate("/settings")}>
             <Typography>Profile</Typography>
           </MenuItem>
-          {/* 
-          <MenuItem onClick={handleClose}>
-            <Typography>Contact us</Typography>
-          </MenuItem> */}
-          {/* <Divider />
-          <MenuItem onClick={handleClose}>
-            <Typography>Launch DeskTime app</Typography>
-          </MenuItem> */}
           <MenuItem onClick={() => setOpen(true)}>
             <Typography color="error">Log out</Typography>
           </MenuItem>
