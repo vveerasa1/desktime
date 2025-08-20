@@ -16,7 +16,7 @@
 
 .sidebar :global(.MuiListItem-root:hover) {
   background-color: #456070;
-  border-radius: 10px;
+  border-radius: 10px ;
 }
 
 .activeItem {

@@ -118,7 +118,6 @@ const ProfileDeatils = ({
             name="phone"
             value={formData.phone}
             onChange={handlePhoneChange}
-            isRequired
             onBlur={(e) => handleBlur(e, "phone")}
             error={Boolean(formData.errors?.phone)}
             helperText={formData.errors?.phone}

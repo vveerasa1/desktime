@@ -27,4 +27,5 @@ export const URL_CONSTANTS = {
   CHANGEPASSWORD: "change-password",
   RESET: "reset",
   PASSWORD: "password",
+  SNAPSHOT:"snapshot",
 };

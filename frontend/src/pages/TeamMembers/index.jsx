@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import styles from "../../pages/TeamMembers/index.module.css";
 import {
   Box,
@@ -9,22 +9,11 @@ import {
   Paper,
   Avatar,
 } from "@mui/material";
-import CustomSearchInput from "../../components/CustomSearchInput";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import { Link } from "react-router-dom";
 import { useGetAllTeamMembersQuery } from "../../redux/services/teamMembers";
 import { jwtDecode } from "jwt-decode";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-
 import TeamMembersForm from "../../components/TeamMembers/TeamMembersForm";
 import { useGetAllTeamQuery } from "../../redux/services/team";
 import MuiToaster from "../../components/MuiToaster";
@@ -32,6 +21,10 @@ import AbsentMembers from "../../components/TeamMembers/AbsentMembers";
 import TeamSnapShot from "../../components/TeamMembers/TeamSnapShots";
 import EmployeeList from "../../components/TeamMembers/EmployeeList";
 import CustomTextField from "../../components/CustomTextField";
+import CustomCalendar from "../../components/CustomCalender";
+import dayjs from "dayjs";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { useGetAllSnapShotQuery } from "../../redux/services/teamMembers";
 
 const columns = [
   "Name",
@@ -42,88 +35,13 @@ const columns = [
   "Left at",
 ];
 
-// snapshot data
 const sscolumns = ["Name", "Timeline", "Total Time", "Avg Activity"];
 
-const ssrows = [
-  {
-    name: "Savannah Nguyen",
-    role: "Admin",
-    initials: "SN",
-    status: "online",
-    timeline: [
-      ...Array(6).fill("off"),
-      "inactive",
-      "neutral",
-      "active",
-      "inactive",
-      "neutral",
-      "active",
-      ...Array(156).fill("off"),
-    ],
-    totalTime: "5h 20m",
-    avgActivity: "39%",
-  },
-  {
-    name: "Cody Fisher",
-    role: "Admin",
-    initials: "CF",
-    status: "online",
-    timeline: [
-      ...Array(10).fill("off"),
-      "inactive",
-      "inactive",
-      "active",
-      "active",
-      "active",
-      ...Array(153).fill("off"),
-    ],
-    totalTime: "3h 21m",
-    avgActivity: "88%",
-  },
-  {
-    name: "Guy Hawkins",
-    role: "Admin",
-    initials: "GH",
-    status: "offline",
-    timeline: [
-      ...Array(8).fill("off"),
-      "inactive",
-      "neutral",
-      "neutral",
-      "active",
-      "inactive",
-      ...Array(155).fill("off"),
-    ],
-    totalTime: "2h 35m",
-    avgActivity: "25%",
-  },
-  {
-    name: "Ronald Richards",
-    role: "Admin",
-    initials: "RR",
-    status: "offline",
-    timeline: [
-      ...Array(6).fill("off"),
-      "inactive",
-      "active",
-      "neutral",
-      "active",
-      "active",
-      ...Array(157).fill("off"),
-    ],
-    totalTime: "7h 55m",
-    avgActivity: "75%",
-  },
-];
-
 const getStatusColor = (status) => {
-  if (status === "active") return "#aaffadff";
+  if (status === "active") return "#5fba2b";
   if (status === "neutral") return "#ffffff";
-  if (status === "inactive") return "#ffb3aaff";
-  if (status === "off") {
-    return "#f0f0f0";
-  }
+  if (status === "inactive") return "#e59999ff";
+  if (status === "off") return "#e9e1e1ff";
   return "#ccc";
 };
 
@@ -160,6 +78,28 @@ const TeamMembers = () => {
   });
   const [search, setSearch] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
+  const [date, setDate] = useState(dayjs());
+
+  const handleDateChange = useCallback((newDate) => {
+    setDate(newDate);
+  }, []);
+
+  const handleNextClick = () => {
+    const nextDate = dayjs(date).add(1, "day");
+    if (!nextDate.isAfter(dayjs(), "day")) {
+      setDate(nextDate);
+    }
+  };
+
+  const handlePrevClick = () => {
+    const prevDate = dayjs(date).subtract(1, "day");
+    setDate(prevDate);
+  };
+
+  const isNextDisabled =
+    dayjs(date).isSame(dayjs(), "day") || dayjs(date).isAfter(dayjs(), "day");
+
+  const formattedDate = date.format("YYYY-MM-DD");
 
   const token = localStorage.getItem("token");
   let ownerId = null;
@@ -172,10 +112,113 @@ const TeamMembers = () => {
 
   const skipQuery = !ownerId;
   const {
-    data: getAllTeamMembersData,
-    isLoading: getAllTeamMembersIsLoading,
-    refetch: refetchTeamMembers,
-  } = useGetAllTeamMembersQuery({ id: ownerId, search: search }, { skip: skipQuery });
+  data: getAllTeamMembersData,
+  isLoading: getAllTeamMembersIsLoading,
+  refetch: refetchTeamMembers,
+} = useGetAllTeamMembersQuery(
+  { id: ownerId, search: search, date: formattedDate },
+  {
+    skip: skipQuery,
+    pollingInterval: 10000, // fetch every 10 seconds
+  }
+);
+
+  const { data: getAllSnapShotData, isLoading: getAllSnapShotIsLoading } =
+    useGetAllSnapShotQuery({ id: ownerId });
+
+  const transformApiDataToSsrows = (apiData) => {
+    if (!apiData?.data) return [];
+    
+    return apiData.data
+      .filter((user) => user.username && user.session && user.session.length > 0)
+      .map((user) => {
+        // Calculate total time in hours and minutes
+        const hours = Math.floor(user.totalTime / 3600);
+        const minutes = Math.floor((user.totalTime % 3600) / 60);
+        const totalTimeFormatted = `${hours > 0 ? `${hours}h ` : ""}${minutes}m`;
+
+        // Calculate average productivity
+        const avgProductivity = Math.round(
+          user.session.reduce((sum, session) => sum + session.productive, 0) /
+            user.session.length
+        );
+
+        // Convert session times to minutes
+        const sessionTimes = user.session.map(s => {
+          const [hour, min] = s.time.split(':').map(Number);
+          return hour * 60 + min;
+        });
+        
+        const minTime = Math.min(...sessionTimes);
+        const maxTime = Math.max(...sessionTimes);
+        
+        // Fixed timeline from 8 AM (480 minutes) to 8 PM (1200 minutes)
+        const timelineStart = 480; // 8 AM in minutes
+        const timelineEnd = 1200;  // 8 PM in minutes
+        const totalSlots = (timelineEnd - timelineStart) / 5; // 144 slots (12 hours * 12 slots/hour)
+        const timeline = Array(totalSlots).fill("off");
+
+        // Process each session
+        user.session.forEach((session) => {
+          const [hour, min] = session.time.split(":").map(Number);
+          const sessionTimeInMinutes = hour * 60 + min;
+          
+          // Only process sessions within our 8 AM - 8 PM window
+          if (sessionTimeInMinutes >= timelineStart && sessionTimeInMinutes <= timelineEnd) {
+            const slotIndex = Math.floor((sessionTimeInMinutes - timelineStart) / 5);
+
+            // Calculate duration in 5-min intervals
+            const durationMatch = session.total.match(/(\d+)m (\d+)s/);
+            const durationMinutes = durationMatch ? parseInt(durationMatch[1]) : 0;
+            const durationSeconds = durationMatch ? parseInt(durationMatch[2]) : 0;
+            const durationSlots = Math.ceil((durationMinutes * 60 + durationSeconds) / 300);
+
+            // Determine status
+            let status;
+            if (session.productive >= 80) status = "active";
+            else if (session.productive >= 50) status = "neutral";
+            else if (session.break > 0) status = "off";
+            else status = "inactive";
+
+            // Fill the timeline slots
+            for (let i = 0; i < durationSlots && slotIndex + i < timeline.length; i++) {
+              timeline[slotIndex + i] = status;
+            }
+          }
+        });
+
+        // Determine online status
+        const now = new Date();
+        const isOnline = user.session.some((session) => {
+          const endTimeStr = session.timeRange.split(" - ")[1];
+          const [endHour, endMin] = endTimeStr.split(":").map(Number);
+          const sessionEndTime = new Date();
+          sessionEndTime.setHours(endHour, endMin, 0, 0);
+          return now - sessionEndTime <= 30 * 60 * 1000;
+        });
+
+        return {
+          name: user.username,
+          role: user.role || "User",
+          initials: user.username
+            .split(" ")
+            .map((word) => word[0])
+            .slice(0, 2)
+            .join("")
+            .toUpperCase(),
+          photo: user.photo,
+          status: isOnline ? "online" : "offline",
+          timeline,
+          totalTime: totalTimeFormatted,
+          avgActivity: `${avgProductivity}%`,
+          sessions: user.session.length,
+          timelineStart: "08:00", // Fixed start at 8 AM
+          timelineEnd: "20:00"    // Fixed end at 8 PM
+        };
+      });
+  };
+
+  const ssrows = transformApiDataToSsrows(getAllSnapShotData);
 
   const {
     data: teamsData,
@@ -196,7 +239,7 @@ const TeamMembers = () => {
     }
     return [];
   }, [isSuccess, teamsData]);
-  
+
   const userData = getAllTeamMembersData?.data || [];
   const userCount = userData?.length || 0;
   const inactiveUserCount = userData.filter(
@@ -219,7 +262,7 @@ const TeamMembers = () => {
   const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
-  
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -247,12 +290,11 @@ const TeamMembers = () => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
-    
-    // Debounce the search to avoid too many API calls
+
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
-    
+
     setSearchTimeout(
       setTimeout(() => {
         refetchTeamMembers();
@@ -263,43 +305,78 @@ const TeamMembers = () => {
   return (
     <Box sx={{ width: "100%" }}>
       <Stack spacing={3}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            mb: 2,
-          }}
-        >
-          {/* Left-aligned Title */}
-          <Typography
-            variant="h6"
-            sx={{ fontSize: "23px" }}
-            fontWeight={600}
-            color="#333333"
+        <Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              mb: 2,
+            }}
           >
-            Team Members
-          </Typography>
-          {/* Right-aligned controls */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box sx={{ height: 40, width: "100%" }}>
-              <Box>
-              <CustomTextField
-                name="search"
-                fullWidth
-                startIcon={<SearchIcon />}
-                placeholder="Search"
-                value={search}
-                handleChange={(e)=> handleSearchChange(e,'name')}
-              />
-            </Box>
-            </Box>
+            <Typography
+              variant="h6"
+              sx={{ fontSize: "23px" }}
+              fontWeight={600}
+              color="#333333"
+            >
+              Team Members
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ height: 40, width: "100%" }}>
+                <Box>
+                  <CustomTextField
+                    name="search"
+                    fullWidth
+                    startIcon={<SearchIcon />}
+                    placeholder="Search"
+                    value={search}
+                    handleChange={(e) => handleSearchChange(e, "name")}
+                  />
+                </Box>
+              </Box>
 
-            <IconButton size="small">
-              <FilterListIcon fontSize="medium" />
-            </IconButton>
+              <IconButton size="small">
+                <FilterListIcon fontSize="medium" />
+              </IconButton>
 
+              <Box sx={{ height: "40px" }} className={styles.datePicker}>
+                <CustomCalendar
+                  selectedDate={date}
+                  name="date"
+                  onChange={handleDateChange}
+                  fontSize="small"
+                  maxDate={dayjs()}
+                />
+              </Box>
+              <Box sx={{ height: "40px" }} className={styles.nextPrevIcons}>
+                <Box className={styles.npIcon} onClick={handlePrevClick}>
+                  <ChevronLeft
+                    sx={{ cursor: "pointer" }}
+                    className={styles.icon}
+                  />
+                </Box>
+
+                <Box
+                  className={styles.npIcon}
+                  onClick={!isNextDisabled ? handleNextClick : undefined}
+                  sx={{
+                    "& .MuiSvgIcon-root": {
+                      cursor: isNextDisabled ? "not-allowed" : "pointer",
+                      color: isNextDisabled ? "#ccc" : "inherit",
+                    },
+                  }}
+                >
+                  <ChevronRight
+                    sx={{ cursor: "pointer" }}
+                    className={styles.icon}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "end" }}>
             <Button
               onClick={handleOpen}
               variant="contained"
@@ -308,7 +385,6 @@ const TeamMembers = () => {
                 whiteSpace: "nowrap",
                 px: 1,
                 backgroundColor: "#143352",
-                width: "100%",
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -318,7 +394,6 @@ const TeamMembers = () => {
             </Button>
           </Box>
 
-          {/* tabs */}
           <Box className={styles.tabsContainer}>
             <Box className={styles.tabButtons}>
               <Button
@@ -346,7 +421,7 @@ const TeamMembers = () => {
                   Snapshot
                 </Typography>
                 <Typography variant="h4" className={styles.tabHeadingCount}>
-                  4
+                  {ssrows.length}
                 </Typography>
               </Button>
               <Button

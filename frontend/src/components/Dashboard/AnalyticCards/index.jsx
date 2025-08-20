@@ -114,7 +114,7 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
               : "00:00",
             valueColor:
               !dashboardData.leftTime && dashboardData.arrivalTime
-                ? "#FFA500"
+                ? "#38cf24ff !important"
                 : undefined,
           };
 

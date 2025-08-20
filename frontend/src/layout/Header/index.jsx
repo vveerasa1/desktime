@@ -26,7 +26,7 @@ const Header = () => {
   const [open, setOpen] = useState();
   const token = localStorage.getItem("token");
   let userId = null;
-
+  
   if (token) {
     try {
       const decoded = jwtDecode(token);
@@ -35,7 +35,7 @@ const Header = () => {
       console.error("Invalid token", err);
     }
   }
-
+  console.log("userId", userId); 
   const {
     data: currentUserProfile,
     isLoading,

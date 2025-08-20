@@ -321,7 +321,7 @@ function createWindow() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    shell.openExternal("https://trackme.pentabay.com");
+    shell.openExternal("http://localhost:5173");
   });
 }
 

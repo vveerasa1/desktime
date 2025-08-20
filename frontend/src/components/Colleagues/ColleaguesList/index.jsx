@@ -124,12 +124,12 @@ const ColleaguesList = ({
                       />
                       <Box>
                         <Box>
-                          <Typography variant="subtitle1" fontWeight="bold">
+                          <Typography sx={{fontSize:14}} variant="subtitle1" fontWeight="bold">
                             {colleague.username}
                           </Typography>
                         </Box>
                         <Box>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography sx={{fontSize:13}}  variant="body2" color="text.secondary">
                             {colleague.role}
                           </Typography>
                         </Box>
@@ -141,7 +141,7 @@ const ColleaguesList = ({
                         fontSize="small"
                         className={styles.emailIcon}
                       />
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography sx={{fontSize:13}}  variant="body2" color="text.secondary">
                         {colleague.email}
                       </Typography>
                     </Box>
@@ -153,7 +153,8 @@ const ColleaguesList = ({
                       transformOrigin={{ vertical: "top", horizontal: "right" }}
                       PaperProps={{
                         sx: {
-                          boxShadow: "0px 0px 2px -1px",
+                          boxShadow: "0px 0px 1.5px -1px",
+                          borderColor:"red !important "
                         },
                       }}
                     >
