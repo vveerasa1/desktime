@@ -60,6 +60,8 @@ const ProjectCard = ({
                 color: "#fff",
                 padding: "8px 12px",
                 whiteSpace: "nowrap",
+                top: 0,
+                zIndex: 1,
               }}
             >
               {header.title}
@@ -80,7 +82,8 @@ const ProjectCard = ({
             align="center"
             sx={{
               borderBottom: "none !important",
-              padding: 0,
+              
+
             }}
           >
             <Box
@@ -134,12 +137,11 @@ const ProjectCard = ({
             paddingLeft: "20px",
             borderLeft: `4px solid ${item.barColor}`,
             borderRadius: "12px 0 0 12px",
-            overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           }}
         >
-          <Typography variant="body2" noWrap>
+          <Typography  variant="body2" noWrap>
             {item.task_name}
           </Typography>
         </TableCell>
@@ -149,7 +151,6 @@ const ProjectCard = ({
           sx={{
             width: colWidths[1],
             padding: "8px 12px",
-            overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           }}
@@ -164,7 +165,6 @@ const ProjectCard = ({
           sx={{
             width: colWidths[2],
             padding: "8px 12px",
-            overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           }}
@@ -193,7 +193,6 @@ const ProjectCard = ({
               item.status === "In-Progress"
                 ? theme.palette.warning.main
                 : "inherit",
-            overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           }}
@@ -244,18 +243,12 @@ const ProjectCard = ({
           {/* === TableContainer with sticky header and scrollable body === */}
           <TableContainer
             className={styles.tableContainer}
-            sx={{
-              display: "flex",
-              justifyContent: "center", // center table horizontally
-            }}
+           
           >
             <Table
               aria-label="project table"
+              stickyHeader
               sx={{
-                borderSpacing: "0 8px",
-                borderCollapse: "separate",
-                tableLayout: "auto", // let browser auto-adjust widths
-                width: "100%", // use full width
               }}
             >
               {renderedHeader}

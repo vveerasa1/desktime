@@ -280,7 +280,7 @@ const ActivityTimelineBar = ({
                       border: `2px solid ${borderColor}`,
                       transition: 'all 0.3s ease-in-out',
                       '&:hover': {
-                        border: '2px dashed #54c2f1ff',
+                        border: '2px dashed #727475ff',
                       }
                     }}
                   />

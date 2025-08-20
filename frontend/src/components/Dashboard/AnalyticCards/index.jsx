@@ -209,16 +209,21 @@ const AnalyticCards = ({ getDashboardData, userId, ownerId }) => {
   };
 
   const handleSelect = (event, name) => {
-    const { value } = event.target;
-    setTaskFormData((prev) => ({
+  const { value } = event.target;
+
+  setTaskFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+
+  if (errors[name]) {
+    setErrors((prev) => ({
       ...prev,
-      [name]: value,
-      errors: {
-        ...prev.errors,
-        [name]: "",
-      },
+      [name]: "",
     }));
-  };
+  }
+};
+
 
   const handleBlur = (event, name) => {
     if (taskFormData[name].trim() === "") {
