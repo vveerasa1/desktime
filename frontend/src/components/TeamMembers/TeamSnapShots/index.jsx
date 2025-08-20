@@ -1,8 +1,26 @@
-import { Link } from 'react-router-dom';
-import styles from './index.module.css';
-import { Paper, TableContainer, Table, TableHead, TableRow, TableCell, Box, Typography, Avatar, TableBody, Tooltip } from '@mui/material';
+import { Link } from "react-router-dom";
+import styles from "./index.module.css";
+import {
+  Paper,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  Box,
+  Typography,
+  Avatar,
+  TableBody,
+  Tooltip,
+} from "@mui/material";
 
-const TeamSnapShot = ({ sscolumns, ssrows, styletimeblock, getStatusColor }) => {
+const TeamSnapShot = ({
+  sscolumns,
+  ssrows,
+  styletimeblock,
+  getStatusColor,
+  role,
+}) => {
   return (
     <>
       <TableContainer className={styles.tabContentWrapper} component={Paper}>
@@ -14,8 +32,20 @@ const TeamSnapShot = ({ sscolumns, ssrows, styletimeblock, getStatusColor }) => 
                   {col === "Timeline" ? (
                     <Box>
                       <Box className={styles.timelineLabelsRow}>
-                        {["8 AM", "10 AM", "12 PM", "2 PM", "4 PM", "6 PM", "8 PM"].map((label, i) => (
-                          <Typography key={i} variant="caption" className={styles.timelineLabel}>
+                        {[
+                          "8 AM",
+                          "10 AM",
+                          "12 PM",
+                          "2 PM",
+                          "4 PM",
+                          "6 PM",
+                          "8 PM",
+                        ].map((label, i) => (
+                          <Typography
+                            key={i}
+                            variant="caption"
+                            className={styles.timelineLabel}
+                          >
                             {label}
                           </Typography>
                         ))}
@@ -45,9 +75,22 @@ const TeamSnapShot = ({ sscolumns, ssrows, styletimeblock, getStatusColor }) => 
                       </Avatar>
                     </Box>
                     <Box>
-                      <Link className={styles.tPersonName} to="/">
-                        {row.name}
-                      </Link>
+                      {role === "Admin" || role === "Owner" ? (
+                        <Link
+                          className={styles.tPersonName}
+                          to={`/dashboard/employee=${row.userId}`}
+                        >
+                          {row.name}
+                        </Link>
+                      ) : (
+                        <Typography
+                          className={styles.tPersonName}
+                          to={`/dashboard/employee=${row.userId}`}
+                        >
+                          {row.name}
+                        </Typography>
+                      )}
+
                       <Typography className={styles.tPersonDept}>
                         {row.role}
                       </Typography>
@@ -63,8 +106,11 @@ const TeamSnapShot = ({ sscolumns, ssrows, styletimeblock, getStatusColor }) => 
                       const minute = totalMinutes % 60;
                       const hour12 = hour % 12 === 0 ? 12 : hour % 12;
                       const ampm = hour < 12 ? "AM" : "PM";
-                      const timeLabel = `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
-                      const statusLabel = block.charAt(0).toUpperCase() + block.slice(1);
+                      const timeLabel = `${hour12}:${minute
+                        .toString()
+                        .padStart(2, "0")} ${ampm}`;
+                      const statusLabel =
+                        block.charAt(0).toUpperCase() + block.slice(1);
 
                       return (
                         <Tooltip
@@ -76,8 +122,14 @@ const TeamSnapShot = ({ sscolumns, ssrows, styletimeblock, getStatusColor }) => 
                             sx={{
                               ...styletimeblock.timelineBlock,
                               width: `${100 / 144}%`, // 144 slots for 12 hours
-                              background: block === "off" ? getStatusColor(block) : undefined,
-                              backgroundColor: block !== "off" ? getStatusColor(block) : undefined,
+                              background:
+                                block === "off"
+                                  ? getStatusColor(block)
+                                  : undefined,
+                              backgroundColor:
+                                block !== "off"
+                                  ? getStatusColor(block)
+                                  : undefined,
                             }}
                           />
                         </Tooltip>

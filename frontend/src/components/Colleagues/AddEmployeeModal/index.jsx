@@ -13,7 +13,22 @@ import EmployeeProfileDetails from "./EmployeeProfileDetails";
 import CustomButton from "../../../components/CustomButton";
 import { useGetAllTeamQuery } from "../../../redux/services/team";
 import { jwtDecode } from "jwt-decode";
-const AddEmployeeModal = ({ open, handleClose, openToaster ,handleCloseToaster}) => {
+const AddEmployeeModal = ({ open, handleClose, openToaster ,handleCloseToaster,colleaguesData,formData,setFormData}) => {
+console.log("colleaguesData", colleaguesData);
+
+const filteredColleagues = useMemo(() => {
+  let filteredData = colleaguesData?.users;
+  
+  if (filteredData) {
+    // ✅ Extract all emails
+    return filteredData.map((user) => user.email);
+  }
+
+  return [];
+}, [colleaguesData]);
+
+console.log("emails", filteredColleagues);
+
   const token = localStorage.getItem("token");
   let ownerId = null;
   if (token) {
@@ -53,15 +68,7 @@ useEffect(() => {
     setGetTeamsData(formattedTeams); // this assumes you have a state setter
   }
 }, [formattedTeams]);
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    team:"",
-    errors: {
-      username: "",
-      email: "",
-    },
-  });
+ 
 
 
   const handleChange = (event, name) => {
@@ -83,6 +90,8 @@ useEffect(() => {
         error = "Email is required";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
         error = "Invalid email format";
+      } else if (filteredColleagues.includes(trimmedEmail)) {
+        error = "User cannot have the same email";
       }
     }
 
@@ -101,12 +110,91 @@ useEffect(() => {
     return emailRegex.test(email);
   };
 
-  const handleSubmit = async () => {
+  // const handleSubmit = async () => {
+  //   let hasError = false;
+  //   const errors = {
+  //     username: "",
+  //     email: "",
+  //     team:"",
+  //   };
+
+  //   if (!formData.username.trim()) {
+  //     errors.username = "User Name is required";
+  //     hasError = true;
+  //   } else if (!/^[A-Za-z]+(?:\s[A-Za-z]+)*$/.test(formData.username)) {
+  //     errors.username =
+  //       "Only letters and spaces are allowed. Do not use leading or trailing spaces";
+  //     hasError = true;
+  //   }
+
+  //   if (!formData.email.trim()) {
+  //     errors.email = "Email is required";
+  //     hasError = true;
+  //   } else if (!isValidEmail(formData.email)) {
+  //     errors.email = "Invalid email format";
+  //     hasError = true;
+  //   }
+  //    if (!formData.team) {
+  //     errors.team = "Team is required";
+  //     hasError = true; // This was missing - now it will prevent submission
+  //   }
+
+  //   if (hasError) {
+  //     setFormData((prev) => ({ ...prev, errors }));
+  //     return;
+  //   }
+  //   // const
+  //   try {
+  //     const payload = {
+  //       username: formData.username.trim(),
+  //       email: formData.email,
+  //       team:formData.team,
+  //       ownerId,
+  //     };
+
+  //     await createProfileApi([payload]).unwrap();
+  //     openToaster("Employee Added Successfully!", "success");
+  //     setTimeout(() => {
+  //       setFormData({
+  //         username: "",
+  //         email: "",
+  //         team:"",
+  //         errors: { username: "", email: "" ,team:"" },
+  //       });
+
+  //     }, 2000);
+  //     // Clear form and errors
+  //     setFormData({
+  //       username: "",
+  //       email: "",
+  //       team:"",
+  //       errors: {
+  //         username: "",
+  //         email: "",
+  //       team:""
+  //       },
+  //     });
+  //     handleClose();
+  //   } catch (error) {
+  //   console.error("Error submitting form:", error);
+  //   // Check if the error has a response and data property
+  //   if (error.data && error.data.error) {
+  //     // Display the specific error message from the API in the toaster
+  //     openToaster(error.data.error, "error");
+  //   } else {
+  //     // Display a generic error message if the specific message is not available
+  //     openToaster("An error occurred while adding the employee.", "error");
+  //   }
+  // }
+  // };
+  
+  
+    const handleSubmit = async () => {
     let hasError = false;
     const errors = {
       username: "",
       email: "",
-      team:"",
+      team: "",
     };
 
     if (!formData.username.trim()) {
@@ -124,22 +212,26 @@ useEffect(() => {
     } else if (!isValidEmail(formData.email)) {
       errors.email = "Invalid email format";
       hasError = true;
+    } else if (filteredColleagues.includes(formData.email.trim())) {
+      errors.email = "User cannot have the same email";
+      hasError = true;
     }
-     if (!formData.team) {
+
+    if (!formData.team) {
       errors.team = "Team is required";
-      hasError = true; // This was missing - now it will prevent submission
+      hasError = true;
     }
 
     if (hasError) {
       setFormData((prev) => ({ ...prev, errors }));
       return;
     }
-    // const
+
     try {
       const payload = {
         username: formData.username.trim(),
         email: formData.email,
-        team:formData.team,
+        team: formData.team,
         ownerId,
       };
 
@@ -149,35 +241,28 @@ useEffect(() => {
         setFormData({
           username: "",
           email: "",
-          team:"",
-          errors: { username: "", email: "" ,team:"" },
+          team: "",
+          errors: { username: "", email: "", team: "" },
         });
-
       }, 2000);
-      // Clear form and errors
+
       setFormData({
         username: "",
         email: "",
-        team:"",
-        errors: {
-          username: "",
-          email: "",
-        team:""
-        },
+        team: "",
+        errors: { username: "", email: "", team: "" },
       });
       handleClose();
     } catch (error) {
-    console.error("Error submitting form:", error);
-    // Check if the error has a response and data property
-    if (error.data && error.data.error) {
-      // Display the specific error message from the API in the toaster
-      openToaster(error.data.error, "error");
-    } else {
-      // Display a generic error message if the specific message is not available
-      openToaster("An error occurred while adding the employee.", "error");
+      console.error("Error submitting form:", error);
+      if (error.data && error.data.error) {
+        openToaster(error.data.error, "error");
+      } else {
+        openToaster("An error occurred while adding the employee.", "error");
+      }
     }
-  }
   };
+
   const handleSelect = (event,name) =>{
     const { value } = event.target;
     setFormData((prev) => ({

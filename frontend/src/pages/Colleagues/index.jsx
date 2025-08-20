@@ -37,7 +37,15 @@ const Colleagues = () => {
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [open, setOpen] = useState(false);
-
+ const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    team:"",
+    errors: {
+      username: "",
+      email: "",
+    },
+  });
   // Main query with search functionality
   const { 
     data: profileData, 
@@ -115,6 +123,15 @@ const Colleagues = () => {
 
   const handleClose = () => {
     setOpen(false);
+    setFormData({
+      username: "",
+      email: "",
+      team: "",
+      errors: {
+        username: "",
+        email: "",
+      },
+    });
   };
 
   return (
@@ -189,10 +206,13 @@ const Colleagues = () => {
 
         {/* Add Employee Modal */}
         <AddEmployeeModal
+          colleaguesData={colleaguesData}
           openToaster={handleOpenToaster}
           open={open}
           handleClose={handleClose}
           refetchProfiles={refetchProfiles}
+          formData={formData}
+          setFormData={setFormData}
         />
 
         {/* Toaster Notification */}
