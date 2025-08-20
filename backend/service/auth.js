@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 const nodemailer = require("nodemailer");
+const { handleRefreshToken } = require("../utils/cognito");
 
 const login = async (req, res) => {
   try {
@@ -75,37 +76,42 @@ const generateToken = async (req, res) => {
     return res.status(401).json({ message: "Refresh token required" });
   try {
     // const decoded = await verifyRefreshToken(refreshToken);
-    const decoded = jwt.verify(refreshToken, config.auth.REFRESH_SECRET);
-    console.log(decoded);
+    // const decoded = jwt.verify(refreshToken, config.auth.REFRESH_SECRET);
+    // console.log(decoded);
     // req.user = decoded;
 
-    const user = await User.findById(decoded.userId);
+    // const user = await User.findById(decoded.userId);
 
-    const payload = {
-      userId: user._id,
-      ownerId: user.ownerId,
-      role: user.role,
-      email: user.email,
-      timeZone: user.timeZone,
-    };
-    console.log("payload :" + payload);
+    // const payload = {
+    //   userId: user._id,
+    //   ownerId: user.ownerId,
+    //   role: user.role,
+    //   email: user.email,
+    //   timeZone: user.timeZone,
+    // };
+    // console.log("payload :" + payload);
+    const tokens = await handleRefreshToken(refreshToken, config.cognito.clientId);
+    console.log("payload :" + tokens);
 
-    const newAccessToken = generateAccessToken(payload);
-    const newRefreshToken = generateRefreshToken(payload);
+    // // const newAccessToken = generateAccessToken(payload);
+    // // const newRefreshToken = generateRefreshToken(payload);
 
-    console.log("newAccessToken :" + newAccessToken);
-    console.log("newRefreshToken :" + newRefreshToken);
+    // console.log("newAccessToken :" + newAccessToken);
+    // console.log("newRefreshToken :" + newRefreshToken);
 
-    console.log();
+    console.log("payload");
 
     res.status(200).json({
       code: 200,
       status: "Success",
       message: "Token created",
-      data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+      // tokens,
+      data: { accessToken: tokens?.IdToken,
+        //  refreshToken: newRefreshToken
+         },
     });
   } catch (err) {
-    console.log("refresh token getting error expired");
+    console.log("refresh token getting error expired",err);
     res.status(403).json({ message: "Refresh token expired or invalid" });
   }
 };

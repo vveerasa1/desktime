@@ -8,7 +8,7 @@ const ScreenshotLog = require("../models/screenshot");
 const trackingSession = require("../models/trackingSession");
 const Team = require("../models/team");
 const AWS = require("aws-sdk");
-const { addUserToGroups } = require("../utils/cognito");
+const { addUserToGroups, handleRefreshToken } = require("../utils/cognito");
 
 // Configure AWS Cognito
 const cognito = new AWS.CognitoIdentityServiceProvider({
@@ -17,26 +17,26 @@ const cognito = new AWS.CognitoIdentityServiceProvider({
   secretAccessKey: config.AWS.SECRET_ACCESS_KEY,
 });
 
-async function handleRefreshToken(refreshToken, clientId) {
-  try {
-    const params = {
-      AuthFlow: 'REFRESH_TOKEN_AUTH',
-      ClientId: clientId,
-      AuthParameters: {
-        REFRESH_TOKEN: refreshToken,
-      },
-    };
-    const response = await cognito.initiateAuth(params).promise();
-    console.log("New tokens:", response.AuthenticationResult);
-    return response.AuthenticationResult; // contains access_token, id_token, etc.
-  } catch (error) {
-    console.error("Refresh token failed:", error.message);
-    if (error.code === 'NotAuthorizedException') {
-      throw new Error("Refresh token expired or invalid");
-    }
-    throw error;
-  }
-}
+// async function handleRefreshToken(refreshToken, clientId) {
+//   try {
+//     const params = {
+//       AuthFlow: 'REFRESH_TOKEN_AUTH',
+//       ClientId: clientId,
+//       AuthParameters: {
+//         REFRESH_TOKEN: refreshToken,
+//       },
+//     };
+//     const response = await cognito.initiateAuth(params).promise();
+//     console.log("New tokens:", response.AuthenticationResult);
+//     return response.AuthenticationResult; // contains access_token, id_token, etc.
+//   } catch (error) {
+//     console.error("Refresh token failed:", error.message);
+//     if (error.code === 'NotAuthorizedException') {
+//       throw new Error("Refresh token expired or invalid");
+//     }
+//     throw error;
+//   }
+// }
 const refreshTokens = async (req, res) => {
   console.log(req.body)
   const { refreshToken } = req.body;
@@ -74,7 +74,6 @@ const globalLogout = async (req, res) => {
 
 };
 const isUserExist = async (req, res) => {
-
   try {
     console.log('user', req.user)
     let user = await User.findOne({ cognitoId: req.user.sub });

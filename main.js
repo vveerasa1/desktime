@@ -58,6 +58,11 @@ userTrackingStates = {
         lastActiveSentTimestamp: null, // Last time active log was sent to server
         isSleeping: false, // System sleep state
         isSessionEndedForDay: false, // Flag to indicate if daily tracking cutoff has passed
+        appUsageSegment = {
+            appName: null,
+            appIcon: null, // This will hold the Base64 data URL of the icon
+            startTime: null,
+        }
     },
     'userId2': { ... }
 }
@@ -89,6 +94,11 @@ function getUserState(userId) {
       lastActiveSentTimestamp: null,
       isSleeping: false,
       isSessionEndedForDay: false,
+      appUsageSegment: {
+        appName: null,
+        appIcon: null, // This will hold the Base64 data URL of the icon
+        startTime: null,
+      },
     };
   }
   return userTrackingStates[userId];
@@ -103,7 +113,9 @@ function getUserState(userId) {
 function setTokens(userId, token, refreshToken) {
   const userState = getUserState(userId);
   userState.token = token;
-  userState.refreshToken = refreshToken;
+  if (refreshToken) {
+    userState.refreshToken = refreshToken;
+  }
   store.set(`token_${userId}`, token);
   store.set(`refreshToken_${userId}`, refreshToken);
   console.log(`[Auth] Tokens updated for user: ${userId}`);
@@ -131,7 +143,7 @@ function setSessionDetails(userId, sessionId) {
  * @param {object} config Axios request config.
  * @returns {Promise<axios.AxiosResponse>}
  */
-async function  makeAuthenticatedRequest(userId, config) {
+async function makeAuthenticatedRequest(userId, config) {
   const userState = getUserState(userId);
   console.log(userState, 'userState>>>>>>>>>>>>>>>>')
   let token = userState.token;
@@ -196,19 +208,19 @@ async function refreshToken(userId) {
   try {
     console.log("refreshToken api calling");
     const res = await axios.post(
-      "http://51.79.30.127:4005/auth/refresh",
+      "http://localhost:4005/auth/refresh",
       {
         refreshToken,
       }
     );
-
+2
     const newToken = res.data.data.accessToken;
-    const newRefreshToken = res.data.data.refreshToken;
+    // const newRefreshToken = res.data.data.refreshToken;
 
     console.log("newToken :" + newToken);
-    console.log("newRefreshToken :" + newRefreshToken);
+    // console.log("newRefreshToken :" + newRefreshToken);
 
-    setTokens(userId, newToken, newRefreshToken); // Store new tokens
+    setTokens(userId, newToken, null); // Store new tokens
     console.log(
       `[Token Refresh] Successfully refreshed token for user ${userId}`
     );
@@ -246,6 +258,17 @@ apiServer.post("/store-token", async (req, res) => {
 
 apiServer.post("/logout", async (req, res) => {
   const { userId } = req.body;
+  console.log("logout : " + userId);
+  const userState = getUserState(userId);
+
+  store.delete(`token_${userId}`);
+  store.delete(`refreshToken_${userId}`);
+  // store.delete(`session_id_${userId}`);
+  // store.delete(`session_date_${userId}`);
+
+  userState.token = null;
+  userState.refreshToken = null;
+
   console.log(`[Logout] Request received for user ${userId}`);
 
   try {
@@ -259,7 +282,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on http://localhost:4005:${API_PORT}`
+    `🚀 Express API server in Electron listening on https://trackme.pentabay.com/api:${API_PORT}`
   );
 });
 
@@ -352,8 +375,8 @@ async function initializeDailyTracking(userId) {
       method: "get",
       url: `http://localhost:4005/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
     });
-    console.log("checkRes :" +checkRes);
-    console.log("checkRes data",checkRes.data.data)
+    console.log("checkRes :" + checkRes);
+    console.log("checkRes data", checkRes.data.data)
 
     if (checkRes.data && checkRes.data.data && checkRes.data.data._id) {
       const existingSessionId = checkRes.data.data._id;
@@ -401,7 +424,7 @@ async function initializeDailyTracking(userId) {
         url: "http://localhost:4005/tracking/sessions",
         data: { arrivalTime: new Date() }, // Send arrival time on session creation
       });
-    console.log("createRes data",createRes.data,createRes.data.data)
+      console.log("createRes data", createRes.data, createRes.data.data)
 
       if (createRes.data && createRes.data.sessionId) {
         setSessionDetails(userId, createRes.data.sessionId);
@@ -443,6 +466,64 @@ async function fetchUserConfig(userId) {
       error.response?.data || error.message
     );
     throw error; // Re-throw to indicate failure
+  }
+}
+
+async function sendAppUsageToServer(userId, appName, appIcon, secondsUsed) {
+  const userState = getUserState(userId);
+  const sessionId = userState.sessionId;
+
+  const formData = new FormData();
+  formData.append("userId", userId);
+  formData.append("sessionId", sessionId);
+  formData.append("appName", appName);
+  formData.append("duration", secondsUsed);
+
+  if (appIcon) {
+    formData.append("screenshotAppIcon", appIcon, {
+      filename: appName,
+      contentType: "image/png",
+    });
+  }
+
+  console.log(
+    `[App Usage] Sending usage data for ${appName} (${secondsUsed}s) to server for user ${userId}`
+  );
+
+  if (secondsUsed <= 0) {
+    return;
+  }
+
+  try {
+    await makeAuthenticatedRequest(userId, {
+      method: "post",
+      url: "http://localhost:4005/tracking/sessions/active-apps", // <--- NEW API ENDPOINT
+      data: formData,
+      headers: {
+        ...formData.getHeaders(), // Important for multipart/form-data
+      },
+    });
+    console.log(
+      `[App Usage] Sent usage data for "${appName}" (duration: ${secondsUsed}s)`
+    );
+  } catch (error) {
+    console.error(
+      `[App Usage Error] Failed to send data for ${appName}:`,
+      error.response?.data || error.message
+    );
+  }
+}
+
+// Reusable function to get the app icon as a Base64 data URL
+async function getAppIconAsDataURL(appPath) {
+  if (!appPath) return null;
+  try {
+    const nativeImage = await app.getFileIcon(appPath, { size: "normal" });
+    iconFileBuffer = nativeImage.toPNG();
+    return iconFileBuffer;
+  } catch (iconError) {
+    console.error(`❌ Error getting icon for path ${appPath}:`, iconError);
+    return null;
   }
 }
 
@@ -650,7 +731,7 @@ async function sendActivityToServer(
 async function captureScreenshot(userId) {
   const userState = getUserState(userId);
   const sessionId = userState.sessionId;
-  console.log("Screenshot ****************8",userState)
+  console.log("Screenshot ****************8", userState)
   if (
     userState.isSessionEndedForDay ||
     userState.isSleeping ||
@@ -753,7 +834,6 @@ async function captureScreenshot(userId) {
   }
 }
 
-
 /**
  * Starts all tracking intervals for a specific user.
  * @param {string} userId
@@ -832,12 +912,49 @@ async function startTrackingForUser(userId) {
 
   // Idle/Active Check (every 10 seconds)
   userState.intervals.idleCheck = setInterval(async () => {
+    const now = Date.now();
+
     if (userState.isSessionEndedForDay || userState.isSleeping) {
       // console.log(`[Idle/Active Check] Skipping for ${userId}: session ended or sleeping.`);
       return;
     }
 
-    const idleTimeSeconds = powerMonitor.getSystemIdleTime(); // in seconds
+    const idleTimeSeconds = powerMonitor.getSystemIdleTime();
+    const win = await activeWin().catch(() => null);
+
+    const currentAppName = (win && win.owner.name) || "unknown_app";
+    const currentAppPath = (win && win.owner.path) || null;
+
+    const lastSegment = userState.appUsageSegment;
+    const isDifferentApp = currentAppName !== lastSegment.appName;
+
+    if (lastSegment.startTime && isDifferentApp) {
+      const secondsUsed = Math.floor((now - lastSegment.startTime) / 1000);
+      // Send the previous app's usage data
+      await sendAppUsageToServer(
+        userId,
+        lastSegment.appName,
+        lastSegment.appIcon,
+        secondsUsed
+      );
+
+      // Start a new app usage segment
+      const newAppIcon = await getAppIconAsDataURL(currentAppPath);
+      userState.appUsageSegment = {
+        appName: currentAppName,
+        appIcon: newAppIcon,
+        startTime: now,
+      };
+    } else if (!lastSegment.startTime) {
+      // This runs the very first time after starting tracking
+      const newAppIcon = await getAppIconAsDataURL(currentAppPath);
+      userState.appUsageSegment = {
+        appName: currentAppName,
+        appIcon: newAppIcon,
+        startTime: now,
+      };
+    }
+    // in seconds
     const idleTimeMs = idleTimeSeconds * 1000;
 
     if (idleTimeMs >= IDLE_THRESHOLD) {
@@ -983,7 +1100,9 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   }
 
   // 5. Clear stored data specific to this user if it's an explicit logout
+  console.log("endSessionOnBackend :" + endSessionOnBackend);
   if (endSessionOnBackend) {
+    console.log("deleted session in if");
     store.delete(`session_id_${userId}`);
     store.delete(`session_date_${userId}`);
 
@@ -993,6 +1112,8 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   } else {
     // If not explicit logout (e.g., daily cutoff), clear session ID/date
     // but keep tokens for potential auto-resume tomorrow
+    console.log("deleted session in else");
+
     store.delete(`session_id_${userId}`);
     store.delete(`session_date_${userId}`);
     console.log(

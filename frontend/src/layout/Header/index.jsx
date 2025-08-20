@@ -139,12 +139,12 @@ const Header = () => {
         </Box>
 
         {/* User Info */}
-        <Box
-          onClick={handleClick}
-          display="flex" alignItems="center" gap={0}>
+        <Box onClick={handleClick} display="flex" alignItems="center" gap={0}>
           <Box textAlign="right">
             {isLoading ? (
-              <Typography variant="subtitle2"><LoadingComponent /></Typography>
+              <Typography variant="subtitle2">
+                <LoadingComponent />
+              </Typography>
             ) : isError ? (
               <Typography variant="subtitle2" color="error">
                 Error
@@ -201,6 +201,14 @@ const Header = () => {
           <MenuItem onClick={() => navigate("/settings")}>
             <Typography>Profile</Typography>
           </MenuItem>
+          {/* 
+          <MenuItem onClick={handleClose}>
+            <Typography>Contact us</Typography>
+          </MenuItem> */}
+          {/* <Divider />
+          <MenuItem onClick={handleClose}>
+            <Typography>Launch DeskTime app</Typography>
+          </MenuItem> */}
           <MenuItem onClick={() => setOpen(true)}>
             <Typography color="error">Log out</Typography>
           </MenuItem>

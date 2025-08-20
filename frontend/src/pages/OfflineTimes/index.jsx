@@ -101,7 +101,7 @@ const OfflineTimes = () => {
   //   const decoded = jwtDecode(token);
   //   ownerId = decoded?.ownerId;
   // }
-  const { data: getOfflineTrackingData, isLoading } =
+  const { data: getOfflineTrackingData, isLoading, refetch } =
     useGetAllOfflineRequestQuery({
       id: ownerId,
       status: status,

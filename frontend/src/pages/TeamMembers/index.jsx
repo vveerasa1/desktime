@@ -39,9 +39,9 @@ const sscolumns = ["Name", "Timeline", "Total Time", "Avg Activity"];
 
 const getStatusColor = (status) => {
   if (status === "active") return "#5fba2b";
-  if (status === "neutral") return "#ffffff";
-  if (status === "inactive") return "#e59999ff";
-  if (status === "off") return "#e9e1e1ff";
+  if (status === "neutral") return "#b6afafff";
+  if (status === "inactive") return "#e6e1e1ff";
+  if (status === "off") return "#ffffffff";
   return "#ccc";
 };
 
@@ -193,10 +193,10 @@ const TeamMembers = () => {
           sessionEndTime.setHours(endHour, endMin, 0, 0);
           return now - sessionEndTime <= 30 * 60 * 1000;
         });
-
         return {
           name: user.username,
           role: user.role || "User",
+          userId: user.userId,
           initials: user.username
             .split(" ")
             .map((word) => word[0])
@@ -450,6 +450,7 @@ const TeamMembers = () => {
                 <TeamSnapShot
                   sscolumns={sscolumns}
                   ssrows={ssrows}
+                  role={role}
                   styletimeblock={styletimeblock}
                   getStatusColor={getStatusColor}
                 />

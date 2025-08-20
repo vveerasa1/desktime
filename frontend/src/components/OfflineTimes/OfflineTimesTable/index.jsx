@@ -20,6 +20,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useUpdateOfflineRequestMutation } from "../../../redux/services/dashboard";
 import { jwtDecode } from "jwt-decode";
+import { Link } from "react-router-dom";
 
 // Mock data (static for demonstration, will be replaced by props)
 const staticData = [
@@ -322,21 +323,22 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                         sx={{
                           mx:
                             status === "Approved" || status === "Declined"
-                              ? 5
+                              ? 2
                               : 0,
                         }}
                       >
-                        <Typography
+                        <Link style={{ color:"black"}}  to={`/dashboard/employee=${row.userId._id}`}>
+                         <Typography
                           variant="body2"
                           sx={{
-                            textDecoration: "underline",
-                            textUnderlineOffset: "2px !important",
                             cursor: "pointer",
                           }}
                           fontWeight={600}
                         >
                           {row.userId?.username || "N/A"}
                         </Typography>
+                        </Link>
+                       
                         <Typography variant="caption" color="textSecondary">
                           {row.userId?.team?.name || "N/A"}
                         </Typography>

@@ -411,6 +411,7 @@ const dashboardProductivityTime = async (req, res) => {
           $gte: moment(targetDate).startOf("day").toDate(),
           $lte: moment(targetDate).endOf("day").toDate(),
         },
+        status: { $ne: "Declined" }, // 👈 exclude Declined
       });
 
       // Process offline requests and split them into intervals

@@ -34,36 +34,77 @@ const CustomCalendar = ({
             InputProps: {
               sx: {
                 fontSize: "14px",
-                height: "32px", // reduce height
-                padding: "18px 8px", // tighter padding
+                height: "32px",
+                padding: "18px 8px",
                 borderColor: "#dddddd",
                 color: "#333c43",
                 backgroundColor: disabled ? "#f5f5f5" : "#fff",
                 "& .MuiInputBase-input": {
-                  padding: "6px 8px", // adjust inside padding
-                  borderColor: "#dddddd",
+                  padding: "6px 8px",
                 },
-                "& .MuiInputAdornment-root": {
-                  marginRight: "4px", // tighter icon padding
+                "& .MuiOutlinedInput-notchedOutline": {
                   borderColor: "#dddddd",
-                },
-                "& .MuiPickersOutlinedInput-notchedOutline": {
-                  borderColor: "#dddddd",
-                  borderRadius: "6px"
+                  borderRadius: "6px",
                 },
                 "& .MuiInputAdornment-root svg": {
-                  fontSize: "14px",
-                  color: "##999da1"
+                  fontSize: "16px",
+                  color: "#999da1",
                 },
               },
             },
           },
           popper: {
             sx: {
+              "& .MuiPaper-root": {
+                borderRadius: "8px",
+                boxShadow: "0px 2px 8px rgba(0,0,0,0.15)",
+              },
               "& .MuiDateCalendar-root": {
                 width: "228px",
                 maxHeight: "336px",
-                overflow: "hidden",
+                padding: "4px 0",
+              },
+              // Header styling
+              "& .MuiPickersCalendarHeader-root": {
+                padding: "0 8px",
+                minHeight: "36px",
+                borderBottom: "1px solid #e0e0e0",
+                "& .MuiPickersCalendarHeader-label": {
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#333c43",
+                },
+                "& .MuiPickersArrowSwitcher-root button": {
+                  color: "#333c43",
+                  padding: "2px",
+                },
+              },
+              // Weekday labels
+              "& .MuiDayCalendar-weekDayLabel": {
+                fontSize: "12px",
+                color: "#999da1",
+                fontWeight: 500,
+              },
+              // Day cells
+              "& .MuiPickersDay-root": {
+                fontSize: "13px",
+                width: "32px",
+                height: "32px",
+                margin: "2px 0",
+                color: "#333c43",
+                "&:hover": {
+                  backgroundColor: "#e6f4ea",
+                },
+              },
+              "& .MuiPickersDay-root.Mui-selected": {
+                backgroundColor: "#143352 !important",
+                color: "#fff !important",
+              },
+              "& .MuiPickersDay-today": {
+                border: "1px solid #143352",
+              },
+              "& .MuiPickersDay-dayOutsideMonth": {
+                color: "#ccc",
               },
             },
           },
