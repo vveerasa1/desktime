@@ -38,26 +38,35 @@ const TeamMembersForm = ({
   refetchTeamMembers,
   openToaster,
   formData,
-  setFormData
+  setFormData,
+  filteredTeamMembersEmails
 }) => {
-  
+  console.log("filteredTeamMembersEmails inside", filteredTeamMembersEmails);
 
   const [createProfile, { isLoading }] = useCreateProfileMutation();
 
   // Helper to validate a member
-  const validateMember = (member) => {
+    const validateMember = (member) => {
     const errors = {};
 
     if (!member.username.trim()) errors.username = "Name is required";
-    if (!member.email.trim()) errors.email = "Email is required";
-    else if (!/^\S+@\S+\.\S+$/.test(member.email))
+
+    if (!member.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(member.email)) {
       errors.email = "Invalid email format";
+    } else if (
+      filteredTeamMembersEmails?.map((e) => e.toLowerCase()).includes(member.email.trim().toLowerCase())
+    ) {
+      errors.email = "This email already exists";
+    }
 
     if (!member.team) errors.team = "Team is required";
     if (!member.role) errors.role = "Role is required";
 
     return errors;
   };
+
 
   const handleAddMember = () => {
     const newId =

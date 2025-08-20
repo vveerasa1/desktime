@@ -1,8 +1,8 @@
 export const URL_CONSTANTS = {
-  BASE_URL: "http://localhost:4005/",
-  // BASE_URL: "https://trackme.pentabay.com/api/",
+  // BASE_URL: "http://localhost:4005/",
+// BASE_URL: "https://trackme.pentabay.com/api/",
 
-  // BASE_URL: "http://51.79.30.127:4005/", //
+  BASE_URL: "http://51.79.30.127:4005/", //
   USER: "users",
   AUTH: "auth",
   LOGIN: "login",
@@ -17,15 +17,15 @@ export const URL_CONSTANTS = {
   TEAMS: "teams",
   PROJECTS: "projects",
   TASK: "task",
-  TRACKING: "tracking",
-  SESSION: "sessions",
-  TODAY: "today",
-  OFFLINE_REQUESTS: "offlineRequest",
-  SEARCH: "search",
-  SENDOTP: "send-otp",
-  VERIFYOTP: "verify-otp",
-  CHANGEPASSWORD: "change-password",
-  RESET: "reset",
-  PASSWORD: "password",
-  SNAPSHOT:"snapshot",
+  TRACKING:"tracking",
+  SESSION:"sessions",
+  TODAY:"today",
+  OFFLINE_REQUESTS:"offlineRequest",
+  SEARCH:"search",
+  SENDOTP:"send-otp",
+  VERIFYOTP:"verify-otp",
+  CHANGEPASSWORD:"change-password",
+  RESET:"reset",
+  PASSWORD:"password",
+  SNAPSHOT:"snapshot"
 };

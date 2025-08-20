@@ -387,9 +387,9 @@ const OfflineTimesTable = ({ offlineData, openToaster, status }) => {
                   </TableCell>
                   {status === "Approved" || status === "Declined" ? (
                     <TableCell className={`${styles.rowcell}`}>
-                      <Box>
-                        {row?.modifiedBy?.username
-                          ? row.modifiedBy.username
+                      <Box sx={{textAlign:"center"}}>
+                        {row?.modifiedBy?.username.slice(0,20)
+                          ? row.modifiedBy.username.slice(0,20)
                           : "-"}
                       </Box>
                     </TableCell>

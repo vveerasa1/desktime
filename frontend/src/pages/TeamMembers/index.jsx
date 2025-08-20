@@ -123,6 +123,17 @@ const TeamMembers = () => {
   }
 );
 
+
+const filteredTeamMembersEmails = useMemo(()=>{
+  let filteredData = getAllTeamMembersData?.data || [];
+  if(filteredData){
+    return filteredData.map((user)=> user?.user?.email);
+
+  }
+  return [];
+},[getAllTeamMembersData]);
+
+
   const { data: getAllSnapShotData, isLoading: getAllSnapShotIsLoading } =
     useGetAllSnapShotQuery({ id: ownerId });
 
@@ -472,6 +483,7 @@ const TeamMembers = () => {
         </Box>
       </Stack>
       <TeamMembersForm
+      filteredTeamMembersEmails={filteredTeamMembersEmails}
         openToaster={handleOpenToaster}
         refetchTeamMembers={refetchTeamMembers}
         formattedTeamOptions={formattedTeamOptions}

@@ -221,7 +221,7 @@ const Sidebar = ({
                   className={styles.listItemText}
                   primary="Settings"
                 />
-                {settingsOpen ? <ExpandMore /> : <ExpandLess />}
+                {settingsOpen ?<ExpandLess />: <ExpandMore />  }
               </>
             )}
           </ListItem>
@@ -235,8 +235,7 @@ const Sidebar = ({
                 const isActive = path && location.pathname.startsWith(path);
                 return (
                   <ListItem
-              sx={{cursor: "pointer"}}
-
+                    sx={{cursor: "pointer"}}
                     button
                     key={label}
                     className={`${styles.listItem} ${styles.nestedItem} ${

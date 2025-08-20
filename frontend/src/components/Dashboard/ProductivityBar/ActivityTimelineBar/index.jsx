@@ -1,14 +1,60 @@
-
-// export default ActivityTimelineBar;import { Box, Button, Typography } from "@mui/material";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Tooltip, styled } from "@mui/material";
 import styles from './index.module.css'
 import OfflineTrackingModal from "../OfflineTrackingModal";
 import { useState } from "react";
 import MuiToaster from "../../../MuiToaster";
-// Assuming these color constants are defined elsewhere or in the parent component
-const APPROVED_OFFLINE_COLOR = "#e4f0f8ff"; // Light blue for approved
-const PENDING_OFFLINE_COLOR = "#E0E0E0"; // Light gray for pending (background)
-const PENDING_OFFLINE_BORDER_COLOR = "#8C8C8C"; // Darker gray for the lines
+
+const APPROVED_OFFLINE_COLOR = "#C1E4F7";
+const PENDING_OFFLINE_COLOR = "#E0E0E0";
+const PENDING_OFFLINE_BORDER_COLOR = "#8C8C8C";
+
+// Create a custom styled Tooltip with white background
+const WhiteTooltip = styled(Tooltip)(({ theme }) => ({
+  '& .MuiTooltip-tooltip': {
+    backgroundColor: '#ffffff',
+    color: '#333333',
+    fontSize: '12px',
+    borderRadius: '6px',
+    padding: '8px 12px',
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+    border: '1px solid #e0e0e0',
+  },
+  '& .MuiTooltip-arrow': {
+    color: '#ffffff',
+    '&::before': {
+      border: '1px solid #e0e0e0',
+    }
+  },
+}));
+
+const SimpleWhiteTooltip = ({ children, ...props }) => (
+  <Tooltip
+    {...props}
+    slotProps={{
+      tooltip: {
+        sx: {
+          backgroundColor: '#ffffff',
+          color: '#333333',
+          fontSize: '12px',
+          borderRadius: '6px',
+          padding: '8px 12px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+          border: '1px solid #e0e0e0',
+        }
+      },
+      arrow: {
+        sx: {
+          color: '#ffffff',
+          '&::before': {
+            border: '1px solid #e0e0e0',
+          }
+        }
+      }
+    }}
+  >
+    {children}
+  </Tooltip>
+);
 
 const ActivityTimelineBar = ({
   currentNormalizedData,
@@ -20,12 +66,12 @@ const ActivityTimelineBar = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState({ start: null, end: null });
- const [toaster, setToaster] = useState({
+  const [toaster, setToaster] = useState({
     open: false,
     message: "",
     severity: "success",
   });
-   const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     description: "",
     projectName: "",
     taskName: "",
@@ -34,13 +80,14 @@ const ActivityTimelineBar = ({
   })
   const [errors, setErrors] = useState({});
 
-   const handleOpenToaster = (message, severity = "success") => {
+  const handleOpenToaster = (message, severity = "success") => {
     setToaster({ open: true, message, severity });
   };
 
   const handleCloseToaster = () => {
     setToaster({ ...toaster, open: false });
   };
+  
   const handleOpen = (startTime, endTime) => {
     setSelectedTimeRange({ start: startTime, end: endTime });
     setOpen(true);
@@ -59,23 +106,77 @@ const ActivityTimelineBar = ({
     setErrors({})
   };
 
+  // Function to convert time difference to hours and minutes format
+  const getDurationInHoursAndMinutes = (startTime, endTime) => {
+  console.log(startTime, endTime, "TIME");
+  
+  const [startHours, startMinutes] = startTime.split(':').map(Number);
+  const [endHours, endMinutes] = endTime.split(':').map(Number);
+  
+  // Calculate total minutes between start and end time
+  let totalMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
+  console.log(totalMinutes, "TOTAL");
+  
+  // For single time slots (like 09:00 - 09:00), add 15 minutes
+  // For ranges (like 09:00 - 10:30), the duration is already correct
+  if (startTime === endTime) {
+    totalMinutes += 15;
+  }
+  
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  
+  if (hours > 0) {
+    return `${hours}h${minutes > 0 ? `${minutes}m` : ''}`;
+  } else {
+    return `${minutes}m`;
+  }
+};
+
   const processTimelineData = (data) => {
     const processedBlocks = [];
     let i = 0;
+    
     while (i < data.length) {
       const currentBlock = data[i];
 
       if (currentBlock.isTracked) {
+        // For tracked blocks, find the continuous range but handle offline requests individually
+        let j = i;
+        let trackedStartTime = data[j].time;
+        let trackedEndTime = data[j].time;
+        let isOfflineRequest = currentBlock.isOfflineRequest || false;
+        let offlineRequestStatus = currentBlock.status || null;
+
+        // Check if we should group tracked blocks (only if they have the same offline status)
+        while (j < data.length && data[j].isTracked) {
+          const nextBlock = data[j];
+          const nextIsOfflineRequest = nextBlock.isOfflineRequest || false;
+          const nextOfflineStatus = nextBlock.status || null;
+          
+          // Only group if offline status is the same
+          if (isOfflineRequest !== nextIsOfflineRequest || 
+              offlineRequestStatus !== nextOfflineStatus) {
+            break;
+          }
+          
+          trackedEndTime = nextBlock.time;
+          j++;
+        }
+
+        const duration = j - i;
+        
         processedBlocks.push({
-          ...currentBlock,
           type: 'tracked',
-          duration: 1,
-          // Check for offline request within tracked blocks (if applicable)
-          isOfflineRequest: currentBlock.isOfflineRequest || false,
-          offlineRequestStatus: currentBlock.status || null,
+          startTime: trackedStartTime,
+          endTime: trackedEndTime,
+          duration: duration,
+          isOfflineRequest: isOfflineRequest,
+          offlineRequestStatus: offlineRequestStatus,
         });
-        i++;
+        i = j;
       } else {
+        // Untracked blocks processing - group consecutive untracked blocks
         let j = i;
         const cumulativeStartTime = data[j].time;
         let isOfflineRequest = false;
@@ -112,91 +213,121 @@ const ActivityTimelineBar = ({
       <Box className={styles.wrapper}>
         <Box className={styles.timelineContainer}>
           {processedBlocks.map((block, index) => {
+            console.log(block,"BLOV")
             const blockWidth = `calc(100% / ${currentNormalizedData.length} * ${block.duration})`;
+            const durationText = getDurationInHoursAndMinutes(block.startTime, block.endTime);
+            
+            // Create appropriate tooltip text based on block type and offline status
+            let tooltipText;
+            if (block.type === 'tracked') {
+              if (block.isOfflineRequest) {
+                // Offline tracked time
+                if (block.duration > 1) {
+                  tooltipText = `Offline Time, ${durationText}`;
+                } else {
+                  tooltipText = `Offline Time, ${durationText}`;
+                }
+              } else {
+                // Regular tracked time
+                if (block.duration > 1) {
+                  tooltipText = `Tracked Time, ${durationText}`;
+                } if(block.offlineRequestStatus === "Approved"){
+                  tooltipText = `Offline Time, ${durationText}`;
+                } else {
+                  tooltipText = `Tracked Time, ${durationText}`;
+                }
+              }
+            } else {
+              // Idle time
+              tooltipText = `Idle Time, ${durationText}`;
+            }
+
+            // Add offline status to tooltip if applicable
+            if (block.isOfflineRequest) {
+              if (block.offlineRequestStatus === "Pending") {
+                tooltipText += " - Pending Approval";
+              } else if (block.offlineRequestStatus === "Approved") {
+                tooltipText += " - Approved";
+              }
+            }
 
             if (block.type === 'tracked') {
-              // Tracked blocks: solid color, no special styles.
               let backgroundColor = TRACKED_COLOR;
-              let blockClasses = [styles.timelineBlock];
-              let blockStyles = {
-                flexBasis: blockWidth,
-                cursor: 'pointer',
-                backgroundColor:backgroundColor,
-              };
-              // If for some reason a tracked block has an offline request status,
-              // apply the appropriate color. This is just for robustness.
-              // if (block.isOfflineRequest && block.offlineRequestStatus === "Approved") {
-              //   backgroundColor = APPROVED_OFFLINE_COLOR;
-              // } else if (block.isOfflineRequest && block.status === "Pending") {
-              //   backgroundColor = PENDING_OFFLINE_COLOR;
-              // }
-              const isPendingOffline = block.status === "Pending";
-              const isApprovedOffline = block.status === "Approved";
+              let borderColor = 'transparent';
+
+              const isPendingOffline = block.offlineRequestStatus === "Pending";
+              const isApprovedOffline = block.offlineRequestStatus === "Approved";
 
               if (isPendingOffline) {
-                blockClasses.push(styles.pendingOffline);
-                // Set the base color for the cross-hatch effect
-                blockStyles.backgroundColor = PENDING_OFFLINE_COLOR;
+                backgroundColor = PENDING_OFFLINE_COLOR;
+                borderColor = PENDING_OFFLINE_BORDER_COLOR;
               } else if (isApprovedOffline) {
-                console.log(isApprovedOffline,"isApprovedOffline",APPROVED_OFFLINE_COLOR)
-                // Approved offline requests have a solid light blue background
-                blockStyles.backgroundColor =APPROVED_OFFLINE_COLOR
-                blockClasses.push(styles.approvedOffline);
-              } else {
-                // Default untracked blocks are white
-                blockStyles.backgroundColor = UNTRACKED_COLOR;
+                backgroundColor = APPROVED_OFFLINE_COLOR;
               }
-              
-              return (
-                <Box
-                  key={index}
-                  // className={styles.timelineBlock}
-                  style={{
-                    flexBasis: blockWidth,
-                    backgroundColor: backgroundColor,
-                  }}
-                  className={blockClasses.join(' ')}
 
-                  title={`${block.time} - Tracked`}
-                />
+              return (
+                <SimpleWhiteTooltip 
+                  key={index} 
+                  title={tooltipText} 
+                  arrow 
+                  placement="bottom"
+                >
+                  <Box
+                    sx={{
+                      flexBasis: blockWidth,
+                      cursor: 'pointer',
+                      backgroundColor: backgroundColor,
+                      border: `2px solid ${borderColor}`,
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        border: '2px dashed #54c2f1ff',
+                      }
+                    }}
+                  />
+                </SimpleWhiteTooltip>
               );
-            } else { // type === 'untracked'
-              let blockClasses = [styles.timelineBlock];
-              let blockStyles = {
-                flexBasis: blockWidth,
-                cursor: 'pointer',
-              };
+            } else {
+              let backgroundColor = UNTRACKED_COLOR;
+              let borderColor = 'transparent';
 
               const isPendingOffline = block.isOfflineRequest && block.offlineRequestStatus === "Pending";
               const isApprovedOffline = block.isOfflineRequest && block.offlineRequestStatus === "Approved";
 
               if (isPendingOffline) {
-                blockClasses.push(styles.pendingOffline);
-                // Set the base color for the cross-hatch effect
-                blockStyles.backgroundColor = PENDING_OFFLINE_COLOR;
+                backgroundColor = PENDING_OFFLINE_COLOR;
+                borderColor = PENDING_OFFLINE_BORDER_COLOR;
               } else if (isApprovedOffline) {
-                // Approved offline requests have a solid light blue background
-                blockStyles.backgroundColor = APPROVED_OFFLINE_COLOR;
-              } else {
-                // Default untracked blocks are white
-                blockStyles.backgroundColor = UNTRACKED_COLOR;
+                backgroundColor = APPROVED_OFFLINE_COLOR;
               }
 
               return (
-                <Box
-                  key={index}
-                  className={blockClasses.join(' ')}
-                  style={blockStyles}
-                  title={`Untracked time: ${block.startTime} - ${block.endTime}`}
-                  onClick={() => handleOpen(block.startTime, block.endTime)}
-                />
+                <SimpleWhiteTooltip 
+                  key={index} 
+                  title={tooltipText} 
+                  arrow 
+                  placement="bottom"
+                >
+                  <Box
+                    sx={{
+                      flexBasis: blockWidth,
+                      cursor: 'pointer',
+                      backgroundColor: backgroundColor,
+                      border: `2px solid ${borderColor}`,
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        border: '2px dashed #9fa1a2ff',
+                      }
+                    }}
+                    onClick={() => handleOpen(block.startTime, block.endTime)}
+                  />
+                </SimpleWhiteTooltip>
               );
             }
           })}
         </Box>
       </Box>
       <OfflineTrackingModal
-      ownerId={ownerId}
+        ownerId={ownerId}
         openToaster={handleOpenToaster}
         open={open}
         handleClose={handleClose}
@@ -211,11 +342,11 @@ const ActivityTimelineBar = ({
       />
 
       <MuiToaster
-              open={toaster.open}
-              message={toaster.message}
-              severity={toaster.severity}
-              handleClose={handleCloseToaster}
-            />
+        open={toaster.open}
+        message={toaster.message}
+        severity={toaster.severity}
+        handleClose={handleCloseToaster}
+      />
     </Box>
   );
 };
