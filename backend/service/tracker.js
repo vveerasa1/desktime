@@ -4,6 +4,11 @@ const cron = require("node-cron");
 const User = require("../models/user");
 const moment = require("moment-timezone");
 const OfflineRequest = require("../models/offlineRequest");
+const { splitOfflineTimeIntoIntervals } = require("../service/dashboard");
+const ActiveApps = require("../models/activeApps");
+const ProductivityApps = require("../models/productivityApps");
+const { uploadFileToS3 } = require("./upload");
+const config = require("../config");
 
 const tracking = async (req, res) => {
   try {
@@ -451,59 +456,78 @@ const getAllTrackingsForToday = async (req, res) => {
     );
 
     // Step 6: Process all users
-    const data = users.map((user) => {
-      const session = sessionMap.get(user._id.toString());
+    const data = await Promise.all(
+      users.map(async (user) => {
+        const session = sessionMap.get(user._id.toString());
 
-      if (session) {
-        const {
-          totalTrackedTime = 0,
-          activePeriods = [],
-          arrivalTime,
-          timeAtWork,
-          leftTime,
-        } = session;
+        if (session) {
+          const {
+            totalTrackedTime = 0,
+            activePeriods = [],
+            arrivalTime,
+            timeAtWork,
+            leftTime,
+          } = session;
 
-        const deskTime = totalTrackedTime;
+          const deskTime = totalTrackedTime;
 
-        const productiveTime = activePeriods.reduce(
-          (sum, period) => sum + (period.productivity || 0),
-          0
-        );
+          const productiveTime = activePeriods.reduce(
+            (sum, period) => sum + (period.productivity || 0),
+            0
+          );
 
-        const arrivedAtFormatted = arrivalTime
-          ? moment(arrivalTime).tz(timezone).format("HH:mm")
-          : null;
+          const arrivedAtFormatted = arrivalTime
+            ? moment(arrivalTime).tz(timezone).format("HH:mm")
+            : null;
 
-        let offlineTime = 0;
-        if (timeAtWork?.seconds != null) {
-          offlineTime = timeAtWork.seconds - deskTime;
-        } else if (arrivalTime) {
-          const now = moment().tz(timezone);
-          const arrivalMoment = moment(arrivalTime).tz(timezone);
-          const secondsSinceArrival = now.diff(arrivalMoment, "seconds");
-          offlineTime = secondsSinceArrival - deskTime;
+          let offlineTime = 0;
+          if (timeAtWork?.seconds != null) {
+            offlineTime = timeAtWork.seconds - deskTime;
+          } else if (arrivalTime) {
+            const now = moment().tz(timezone);
+            const arrivalMoment = moment(arrivalTime).tz(timezone);
+            const secondsSinceArrival = now.diff(arrivalMoment, "seconds");
+            offlineTime = secondsSinceArrival - deskTime;
+          }
+          let activeApp = null;
+          if (activePeriods.length > 0) {
+            const lastActivePeriod = activePeriods[activePeriods.length - 1];
+            const lastEnd = moment(lastActivePeriod.end).tz(timezone);
+            const now = moment().tz(timezone);
+            const diffSeconds = now.diff(lastEnd, "seconds");
+
+            // If last end is within 5 minutes (300 seconds) from now
+            if (diffSeconds >= 0 && diffSeconds <= 300) {
+              // Get last updated active app for this user/session
+              activeApp = await ActiveApps.findOne({
+                userId: user._id,
+                sessionId: session._id,
+              }).sort({ updatedAt: -1 });
+            }
+          }
+
+          return {
+            user,
+            deskTime,
+            productiveTime,
+            arrivalTime: arrivedAtFormatted,
+            offlineTime: offlineTime > 0 ? offlineTime : 0,
+            leftTime: leftTime || null,
+            activeApp: activeApp.appIcon || null,
+          };
+        } else {
+          // No session found for this user today
+          return {
+            user,
+            deskTime: null,
+            productiveTime: null,
+            arrivalTime: null,
+            offlineTime: null,
+            leftTime: null,
+          };
         }
-
-        return {
-          user,
-          deskTime,
-          productiveTime,
-          arrivalTime: arrivedAtFormatted,
-          offlineTime: offlineTime > 0 ? offlineTime : 0,
-          leftTime: leftTime || null,
-        };
-      } else {
-        // No session found for this user today
-        return {
-          user,
-          deskTime: null,
-          productiveTime: null,
-          arrivalTime: null,
-          offlineTime: null,
-          leftTime: null,
-        };
-      }
-    });
+      })
+    );
 
     // Step 7: Send response
     res.status(200).json({
@@ -682,6 +706,142 @@ const snapshot = async (req, res) => {
     });
   }
 };
+const addActiveApps = async (req, res) => {
+  try {
+    const { sessionId, userId, appName, appIcon, duration } = req.body;
+    if (!sessionId || !userId || !appName || !duration) {
+      return res.status(400).json({
+        code: 400,
+        status: "Error",
+        message: "Missing required fields",
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        status: "Error",
+        message: "User not found",
+      });
+    }
+    const ownerId = user.ownerId;
+
+    const productivityApp = await ProductivityApps.findOne({
+      ownerId,
+      appName,
+    });
+    console.log("existing productivityApp :" + productivityApp);
+
+    let productivityStatus = "Neutral";
+    if (productivityApp && productivityApp.productivity) {
+      productivityStatus = productivityApp.productivity;
+    }
+    const existingApp = await ActiveApps.findOne({
+      sessionId,
+      userId,
+      appName,
+    });
+    if (existingApp) {
+      const durationValue = Number(duration); // ensure it's number
+
+      // If exists, update duration and productivityStatus
+      existingApp.duration += durationValue;
+      existingApp.productivity = productivityStatus;
+      await existingApp.save();
+      return res.status(200).json({
+        code: 200,
+        status: "Success",
+        message: "App duration updated",
+        data: existingApp,
+      });
+    } else {
+      let iconUrl = null;
+      const date = moment().format("YYYY-MM-DD");
+
+      if (req.file) {
+        const folderPath = `${user.employeeId}/${date}/active-icons`;
+        const uploadedScreenshot = await uploadFileToS3(req.file, folderPath);
+        iconUrl =
+          config.AWS.publicUrl +
+          `${folderPath}/${uploadedScreenshot.Key.split("/").pop()}`;
+      }
+      // If not exists, create new
+      const activeApp = new ActiveApps({
+        sessionId,
+        userId,
+        appName,
+        appIcon: iconUrl,
+        duration,
+        productivityStatus,
+      });
+      console.log("new productivityApp :" + activeApp);
+
+      await activeApp.save();
+      return res.status(201).json({
+        code: 201,
+        status: "Success",
+        message: "Active app created",
+        data: activeApp,
+      });
+    }
+  } catch (error) {
+    console.error("Error adding active apps:", error);
+    return res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Failed to add active apps",
+      error: error.message,
+    });
+  }
+};
+const getAllActiveApps = async (req, res) => {
+  try {
+    const { sessionId, userId } = req.params;
+
+    if (!sessionId || !userId) {
+      return res.status(400).json({
+        code: 400,
+        status: "Error",
+        message: "sessionId and userId are required",
+      });
+    }
+
+    const activeApps = await ActiveApps.find({ sessionId, userId });
+
+    if (activeApps.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        status: "Error",
+        message: "No active apps found for this session",
+      });
+    }
+
+    // Group by productivityStatus
+    const grouped = activeApps.reduce((acc, app) => {
+      const key = app.productivity || "Neutral";
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(app);
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      code: 200,
+      status: "Success",
+      message: "Active apps fetched successfully",
+      data: grouped,
+    });
+  } catch (error) {
+    console.error("Error fetching active apps:", error);
+    return res.status(500).json({
+      code: 500,
+      status: "Error",
+      message: "Failed to fetch active apps",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   tracking,
@@ -693,4 +853,6 @@ module.exports = {
   getTodaySessionByUserId,
   getAllTrackingsForToday,
   snapshot,
+  addActiveApps,
+  getAllActiveApps,
 };

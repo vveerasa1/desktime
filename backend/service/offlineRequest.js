@@ -7,6 +7,7 @@ const createOfflineRequest = async (req, res) => {
   try {
     console.log("createOfflineRequest", req.body);
     const {
+      userId,
       startTime,
       date,
       endTime,
@@ -15,17 +16,18 @@ const createOfflineRequest = async (req, res) => {
       taskName,
       productivity,
     } = req.body;
-    const userId = req.user.userId;
+
     let status = "Pending";
-    console.log("userId", userId);
     const user = req.user;
     const role = user.role;
+
     if (role === "Admin" || role === "Owner") {
       status = "Approved";
     }
 
     let timeZone = user.timeZone || "Asia/Kolkata";
     const now = moment().tz(timeZone).toDate();
+
     const fullStart = moment.tz(
       `${date} ${startTime}`,
       "YYYY-MM-DD HH:mm",
@@ -36,17 +38,10 @@ const createOfflineRequest = async (req, res) => {
       "YYYY-MM-DD HH:mm",
       timeZone
     );
-    const fullStartUtc = moment
-      .tz(`${date} ${startTime}`, "YYYY-MM-DD HH:mm", timeZone)
-      .utc()
-      .toDate();
-    const fullEndUtc = moment
-      .tz(`${date} ${endTime}`, "YYYY-MM-DD HH:mm", timeZone)
-      .utc()
-      .toDate();
-    console.log(fullStart, fullEnd);
-    // const fullStart = moment.tz(`${date} ${startTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
-    // const fullEnd = moment.tz(`${date} ${endTime}`, 'YYYY-MM-DD HH:mm', timeZone).utc().toDate();
+
+    const fullStartUtc = fullStart.clone().utc().toDate();
+    const fullEndUtc = fullEnd.clone().utc().toDate();
+
     if (fullStart.isAfter(now) || fullEnd.isAfter(now)) {
       return res.status(400).json({
         code: 400,
@@ -63,7 +58,130 @@ const createOfflineRequest = async (req, res) => {
       });
     }
 
-    // Create the main offline request
+    // check if there is already a request that overlaps this time
+    const existingRequests = await OfflineRequest.find({
+      userId,
+      $or: [
+        {
+          startTime: { $lt: fullEndUtc },
+          endTime: { $gt: fullStartUtc },
+        },
+      ],
+    });
+
+    if (existingRequests.length > 0) {
+      const existing = existingRequests[0]; // take the first overlapping one
+      const updates = [];
+
+      // Case 1: Fully inside -> split into three
+      if (fullStartUtc > existing.startTime && fullEndUtc < existing.endTime) {
+        updates.push({
+          userId,
+          startTime: existing.startTime,
+          endTime: fullStartUtc,
+          description: existing.description,
+          projectName: existing.projectName,
+          taskName: existing.taskName,
+          productivity: existing.productivity,
+          status: existing.status,
+          modifiedBy:
+            role === "Admin" || role === "Owner" ? req.user.userId : null,
+        });
+        updates.push({
+          userId,
+          startTime: fullStartUtc,
+          endTime: fullEndUtc,
+          description,
+          projectName,
+          taskName,
+          productivity,
+          status,
+          modifiedBy:
+            role === "Admin" || role === "Owner" ? req.user.userId : null,
+        });
+        updates.push({
+          userId,
+          startTime: fullEndUtc,
+          endTime: existing.endTime,
+          description: existing.description,
+          projectName: existing.projectName,
+          taskName: existing.taskName,
+          productivity: existing.productivity,
+          status: existing.status,
+          modifiedBy:
+            role === "Admin" || role === "Owner" ? req.user.userId : null,
+        });
+      }
+      // Case 2: Same startTime -> split into two
+      else if (fullStartUtc.getTime() === existing.startTime.getTime()) {
+        updates.push({
+          userId,
+          startTime: fullStartUtc,
+          endTime: fullEndUtc,
+          description,
+          projectName,
+          taskName,
+          productivity,
+          status,
+          modifiedBy:
+            role === "Admin" || role === "Owner" ? req.user.userId : null,
+        });
+        updates.push({
+          userId,
+          startTime: fullEndUtc,
+          endTime: existing.endTime,
+          description: existing.description,
+          projectName: existing.projectName,
+          taskName: existing.taskName,
+          productivity: existing.productivity,
+          status: existing.status,
+          modifiedBy:
+            role === "Admin" || role === "Owner" ? req.user.userId : null,
+        });
+      }
+      // Case 3: Same endTime -> split into two
+      else if (fullEndUtc.getTime() === existing.endTime.getTime()) {
+        updates.push({
+          userId,
+          startTime: existing.startTime,
+          endTime: fullStartUtc,
+          description: existing.description,
+          projectName: existing.projectName,
+          taskName: existing.taskName,
+          productivity: existing.productivity,
+          status: existing.status,
+          modifiedBy:
+            role === "Admin" || role === "Owner" ? req.user.userId : null,
+        });
+        updates.push({
+          userId,
+          startTime: fullStartUtc,
+          endTime: fullEndUtc,
+          description,
+          projectName,
+          taskName,
+          productivity,
+          status,
+          modifiedBy:
+            role === "Admin" || role === "Owner" ? req.user.userId : null,
+        });
+      }
+
+      // remove the old overlapping one
+      await OfflineRequest.deleteOne({ _id: existing._id });
+
+      // insert the new split requests
+      await OfflineRequest.insertMany(updates);
+
+      return res.status(201).json({
+        code: 201,
+        status: "Success",
+        message: "Offline request created with split intervals",
+        data: updates,
+      });
+    }
+
+    // otherwise, create normally
     const newRequest = new OfflineRequest({
       userId,
       startTime: fullStartUtc,
@@ -73,6 +191,7 @@ const createOfflineRequest = async (req, res) => {
       taskName,
       productivity,
       status,
+      modifiedBy: role === "Admin" || role === "Owner" ? req.user.userId : null,
     });
 
     await newRequest.save();
