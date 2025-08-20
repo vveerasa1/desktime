@@ -84,6 +84,8 @@ const ImagePreviewModal = ({
 
           {/* Details */}
           <Box className={styles.imageDetails}>
+             <img style={{height:"20px"}} src={currentShot.screenshotAppIcon} >
+            </img>
             <Typography variant="subtitle1" fontWeight="bold">
               {currentShot.screenshotApp}
             </Typography>

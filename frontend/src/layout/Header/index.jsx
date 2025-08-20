@@ -207,6 +207,7 @@ const Header = () => {
         </Menu>
       </Toolbar>
       <LogoutConfirmationDialog
+        userId={userId}
         open={open}
         setOpen={setOpen}
         handleCloseDialog={handleCloseDialog}

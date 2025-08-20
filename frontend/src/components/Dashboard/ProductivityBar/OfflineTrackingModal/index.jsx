@@ -10,6 +10,7 @@ import {
   Button,
   Slider,
   IconButton,
+  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import styles from "./index.module.css";
@@ -61,8 +62,12 @@ const OfflineTrackingModal = ({
   errors,
   setErrors,
   setFormData,
-  formData
+  formData,
+  employee,
+  userId
 }) => {
+
+  console.log(employee, "EMPLOYEE IN MODAL");
   const [searchParams] = useSearchParams();
   const date = searchParams.get("date") || dayjs().format("YYYY-MM-DD");
   const [productivity, setProductivity] = useState("Productive");
@@ -72,12 +77,8 @@ const OfflineTrackingModal = ({
   const [createOfflineRequest, { isLoading, isSuccess, isError, error }] = useCreateOfflineRequestMutation();
   console.log(date)
   
-  // const { data: getOfflineTrackingData } =
-  //     useGetAllOfflineRequestQuery({
-  //       id: ownerId,
-  //       status: status, // assuming API expects 'pending', 'approved', etc.
-  //     });
-    // console.log(getOfflineTrackingData, "DATA");
+
+
   
  
   const handleChange = (event, name) => {
@@ -117,46 +118,7 @@ const OfflineTrackingModal = ({
       });
     }
   };
-  // useEffect(() => {
-  //   if (open) { // Only run when the modal is opened
-  //     const now = new Date();
-  //     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  //     let startMinutes = 0;
-  //     let endMinutes = 0;
-
-  //     if (timeSlotStart && timeSlotEnd) {
-  //       startMinutes = timeToMinutes(timeSlotStart);
-  //       endMinutes = timeToMinutes(timeSlotEnd);
-  //     } else {
-  //       // Default to a reasonable range around current time if no slot provided
-  //       startMinutes = Math.max(0, currentMinutes - 30);
-  //       endMinutes = Math.min(23 * 60 + 59, currentMinutes + 30);
-  //     }
-
-  //     setTimeRange([startMinutes, endMinutes]);
-  //     setStartTimeText(minutesToTime(startMinutes));
-  //     setEndTimeText(minutesToTime(endMinutes));
-
-  //     // Reset specific formData fields and productivity when modal opens for a new entry
-  //     // This ensures previous input values aren't carried over unless intended by timeSlotStart/End
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       description: "", // Clear description for new entry
-  //       projectName: "", // Clear project name for new entry
-  //       taskName: "",    // Clear task name for new entry
-  //       // Initialize startTime and endTime in formData with the calculated defaults
-  //       startTime: minutesToTime(startMinutes),
-  //       endTime: minutesToTime(endMinutes),
-  //       errors: { // Also clear previous errors
-  //         description: "",
-  //         projectName: "",
-  //         taskName: "",
-  //       }
-  //     }));
-  //     setProductivity("productive"); // Reset productivity
-  //   }
-  // }, [open, timeSlotStart, timeSlotEnd, setFormData]);
 useEffect(() => {
   if (open) {
     let startMinutes, endMinutes;
@@ -285,15 +247,17 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
 
 
     const payload = {
-      userId: formData.userId,
+      userId: employee || userId,
       startTime: formData.startTime,
       endTime: formData.endTime,
       description: formData.description,
       projectName: formData.projectName,
       date:date,
       taskName: formData.taskName,
-      productivity: productivity
+      productivity: productivity,
     };
+
+    console.log("Payload to save:", payload);
   
     await createOfflineRequest(payload).unwrap();
     openToaster("Offline Request Created")
@@ -465,7 +429,7 @@ const fullEnd = moment.tz(`${date} ${formData.endTime}`, 'YYYY-MM-DD HH:mm', tim
             />
           </RadioGroup>
           </Box>
-
+              <Divider/>
           <Box className={styles.actions}>
             <Button
               variant="outlined"

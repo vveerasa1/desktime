@@ -178,7 +178,7 @@ const Profile = () => {
       countryCode: data.dialCode,
       errors: {
         ...prev.errors,
-        [data]: "",
+        phone: "",
       },
     }));
   };

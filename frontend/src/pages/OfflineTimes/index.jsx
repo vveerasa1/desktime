@@ -162,7 +162,7 @@ const OfflineTimes = () => {
   };
 
   return (
-    <Box sx={{ p: 3, minHeight: "100vh" }}>
+    <Box sx={{ minHeight: "100vh" }}>
       <Box className={styles.pageContainer}>
         <Typography sx={{ fontSize: "23px" }} fontWeight={600} color="#333333">
           Offline Times
