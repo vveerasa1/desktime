@@ -74,7 +74,7 @@ const Header = () => {
       <Toolbar sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
         {/* Chat Icon */}
 
-        <Box sx={{ display: "flex", alignItems: "center" ,gap:2}}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Box mt={0.3}>
             <Tooltip title="Messages">
               <IconButton>
@@ -92,12 +92,12 @@ const Header = () => {
         </Box>
 
         {/* User Info */}
-        <Box
-        onClick={handleClick}
-        display="flex" alignItems="center" gap={0}>
+        <Box onClick={handleClick} display="flex" alignItems="center" gap={0}>
           <Box textAlign="right">
             {isLoading ? (
-              <Typography variant="subtitle2"><LoadingComponent/></Typography>
+              <Typography variant="subtitle2">
+                <LoadingComponent />
+              </Typography>
             ) : isError ? (
               <Typography variant="subtitle2" color="error">
                 Error
@@ -154,7 +154,7 @@ const Header = () => {
           <MenuItem onClick={() => navigate("/settings")}>
             <Typography>Profile</Typography>
           </MenuItem>
-{/* 
+          {/* 
           <MenuItem onClick={handleClose}>
             <Typography>Contact us</Typography>
           </MenuItem> */}
@@ -168,6 +168,7 @@ const Header = () => {
         </Menu>
       </Toolbar>
       <LogoutConfirmationDialog
+        userId={userId}
         open={open}
         setOpen={setOpen}
         handleCloseDialog={handleCloseDialog}

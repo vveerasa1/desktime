@@ -33,12 +33,16 @@ const theme = createTheme({
   },
 });
 
-const LogoutConfirmationDialog = ({ open, setOpen, handleCloseDialog }) => {
- const userId =  localStorage.getItem('userId')
+const LogoutConfirmationDialog = ({
+  open,
+  setOpen,
+  handleCloseDialog,
+  userId,
+}) => {
   const navigate = useNavigate();
   const [logoutApi, { isLoading, isError, error }] = useLogoutSessionMutation();
   const handleConfirmLogout = () => {
-    logoutApi({userId});
+    logoutApi({ userId });
     localStorage.clear();
     navigate("/", { replace: true });
     setOpen(false);

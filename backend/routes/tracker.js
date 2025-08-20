@@ -4,11 +4,13 @@ const {
   idleTimeTracker,
   activeTimeTracker,
   endSession,
+  getAllActiveApps,
   getUserTrackingInfo,
   getSessionById,
   getTodaySessionByUserId,
   getAllTrackingsForToday,
   snapshot,
+  addActiveApps,
 } = require("../service/tracker");
 const { addScreenshot } = require("../service/screenshot");
 const multer = require("multer");
@@ -20,9 +22,16 @@ router.use(express.json());
 router.get("/sessions/snapshot/:ownerId", snapshot);
 
 router.post("/sessions", authenticate, tracking);
-router.get("/sessions", authenticate, getUserTrackingInfo);
-router.put("/sessions/idle", idleTimeTracker);
 router.put("/sessions/active", activeTimeTracker);
+
+router.get("/sessions", authenticate, getUserTrackingInfo);
+router.post(
+  "/sessions/active-apps",
+  upload.single("screenshotAppIcon"),
+  addActiveApps
+);
+
+router.put("/sessions/idle", idleTimeTracker);
 router.post(
   "/sessions/screenshots",
   upload.fields([
@@ -33,6 +42,8 @@ router.post(
 );
 router.get("/sessions/:id", getSessionById);
 router.get("/sessions/user/:userId/today", getTodaySessionByUserId);
+router.get("/sessions/:sessionId/user/:userId", getAllActiveApps);
+
 router.get("/sessions/:ownerId/today", getAllTrackingsForToday);
 
 module.exports = router;

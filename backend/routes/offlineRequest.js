@@ -13,6 +13,6 @@ const router = express.Router();
 router.post("/", authenticate, createOfflineRequest);
 router.put("/:id", authenticate, updateOfflineRequest);
 router.delete("/", authenticate, deleteOfflineTimesByUserId);
-router.get("/:ownerId", getAllOfflineRequestByStatus);
+router.get("/:ownerId", authenticate, getAllOfflineRequestByStatus);
 
 module.exports = router;

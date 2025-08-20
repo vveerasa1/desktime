@@ -58,6 +58,11 @@ userTrackingStates = {
         lastActiveSentTimestamp: null, // Last time active log was sent to server
         isSleeping: false, // System sleep state
         isSessionEndedForDay: false, // Flag to indicate if daily tracking cutoff has passed
+        appUsageSegment = {
+            appName: null,
+            appIcon: null, // This will hold the Base64 data URL of the icon
+            startTime: null,
+        }
     },
     'userId2': { ... }
 }
@@ -88,6 +93,11 @@ function getUserState(userId) {
       lastActiveSentTimestamp: null,
       isSleeping: false,
       isSessionEndedForDay: false,
+      appUsageSegment: {
+        appName: null,
+        appIcon: null, // This will hold the Base64 data URL of the icon
+        startTime: null,
+      },
     };
   }
   return userTrackingStates[userId];
@@ -191,7 +201,7 @@ async function refreshToken(userId) {
   try {
     console.log("refreshToken api calling");
     const res = await axios.post(
-      "https://51.79.30.127:4005/api/auth/refresh",
+      "https://trackme.pentabay.com/api/auth/refresh",
       {
         refreshToken,
       }
@@ -241,6 +251,17 @@ apiServer.post("/store-token", async (req, res) => {
 
 apiServer.post("/logout", async (req, res) => {
   const { userId } = req.body;
+  console.log("logout : " + userId);
+  const userState = getUserState(userId);
+
+  store.delete(`token_${userId}`);
+  store.delete(`refreshToken_${userId}`);
+  // store.delete(`session_id_${userId}`);
+  // store.delete(`session_date_${userId}`);
+
+  userState.token = null;
+  userState.refreshToken = null;
+
   console.log(`[Logout] Request received for user ${userId}`);
 
   try {
@@ -254,7 +275,7 @@ apiServer.post("/logout", async (req, res) => {
 
 apiServer.listen(API_PORT, () => {
   console.log(
-    `🚀 Express API server in Electron listening on https://localhost:4005:${API_PORT}`
+    `🚀 Express API server in Electron listening on https://trackme.pentabay.com/api:${API_PORT}`
   );
 });
 
@@ -273,7 +294,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("https://localhost:517");
+  mainWindow.loadURL("https://trackme.pentabay.com");
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
@@ -345,7 +366,7 @@ async function initializeDailyTracking(userId) {
     // Check for existing session for today
     const checkRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `https://51.79.30.127:4005/api/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
+      url: `https://trackme.pentabay.com/api/tracking/sessions/user/${userId}/today`, // Assuming an endpoint to get today's session
     });
     console.log("checkRes :" + checkRes);
 
@@ -380,7 +401,7 @@ async function initializeDailyTracking(userId) {
           // Assuming your session object has arrivalTime
           await makeAuthenticatedRequest(userId, {
             method: "put",
-            url: `https://51.79.30.127:4005/api/tracking/sessions/${existingSessionId}/arrival`,
+            url: `https://trackme.pentabay.com/api/tracking/sessions/${existingSessionId}/arrival`,
             data: { arrivalTime: new Date() },
           }).catch((e) => console.error("[Arrival Time Update Error]"));
         }
@@ -392,7 +413,7 @@ async function initializeDailyTracking(userId) {
       // No existing session for today, create a new one
       const createRes = await makeAuthenticatedRequest(userId, {
         method: "post",
-        url: "https://51.79.30.127:4005/api/tracking/sessions",
+        url: "https://trackme.pentabay.com/api/tracking/sessions",
         data: { arrivalTime: new Date() }, // Send arrival time on session creation
       });
 
@@ -427,7 +448,7 @@ async function fetchUserConfig(userId) {
   try {
     const userRes = await makeAuthenticatedRequest(userId, {
       method: "get",
-      url: `https://51.79.30.127:4005/api/users/${userId}`,
+      url: `https://trackme.pentabay.com/api/users/${userId}`,
     });
     return userRes.data.data;
   } catch (error) {
@@ -436,6 +457,64 @@ async function fetchUserConfig(userId) {
       error.response?.data || error.message
     );
     throw error; // Re-throw to indicate failure
+  }
+}
+
+async function sendAppUsageToServer(userId, appName, appIcon, secondsUsed) {
+  const userState = getUserState(userId);
+  const sessionId = userState.sessionId;
+
+  const formData = new FormData();
+  formData.append("userId", userId);
+  formData.append("sessionId", sessionId);
+  formData.append("appName", appName);
+  formData.append("duration", secondsUsed);
+
+  if (appIcon) {
+    formData.append("screenshotAppIcon", appIcon, {
+      filename: appName,
+      contentType: "image/png",
+    });
+  }
+
+  console.log(
+    `[App Usage] Sending usage data for ${appName} (${secondsUsed}s) to server for user ${userId}`
+  );
+
+  if (secondsUsed <= 0) {
+    return;
+  }
+
+  try {
+    await makeAuthenticatedRequest(userId, {
+      method: "post",
+      url: "https://trackme.pentabay.com/api/tracking/sessions/active-apps", // <--- NEW API ENDPOINT
+      data: formData,
+      headers: {
+        ...formData.getHeaders(), // Important for multipart/form-data
+      },
+    });
+    console.log(
+      `[App Usage] Sent usage data for "${appName}" (duration: ${secondsUsed}s)`
+    );
+  } catch (error) {
+    console.error(
+      `[App Usage Error] Failed to send data for ${appName}:`,
+      error.response?.data || error.message
+    );
+  }
+}
+
+// Reusable function to get the app icon as a Base64 data URL
+async function getAppIconAsDataURL(appPath) {
+  if (!appPath) return null;
+  try {
+    const nativeImage = await app.getFileIcon(appPath, { size: "normal" });
+    iconFileBuffer = nativeImage.toPNG();
+    return iconFileBuffer;
+  } catch (iconError) {
+    console.error(`❌ Error getting icon for path ${appPath}:`, iconError);
+    return null;
   }
 }
 
@@ -496,7 +575,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "https://51.79.30.127:4005/api/tracking/sessions/idle",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
           data: {
             sessionId,
             duration,
@@ -514,7 +593,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "https://51.79.30.127:4005/api/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -543,7 +622,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "https://51.79.30.127:4005/api/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -577,7 +656,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "https://51.79.30.127:4005/api/tracking/sessions/idle",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
           data: {
             sessionId,
             duration,
@@ -617,7 +696,7 @@ async function sendActivityToServer(
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "https://51.79.30.127:4005/api/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId,
             duration,
@@ -730,7 +809,7 @@ async function captureScreenshot(userId) {
 
     const res = await makeAuthenticatedRequest(userId, {
       method: "post",
-      url: "https://51.79.30.127:4005/api/tracking/sessions/screenshots",
+      url: "https://trackme.pentabay.com/api/tracking/sessions/screenshots",
       data: formData,
       headers: {
         ...formData.getHeaders(), // Important for multipart/form-data
@@ -745,7 +824,6 @@ async function captureScreenshot(userId) {
     }
   }
 }
-
 
 /**
  * Starts all tracking intervals for a specific user.
@@ -825,12 +903,49 @@ async function startTrackingForUser(userId) {
 
   // Idle/Active Check (every 10 seconds)
   userState.intervals.idleCheck = setInterval(async () => {
+    const now = Date.now();
+
     if (userState.isSessionEndedForDay || userState.isSleeping) {
       // console.log(`[Idle/Active Check] Skipping for ${userId}: session ended or sleeping.`);
       return;
     }
 
-    const idleTimeSeconds = powerMonitor.getSystemIdleTime(); // in seconds
+    const idleTimeSeconds = powerMonitor.getSystemIdleTime();
+    const win = await activeWin().catch(() => null);
+
+    const currentAppName = (win && win.owner.name) || "unknown_app";
+    const currentAppPath = (win && win.owner.path) || null;
+
+    const lastSegment = userState.appUsageSegment;
+    const isDifferentApp = currentAppName !== lastSegment.appName;
+
+    if (lastSegment.startTime && isDifferentApp) {
+      const secondsUsed = Math.floor((now - lastSegment.startTime) / 1000);
+      // Send the previous app's usage data
+      await sendAppUsageToServer(
+        userId,
+        lastSegment.appName,
+        lastSegment.appIcon,
+        secondsUsed
+      );
+
+      // Start a new app usage segment
+      const newAppIcon = await getAppIconAsDataURL(currentAppPath);
+      userState.appUsageSegment = {
+        appName: currentAppName,
+        appIcon: newAppIcon,
+        startTime: now,
+      };
+    } else if (!lastSegment.startTime) {
+      // This runs the very first time after starting tracking
+      const newAppIcon = await getAppIconAsDataURL(currentAppPath);
+      userState.appUsageSegment = {
+        appName: currentAppName,
+        appIcon: newAppIcon,
+        startTime: now,
+      };
+    }
+    // in seconds
     const idleTimeMs = idleTimeSeconds * 1000;
 
     if (idleTimeMs >= IDLE_THRESHOLD) {
@@ -917,7 +1032,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "https://51.79.30.127:4005/api/tracking/sessions/active",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/active",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -936,7 +1051,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
       if (duration > 0) {
         await makeAuthenticatedRequest(userId, {
           method: "put",
-          url: "https://51.79.30.127:4005/api/tracking/sessions/idle",
+          url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
           data: {
             sessionId: userState.sessionId,
             duration,
@@ -961,7 +1076,7 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
     try {
       await makeAuthenticatedRequest(userId, {
         method: "put",
-        url: "https://51.79.30.127:4005/api/tracking/sessions/end",
+        url: "https://trackme.pentabay.com/api/tracking/sessions/end",
         data: { sessionId: userState.sessionId },
       });
       console.log(
@@ -976,7 +1091,9 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   }
 
   // 5. Clear stored data specific to this user if it's an explicit logout
+  console.log("endSessionOnBackend :" + endSessionOnBackend);
   if (endSessionOnBackend) {
+    console.log("deleted session in if");
     store.delete(`session_id_${userId}`);
     store.delete(`session_date_${userId}`);
 
@@ -986,6 +1103,8 @@ async function stopTrackingForUser(userId, endSessionOnBackend = false) {
   } else {
     // If not explicit logout (e.g., daily cutoff), clear session ID/date
     // but keep tokens for potential auto-resume tomorrow
+    console.log("deleted session in else");
+
     store.delete(`session_id_${userId}`);
     store.delete(`session_date_${userId}`);
     console.log(
@@ -1136,7 +1255,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "https://51.79.30.127:4005/api/tracking/sessions/active",
+            url: "https://trackme.pentabay.com/api/tracking/sessions/active",
             data: {
               sessionId: userState.sessionId,
               duration,
@@ -1157,7 +1276,7 @@ app.on("window-all-closed", () => {
           makeAuthenticatedRequest(userId, {
             // Use makeAuthenticatedRequest
             method: "put",
-            url: "https://51.79.30.127:4005/api/tracking/sessions/idle",
+            url: "https://trackme.pentabay.com/api/tracking/sessions/idle",
             data: {
               sessionId: userState.sessionId,
               duration,
